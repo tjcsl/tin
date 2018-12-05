@@ -8,5 +8,6 @@
 {% for assignment in course.assignments.all %}
   <li><a href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a></li>
 {% endfor %}
+<p><a href="{% url 'courses:index' %}">Back to course list</a></p>
 {% endblock %}
 
