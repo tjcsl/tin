@@ -87,3 +87,12 @@ ul#course-list li .list-info, ul#assignment-list li .list-info {
   flex: 0 0 auto;
   text-align: right;
 }
+
+table#submission-list {
+  min-width: 100px;
+  border-collapse: collapse;
+}
+table#submission-list th, table#submission-list td {
+  border: 1px solid black;
+  padding: 3px;
+}

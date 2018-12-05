@@ -6,7 +6,7 @@ from ..submissions.models import Submission
 # Create your views here.
 def show_view(request, assignment_id):
     assignment = Assignment.objects.get(id = assignment_id)
-    if not request.user.is_staff:
+    if request.user.is_student:
         submissions = Submission.objects.filter(student = request.user, assignment = assignment)
         return render(
             request,
@@ -14,7 +14,7 @@ def show_view(request, assignment_id):
             {
                 "course": assignment.course,
                 "assignment": assignment,
-                "submissions": submission,
+                "submissions": submissions,
             },
         )
     else:

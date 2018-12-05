@@ -22,4 +22,26 @@
   </tr>
 </table>
 
+{% if request.user.is_student %}
+<h3>Submissions:</h3>
+<table id="submission-list">
+  <tr>
+    <th style="min-width:125px;">Date submitted</th>
+    <th style="min-width:75px;">Grade</th>
+  </tr>
+  {% for submission in submissions %}
+  <tr>
+    <td>{{ submission.date_submitted }}</td>
+    <td>{{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})</td>
+  </tr>
+  {% endfor %}
+
+  {% if not submissions %}
+  <tr>
+    <td colspan="2" style="font-style:italic;text-align:center;">No submissions</td>
+  </tr>
+  {% endif %}
+<table>
+{% endif %}
+
 {% endblock %}
