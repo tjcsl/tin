@@ -8,6 +8,7 @@
 }
 #nav ul {
   margin: 0px;
+  padding-left: 26px;
 }
 #nav ul li {
   float: left;
@@ -26,7 +27,7 @@
 }
 
 body {
-  margin-top: 40px;
+  margin: 40px 0px 0px 0px;
   padding: 5px 26px 10px 26px;
   font-family: "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 13px;
