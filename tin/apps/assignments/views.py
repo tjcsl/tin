@@ -12,6 +12,7 @@ def show_view(request, assignment_id):
             request,
             "assignments/show.html",
             {
+                "course": assignment.course,
                 "assignment": assignment,
                 "submissions": submission,
             },
@@ -21,6 +22,7 @@ def show_view(request, assignment_id):
             request,
             "assignments/show.html",
             {
+                "course": assignment.course,
                 "assignment": assignment,
             },
         )
