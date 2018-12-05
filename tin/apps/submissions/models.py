@@ -16,6 +16,10 @@ class Submission(models.Model):
         return self.date_submitted <= self.assignment.due
 
     @property
+    def points_possible(self):
+        return self.assignment.points_possible
+
+    @property
     def grade_percent(self):
         return "{}%".format(self.points_received / self.points_possible * 100)
 
