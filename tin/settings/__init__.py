@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'tin.apps',
     'tin.apps.users',
     'tin.apps.auth',
+    'tin.apps.courses',
+    'tin.apps.assignments',
+    'tin.apps.submissions',
 ]
 
 MIDDLEWARE = [
