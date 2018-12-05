@@ -13,7 +13,7 @@ class Submission(models.Model):
 
     @property
     def is_on_time(self):
-        return self.date_submitted <= assignment.due
+        return self.date_submitted <= self.assignment.due
 
     @property
     def grade_percent(self):
