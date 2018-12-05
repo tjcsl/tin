@@ -3,9 +3,19 @@
 {% block main %}
 
 <h1>Courses</h1>
-<ul>
+<ul id="course-list">
 {% for course in request.user.courses.all %}
-  <li><a href="{% url 'courses:show' course.id %}">{{ course.name }}</a></li>
+  <li>
+    <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
+    <div class="list-info">
+      Teacher: {{ course.teacher.full_name }}<br>
+      {% if course.students.count == 1 %}
+        1 student
+      {% else %}
+        {{ course.students.count }} students
+      {% endif %}
+    </div>
+  </li>
 {% endfor %}
 </ul>
 

@@ -47,3 +47,29 @@ body {
 .tbl-cell {
     display: table-cell;
 }
+
+
+ul#course-list, ul#assignment-list {
+  padding-left: 0px;
+  margin-left: 0px;
+}
+ul#course-list li, ul#assignment-list li {
+  display: flex;
+  list-style-type: none;
+  padding: 10px 0px;
+  border-top: 1px solid lightgray;
+}
+ul#course-list li a, ul#assignment-list li a {
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+}
+ul#course-list li a:hover, ul#assignment-list li a:hover {
+  text-decoration: underline;
+}
+
+ul#course-list li .list-info, ul#assignment-list li .list-info {
+  margin-left: auto;
+  flex: 0 0 auto;
+  text-align: right;
+}
