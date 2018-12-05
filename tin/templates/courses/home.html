@@ -3,9 +3,11 @@
 {% block main %}
 
 <h1>Courses</h1>
+<ul>
 {% for course in request.user.courses.all %}
   <li><a href="{% url 'courses:show' course.id %}">{{ course.name }}</a></li>
 {% endfor %}
+</ul>
 
 {% endblock %}
 
