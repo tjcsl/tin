@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<h1>Courses</h1>
+{% for course in request.user.courses.all %}
+<li><a href = "{% url 'course:view' course.id %}>{{ course.name }}</a></li>
+{% endfor %}
+
+{% endblock %}
+

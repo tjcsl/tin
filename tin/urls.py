@@ -20,6 +20,10 @@ from tin.apps.errors.views import (handle_404_view, handle_500_view)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('social_django.urls', namespace='social')),
+    
+    path('courses/', include("tin.apps.courses.urls", namespace="courses")),
+    path('assignments/', include("tin.apps.assignments.urls", namespace="assignments")),
+    path('submissions/', include("tin.apps.submissions.urls", namespace="submissions")),
 
     path('users/', include("tin.apps.users.urls", namespace="users")),
     path('', include("tin.apps.auth.urls", namespace="auth")),
