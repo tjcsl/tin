@@ -1,4 +1,8 @@
 __pycache__/
 *.py[cod]
 
+db.sqlite3
+venv/
+
 tin/settings/secret.py
+
