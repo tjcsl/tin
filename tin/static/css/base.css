@@ -4,6 +4,10 @@
   left: 0;
   width: 100%;
   height: 40px;
+
+  font-size: 16px;
+  color: white;
+  line-height: 40px;
   background: #77aa77;
 }
 #nav ul {
@@ -16,14 +20,23 @@
   position: relative;
 }
 #nav ul li a {
+  color: inherit;
   text-decoration: none;
 }
 #nav ul li a h1 {
-  font-size: 25px;
+  margin: 6px 3px 9px 0px;
   line-height: 25px;
-  margin: 6px 30px 9px 0px;
-  color: white;
+  font-size: 25px;
   font-weight: normal;
+}
+
+#nav .fa {
+  font-size: 16px;
+}
+
+#nav .fa-chevron-right {
+  margin-left: 10px;
+  margin-right: 7px;
 }
 
 body {
