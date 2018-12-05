@@ -74,6 +74,7 @@ ul#course-list li, ul#assignment-list li {
   border-top: 1px solid lightgray;
 }
 ul#course-list li a, ul#assignment-list li a {
+  height: min-content;
   color: black;
   font-weight: bold;
   text-decoration: none;
