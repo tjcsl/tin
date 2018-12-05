@@ -10,11 +10,9 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-    <div class="nav">
+    <div id="nav">
         <ul>
-            {% if request.user.is_authenticated %}
-	            <li><a href="{% url 'auth:index' %}">Home</a></li>
-            {% endif %}
+            <li><a href="{% url 'auth:index' %}"><h1>Turn-In</h1></a></li>
         </ul>
     </div>
      <div class="main {% block mainclass %}{% endblock %}">
