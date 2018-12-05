@@ -20,3 +20,9 @@ class Assignment(models.Model):
     assigned = models.DateTimeField(auto_now_add = True)
     due = models.DateTimeField()
 
+    def __str__(self):
+        return "{} in {}".format(self.name, self.course)
+
+    def __reor__(self):
+        return "<{} in {}>".format(self.name, self.course)
+
