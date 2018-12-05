@@ -1,8 +1,25 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 
 {% block title %}Turn-In: {{ assignment.name }}{% endblock %}
 
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/assignments.show.css' %}">
+{% endblock %}
+
 {% block main %}
 <h1>{{ assignment.name }}</h1>
+<p>{{ assignment.description }}</h1>
+
+<table id="assignment-info">
+  <tr>
+    <th>Points possible:</th>
+    <td>{{ assignment.points_possible }}</td>
+  </tr>
+  <tr>
+    <th>Due:</th>
+    <td>{{ assignment.due }}</td>
+  </tr>
+</table>
 
 {% endblock %}
