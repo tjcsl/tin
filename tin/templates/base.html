@@ -13,7 +13,7 @@
     <div class="nav">
         <ul>
             {% if request.user.is_authenticated %}
-	            <li><a href="{% url 'signages:signage_list_view' %}">Home</a></li>
+	            <li><a href="{% url 'auth:index' %}">Home</a></li>
             {% endif %}
         </ul>
     </div>
