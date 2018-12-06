@@ -4,7 +4,7 @@
 
 <h2>Courses</h2>
 <ul id="course-list">
-{% for course in request.user.courses.all %}
+{% for course in courses %}
   <li>
     <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
     <div class="list-info">
