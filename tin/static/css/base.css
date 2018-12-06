@@ -44,6 +44,10 @@
   margin-right: 7px;
 }
 
+#nav .fa-sign-out {
+  width: 14px;
+}
+
 body {
   margin: 40px 0px 0px 0px;
   padding: 5px 26px 10px 26px;
