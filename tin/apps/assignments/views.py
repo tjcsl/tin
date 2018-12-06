@@ -30,7 +30,7 @@ def show_view(request, assignment_id):
         else:
             if request.user == assignment.course.teacher:
                 students_and_submissions = []
-                for student in assignment.course.students:
+                for student in assignment.course.students.all():
                     student_submissions = Submission.objects.filter(student = request.user, assignment = assignment)
                     if student_submissions:
                         students_and_submissions.append((student, student_submissions.latest("date_submitted")))
