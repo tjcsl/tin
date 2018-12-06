@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Turn-In: {{ assignment.name }}{% endblock %}
+{% block title %}Turn-In: {{ assignment.name }}:
+{% if request.user.is_teacher %}
+{{ student.full_name }}:
+{% endif %}
+Submission #{{ submission_number }}
+{% endblock %}
 
 {% block main %}
 
