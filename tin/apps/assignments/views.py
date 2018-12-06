@@ -15,7 +15,8 @@ def show_view(request, assignment_id):
     else:
         if request.user.is_student:
             if assignment.course in request.user.courses.all():
-                submissions = Submission.objects.filter(student = request.user, assignment = assignment)
+                submissions = Submission.objects.filter(student = request.user, assignment = assignment).order_by("date_submitted")
+                latest_submission = submissions[-1]
                 return render(
                     request,
                     "assignments/show.html",
@@ -23,6 +24,7 @@ def show_view(request, assignment_id):
                         "course": assignment.course,
                         "assignment": assignment,
                         "submissions": submissions,
+                        "latest_submission": latest_submission,
                     },
                 )
         else:
