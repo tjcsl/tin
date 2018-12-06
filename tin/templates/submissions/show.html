@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Turn-In: {{ assignment.name }}{% endblock %}
+
+{% block main %}
+
+{% if request.user.is_student %}
+<h2>{{ assignment.name }}</h2>
+<p>{{ assignment.description }}</h1>
+
+<table id="submission-info">
+  <tr>
+    <th>Due:</th>
+    <td>{{ assignment.due }}</td>
+  </tr>
+  <tr>
+    <th>Submitted:</th>
+    <td>{{ submission.date_submitted }}</td>
+  </tr>
+  <tr>
+    <th>On time?</th>
+    <td>
+      {% if submission.is_on_time %}
+      Yes
+      {% else %}
+      No
+      {% endif %}
+    </td>
+  </tr>
+  {% if request.user.is_student %}
+  <tr>
+    <th>Grade:</th>
+    <td>
+      {% if not submission.has_been_graded %}
+      <span class="italic">Not graded yet</span>
+      {% else %}
+      {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
+      {% endif %}
+    </td>
+  </tr>
+  {% endif %}
+</table>
+{% else %}
+<h2>{{ assignment.name }} &mdash; {{ submission.student.full_name }}</h2>
+<p>{{ assignment.description }}</h1>
+
+<table id="submission-info">
+  <tr>
+    <th>Due:</th>
+    <td>{{ assignment.due }}</td>
+  </tr>
+  <tr>
+    <th>Submitted:</th>
+    <td>{{ assignment.date_submitted }}</td>
+  </tr>
+  <tr>
+    <th>On time?</th>
+    <td>
+      {% if submission.is_on_time %}
+      Yes
+      {% else %}
+      No
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <th>Grade:</th>
+    <td>
+      {% if not submission.has_been_graded %}
+      <span class="italic">Not graded yet</span>
+      {% else %}
+      {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
+      {% endif %}
+    </td>
+  </tr>
+</table>
+
+{% endif%}
+
+{% endblock %}

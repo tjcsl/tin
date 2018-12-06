@@ -24,6 +24,10 @@
               <li><i class="fa fa-chevron-right"></i></li>
               <li><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}</a></li>
             {% endif %}
+            {% if submission %}
+              <li><i class="fa fa-chevron-right"></i></li>
+              <li><a href="{% url 'submissions:show' submission.id %}">Submission #{{ submission_number }}</a></li>
+            {% endif %}
           {% endif %}
         {% endif %}
         <li class="right"><a href="{% url 'auth:logout' %}">Logout</a></li>
