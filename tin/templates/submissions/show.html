@@ -1,15 +1,13 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Turn-In: {{ assignment.name }}:
-{% if request.user.is_teacher %}
-{{ student.full_name }}:
-{% endif %}
+{% block title %}
+Turn-In: {{ assignment.name }}:
+{% if request.user.is_teacher %}{{ student.full_name }}:{% endif %}
 Submission #{{ submission_number }}
 {% endblock %}
 
 {% block main %}
-
 {% if request.user.is_student %}
 <h2>{{ assignment.name }}</h2>
 <p>{{ assignment.description }}</h1>
@@ -26,11 +24,7 @@ Submission #{{ submission_number }}
   <tr>
     <th>On time?</th>
     <td>
-      {% if submission.is_on_time %}
-      Yes
-      {% else %}
-      No
-      {% endif %}
+      {% if submission.is_on_time %}Yes{% else %}No{% endif %}
     </td>
   </tr>
   {% if request.user.is_student %}
@@ -62,11 +56,7 @@ Submission #{{ submission_number }}
   <tr>
     <th>On time?</th>
     <td>
-      {% if submission.is_on_time %}
-      Yes
-      {% else %}
-      No
-      {% endif %}
+      {% if submission.is_on_time %}Yes{% else %}No{% endif %}
     </td>
   </tr>
   <tr>
@@ -80,7 +70,5 @@ Submission #{{ submission_number }}
     </td>
   </tr>
 </table>
-
 {% endif%}
-
 {% endblock %}
