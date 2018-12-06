@@ -70,7 +70,7 @@
     <th style="min-width:125px;">On time?</th>
     <th style="min-width:75px;">Grade</th>
   </tr>
-  {% for student, submissions in students_and_submissions %}
+  {% for student, submission in students_and_submissions %}
   <tr>
     <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }} ({{ student.username }})</a></td>
     {% if submission %}
