@@ -9,6 +9,8 @@ class Submission(models.Model):
     
     date_submitted = models.DateTimeField(auto_now_add = True)
 
+    has_been_graded = models.BooleanField(default = False)
+
     points_received = models.DecimalField(max_digits = 4, decimal_places = 1)
 
     @property
