@@ -19,5 +19,10 @@
 {% endfor %}
 </ul>
 
+{% if request.user.is_superuser %}
+<h2>Administration</h2>
+<a href="/admin">Django Administrative Interface</a>
+{% endif %}
+
 {% endblock %}
 
