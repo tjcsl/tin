@@ -27,7 +27,7 @@
       {% elif not latest_submission.has_been_graded %}
       <span class="italic">Not graded yet</span>
       {% else %}
-      {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
+      {{ latest_submission.points_received }}/{{ latest_submission.points_possible }} ({{ latest_submission.grade_percent }})
       {% endif %}
     </td>
   </tr>
@@ -46,7 +46,7 @@
     <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
     <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
     <td>
-      {% if submission.has_beeen_graded %}
+      {% if submission.has_been_graded %}
       {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
       {% else %}
       <span class="italic">Not graded yet</span>
