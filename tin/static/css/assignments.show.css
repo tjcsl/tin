@@ -1,7 +1,12 @@
 table#assignment-info {
-  
+  border-spacing: 0px;
+}
+table#assignment-info th, table#assignment-info td {
+  padding: 0px;
+  margin: 0px;
 }
 table#assignment-info th {
   font-weight: normal;
   text-align: left;
+  padding-right: 5px;
 }
