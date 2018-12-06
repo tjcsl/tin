@@ -36,9 +36,9 @@
   {% endif %}
 </table>
 
-{% if request.user.is_student %}
-<h3>Submissions:</h3>
+<h3>Submissions</h3>
 <table id="submission-list">
+{% if request.user.is_student %}
   <tr>
     <th style="min-width:125px;">Date submitted</th>
     <th style="min-width:125px;">On time?</th>
@@ -57,10 +57,7 @@
     <td colspan="3" style="font-style:italic;text-align:center;">No submissions</td>
   </tr>
   {% endif %}
-<table>
 {% else %}
-<h3>Submissions</h3>
-<table id="submission-list">
   <tr>
     <th style="min-width:125px">Student</th>
     <th style="min-width:125px;">Date submitted</th>
@@ -79,7 +76,13 @@
     {% endif %}
   </tr>
   {% endfor %}
-</table>
+
+  {% if not students_and_submissions %}
+  <tr>
+    <td colspan="4" style="font-style:italic;text-align:center;">No submissions</td>
+  </tr>
+  {% endif %}
 {% endif %}
+</table>
 
 {% endblock %}
