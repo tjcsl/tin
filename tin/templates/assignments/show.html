@@ -41,21 +41,45 @@
 <table id="submission-list">
   <tr>
     <th style="min-width:125px;">Date submitted</th>
+    <th style="min-width:125px;">On time?</th>
     <th style="min-width:75px;">Grade</th>
   </tr>
   {% for submission in submissions %}
   <tr>
     <td>{{ submission.date_submitted }}</td>
+    <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
     <td>{{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})</td>
   </tr>
   {% endfor %}
 
   {% if not submissions %}
   <tr>
-    <td colspan="2" style="font-style:italic;text-align:center;">No submissions</td>
+    <td colspan="3" style="font-style:italic;text-align:center;">No submissions</td>
   </tr>
   {% endif %}
 <table>
+{% else %}
+<h3>Submissions</h3>
+<table id="submission-list">
+  <tr>
+    <th style="min-width:125px">Student</th>
+    <th style="min-width:125px;">Date submitted</th>
+    <th style="min-width:125px;">On time?</th>
+    <th style="min-width:75px;">Grade</th>
+  </tr>
+  {% for student, submissions in students_and_submissions %}
+  <tr>
+    <td>{{ student.full_name }} ({{ student.username }})</td>
+    {% if submission %}
+    <td>{{ submission.date_submitted }}</td>
+    <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+    <td>{{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})</td>
+    {% else %}
+    <td colspan="3" style="font-style:italic;text-align:center;">No submissions</td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table>
 {% endif %}
 
 {% endblock %}
