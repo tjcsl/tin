@@ -20,6 +20,20 @@
     <th>Due:</th>
     <td>{{ assignment.due }}</td>
   </tr>
+  {% if request.user.is_student %}
+  <tr>
+    <th>Grade:</th>
+    <td>
+      {% if not latest_submission %}
+      <span style="font-style:italic;">Not yet submitted</span>
+      {% elif not latest_submission.has_been_graded %}
+      Not graded yet
+      {% else %}
+      {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
+      {% endif %}
+    </td>
+  </tr>
+  {% endif %}
 </table>
 
 {% if request.user.is_student %}
