@@ -4,7 +4,7 @@ from django.shortcuts import render
 from .models import Assignment
 from ..submissions.models import Submission
 from ..users.models import User
-from ..auth.decorators import login_required, teacher_required
+from ..auth.decorators import login_required, teacher_or_superuser_required
 
 # Create your views here.
 @login_required
@@ -31,7 +31,7 @@ def show_view(request, assignment_id):
         else:
             raise http.Http404
     else:
-        if request.user == assignment.course.teacher:
+        if request.user.is_superuser or request.user == assignment.course.teacher:
             students_and_submissions = []
             for student in assignment.course.students.all():
                 student_submissions = Submission.objects.filter(student = student, assignment = assignment)
@@ -52,7 +52,7 @@ def show_view(request, assignment_id):
         else:
             raise http.Http404
 
-@teacher_required
+@teacher_or_superuser_required
 def student_submission_view(request, assignment_id, student_id):
     try:
         assignment = Assignment.objects.get(id = assignment_id)

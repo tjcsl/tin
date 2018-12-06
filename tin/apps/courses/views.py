@@ -23,7 +23,7 @@ def show_view(request, course_id):
     except Course.DoesNotExist:
         pass
     else:
-        if course in request.user.courses.all() or request.user == course.teacher:
+        if request.user.is_superuser or course in request.user.courses.all() or request.user == course.teacher:
             assignments = course.assignments.order_by("-due")
             return render(request, "courses/show.html", {"course": course, "assignments": assignments})
     raise http.Http404
