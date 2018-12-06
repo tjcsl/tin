@@ -13,14 +13,17 @@
     <div id="nav">
         <ul>
             <li><a href="{% url 'auth:index' %}"><h1>Turn-In</h1></a></li>
-            {% if course %}
+      	    {% if request.user.is_authenticated %}
+              {% if course %}
               <li><i class="fa fa-chevron-right"></i></li>
               <li><a href="{% url 'courses:show' course.id %}">{{ course.name }}</a></li>
-            {% endif %}
-            {% if assignment %}
+              {% endif %}
+              {% if assignment %}
               <li><i class="fa fa-chevron-right"></i></li>
               <li><a href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a></li>
-            {% endif %}
+              {% endif %}
+            <li style="float:right;"><a href="{% url 'auth:logout' %}">Logout</a></li>
+          {% endif %}
         </ul>
     </div>
     <div id="main">
