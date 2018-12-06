@@ -9,11 +9,7 @@
     <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
     <div class="list-info">
       Teacher: {{ course.teacher.full_name }}<br>
-      {% if course.students.count == 1 %}
-        1 student
-      {% else %}
-        {{ course.students.count }} students
-      {% endif %}
+      {{ course.students.count }} student{{ course.students.count | pluralize }}
     </div>
   </li>
 {% endfor %}
