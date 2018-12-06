@@ -23,6 +23,6 @@ class Assignment(models.Model):
     def __str__(self):
         return "{} in {}".format(self.name, self.course)
 
-    def __reor__(self):
+    def __repr__(self):
         return "<{} in {}>".format(self.name, self.course)
 
