@@ -11,7 +11,7 @@
     <th>On time?</th>
     <td>
       {% if not latest_submission %}
-      <span style="font-style:italic;">Not yet submitted</span>
+      <span class="italic">Not yet submitted</span>
       {% elif latest_submission.is_on_time %}
       Yes
       {% else %}
@@ -23,7 +23,7 @@
     <th>Grade:</th>
     <td>
       {% if not latest_submission %}
-      <span style="font-style:italic;">Not yet submitted</span>
+      <span class="italic">Not yet submitted</span>
       {% elif not latest_submission.has_been_graded %}
       Not graded yet
       {% else %}
@@ -47,14 +47,14 @@
     <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
     <td>{{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})</td>
     {% else %}
-    <td colspan="3" style="font-style:italic;text-align:center;">No submissions</td>
+    <td colspan="3"  class="italic center">No submissions</td>
     {% endif %}
   </tr>
   {% endfor %}
 
   {% if not submissions %}
   <tr>
-    <td colspan="4" style="font-style:italic;text-align:center;">No submissions</td>
+    <td colspan="4"  class="italic center">No submissions</td>
   </tr>
   {% endif %}
 </table>

@@ -20,6 +20,9 @@
   list-style-type: none;
   position: relative;
 }
+#nav ul li.right {
+  float: right;
+}
 #nav ul li a {
   color: inherit;
   font-weight: normal;
@@ -108,4 +111,11 @@ a {
 }
 a:hover {
   text-decoration: underline;
+}
+
+.italic {
+  font-style: italic;
+}
+.center {
+  text-align: center;
 }
