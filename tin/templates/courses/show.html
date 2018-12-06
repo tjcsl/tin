@@ -6,7 +6,7 @@
 <h2>{{ course.name }}</h2>
 
 <ul id="assignment-list">
-{% for assignment in course.assignments.all %}
+{% for assignment in assignments %}
   <li>
     <a href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a>
     <div class="list-info">

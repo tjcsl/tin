@@ -24,6 +24,7 @@ def show_view(request, course_id):
         pass
     else:
         if course in request.user.courses.all() or request.user == course.teacher:
-            return render(request, "courses/show.html", {"course": course})
+            assignments = course.assignments.order_by("-due")
+            return render(request, "courses/show.html", {"course": course, "assignments": assignments})
     raise http.Http404
 
