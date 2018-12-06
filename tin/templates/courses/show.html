@@ -4,6 +4,10 @@
 
 {% block main %}
 <h2>{{ course.name }}</h2>
+<p>
+  Teacher: {{ course.teacher.full_name }}<br>
+  {{ course.students.count }} student{{ course.students.count | pluralize }}
+</p>
 
 <ul id="assignment-list">
 {% for assignment in assignments %}
