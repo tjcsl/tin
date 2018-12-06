@@ -3,7 +3,8 @@ from django.shortcuts import render
 
 from .models import Assignment
 from ..submissions.models import Submission
-from ..auth.decorators import login_required
+from ..users.models import User
+from ..auth.decorators import login_required, teacher_required
 
 # Create your views here.
 @login_required
@@ -45,7 +46,35 @@ def show_view(request, assignment_id):
                 {
                     "course": assignment.course,
                     "assignment": assignment,
+                    "students_and_submissions": students_and_submissions,
                 },
             )
         else:
             raise http.Http404
+
+@teacher_required
+def student_submission_view(request, assignment_id, student_id):
+    try:
+        assignment = Assignment.objects.get(id = assignment_id)
+    except Assignment.DoesNotExist:
+        raise http.Http404("Assignment does not exist")
+
+    try:
+        student = User.objects.get(id = student_id)
+    except User.DoesNotExist:
+        raise http.Http404("Student does not exist")
+
+    submissions = Submission.objects.filter(student = student, assignment = assignment).order_by("date_submitted")
+    latest_submission = (submissions.latest("date_submitted") if submissions else None)
+
+    return render(
+        request,
+        "assignments/student_submission.html",
+        {
+            "course": assignment.course,
+            "assignment": assignment,
+            "student": student,
+            "submissions": submissions,
+            "latest_submission": latest_submission,
+        },
+    )
