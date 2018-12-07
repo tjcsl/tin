@@ -48,6 +48,18 @@
   width: 14px;
 }
 
+.header {
+  display: flex;
+}
+.header > .left {
+  margin-right: auto;
+  text-align: left;
+}
+.header > .right {
+  margin-left: auto;
+  text-align: right;
+}
+
 body {
   margin: 40px 0px 0px 0px;
   padding: 5px 26px 10px 26px;
@@ -100,7 +112,12 @@ ul#course-list li a:hover, ul#assignment-list li a:hover {
   text-decoration: underline;
 }
 
-ul#course-list li .list-info, ul#assignment-list li .list-info {
+ul#course-list li .left, ul#assignment-list li .left {
+  margin-right: auto;
+  flex: 0 0 auto;
+  text-align: left;
+}
+ul#course-list li .right, ul#assignment-list li .right {
   margin-left: auto;
   flex: 0 0 auto;
   text-align: right;
