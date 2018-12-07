@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<h2>{% block title %}Turn-In: {% if action == "add" %}New course{% else %}Edit course {{ course.name }}{% endif %}{% endblock %}</h2>
+{% if form.errors %}
+<p>{{ form.errors }}</p>
+{% endif %}
+
+<form method="post" action="">
+  {% csrf_token %}
+<div class="tbl">
+  {% for field in form %}
+  <div class="tbl-row">
+    <span class="tbl-cell" style="padding-right:5px;">{{ field.label_tag }}</span>
+    <span class="tbl-cell">{{ field }}</span>
+  </div>
+  {% endfor %}
+</div>
+
+<input type="submit" value="Create">
+</form>
+{% endblock %}
+

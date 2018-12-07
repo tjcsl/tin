@@ -1,8 +1,9 @@
 from django import http
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .models import Course
-from ..auth.decorators import login_required
+from .forms import CourseForm
+from ..auth.decorators import login_required, teacher_or_superuser_required
 
 # Create your views here.
 @login_required
@@ -27,4 +28,17 @@ def show_view(request, course_id):
             assignments = course.assignments.order_by("-due")
             return render(request, "courses/show.html", {"course": course, "assignments": assignments})
     raise http.Http404
+
+@teacher_or_superuser_required
+def create_view(request):
+    if request.method == "POST":
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            course = form.save(commit = True)
+            course.teacher = request.user
+            course.save()
+            return redirect("auth:index")
+    else:
+        form = CourseForm()
+    return render(request, "courses/edit_create.html", {"form": form, "action": "add"})
 
