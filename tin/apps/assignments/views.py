@@ -1,7 +1,9 @@
 from django import http
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Assignment
+from .forms import AssignmentForm
+from ..courses.models import Course
 from ..submissions.models import Submission
 from ..users.models import User
 from ..auth.decorators import login_required, teacher_or_superuser_required
@@ -48,6 +50,47 @@ def show_view(request, assignment_id):
             )
         else:
             raise http.Http404
+
+
+
+@teacher_or_superuser_required
+def create_view(request, course_id):
+    """ Creates an assignment """
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.user != course.teacher and not request.user.is_superuser:
+        raise http.Http404
+
+    if request.method == "POST":
+        form = AssignmentForm(request.POST)
+        if form.is_valid():
+            assignment = form.save(commit = False)
+            assignment.course = course
+            assignment.save()
+            return redirect("assignments:show", assignment.id)
+    else:
+        form = AssignmentForm()
+    return render(request, "courses/edit_create.html", {"form": form, "action": "add"})
+
+
+@teacher_or_superuser_required
+def edit_view(request, assignment_id):
+    """ Edits an assignment """
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+
+    if request.user != assignment.course.teacher and not request.user.is_superuser:
+        raise http.Http404
+
+    if request.method == "POST":
+        form = AssignmentForm(data=request.POST, instance=assignment)
+        if form.is_valid():
+            form.save()
+            return redirect("assignments:show", assignment.id)
+    else:
+        form = AssignmentForm(instance=assignment)
+
+    return render(request, "assignments/edit_create.html", {"form": form, "assignment": assignment, "action": "edit"})
+
 
 @teacher_or_superuser_required
 def student_submission_view(request, assignment_id, student_id):
