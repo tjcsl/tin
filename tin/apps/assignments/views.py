@@ -1,5 +1,5 @@
 from django import http
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from .models import Assignment
 from ..submissions.models import Submission
@@ -9,10 +9,7 @@ from ..auth.decorators import login_required, teacher_or_superuser_required
 # Create your views here.
 @login_required
 def show_view(request, assignment_id):
-    try:
-        assignment = Assignment.objects.get(id = assignment_id)
-    except Assignment.DoesNotExist:
-        raise http.Http404
+    assignment = get_object_or_404(Assignment, id = assignment_id)
 
     if request.user.is_student:
         if assignment.course in request.user.courses.all():
@@ -54,15 +51,8 @@ def show_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def student_submission_view(request, assignment_id, student_id):
-    try:
-        assignment = Assignment.objects.get(id = assignment_id)
-    except Assignment.DoesNotExist:
-        raise http.Http404("Assignment does not exist")
-
-    try:
-        student = User.objects.get(id = student_id)
-    except User.DoesNotExist:
-        raise http.Http404("Student does not exist")
+    assignment = get_object_or_404(Assignment, id = assignment_id)
+    student = get_object_or_404(User, id = student_id)
 
     submissions = Submission.objects.filter(student = student, assignment = assignment).order_by("date_submitted")
     latest_submission = (submissions.latest("date_submitted") if submissions else None)

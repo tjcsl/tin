@@ -23,15 +23,12 @@ def index_view(request):
 @login_required
 def show_view(request, course_id):
     """ Lists information about a course """
-    try:
-        course = Course.objects.get(id = course_id)
-    except Course.DoesNotExist:
-        pass
+    course = get_object_or_404(Course, id=course_id)
+    if request.user.is_superuser or course in request.user.courses.all() or request.user == course.teacher:
+        assignments = course.assignments.order_by("-due")
+        return render(request, "courses/show.html", {"course": course, "assignments": assignments})
     else:
-        if request.user.is_superuser or course in request.user.courses.all() or request.user == course.teacher:
-            assignments = course.assignments.order_by("-due")
-            return render(request, "courses/show.html", {"course": course, "assignments": assignments})
-    raise http.Http404
+        raise http.Http404
 
 
 @teacher_or_superuser_required
