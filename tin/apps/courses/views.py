@@ -17,7 +17,13 @@ def index_view(request):
     else:
         courses = request.user.courses.all()
 
-    return render(request, "courses/home.html", {"courses": courses})
+    return render(
+        request,
+        "courses/home.html",
+        {
+            "courses": courses,
+        },
+    )
 
 
 @login_required
@@ -26,7 +32,14 @@ def show_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     if request.user.is_superuser or course in request.user.courses.all() or request.user == course.teacher:
         assignments = course.assignments.order_by("-due")
-        return render(request, "courses/show.html", {"course": course, "assignments": assignments})
+        return render(
+            request,
+            "courses/show.html",
+            {
+                "course": course,
+                "assignments": assignments,
+            },
+        )
     else:
         raise http.Http404
 
@@ -43,7 +56,15 @@ def create_view(request):
             return redirect("courses:show", course.id)
     else:
         form = CourseForm()
-    return render(request, "courses/edit_create.html", {"form": form, "action": "add", "nav_item": "Create course"})
+    return render(
+        request,
+        "courses/edit_create.html",
+        {
+            "form": form,
+            "action": "add",
+            "nav_item": "Create course",
+        },
+    )
 
 
 @teacher_or_superuser_required
@@ -62,7 +83,16 @@ def edit_view(request, course_id):
     else:
         form = CourseForm(instance=course)
 
-    return render(request, "courses/edit_create.html", {"form": form, "course": course, "action": "edit", "nav_item": "Edit"})
+    return render(
+        request,
+        "courses/edit_create.html",
+        {
+            "form": form,
+            "course": course,
+            "action": "edit",
+            "nav_item": "Edit",
+        },
+    )
 
 
 @teacher_or_superuser_required
@@ -75,4 +105,12 @@ def students_view(request, course_id):
 
     students = course.students.all()
 
-    return render(request, "courses/students.html", {"course": course,  "students": students, "nav_item": "Students"})
+    return render(
+        request,
+        "courses/students.html",
+        {
+            "course": course,
+            "students": students,
+            "nav_item": "Students",
+        },
+    )

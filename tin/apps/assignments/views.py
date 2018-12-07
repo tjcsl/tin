@@ -70,7 +70,16 @@ def create_view(request, course_id):
             return redirect("assignments:show", assignment.id)
     else:
         form = AssignmentForm()
-    return render(request, "courses/edit_create.html", {"form": form, "action": "add", "course": course, "nav_item": "Create assignment"})
+    return render(
+        request,
+        "courses/edit_create.html",
+        {
+            "form": form,
+            "course": course,
+            "action": "add",
+            "nav_item": "Create assignment",
+        },
+    )
 
 
 @teacher_or_superuser_required
@@ -89,7 +98,17 @@ def edit_view(request, assignment_id):
     else:
         form = AssignmentForm(instance=assignment)
 
-    return render(request, "assignments/edit_create.html", {"form": form, "course": assignment.course, "assignment": assignment, "action": "edit", "nav_item": "Edit"})
+    return render(
+        request,
+        "assignments/edit_create.html",
+        {
+            "form": form,
+            "course": assignment.course,
+            "assignment": assignment,
+            "action": "edit",
+            "nav_item": "Edit",
+        },
+    )
 
 
 @teacher_or_superuser_required
