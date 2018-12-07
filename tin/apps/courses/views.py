@@ -43,7 +43,7 @@ def create_view(request):
             return redirect("courses:show", course.id)
     else:
         form = CourseForm()
-    return render(request, "courses/edit_create.html", {"form": form, "action": "add"})
+    return render(request, "courses/edit_create.html", {"form": form, "action": "add", "nav_item": "Create course"})
 
 
 @teacher_or_superuser_required
@@ -62,7 +62,7 @@ def edit_view(request, course_id):
     else:
         form = CourseForm(instance=course)
 
-    return render(request, "courses/edit_create.html", {"form": form, "course": course, "action": "edit"})
+    return render(request, "courses/edit_create.html", {"form": form, "course": course, "action": "edit", "nav_item": "Edit"})
 
 
 @teacher_or_superuser_required
@@ -75,4 +75,4 @@ def students_view(request, course_id):
 
     students = course.students.all()
 
-    return render(request, "courses/students.html", {"course": course,  "students": students})
+    return render(request, "courses/students.html", {"course": course,  "students": students, "nav_item": "Students"})
