@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block css %}
+{% block head %}
   <link rel="stylesheet" type="text/css" href="{% static 'selectize/selectize.default.css' %}" />
-{% endblock %}
-
-{% block js %}
   <script type="text/javascript" src="{% static 'selectize/selectize.js' %}"></script>
   <script type="text/javascript">
         $(document).ready(function() {
