@@ -55,7 +55,7 @@ def edit_view(request, course_id):
         return redirect("courses:index")
 
     if request.method == "POST":
-        form = CourseForm(date=request.POST, instance=course)
+        form = CourseForm(data=request.POST, instance=course)
         if form.is_valid():
             form.save()
             return redirect("courses:index")
