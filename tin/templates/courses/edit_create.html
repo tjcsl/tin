@@ -14,10 +14,15 @@
 
 <h2>{% block title %}Turn-In: {% if action == "add" %}New course{% else %}Edit course {{ course.name }}{% endif %}{% endblock %}</h2>
 <form action="/courses/{{ action }}{% if id %}{{ id }}{% endif %}/" method="post">
-  <table>
   {% csrf_token %}
-  {{ form.as_table }}
-  </table>
+  <div class="tbl">
+    {% for field in form %}
+    <div class="tbl-row">
+      <span class="tbl-cell" style="font-weight:bold;vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
+      <span class="tbl-cell">{{ field }}</span>
+    </div>
+    {% endfor %}
+  </div>
 <input type="submit" value="Create">
 </form>
 
