@@ -4,7 +4,7 @@
 
 {% block main %}
 <div class="header">
-  <h2 class="left">Course: {{ course.name }}</h2>
+  <h2 class="left">{{ course.name }}</h2>
   <a class="right tin-btn" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:edit' course.id %}">Edit</a>
 </div>
 <p>
