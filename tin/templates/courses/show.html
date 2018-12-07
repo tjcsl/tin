@@ -3,7 +3,10 @@
 {% block title %}Turn-In: {{ course.name }}{% endblock %}
 
 {% block main %}
-<h2>Course: {{ course.name }}</h2>
+<div class="header">
+  <h2 class="left">Course: {{ course.name }}</h2>
+  <a class="right" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:edit' course.id %}">Edit</a>
+</div>
 <p>
   Teacher: {{ course.teacher.full_name }}<br>
   {{ course.students.count }} student{{ course.students.count | pluralize }}
