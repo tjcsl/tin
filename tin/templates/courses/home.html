@@ -2,12 +2,19 @@
 
 {% block main %}
 
-<h2>Courses</h2>
+<div class="header">
+  <h2 class="left">Courses</h2>
+  {% if request.user.is_teacher %}
+  <a class="right" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:create' %}">New course</a>
+  {% endif %}
+</div>
 <ul id="course-list">
 {% for course in courses %}
   <li>
-    <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
-    <div class="list-info">
+    <div class="left">
+      <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
+    </div>
+    <div class="right">
       Teacher: {{ course.teacher.full_name }}<br>
       {{ course.students.count }} student{{ course.students.count | pluralize }}
     </div>
