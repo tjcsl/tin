@@ -40,7 +40,7 @@ def create_view(request):
             course = form.save(commit = False)
             course.teacher = request.user
             course.save()
-            return redirect("auth:index")
+            return redirect("courses:show", course.id)
     else:
         form = CourseForm()
     return render(request, "courses/edit_create.html", {"form": form, "action": "add"})
@@ -57,8 +57,8 @@ def edit_view(request, course_id):
     if request.method == "POST":
         form = CourseForm(data=request.POST, instance=course)
         if form.is_valid():
-            form.save()
-            return redirect("courses:index")
+            course = form.save()
+            return redirect("courses:show", course.id)
     else:
         form = CourseForm(instance=course)
 
