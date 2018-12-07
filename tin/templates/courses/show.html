@@ -15,8 +15,8 @@
 <ul id="assignment-list">
 {% for assignment in assignments %}
   <li>
-    <a href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a>
-    <div class="list-info">
+    <a class="left" href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a>
+    <div class="right">
       Due: {{ assignment.due }}<br>
       Points possible: {{ assignment.points_possible }}
     </div>
