@@ -1,5 +1,5 @@
 from django import http
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Course
 from .forms import CourseForm
@@ -42,3 +42,19 @@ def create_view(request):
         form = CourseForm()
     return render(request, "courses/edit_create.html", {"form": form, "action": "add"})
 
+@teacher_or_superuser_required
+def edit_view(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.user != course.teacher and not request.user.is_superuser:
+        return redirect("courses:index")
+
+    if request.method == "POST":
+        form = CourseForm(date=request.POST, instance=course)
+        if form.is_valid():
+            instance = form.save()
+            return redirect("courses:index")
+    else:
+        form = CourseForm(instance=course)
+
+    return render(request, "courses/edit_create.html", {"form": form, "action": "edit"})
