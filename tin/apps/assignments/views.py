@@ -89,7 +89,7 @@ def edit_view(request, assignment_id):
     else:
         form = AssignmentForm(instance=assignment)
 
-    return render(request, "assignments/edit_create.html", {"form": form, "assignment": assignment, "action": "edit"})
+    return render(request, "assignments/edit_create.html", {"form": form, "course": assignment.course, "assignment": assignment, "action": "edit"})
 
 
 @teacher_or_superuser_required
