@@ -10,7 +10,7 @@
 {% block main %}
 <div class="header">
   <h2 class="left">{{ assignment.name }}</h2>
-  <a class="right" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
+  <a class="right tin-btn" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
 </div>
 <p>{{ assignment.description }}</h1>
 

@@ -5,7 +5,7 @@
 {% block main %}
 <div class="header">
   <h2 class="left">Course: {{ course.name }}</h2>
-  <a class="right" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:edit' course.id %}">Edit</a>
+  <a class="right tin-btn" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:edit' course.id %}">Edit</a>
 </div>
 <p>
   Teacher: {{ course.teacher.full_name }}<br>
@@ -25,7 +25,7 @@
 </ul>
 
 <div style="border-top:1px solid lightgray;padding:10px 0px;">
-  <a class="btn" href="{% url 'assignments:add' course.id %}">New assignment</a>
+  <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New assignment</a>
 </div>
 
 {% endblock %}

@@ -5,7 +5,7 @@
 <div class="header">
   <h2 class="left">Courses</h2>
   {% if request.user.is_teacher %}
-  <a class="right" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:create' %}">New course</a>
+  <a class="right tin-btn" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:create' %}">New course</a>
   {% endif %}
 </div>
 <ul id="course-list">
