@@ -52,7 +52,7 @@ def edit_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     if request.user != course.teacher and not request.user.is_superuser:
-        return redirect("courses:index")
+        raise http.Http404
 
     if request.method == "POST":
         form = CourseForm(data=request.POST, instance=course)
