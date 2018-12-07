@@ -74,7 +74,7 @@ def students_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
     if request.user != course.teacher and not request.user.is_superuser:
-        return redirect("courses:index")
+        raise http.Http404
 
     students = course.students.all()
 
