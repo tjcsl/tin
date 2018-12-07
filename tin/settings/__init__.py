@@ -125,7 +125,7 @@ if DEBUG:
         'django.contrib.auth.backends.ModelBackend',
     )
 
-SOCIAL_AUTH_USER_FIELDS = ['username', 'full_name', 'email', 'id', 'is_student', 'is_teacher']
+SOCIAL_AUTH_USER_FIELDS = ['username', 'full_name', 'first_name', 'last_name', 'email', 'id', 'is_student', 'is_teacher']
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
