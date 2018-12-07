@@ -72,6 +72,13 @@ body {
     display: table-cell;
 }
 
+.footer {
+    z-index: 10;
+    position: fixed;
+    bottom: 4px;
+    right: 4px;
+    font-size: 10px;
+}
 
 ul#course-list, ul#assignment-list {
   padding-left: 0px;
