@@ -3,7 +3,7 @@
 {% block title %}Turn-In: {{ course.name }}{% endblock %}
 
 {% block main %}
-<h2>{{ course.name }}</h2>
+<h2>Course: {{ course.name }}</h2>
 <p>
   Teacher: {{ course.teacher.full_name }}<br>
   {{ course.students.count }} student{{ course.students.count | pluralize }}
