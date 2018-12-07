@@ -5,20 +5,24 @@ from .models import Course
 from .forms import CourseForm
 from ..auth.decorators import login_required, teacher_or_superuser_required
 
+
 # Create your views here.
 @login_required
 def index_view(request):
+    """ Lists all courses """
     if request.user.is_superuser:
         courses = Course.objects.all()
     elif request.user.is_teacher:
-        courses = Course.objects.filter(teacher = request.user)
+        courses = Course.objects.filter(teacher=request.user)
     else:
         courses = request.user.courses.all()
 
     return render(request, "courses/home.html", {"courses": courses})
 
+
 @login_required
 def show_view(request, course_id):
+    """ Lists information about a course """
     try:
         course = Course.objects.get(id = course_id)
     except Course.DoesNotExist:
@@ -29,8 +33,10 @@ def show_view(request, course_id):
             return render(request, "courses/show.html", {"course": course, "assignments": assignments})
     raise http.Http404
 
+
 @teacher_or_superuser_required
 def create_view(request):
+    """ Creates a course """
     if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
@@ -42,8 +48,10 @@ def create_view(request):
         form = CourseForm()
     return render(request, "courses/edit_create.html", {"form": form, "action": "add"})
 
+
 @teacher_or_superuser_required
 def edit_view(request, course_id):
+    """ Edits a course """
     course = get_object_or_404(Course, id=course_id)
 
     if request.user != course.teacher and not request.user.is_superuser:
@@ -52,9 +60,22 @@ def edit_view(request, course_id):
     if request.method == "POST":
         form = CourseForm(date=request.POST, instance=course)
         if form.is_valid():
-            instance = form.save()
+            form.save()
             return redirect("courses:index")
     else:
         form = CourseForm(instance=course)
 
     return render(request, "courses/edit_create.html", {"form": form, "action": "edit"})
+
+
+@teacher_or_superuser_required
+def students_view(request, course_id):
+    """ View students enrolled in a course """
+    course = get_object_or_404(Course, id=course_id)
+    
+    if request.user != course.teacher and not request.user.is_superuser:
+        return redirect("courses:index")
+
+    students = course.students.all()
+
+    return render(request, "courses/students.html", {"course": course,  "students": students})
