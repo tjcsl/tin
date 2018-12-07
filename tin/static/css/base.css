@@ -59,6 +59,11 @@
   margin-left: auto;
   text-align: right;
 }
+.header > .tin-btn.right {
+  height: min-content;
+  margin-top: auto;
+  margin-bottom: auto;
+}
 
 body {
   margin: 40px 0px 0px 0px;
