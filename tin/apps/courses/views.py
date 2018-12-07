@@ -57,4 +57,4 @@ def edit_view(request, course_id):
     else:
         form = CourseForm(instance=course)
 
-    return render(request, "courses/edit_create.html", {"form": form, "action": "edit"})
+    return render(request, "courses/edit_create.html", {"form": form, "course": course, "action": "edit"})
