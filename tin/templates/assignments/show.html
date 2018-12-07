@@ -10,7 +10,9 @@
 {% block main %}
 <div class="header">
   <h2 class="left">{{ assignment.name }}</h2>
+  {% if request.user.is_teacher or request.user.is_superuser %}
   <a class="right tin-btn" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
+  {% endif %}
 </div>
 <p>{{ assignment.description }}</h1>
 

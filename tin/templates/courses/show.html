@@ -5,7 +5,9 @@
 {% block main %}
 <div class="header">
   <h2 class="left">{{ course.name }}</h2>
+  {% if request.user.is_teacher or request.user.is_superuser %}
   <a class="right tin-btn" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:edit' course.id %}">Edit</a>
+  {% endif %}
 </div>
 <p>
   Teacher: {{ course.teacher.full_name }}<br>
@@ -24,9 +26,11 @@
 {% endfor %}
 </ul>
 
+{% if request.user.is_teacher or request.user.is_superuser %}
 <div style="border-top:1px solid lightgray;padding:10px 0px;">
   <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New assignment</a>
 </div>
+{% endif %}
 
 {% endblock %}
 

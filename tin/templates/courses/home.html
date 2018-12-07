@@ -4,7 +4,7 @@
 
 <div class="header">
   <h2 class="left">Courses</h2>
-  {% if request.user.is_teacher %}
+  {% if request.user.is_teacher or request.user.is_superuser %}
   <a class="right tin-btn" style="height:min-content;margin-top:auto;margin-bottom:auto;" href="{% url 'courses:create' %}">New course</a>
   {% endif %}
 </div>
