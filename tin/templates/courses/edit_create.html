@@ -13,7 +13,7 @@
 {% block main %}
 
 <h2>{% block title %}Turn-In: {% if action == "add" %}New course{% else %}Edit course {{ course.name }}{% endif %}{% endblock %}</h2>
-<form action="/courses/{{ action }}{% if id %}{{ id }}{% endif %}" method="post">
+<form action="/courses/{{ action }}{% if id %}{{ id }}{% endif %}/" method="post">
   <table>
   {% csrf_token %}
   {{ form.as_table }}
