@@ -136,8 +136,7 @@ def student_submission_view(request, assignment_id, student_id):
 
 @login_required
 def submit_view(request, assignment_id):
-
-    assignment = get_object_or_404(Assignment, id=assignment_id)
+    assignment = get_object_or_404(Assignment, id = assignment_id)
 
     if request.user not in assignment.course.students.all():
         raise http.Http404
@@ -149,18 +148,18 @@ def submit_view(request, assignment_id):
             fs = FileSystemStorage()
             now = timezone.now()
             filename = fs.save("submission_{}_{}".format(student.username, now.strftime("%Y%M%d_%H%M%S")), uploaded_file)
-            submission = Submission.objects.create(assignment=assignment, student=student, filename=filename)
+            submission = Submission.objects.create(assignment = assignment, student = student, filename = filename)
             return redirect("assignments:show", assignment.id)
         elif request.POST.get('text_submission', None):
             return redirect("assignments:show", assignment.id)
 
 
     return render(request, 
-            "assignments/submit.html",
-            {
-                "course": assignment.course,
-                "assignment": assignment,
-                "student": student
-            }
-            )
+        "assignments/submit.html",
+        {
+            "course": assignment.course,
+            "assignment": assignment,
+            "student": student,
+        },
+    )
 
