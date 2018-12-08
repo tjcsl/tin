@@ -3,6 +3,7 @@ __pycache__/
 
 db.sqlite3
 venv/
+media/
 
 tin/settings/secret.py
 
