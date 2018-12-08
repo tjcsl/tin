@@ -99,7 +99,7 @@ def edit_view(request, course_id):
 def students_view(request, course_id):
     """ View students enrolled in a course """
     course = get_object_or_404(Course, id=course_id)
-    
+
     if request.user != course.teacher and not request.user.is_superuser:
         raise http.Http404
 

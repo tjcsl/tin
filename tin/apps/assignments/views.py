@@ -10,7 +10,7 @@ from ..submissions.models import Submission
 from ..users.models import User
 from ..auth.decorators import login_required, teacher_or_superuser_required
 
-# Create your views here.
+
 @login_required
 def show_view(request, assignment_id):
     assignment = get_object_or_404(Assignment, id = assignment_id)
@@ -52,7 +52,6 @@ def show_view(request, assignment_id):
             )
         else:
             raise http.Http404
-
 
 
 @teacher_or_superuser_required
@@ -153,8 +152,7 @@ def submit_view(request, assignment_id):
         elif request.POST.get('text_submission', None):
             return redirect("assignments:show", assignment.id)
 
-
-    return render(request, 
+    return render(request,
         "assignments/submit.html",
         {
             "course": assignment.course,
@@ -162,4 +160,3 @@ def submit_view(request, assignment_id):
             "student": student,
         },
     )
-

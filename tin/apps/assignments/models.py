@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
-# Create your models here.
 
 class Assignment(models.Model):
     name = models.CharField(max_length = 50)
@@ -25,4 +24,3 @@ class Assignment(models.Model):
 
     def __repr__(self):
         return "<{} in {}>".format(self.name, self.course)
-

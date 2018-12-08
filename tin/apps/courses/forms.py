@@ -3,6 +3,7 @@ from .models import Course
 from ..users.models import User
 from ..users.forms import UserMultipleChoiceField
 
+
 class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
@@ -11,4 +12,3 @@ class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = ["name", "students"]
-

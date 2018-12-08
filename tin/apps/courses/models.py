@@ -1,9 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-from tin.apps.assignments.models import Assignment
-
-# Create your models here.
 
 class Course(models.Model):
     name = models.CharField(max_length = 50)
@@ -15,4 +12,3 @@ class Course(models.Model):
 
     def __repr__(self):
         return "<{} (teacher: {})>".format(self.name, self.teacher)
-
