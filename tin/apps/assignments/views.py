@@ -148,7 +148,7 @@ def submit_view(request, assignment_id):
             uploaded_file = request.FILES["uploaded_file"]
             fs = FileSystemStorage()
             now = timezone.now()
-            filename = fs.save("submission_{}".format(now.strftime("%Y%M%d_%H%M%S")), uploaded_file)
+            filename = fs.save("submission_{}_{}".format(student.username, now.strftime("%Y%M%d_%H%M%S")), uploaded_file)
             submission = Submission.objects.create(assignment=assignment, student=student, filename=filename)
             return redirect("assignments:show", assignment.id)
         elif request.POST.get('text_submission', None):
