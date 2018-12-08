@@ -164,3 +164,14 @@ a.tin-btn {
   background: linear-gradient(to bottom, #dfdfdf 0%, #cfcfcf 100%);
 }
 
+input[type=submit] {
+  border: 1px solid #cfcfcf;
+  border-radius: 4px;
+
+  padding: 3px 5px;
+  background: linear-gradient(to bottom, #dfdfdf 0%, #cfcfcf 100%);
+
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+}
