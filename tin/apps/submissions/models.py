@@ -11,7 +11,9 @@ class Submission(models.Model):
 
     has_been_graded = models.BooleanField(default = False)
 
-    points_received = models.DecimalField(max_digits = 4, decimal_places = 1)
+    points_received = models.DecimalField(max_digits = 4, decimal_places = 1, null=True, blank=True)
+
+    filename = models.FilePathField(settings.MEDIA_ROOT, recursive=True, null=True)
 
     @property
     def is_on_time(self):

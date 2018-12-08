@@ -1,5 +1,7 @@
 from django import http
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.files.storage import FileSystemStorage
 
 from .models import Assignment
 from .forms import AssignmentForm
@@ -130,3 +132,35 @@ def student_submission_view(request, assignment_id, student_id):
             "latest_submission": latest_submission,
         },
     )
+
+
+@login_required
+def submit_view(request, assignment_id):
+
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+
+    if request.user not in assignment.course.students.all():
+        raise http.Http404
+    student = request.user
+
+    if request.method == "POST":
+        if request.FILES["uploaded_file"]:
+            uploaded_file = request.FILES["uploaded_file"]
+            fs = FileSystemStorage()
+            now = timezone.now()
+            filename = fs.save("submission_{}".format(now.strftime("%Y%M%d_%H%M%S")), uploaded_file)
+            submission = Submission.objects.create(assignment=assignment, student=student, filename=filename)
+            return redirect("assignments:show", assignment.id)
+        elif request.POST.get('text_submission', None):
+            return redirect("assignments:show", assignment.id)
+
+
+    return render(request, 
+            "assignments/submit.html",
+            {
+                "course": assignment.course,
+                "assignment": assignment,
+                "student": student
+            }
+            )
+

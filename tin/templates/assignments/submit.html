@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+{% endblock %}
+{% block main %}
+
+<h2>{% block title %}Turn-In: {{ assignment.name }}{% endblock %}</h2>
+
+<h3>File Upload</h3>
+<div class="tbl">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="tbl-row">
+        <input type="file" name="uploaded_file">
+      </div>
+      <div class="tbl-row">
+        <button type="submit">Upload File</button>
+      </div>
+    </form>
+  </div>
+</div>
+<br>
+<h3>Text Upload</h3>
+  <div class="tbl">
+    <form method="POST">
+      {% csrf_token %}
+      <div clas="tbl-row">
+        <input type="text" name="text_submission">
+      </div>
+      <div clas="tbl-row">
+        <button type="submit">Upload Text</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
