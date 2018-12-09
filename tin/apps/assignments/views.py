@@ -73,7 +73,7 @@ def create_view(request, course_id):
         form = AssignmentForm()
     return render(
         request,
-        "courses/edit_create.html",
+        "assignments/edit_create.html",
         {
             "form": form,
             "course": course,
