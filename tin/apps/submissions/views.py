@@ -12,6 +12,9 @@ def show_view(request, submission_id):
 
     student_submissions = Submission.objects.filter(student = submission.student, assignment = submission.assignment).order_by("date_submitted")
     submission_number = list(student_submissions).index(submission) + 1
+
+    submission_text = submission.file.read().decode()
+
     if request.user.is_student:
         if submission.assignment.course in request.user.courses.all():
             return render(
@@ -22,6 +25,7 @@ def show_view(request, submission_id):
                     "assignment": submission.assignment,
                     "submission": submission,
                     "submission_number": submission_number,
+                    "submission_text": submission_text,
                 },
             )
         else:
@@ -37,6 +41,7 @@ def show_view(request, submission_id):
                     "submission": submission,
                     "student": submission.student,
                     "submission_number": submission_number,
+                    "submission_text": submission_text,
                 },
             )
         else:
