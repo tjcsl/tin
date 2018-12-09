@@ -16,3 +16,10 @@ class FileSubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ["file"]
+
+class TextSubmissionForm(forms.ModelForm):
+    text = forms.CharField(widget = forms.Textarea(attrs = {"cols": 80, "rows": 20}))
+
+    class Meta:
+        model = Submission
+        fields = []

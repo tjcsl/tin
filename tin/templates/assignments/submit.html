@@ -18,21 +18,21 @@
       </div>
     {% endfor %}
   </div>
-  <input type="submit" value="Upload File">
+  <input type="submit" value="Submit">
 </form>
 <br>
 <h3>Text Upload</h3>
+<form method="POST">
+  {% csrf_token %}
   <div class="tbl">
-    <form method="POST">
-      {% csrf_token %}
-      <div clas="tbl-row">
-        <input type="text" name="text_submission">
+    {% for field in text_form %}
+      <div class="tbl-row">
+        <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
+        <span class="tbl-cell">{{ field }}</span>
       </div>
-      <div clas="tbl-row">
-        <button type="submit">Upload Text</button>
-      </div>
-    </form>
+    {% endfor %}
   </div>
-</div>
+  <input type="submit" value="Submit">
+</form>
 {% endblock %}
 

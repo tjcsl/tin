@@ -1,12 +1,12 @@
 from django import http
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
-from django.core.files.storage import FileSystemStorage
+from django.core.files.base import ContentFile
 
 from .models import Assignment
-from .forms import AssignmentForm, FileSubmissionForm
+from .forms import AssignmentForm, FileSubmissionForm, TextSubmissionForm
 from ..courses.models import Course
-from ..submissions.models import Submission
+from ..submissions.models import Submission, upload_submission_file_path
 from ..users.models import User
 from ..auth.decorators import login_required, teacher_or_superuser_required
 
@@ -141,8 +141,10 @@ def submit_view(request, assignment_id):
         raise http.Http404
     student = request.user
 
+    file_form = FileSubmissionForm()
+    text_form = TextSubmissionForm()
     if request.method == "POST":
-        if request.FILES["file"]:
+        if request.FILES.get("file"):
             file_form = FileSubmissionForm(request.POST, request.FILES)
             if file_form.is_valid():
                 submission = file_form.save(commit = False)
@@ -150,15 +152,21 @@ def submit_view(request, assignment_id):
                 submission.student = student
                 submission.save()
                 return redirect("assignments:show", assignment.id)
-        elif request.POST.get('text_submission', None):
-            return redirect("assignments:show", assignment.id)
-    else:
-        file_form = FileSubmissionForm()
+        else:
+            text_form = TextSubmissionForm(request.POST)
+            if text_form.is_valid():
+                submission = text_form.save(commit = False)
+                submission.assignment = assignment
+                submission.student = student
+                submission.file.save(upload_submission_file_path(submission, ""), ContentFile(text_form.cleaned_data["text"]), save = False)
+                submission.save()
+                return redirect("assignments:show", assignment.id)
 
     return render(request,
         "assignments/submit.html",
         {
             "file_form": file_form,
+            "text_form": text_form,
             "course": assignment.course,
             "assignment": assignment,
             "student": student,
