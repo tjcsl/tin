@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.storage import FileSystemStorage
 
 from .models import Assignment
-from .forms import AssignmentForm
+from .forms import AssignmentForm, FileSubmissionForm
 from ..courses.models import Course
 from ..submissions.models import Submission
 from ..users.models import User
@@ -142,19 +142,23 @@ def submit_view(request, assignment_id):
     student = request.user
 
     if request.method == "POST":
-        if request.FILES["uploaded_file"]:
-            uploaded_file = request.FILES["uploaded_file"]
-            fs = FileSystemStorage()
-            now = timezone.now()
-            filename = fs.save("submission_{}_{}".format(student.username, now.strftime("%Y%M%d_%H%M%S")), uploaded_file)
-            submission = Submission.objects.create(assignment = assignment, student = student, filename = filename)
-            return redirect("assignments:show", assignment.id)
+        if request.FILES["file"]:
+            file_form = FileSubmissionForm(request.POST, request.FILES)
+            if file_form.is_valid():
+                submission = file_form.save(commit = False)
+                submission.assignment = assignment
+                submission.student = student
+                submission.save()
+                return redirect("assignments:show", assignment.id)
         elif request.POST.get('text_submission', None):
             return redirect("assignments:show", assignment.id)
+    else:
+        file_form = FileSubmissionForm()
 
     return render(request,
         "assignments/submit.html",
         {
+            "file_form": file_form,
             "course": assignment.course,
             "assignment": assignment,
             "student": student,

@@ -1,7 +1,11 @@
 from django.db import models
+from django.utils import timezone
 from django.conf import settings
 
 # Create your models here.
+
+def upload_submission_file_path(submission, filename):
+    return "submission_{}_{}".format(submission.student.username, timezone.now().strftime("%Y%M%d_%H%M%S"))
 
 class Submission(models.Model):
     assignment = models.ForeignKey("assignments.Assignment", on_delete = models.CASCADE, related_name = "submissions")
@@ -13,7 +17,7 @@ class Submission(models.Model):
 
     points_received = models.DecimalField(max_digits = 4, decimal_places = 1, null=True, blank=True)
 
-    filename = models.FilePathField(settings.MEDIA_ROOT, recursive=True, null=True)
+    file = models.FileField(upload_to = upload_submission_file_path, null=True)
 
     @property
     def is_on_time(self):
