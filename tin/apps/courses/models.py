@@ -7,6 +7,8 @@ class Course(models.Model):
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, null = True, on_delete = models.SET_NULL)
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = "courses")
 
+    created = models.DateTimeField(auto_now_add = True)
+
     def __str__(self):
         return "{} (teacher: {})".format(self.name, self.teacher)
 

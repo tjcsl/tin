@@ -17,6 +17,8 @@ def index_view(request):
     else:
         courses = request.user.courses.all()
 
+    courses = courses.order_by("-created")
+
     return render(
         request,
         "courses/home.html",
