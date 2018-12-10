@@ -2,6 +2,7 @@ from django import forms
 from .models import Assignment
 from ..submissions.models import Submission
 
+
 class AssignmentForm(forms.ModelForm):
     due = forms.DateTimeInput()
 
@@ -12,10 +13,12 @@ class AssignmentForm(forms.ModelForm):
         model = Assignment
         fields = ["name", "description", "points_possible", "due"]
 
+
 class FileSubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ["file"]
+
 
 class TextSubmissionForm(forms.ModelForm):
     text = forms.CharField(widget = forms.Textarea(attrs = {"cols": 80, "rows": 20}))

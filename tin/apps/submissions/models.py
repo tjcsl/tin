@@ -10,7 +10,7 @@ def upload_submission_file_path(submission, filename):
 class Submission(models.Model):
     assignment = models.ForeignKey("assignments.Assignment", on_delete = models.CASCADE, related_name = "submissions")
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE)
-    
+
     date_submitted = models.DateTimeField(auto_now_add = True)
 
     has_been_graded = models.BooleanField(default = False)

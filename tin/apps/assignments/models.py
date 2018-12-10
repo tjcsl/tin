@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 
 from ..submissions.models import Submission
 
+
 class Assignment(models.Model):
     name = models.CharField(max_length = 50)
     description = models.CharField(max_length = 255)

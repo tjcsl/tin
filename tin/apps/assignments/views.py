@@ -11,7 +11,6 @@ from ..submissions.models import Submission, upload_submission_file_path
 from ..users.models import User
 from ..auth.decorators import login_required, teacher_or_superuser_required
 
-
 @login_required
 def show_view(request, assignment_id):
     assignment = get_object_or_404(Assignment, id = assignment_id)
@@ -62,7 +61,6 @@ def show_view(request, assignment_id):
         else:
             raise http.Http404
 
-
 @teacher_or_superuser_required
 def create_view(request, course_id):
     """ Creates an assignment """
@@ -90,7 +88,6 @@ def create_view(request, course_id):
             "nav_item": "Create assignment",
         },
     )
-
 
 @teacher_or_superuser_required
 def edit_view(request, assignment_id):
@@ -120,7 +117,6 @@ def edit_view(request, assignment_id):
         },
     )
 
-
 @teacher_or_superuser_required
 def student_submission_view(request, assignment_id, student_id):
     assignment = get_object_or_404(Assignment, id = assignment_id)
@@ -140,7 +136,6 @@ def student_submission_view(request, assignment_id, student_id):
             "latest_submission": latest_submission,
         },
     )
-
 
 @login_required
 def submit_view(request, assignment_id):

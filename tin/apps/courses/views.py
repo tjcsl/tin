@@ -28,7 +28,6 @@ def index_view(request):
         },
     )
 
-
 @login_required
 def show_view(request, course_id):
     """ Lists information about a course """
@@ -45,7 +44,6 @@ def show_view(request, course_id):
         )
     else:
         raise http.Http404
-
 
 @teacher_or_superuser_required
 def create_view(request):
@@ -68,7 +66,6 @@ def create_view(request):
             "nav_item": "Create course",
         },
     )
-
 
 @teacher_or_superuser_required
 def edit_view(request, course_id):
@@ -96,7 +93,6 @@ def edit_view(request, course_id):
             "nav_item": "Edit",
         },
     )
-
 
 @teacher_or_superuser_required
 def students_view(request, course_id):
