@@ -34,14 +34,14 @@ def show_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     if request.user.is_superuser or course in request.user.courses.all() or request.user == course.teacher:
         assignments = course.assignments.order_by("-due")
-        return render(
-            request,
-            "courses/show.html",
-            {
-                "course": course,
-                "assignments": assignments,
-            },
-        )
+        context = {
+            "course": course,
+            "assignments": assignments,
+        }
+        if request.user.is_student:
+            context["unsubmitted_assignments"] = [assignment for assignment in assignments.all() if not assignment.submissions_from_student(request.user)]
+
+        return render(request, "courses/show.html", context)
     else:
         raise http.Http404
 
