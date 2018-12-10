@@ -52,7 +52,7 @@ def create_view(request):
     if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
-            course = form.save(commit = False)
+            course = form.save(commit = True)
             course.teacher = request.user
             course.save()
             return redirect("courses:show", course.id)
