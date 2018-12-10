@@ -63,7 +63,6 @@ def create_view(request):
         "courses/edit_create.html",
         {
             "form": form,
-            "action": "add",
             "nav_item": "Create course",
         },
     )
@@ -90,7 +89,6 @@ def edit_view(request, course_id):
         {
             "form": form,
             "course": course,
-            "action": "edit",
             "nav_item": "Edit",
         },
     )

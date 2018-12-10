@@ -10,7 +10,7 @@
 {% endblock %}
 {% block main %}
 
-<h2>{% block title %}Turn-In: {% if action == "add" %}Create course{% else %}{{ course.name }}{% endif %}{% endblock %}</h2>
+<h2>{% block title %}Turn-In: {% if course %}{{ course.name }}{% else %}Create course{% endif %}{% endblock %}</h2>
 <form action="" method="post">
   {% csrf_token %}
   <div class="tbl">
@@ -21,7 +21,7 @@
     </div>
     {% endfor %}
   </div>
-  <input class="tin-btn" type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
+  <input class="tin-btn" type="submit" value="{% if course %}Save{% else %}Create{% endif %}">
 </form>
 
 {% endblock %}
