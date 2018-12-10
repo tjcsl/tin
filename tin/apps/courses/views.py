@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Course
 from .forms import CourseForm
 from ..auth.decorators import login_required, teacher_or_superuser_required
+from ..assignments.models import Assignment
 
 
 # Create your views here.
@@ -107,12 +108,14 @@ def students_view(request, course_id):
 
     students = course.students.all()
 
+    students_missing_assignments = [(student, [assignment.name for assignment in course.assignments.all() if not len(assignment.submissions_from_student(student))]) for student in students]
+
     return render(
         request,
         "courses/students.html",
         {
             "course": course,
-            "students": students,
+            "students_missing_assignments": students_missing_assignments,
             "nav_item": "Students",
         },
     )

@@ -16,11 +16,12 @@
     <th style="min-width:150px">Name</th>
     <th>Missing assignments</th>
   </tr>
-  {% for student in students %}
-    <td>{{ student.full_name }} ({{ student.username }})</th>
-    <td>0</td>
-  </tr>
-{% endfor %}
+  {% for student, missing_assignments in students_missing_assignments %}
+    <tr>
+      <td>{{ student.full_name }} ({{ student.username }})</td>
+      <td>{{ missing_assignments | join:", " }}</td>
+    </tr>
+  {% endfor %}
 </table>
 {% endblock %}
 
