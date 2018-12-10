@@ -128,11 +128,11 @@ ul#course-list li .right, ul#assignment-list li .right {
   text-align: right;
 }
 
-table#submission-list {
+table.has-border {
   min-width: 100px;
   border-collapse: collapse;
 }
-table#submission-list th, table#submission-list td {
+table.has-border th, table.has-border td {
   border: 1px solid black;
   padding: 3px;
 }
