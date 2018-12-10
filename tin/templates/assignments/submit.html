@@ -8,6 +8,8 @@
 <h2>{% block title %}Turn-In: {{ assignment.name }}{% endblock %}</h2>
 
 <h3>File Upload</h3>
+<p>Size limit is 1MB.</p>
+<h4 style="color:red;">{{ file_errors }}</h4>
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="tbl">
@@ -22,6 +24,7 @@
 </form>
 <br>
 <h3>Text Upload</h3>
+<h4 style="color:red;">{{ text_errors }}</h4>
 <form method="POST">
   {% csrf_token %}
   <div class="tbl">

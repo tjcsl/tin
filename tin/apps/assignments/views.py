@@ -1,4 +1,5 @@
 from django import http
+from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.base import ContentFile
@@ -151,30 +152,52 @@ def submit_view(request, assignment_id):
 
     file_form = FileSubmissionForm()
     text_form = TextSubmissionForm()
+
+    file_errors = ""
+    text_errors = ""
+
     if request.method == "POST":
         if request.FILES.get("file"):
-            file_form = FileSubmissionForm(request.POST, request.FILES)
-            if file_form.is_valid():
-                submission = file_form.save(commit = False)
-                submission.assignment = assignment
-                submission.student = student
-                submission.save()
-                return redirect("assignments:show", assignment.id)
+            if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                file_form = FileSubmissionForm(request.POST, request.FILES)
+                if file_form.is_valid():
+                    try:
+                        request.FILES["file"].read().decode()
+                    except UnicodeDecodeError:
+                        file_errors = "Please don't upload binary files."
+                    else:
+                        submission = file_form.save(commit = False)
+                        submission.assignment = assignment
+                        submission.student = student
+                        submission.save()
+                        return redirect("assignments:show", assignment.id)
+            else:
+                file_errors = "That file's too large. Are you sure it's a Python program?"
         else:
             text_form = TextSubmissionForm(request.POST)
             if text_form.is_valid():
-                submission = text_form.save(commit = False)
-                submission.assignment = assignment
-                submission.student = student
-                submission.file.save(upload_submission_file_path(submission, ""), ContentFile(text_form.cleaned_data["text"]), save = False)
-                submission.save()
-                return redirect("assignments:show", assignment.id)
+                if len(text_form.cleaned_data["text"]) <= settings.SUBMISSION_SIZE_LIMIT:
+                    try:
+                        text_form.cleaned_data["text"].decode()
+                    except UnicodeDecodeError:
+                        text_errors = "Please don't submit binary data."
+                    else:
+                        submission = text_form.save(commit = False)
+                        submission.assignment = assignment
+                        submission.student = student
+                        submission.file.save(upload_submission_file_path(submission, ""), ContentFile(text_form.cleaned_data["text"]), save = False)
+                        submission.save()
+                        return redirect("assignments:show", assignment.id)
+                else:
+                    text_errors = "Submission too large"
 
     return render(request,
         "assignments/submit.html",
         {
             "file_form": file_form,
             "text_form": text_form,
+            "file_errors": file_errors,
+            "text_errors": text_errors,
             "course": assignment.course,
             "assignment": assignment,
             "student": student,

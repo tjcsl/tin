@@ -160,7 +160,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 LOGOUT_URL = '/logout/'
 
 LOGIN_URL = '/login/'
@@ -179,3 +178,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000 #1 MB
