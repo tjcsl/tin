@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-
+import django.utils.timezone
 
 class Migration(migrations.Migration):
 
@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=50)),
                 ('students', models.ManyToManyField(related_name='courses', to=settings.AUTH_USER_MODEL)),
                 ('teacher', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                ('created', models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now)),
             ],
         ),
     ]
