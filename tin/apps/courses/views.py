@@ -20,13 +20,14 @@ def index_view(request):
 
     courses = courses.order_by("-created")
 
-    return render(
-        request,
-        "courses/home.html",
-        {
-            "courses": courses,
-        },
-    )
+    context = {
+        "courses": courses,
+    }
+    
+    if request.user.is_student:
+        context["courses_with_unsubmitted_assignments"] = [course for course in courses.all() if any(not assignment.submissions_from_student(request.user) for assignment in course.assignments.all())]
+
+    return render(request, "courses/home.html", context)
 
 @login_required
 def show_view(request, course_id):

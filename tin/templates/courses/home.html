@@ -13,6 +13,10 @@
   <li>
     <div class="left">
       <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
+      {% if course in courses_with_unsubmitted_assignments %}
+        <br>
+        <span class="italic">Unsubmitted assignments</span>
+      {% endif %}
     </div>
     <div class="right">
       Teacher: {{ course.teacher.full_name }}<br>
