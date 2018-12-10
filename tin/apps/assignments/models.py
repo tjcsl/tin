@@ -3,6 +3,9 @@ from django.core.validators import MinValueValidator
 
 from ..submissions.models import Submission
 
+def upload_grader_file_path(assignment, filename):
+    return "grader_{}_{}".format(assignment.course.id, assignment.id)
+
 
 class Assignment(models.Model):
     name = models.CharField(max_length = 50)
@@ -20,6 +23,8 @@ class Assignment(models.Model):
 
     assigned = models.DateTimeField(auto_now_add = True)
     due = models.DateTimeField()
+
+    grader_file = models.FileField(upload_to = upload_grader_file_path, null=True)
 
     def __str__(self):
         return "{} in {}".format(self.name, self.course)

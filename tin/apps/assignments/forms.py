@@ -13,6 +13,11 @@ class AssignmentForm(forms.ModelForm):
         model = Assignment
         fields = ["name", "description", "points_possible", "due"]
 
+class GraderFileSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = Assignment
+        fields = ["grader_file"]
+
 
 class FileSubmissionForm(forms.ModelForm):
     class Meta:

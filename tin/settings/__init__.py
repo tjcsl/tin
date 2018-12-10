@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social_django',
+    'django_celery_results',
     'tin.apps',
     'tin.apps.users',
     'tin.apps.auth',
@@ -169,6 +170,8 @@ LOGIN_REDIRECT_URL = '/'
 SOCIAL_AUTH_LOGIN_ERROR_URL = '/'
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
+CELERY_RESULT_BACKEND = 'django-db'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
@@ -180,3 +183,4 @@ STATICFILES_DIRS = (
 )
 
 SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000 #1 MB
+

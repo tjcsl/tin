@@ -4,6 +4,7 @@ import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
 
+import tin.apps.assignments.models
 
 class Migration(migrations.Migration):
 
@@ -24,6 +25,7 @@ class Migration(migrations.Migration):
                 ('assigned', models.DateTimeField(auto_now_add=True)),
                 ('due', models.DateTimeField()),
                 ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assignments', to='courses.Course')),
+                ('grader_file', models.FileField(null=True, upload_to=tin.apps.assignments.models.upload_grader_file_path)),
             ],
         ),
     ]

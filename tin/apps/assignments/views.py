@@ -5,9 +5,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.base import ContentFile
 
 from .models import Assignment
-from .forms import AssignmentForm, FileSubmissionForm, TextSubmissionForm
+from .forms import AssignmentForm, FileSubmissionForm, TextSubmissionForm, GraderFileSubmissionForm
 from ..courses.models import Course
 from ..submissions.models import Submission, upload_submission_file_path
+from ..submissions.tasks import run_submission
 from ..users.models import User
 from ..auth.decorators import login_required, teacher_or_superuser_required
 
@@ -70,19 +71,19 @@ def create_view(request, course_id):
         raise http.Http404
 
     if request.method == "POST":
-        form = AssignmentForm(request.POST)
-        if form.is_valid():
-            assignment = form.save(commit = False)
+        assignment_form = AssignmentForm(request.POST)
+        if assignment_form.is_valid():
+            assignment = assignment_form.save(commit = False)
             assignment.course = course
             assignment.save()
             return redirect("assignments:show", assignment.id)
     else:
-        form = AssignmentForm()
+        assignment_form = AssignmentForm()
     return render(
         request,
         "assignments/edit_create.html",
         {
-            "form": form,
+            "assignment_form": assignment_form,
             "course": course,
             "action": "add",
             "nav_item": "Create assignment",
@@ -97,19 +98,42 @@ def edit_view(request, assignment_id):
     if request.user != assignment.course.teacher and not request.user.is_superuser:
         raise http.Http404
 
+    assignment_form = AssignmentForm(instance=assignment)
+    grader_form = GraderFileSubmissionForm(instance=assignment)
+
+    grader_file_errors = ""
+
     if request.method == "POST":
-        form = AssignmentForm(data=request.POST, instance=assignment)
-        if form.is_valid():
-            form.save()
-            return redirect("assignments:show", assignment.id)
-    else:
-        form = AssignmentForm(instance=assignment)
+        if request.FILES.get("grader_file"):
+            grader_form = GraderFileSubmissionForm(data=request.POST, instance=assignment)
+            if grader_form.is_valid():
+                grader_form.save()
+                return redirect("assignments:show", assignment.id)
+            if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                grader_form = GraderFileSubmissionForm(request.POST, request.FILES, instance = assignment)
+                if grader_form.is_valid():
+                    try:
+                        request.FILES["grader_file"].read().decode()
+                    except UnicodeDecodeError:
+                        grader_file_errors = "Please don't upload binary files."
+                    else:
+                        grader_form.save()
+                        return redirect("assignments:show", assignment.id)
+            else:
+                grader_file_errors = "That file's too large. Are you sure it's a Python program?"
+        else:
+            assignment_form = AssignmentForm(data=request.POST, instance=assignment)
+            if assignment_form.is_valid():
+                assignment_form.save()
+                return redirect("assignments:show", assignment.id)
 
     return render(
         request,
         "assignments/edit_create.html",
         {
-            "form": form,
+            "assignment_form": assignment_form,
+            "grader_form": grader_form,
+            "grader_file_errors": grader_file_errors,
             "course": assignment.course,
             "assignment": assignment,
             "action": "edit",
@@ -151,6 +175,8 @@ def submit_view(request, assignment_id):
     file_errors = ""
     text_errors = ""
 
+    saved = False
+
     if request.method == "POST":
         if request.FILES.get("file"):
             if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
@@ -165,6 +191,7 @@ def submit_view(request, assignment_id):
                         submission.assignment = assignment
                         submission.student = student
                         submission.save()
+                        run_submission(submission)
                         return redirect("assignments:show", assignment.id)
             else:
                 file_errors = "That file's too large. Are you sure it's a Python program?"
@@ -182,9 +209,10 @@ def submit_view(request, assignment_id):
                         submission.student = student
                         submission.file.save(upload_submission_file_path(submission, ""), ContentFile(text_form.cleaned_data["text"]), save = False)
                         submission.save()
+                        run_submission(submission)
                         return redirect("assignments:show", assignment.id)
                 else:
-                    text_errors = "Submission too large"
+                    text_errors = "ubmission too large"
 
     return render(request,
         "assignments/submit.html",
@@ -198,3 +226,4 @@ def submit_view(request, assignment_id):
             "nav_item": "Submit",
         },
     )
+

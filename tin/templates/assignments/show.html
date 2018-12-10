@@ -108,6 +108,13 @@
 {% if request.user.is_student %}
   {% if submissions %}
     <h3 style="border-top:1px solid lightgray;padding-top:15px;">Last submission</h3>
+    <h4>Grader output:</h4>
+    {% if latest_submission.grader_output %}
+    <code><pre>{{ latest_submission.grader_output }}</code></pre>
+    {% else %}
+    Your code hasn't been graded yet. Try refreshing the page in a minute or two.
+    {% endif %}
+    <h4>Submission</h4>
     {% if latest_submission_text %}
     <code><pre>{{ latest_submission_text }}</pre></code>
     {% else %}
