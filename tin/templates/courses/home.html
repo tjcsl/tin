@@ -20,6 +20,14 @@
     </div>
   </li>
 {% endfor %}
+
+{% if not courses %}
+  <li>
+    <div class="left">
+      <p>No courses to show</p>
+    </div>
+  </li>
+{% endif %}
 </ul>
 
 {% if request.user.is_superuser %}
