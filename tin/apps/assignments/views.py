@@ -200,6 +200,6 @@ def submit_view(request, assignment_id):
             "text_errors": text_errors,
             "course": assignment.course,
             "assignment": assignment,
-            "student": student,
+            "nav_item": "Submit",
         },
     )
