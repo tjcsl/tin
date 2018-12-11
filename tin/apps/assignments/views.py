@@ -21,12 +21,6 @@ def show_view(request, assignment_id):
             submissions = Submission.objects.filter(student = request.user, assignment = assignment).order_by("-date_submitted")
             latest_submission = (submissions.latest("date_submitted") if submissions else None)
 
-            latest_submission_text = None
-            if latest_submission:
-                latest_submission_text = latest_submission.file.read().decode()
-                if len(latest_submission_text) > 7500: #7.5K
-                    latest_submission_text = None
-
             return render(
                 request,
                 "assignments/show.html",
@@ -35,7 +29,6 @@ def show_view(request, assignment_id):
                     "assignment": assignment,
                     "submissions": submissions,
                     "latest_submission": latest_submission,
-                    "latest_submission_text": latest_submission_text,
                 },
             )
         else:
@@ -149,6 +142,10 @@ def student_submission_view(request, assignment_id, student_id):
     submissions = Submission.objects.filter(student = student, assignment = assignment).order_by("-date_submitted")
     latest_submission = (submissions.latest("date_submitted") if submissions else None)
 
+    latest_submission_text = None
+    if latest_submission:
+        latest_submission_text = latest_submission.file.read().decode()
+
     return render(
         request,
         "assignments/student_submission.html",
@@ -158,6 +155,7 @@ def student_submission_view(request, assignment_id, student_id):
             "student": student,
             "submissions": submissions,
             "latest_submission": latest_submission,
+            "latest_submission_text": latest_submission_text,
         },
     )
 

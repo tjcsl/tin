@@ -44,7 +44,18 @@
   {% endif %}
 </table>
 
-<h3>Submissions</h3>
+{% if request.user.is_student %}
+  {% if submissions %}
+    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
+    {% if latest_submission.grader_output %}
+      <code><pre>{{ latest_submission.grader_output }}</code></pre>
+    {% else %}
+      Your code hasn't been graded yet. Try refreshing the page in a minute or two.
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+<h3 style="border-top:1px solid lightgray;padding-top:15px;">Submissions</h3>
 <table id="submission-list" class="has-border">
 {% if request.user.is_student %}
   <tr>
@@ -104,23 +115,5 @@
   {% endif %}
 {% endif %}
 </table>
-
-{% if request.user.is_student %}
-  {% if submissions %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Last submission</h3>
-    <h4>Grader output:</h4>
-    {% if latest_submission.grader_output %}
-    <code><pre>{{ latest_submission.grader_output }}</code></pre>
-    {% else %}
-    Your code hasn't been graded yet. Try refreshing the page in a minute or two.
-    {% endif %}
-    <h4>Submission</h4>
-    {% if latest_submission_text %}
-    <code><pre>{{ latest_submission_text }}</pre></code>
-    {% else %}
-    <p>Your last submission was somewhat large, so we're not showing it here. If you really want to see it, <a href="{% url 'submissions:show' latest_submission.id %}">click here</a>.</p>
-    {% endif %}
-  {% endif %}
-{% endif %}
 
 {% endblock %}
