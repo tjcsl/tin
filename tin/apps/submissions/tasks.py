@@ -17,6 +17,7 @@ def run_submission(submission_id):
         p = subprocess.Popen(["python3", os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name), os.path.join(settings.MEDIA_ROOT, submission.file.name)], stdout = subprocess.PIPE, stderr = subprocess.STDOUT, stdin = subprocess.DEVNULL)
 
         submission.grader_output = output = p.communicate()[0].decode()
+        submission.save()
     except subprocess.CalledProcessError as e:
         submission.grader_output = str(e.output)
     except Exception as e:
@@ -33,6 +34,6 @@ def run_submission(submission_id):
             if abs(score) < 100:
                 submission.points_received = score
                 submission.has_been_graded = True
-
-    submission.save()
+    finally:
+        submission.save()
 
