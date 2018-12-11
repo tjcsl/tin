@@ -199,18 +199,13 @@ def submit_view(request, assignment_id):
             text_form = TextSubmissionForm(request.POST)
             if text_form.is_valid():
                 if len(text_form.cleaned_data["text"]) <= settings.SUBMISSION_SIZE_LIMIT:
-                    try:
-                        text_form.cleaned_data["text"].decode()
-                    except UnicodeDecodeError:
-                        text_errors = "Please don't submit binary data."
-                    else:
-                        submission = text_form.save(commit = False)
-                        submission.assignment = assignment
-                        submission.student = student
-                        submission.file.save(upload_submission_file_path(submission, ""), ContentFile(text_form.cleaned_data["text"]), save = False)
-                        submission.save()
-                        run_submission.delay(submission.id)
-                        return redirect("assignments:show", assignment.id)
+                    submission = text_form.save(commit = False)
+                    submission.assignment = assignment
+                    submission.student = student
+                    submission.file.save(upload_submission_file_path(submission, ""), ContentFile(text_form.cleaned_data["text"]), save = False)
+                    submission.save()
+                    run_submission.delay(submission.id)
+                    return redirect("assignments:show", assignment.id)
                 else:
                     text_errors = "ubmission too large"
 
