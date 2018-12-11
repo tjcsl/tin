@@ -1,3 +1,5 @@
+import json
+
 from django import http
 from django.shortcuts import render
 
@@ -46,3 +48,26 @@ def show_view(request, submission_id):
             )
         else:
             raise http.Http404
+
+def show_json_view(request, submission_id):
+    #TODO: This is extremely hacky
+    try:
+        submission = Submission.objects.get(id = submission_id)
+    except Assignment.DoesNotExist:
+        return http.HttpResponse(json.dumps({"error": "Submission not found"}))
+
+    if submission.assignment.course in request.user.courses.all() or request.user == submission.assignment.course.teacher:
+        return http.HttpResponse(
+            json.dumps(
+                {
+                    "grader_output": submission.grader_output,
+                    "has_been_graded": submission.has_been_graded,
+                    "points_received": (str(submission.points_received) if submission.points_received is not None else None),
+                    "points_possible": (str(submission.points_possible) if submission.points_possible is not None else None),
+                    "grade_percent": submission.grade_percent,
+                }
+            )
+        )
+    
+    return http.HttpResponse(json.dumps({"error": "Submission not found"}))
+

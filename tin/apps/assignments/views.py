@@ -3,7 +3,7 @@ import os
 from django import http
 from django.conf import settings
 from django.utils import timezone
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, reverse, redirect, get_object_or_404
 from django.core.files.base import ContentFile
 
 from .models import Assignment
@@ -31,6 +31,7 @@ def show_view(request, assignment_id):
                     "assignment": assignment,
                     "submissions": submissions,
                     "latest_submission": latest_submission,
+                    "latest_submission_url": reverse('submissions:show_json', args=(latest_submission.id,)),
                 },
             )
         else:

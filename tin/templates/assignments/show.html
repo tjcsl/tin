@@ -3,9 +3,12 @@
 
 {% block title %}Turn-In: {{ assignment.name }}{% endblock %}
 
-{% block head %}
-  <link rel="stylesheet" href="{% static 'css/assignments.show.css' %}">
-{% endblock %}
+{% if latest_submission %}
+  {% block head %}
+    <script>var latest_submission_json_url = "{{ latest_submission_url }}";</script>
+    <script src="{% static 'js/assignments.show.js' %}"></script>
+  {% endblock %}
+{% endif %}
 
 {% block main %}
 <div class="header">
@@ -31,7 +34,7 @@
   {% if request.user.is_student %}
   <tr>
     <th>Grade:</th>
-    <td>
+    <td id="grade">
       {% if not latest_submission %}
       <span class="italic">Not yet submitted</span>
       {% elif not latest_submission.has_been_graded %}
@@ -47,11 +50,14 @@
 {% if request.user.is_student %}
   {% if submissions %}
     <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
-    {% if latest_submission.grader_output %}
-      <code><pre>{{ latest_submission.grader_output }}</code></pre>
-    {% else %}
-      Your code hasn't been graded yet. Try refreshing the page in a minute or two.
-    {% endif %}
+    <div id="grader-output"{% if not latest_submission.grader_output %} class="not-graded"{% endif %}>
+      {% if latest_submission.grader_output %}
+        <code><pre>{{ latest_submission.grader_output }}</pre></code>
+      {% else %}
+        Your code hasn't been graded yet.
+      {% endif %}
+    </div>
+    <div id="grader-status" class="italic"></div>
   {% endif %}
 {% endif %}
 
@@ -67,7 +73,7 @@
   <tr>
     <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
     <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-    <td>
+    <td{% if submission.id == latest_submission.id %} id="submission-list-grade"{% endif %}>
       {% if submission.has_been_graded %}
       {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
       {% else %}

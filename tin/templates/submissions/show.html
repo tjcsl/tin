@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
+
 {% block title %}
 Turn-In: {{ assignment.name }}:
 {% if request.user.is_teacher %}{{ student.full_name }}:{% endif %}
 Submission #{{ submission_number }}
+{% endblock %}
+
+{% block head %}
+  <script>var submission_json_url = "{% url 'submissions:show_json' submission.id %}";</script>
+  <script src="{% static 'js/submissions.show.js' %}"></script>
 {% endblock %}
 
 {% block main %}
@@ -30,7 +36,7 @@ Submission #{{ submission_number }}
   {% if request.user.is_student %}
   <tr>
     <th>Grade:</th>
-    <td>
+    <td id="grade">
       {% if not submission.has_been_graded %}
       <span class="italic">Not graded yet</span>
       {% else %}
@@ -61,7 +67,7 @@ Submission #{{ submission_number }}
   </tr>
   <tr>
     <th>Grade:</th>
-    <td>
+    <td id="grade">
       {% if not submission.has_been_graded %}
       <span class="italic">Not graded yet</span>
       {% else %}
@@ -73,7 +79,18 @@ Submission #{{ submission_number }}
 {% endif%}
 
 <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
-<code><pre>{{ submission.grader_output }}</pre></code>
+<div id="grader-output"{% if not submission.grader_output %} class="not-graded"{% endif %}>
+  {% if submission.grader_output %}
+    <code><pre>{{ submission.grader_output }}</pre></code>
+  {% else %}
+    {% if request.user.is_student %}
+      Your code hasn't been graded yet.
+    {% else %}
+      Submission hasn't been graded yet.
+    {% endif %}
+  {% endif %}
+</div>
+<div id="grader-status" class="italic"></div>
 
 <h3 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h3>
 <code><pre>{{ submission_text }}</pre></code>
