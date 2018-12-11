@@ -1,3 +1,5 @@
+import os
+
 from django import http
 from django.conf import settings
 from django.utils import timezone
@@ -98,11 +100,10 @@ def edit_view(request, assignment_id):
 
     if request.method == "POST":
         if request.FILES.get("grader_file"):
-            grader_form = GraderFileSubmissionForm(data=request.POST, instance=assignment)
-            if grader_form.is_valid():
-                grader_form.save()
-                return redirect("assignments:show", assignment.id)
             if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                if assignment.grader_file is not None:
+                    old_grader_file_path = assignment.grader_file.path #LEAVE THIS HERE
+                
                 grader_form = GraderFileSubmissionForm(request.POST, request.FILES, instance = assignment)
                 if grader_form.is_valid():
                     try:
@@ -110,8 +111,15 @@ def edit_view(request, assignment_id):
                     except UnicodeDecodeError:
                         grader_file_errors = "Please don't upload binary files."
                     else:
+                        if assignment.grader_file is not None:
+                            if os.path.exists(old_grader_file_path):
+                                os.remove(old_grader_file_path)
+
                         grader_form.save()
+
                         return redirect("assignments:show", assignment.id)
+                else:
+                    grader_file_errors = grader_form.errors
             else:
                 grader_file_errors = "That file's too large. Are you sure it's a Python program?"
         else:
