@@ -191,7 +191,7 @@ def submit_view(request, assignment_id):
                         submission.assignment = assignment
                         submission.student = student
                         submission.save()
-                        run_submission(submission)
+                        run_submission.delay(submission.id)
                         return redirect("assignments:show", assignment.id)
             else:
                 file_errors = "That file's too large. Are you sure it's a Python program?"
@@ -209,7 +209,7 @@ def submit_view(request, assignment_id):
                         submission.student = student
                         submission.file.save(upload_submission_file_path(submission, ""), ContentFile(text_form.cleaned_data["text"]), save = False)
                         submission.save()
-                        run_submission(submission)
+                        run_submission.delay(submission.id)
                         return redirect("assignments:show", assignment.id)
                 else:
                     text_errors = "ubmission too large"
