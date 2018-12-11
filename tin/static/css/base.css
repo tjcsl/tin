@@ -107,6 +107,10 @@ ul#course-list li, ul#assignment-list li {
   padding: 10px 0px;
   border-top: 1px solid lightgray;
 }
+ul#course-list li:last-child, ul#assignment-list li:last-child {
+  border-bottom: 1px solid lightgray;
+
+}
 ul#course-list li a, ul#assignment-list li a {
   height: min-content;
   color: black;
