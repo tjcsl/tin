@@ -14,3 +14,20 @@ class Course(models.Model):
 
     def __repr__(self):
         return "<{} (teacher: {})>".format(self.name, self.teacher)
+
+
+class StudentImportUser(models.Model):
+    user = models.CharField(max_length = 15)
+
+
+class StudentImport(models.Model):
+    students = models.ManyToManyField(StudentImportUser, related_name = "users")
+    course = models.ForeignKey(Course, null=True, on_delete = models.SET_NULL)
+
+    def __str__(self):
+        return "{} student(s) unimported ({})".format(self.students.count(), self.course.name)
+
+    def queue_users(self, users):
+        for user in users:
+            self.students.create(user=user)
+        self.save()

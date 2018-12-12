@@ -1,7 +1,7 @@
 from django import http
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import Course
+from .models import Course, StudentImport
 from .forms import CourseForm
 from ..auth.decorators import login_required, teacher_or_superuser_required
 from ..assignments.models import Assignment
@@ -92,6 +92,38 @@ def edit_view(request, course_id):
             "nav_item": "Edit",
         },
     )
+
+
+@teacher_or_superuser_required
+def import_students_view(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.user != course.teacher and not request.user.is_superuser:
+        raise http.Http404
+    
+    imports = StudentImport.objects.filter(course=course)
+    unimported_users = set()
+    for imp in imports:
+        for user in imp.students.all():
+            unimported_users.add(user.user)
+
+    if request.method == "POST":
+        students = request.POST.get("students", "").splitlines()
+        students = [x.strip() for x in students if x.strip()]
+        imp = StudentImport.objects.create(course=course)
+        imp.queue_users(students)
+        return redirect("courses:show", course.id)
+
+    return render(
+            request,
+            "courses/import_students.html",
+            {
+                "course": course,
+                "nav_item": "Import Students",
+                "unimported_users": unimported_users
+            },
+    )
+
 
 @teacher_or_superuser_required
 def students_view(request, course_id):
