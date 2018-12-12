@@ -31,7 +31,7 @@ def show_view(request, assignment_id):
                     "assignment": assignment,
                     "submissions": submissions,
                     "latest_submission": latest_submission,
-                    "latest_submission_url": reverse('submissions:show_json', args=(latest_submission.id,)),
+                    "latest_submission_url": reverse('submissions:show_json', args=(latest_submission.id,)) if latest_submission else None,
                 },
             )
         else:
@@ -102,7 +102,7 @@ def edit_view(request, assignment_id):
     if request.method == "POST":
         if request.FILES.get("grader_file"):
             if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                if assignment.grader_file is not None:
+                if assignment.grader_file.name:
                     old_grader_file_path = assignment.grader_file.path #LEAVE THIS HERE
                 
                 grader_form = GraderFileSubmissionForm(request.POST, request.FILES, instance = assignment)
@@ -112,7 +112,7 @@ def edit_view(request, assignment_id):
                     except UnicodeDecodeError:
                         grader_file_errors = "Please don't upload binary files."
                     else:
-                        if assignment.grader_file is not None:
+                        if assignment.grader_file.name:
                             if os.path.exists(old_grader_file_path):
                                 os.remove(old_grader_file_path)
 
