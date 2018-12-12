@@ -36,6 +36,7 @@
 <div>
   <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
   <a class="right tin-btn" href="{% url 'courses:students' course.id %}">View Roster</a>
+  <a class="right tin-btn" href="{% url 'courses:import' course.id %}">Import Students</a>
 </div>
 {% endif %}
 
