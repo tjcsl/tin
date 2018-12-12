@@ -112,7 +112,7 @@ def edit_view(request, assignment_id):
                     except UnicodeDecodeError:
                         grader_file_errors = "Please don't upload binary files."
                     else:
-                        if assignment.grader_file.name:
+                        if "old_grader_file_path" in locals():
                             if os.path.exists(old_grader_file_path):
                                 os.remove(old_grader_file_path)
 
