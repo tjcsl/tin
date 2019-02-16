@@ -101,17 +101,12 @@ def import_students_view(request, course_id):
     if request.user != course.teacher and not request.user.is_superuser:
         raise http.Http404
     
-    imports = StudentImport.objects.filter(course=course)
-    unimported_users = set()
-    for imp in imports:
-        for user in imp.students.all():
-            unimported_users.add(user.user)
+    student_import = StudentImport.objects.get_or_create(course=course)[0]
 
     if request.method == "POST":
         students = request.POST.get("students", "").splitlines()
         students = [x.strip() for x in students if x.strip()]
-        imp = StudentImport.objects.create(course=course)
-        imp.queue_users(students)
+        student_import.queue_users(students)
         return redirect("courses:show", course.id)
 
     return render(
@@ -120,7 +115,7 @@ def import_students_view(request, course_id):
             {
                 "course": course,
                 "nav_item": "Import Students",
-                "unimported_users": unimported_users
+                "unimported_users": student_import.students.all(),
             },
     )
 

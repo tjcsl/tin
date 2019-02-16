@@ -17,17 +17,21 @@ class Course(models.Model):
 
 
 class StudentImportUser(models.Model):
-    user = models.CharField(max_length = 15)
+    user = models.CharField(max_length = 15, unique = True)
+
+    def __str__(self):
+        return self.user
 
 
 class StudentImport(models.Model):
     students = models.ManyToManyField(StudentImportUser, related_name = "users")
-    course = models.ForeignKey(Course, null=True, on_delete = models.SET_NULL)
+    course = models.ForeignKey(Course, null=True, unique = True, on_delete = models.SET_NULL)
 
     def __str__(self):
         return "{} student(s) unimported ({})".format(self.students.count(), self.course.name)
 
-    def queue_users(self, users):
-        for user in users:
-            self.students.create(user=user)
+    def queue_users(self, usernames):
+        for username in usernames:
+            import_user_object = StudentImportUser.objects.get_or_create(user = username)[0]
+            self.students.add(import_user_object)
         self.save()
