@@ -31,7 +31,7 @@ def show_view(request, assignment_id):
                     "assignment": assignment,
                     "submissions": submissions,
                     "latest_submission": latest_submission,
-                    "latest_submission_url": reverse('submissions:show_json', args=(latest_submission.id,)) if latest_submission else None,
+                    "latest_submission_url": reverse('submissions:show_json', args = (latest_submission.id,)) if latest_submission else None,
                 },
             )
         else:
@@ -61,7 +61,7 @@ def show_view(request, assignment_id):
 @teacher_or_superuser_required
 def create_view(request, course_id):
     """ Creates an assignment """
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id = course_id)
 
     if request.user != course.teacher and not request.user.is_superuser:
         raise http.Http404
@@ -89,13 +89,13 @@ def create_view(request, course_id):
 @teacher_or_superuser_required
 def edit_view(request, assignment_id):
     """ Edits an assignment """
-    assignment = get_object_or_404(Assignment, id=assignment_id)
+    assignment = get_object_or_404(Assignment, id = assignment_id)
 
     if request.user != assignment.course.teacher and not request.user.is_superuser:
         raise http.Http404
 
-    assignment_form = AssignmentForm(instance=assignment)
-    grader_form = GraderFileSubmissionForm(instance=assignment)
+    assignment_form = AssignmentForm(instance = assignment)
+    grader_form = GraderFileSubmissionForm(instance = assignment)
 
     grader_file_errors = ""
 
@@ -124,7 +124,7 @@ def edit_view(request, assignment_id):
             else:
                 grader_file_errors = "That file's too large. Are you sure it's a Python program?"
         else:
-            assignment_form = AssignmentForm(data=request.POST, instance=assignment)
+            assignment_form = AssignmentForm(data = request.POST, instance = assignment)
             if assignment_form.is_valid():
                 assignment_form.save()
                 return redirect("assignments:show", assignment.id)

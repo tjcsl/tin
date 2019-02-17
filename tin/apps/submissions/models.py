@@ -17,9 +17,9 @@ class Submission(models.Model):
 
     complete = models.BooleanField(default = False)
 
-    points_received = models.DecimalField(max_digits = 4, decimal_places = 1, null=True, blank=True)
+    points_received = models.DecimalField(max_digits = 4, decimal_places = 1, null = True, blank = True)
 
-    file = models.FileField(upload_to = upload_submission_file_path, null=True)
+    file = models.FileField(upload_to = upload_submission_file_path, null = True)
 
     grader_output = models.CharField(max_length = 10 * 1024)
     grader_errors = models.CharField(max_length = 2 * 1024)
