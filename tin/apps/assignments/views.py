@@ -214,7 +214,7 @@ def submit_view(request, assignment_id):
                     run_submission.delay(submission.id)
                     return redirect("assignments:show", assignment.id)
                 else:
-                    text_errors = "ubmission too large"
+                    text_errors = "Submission too large"
 
     return render(request,
         "assignments/submit.html",
