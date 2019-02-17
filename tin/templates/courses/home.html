@@ -19,7 +19,7 @@
       {% endif %}
     </div>
     <div class="right">
-      Teacher: {{ course.teacher.full_name }}<br>
+      Teacher: <a href="mailto:{{ course.teacher.email }}">{{ course.teacher.full_name }}</a><br>
       {{ course.students.count }} student{{ course.students.count | pluralize }}
     </div>
   </li>
