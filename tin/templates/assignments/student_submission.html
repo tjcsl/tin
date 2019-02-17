@@ -3,6 +3,10 @@
 
 {% block title %}Turn-In: {{ assignment.name }} - {{ student.full_name }}{% endblock %}
 
+{% block head %}
+  <script src="{% static 'js/incomplete.js' %}"></script>
+{% endblock %}
+
 {% block main %}
 <h2>{{ assignment.name }} &mdash; {{ student.full_name }} ({{ student.username }})</h2>
 
@@ -21,29 +25,33 @@
   </tr>
   <tr>
     <th>Grade:</th>
-    <td>
-      {% if not latest_submission %}
-      <span class="italic">Not yet submitted</span>
-      {% elif not latest_submission.has_been_graded %}
-      <span class="italic">Not graded yet</span>
-      {% else %}
-      {{ latest_submission.points_received }}/{{ latest_submission.points_possible }} ({{ latest_submission.grade_percent }})
-      {% endif %}
-    </td>
+    {% if latest_submission %}
+      <td id="grade" class="{% if not latest_submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="formatted_grade">
+        {% if not latest_submission.has_been_graded %}
+        <span class="result-not-graded italic">Not graded</span>
+        {% else %}
+        {{ latest_submission.formatted_grade }}
+        {% endif %}
+      </td>
+    {% else %}
+      <td>
+        <span class="italic">Not yet submitted</span>
+      </td>
+		{% endif %}
   </tr>
 </table>
 
 {% if submissions %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
-  {% if latest_submission.grader_output %}
-    <code><pre>{{ latest_submission.grader_output }}</code></pre>
-  {% else %}
-    Submission hasn't been graded yet.
-  {% endif %}
+  <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
+    <code><pre>{{ latest_submission.grader_output }}</pre></code>
+  </div>
 
   {% if not request.user.is_student %}
     <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
-    <code><pre>{{ latest_submission.grader_errors }}</pre></code>
+    <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
+      <code><pre>{{ latest_submission.grader_errors }}</pre></code>
+    </div>
   {% endif %}
 
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Latest submission</h3>
@@ -62,11 +70,11 @@
     {% if submission %}
     <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
     <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-    <td>
+    <td id="grade" class="{% if latest_submission == submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
       {% if submission.has_been_graded %}
-      {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
+      {{ submission.formatted_grade }}
       {% else %}
-      <span class="italic">Not graded yet</span>
+      <span class="result-not-graded italic">Not graded</span>
       {% endif %}
     </td>
     {% endif %}

@@ -53,21 +53,22 @@ def show_json_view(request, submission_id):
     #TODO: This is extremely hacky
     try:
         submission = Submission.objects.get(id = submission_id)
-    except Assignment.DoesNotExist:
+    except Submission.DoesNotExist:
         return http.HttpResponse(json.dumps({"error": "Submission not found"}))
 
-    if submission.assignment.course in request.user.courses.all() or request.user == submission.assignment.course.teacher:
-        return http.HttpResponse(
-            json.dumps(
-                {
-                    "grader_output": submission.grader_output,
-                    "has_been_graded": submission.has_been_graded,
-                    "points_received": (str(submission.points_received) if submission.points_received is not None else None),
-                    "points_possible": (str(submission.points_possible) if submission.points_possible is not None else None),
-                    "grade_percent": submission.grade_percent,
-                }
-            )
-        )
+    if submission.assignment.course in request.user.courses.all() or request.user == submission.assignment.course.teacher or request.user.is_superuser:
+        data = {
+            "grader_output": submission.grader_output,
+            "has_been_graded": submission.has_been_graded,
+            "complete": submission.complete,
+            "points_received": (str(submission.points_received) if submission.points_received is not None else None),
+            "points_possible": (str(submission.points_possible) if submission.points_possible is not None else None),
+            "grade_percent": submission.grade_percent,
+            "formatted_grade": ("{}/{} ({})".format(submission.points_received, submission.points_possible, submission.grade_percent) if submission.has_been_graded else "Not graded"),
+        }
+        if not request.user.is_student:
+            data["grader_errors"] = submission.grader_errors
+        return http.HttpResponse(json.dumps(data), content_type = "text/json")
     
     return http.HttpResponse(json.dumps({"error": "Submission not found"}))
 

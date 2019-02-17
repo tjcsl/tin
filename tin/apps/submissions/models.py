@@ -15,6 +15,8 @@ class Submission(models.Model):
 
     has_been_graded = models.BooleanField(default = False)
 
+    complete = models.BooleanField(default = False)
+
     points_received = models.DecimalField(max_digits = 4, decimal_places = 1, null=True, blank=True)
 
     file = models.FileField(upload_to = upload_submission_file_path, null=True)
@@ -35,4 +37,10 @@ class Submission(models.Model):
         if self.points_received is None:
             return None
         return "{}%".format(self.points_received / self.points_possible * 100)
+
+    @property
+    def formatted_grade(self):
+        if self.has_been_graded:
+            return "{}/{} ({})".format(self.points_received, self.points_possible, self.grade_percent)
+        return "Not graded"
 

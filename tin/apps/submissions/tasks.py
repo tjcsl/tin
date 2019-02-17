@@ -59,6 +59,7 @@ def run_submission(submission_id):
 
             submission.grader_output = output
             submission.grader_errors = errors
+            submission.complete = True
             submission.save()
     except subprocess.CalledProcessError as e:
         submission.grader_output = str(e.output)
