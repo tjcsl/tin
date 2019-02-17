@@ -14,8 +14,6 @@ def enroll(sender, user, request, **kwargs):
         for student_import in need_course_imports:
             student_import.course.students.add(User.objects.get(id=user.id))
             student_import.students.remove(import_user_object)
-            if student_import.students.count() == 0:
-                student_import.delete()
         import_user_object.delete()
 
 user_logged_in.connect(enroll)
