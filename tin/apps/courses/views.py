@@ -4,7 +4,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Course, StudentImport
 from .forms import CourseForm
 from ..auth.decorators import login_required, teacher_or_superuser_required
-from ..assignments.models import Assignment
 
 
 # Create your views here.
@@ -25,7 +24,16 @@ def index_view(request):
     }
     
     if request.user.is_student:
-        context["courses_with_unsubmitted_assignments"] = [course for course in courses.all() if any(not assignment.submissions_from_student(request.user) for assignment in course.assignments.all())]
+        courses_with_unsubmitted_assignments = set()
+        unsubmitted_assignments = []
+        for course in courses.all():
+            for assignment in course.assignments.all():
+                if not assignment.submissions_from_student(request.user):
+                    unsubmitted_assignments.append(assignment)
+                    courses_with_unsubmitted_assignments.add(course)
+
+        context["courses_with_unsubmitted_assignments"] = courses_with_unsubmitted_assignments
+        context["unsubmitted_assignments"] = unsubmitted_assignments
 
     return render(request, "courses/home.html", context)
 
