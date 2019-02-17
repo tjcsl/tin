@@ -9,7 +9,7 @@ from .models import Submission
 def show_view(request, submission_id):
     try:
         submission = Submission.objects.get(id = submission_id)
-    except Assignment.DoesNotExist:
+    except Submission.DoesNotExist:
         raise http.Http404
 
     student_submissions = Submission.objects.filter(student = submission.student, assignment = submission.assignment).order_by("date_submitted")
@@ -33,7 +33,7 @@ def show_view(request, submission_id):
         else:
             raise http.Http404
     else:
-        if request.user == submission.assignment.course.teacher:
+        if request.user == submission.assignment.course.teacher or request.user.is_superuser:
             return render(
                 request,
                 "submissions/show.html",
