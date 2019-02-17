@@ -18,7 +18,7 @@ def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)
     try:
         args = ["python3", "-u", os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name), os.path.join(settings.MEDIA_ROOT, submission.file.name)]
-        with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
+        with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
             killed = False
             def kill_process():
                 nonlocal killed
@@ -49,10 +49,16 @@ def run_submission(submission_id):
                 if p.poll() is not None:
                     break
 
+            errors = ""
+            for line in p.stderr:
+                errors += line.decode()
+
+
             if kill_timer is not None:
                 kill_timer.cancel()
 
             submission.grader_output = output
+            submission.grader_errors = errors
             submission.save()
     except subprocess.CalledProcessError as e:
         submission.grader_output = str(e.output)

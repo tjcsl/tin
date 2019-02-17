@@ -40,6 +40,12 @@
   {% else %}
     Submission hasn't been graded yet.
   {% endif %}
+
+  {% if not request.user.is_student %}
+    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
+    <code><pre>{{ latest_submission.grader_errors }}</pre></code>
+  {% endif %}
+
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Latest submission</h3>
   <code><pre>{{ latest_submission_text }}</code></pre>
 {% endif %}

@@ -90,6 +90,12 @@ Submission #{{ submission_number }}
     {% endif %}
   {% endif %}
 </div>
+
+{% if not request.user.is_student %}
+  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
+  <code><pre>{{ submission.grader_errors }}</pre></code>
+{% endif %}
+
 <div id="grader-status" class="italic"></div>
 
 <h3 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h3>

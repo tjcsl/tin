@@ -20,6 +20,7 @@ class Submission(models.Model):
     file = models.FileField(upload_to = upload_submission_file_path, null=True)
 
     grader_output = models.CharField(max_length = 10 * 1024)
+    grader_errors = models.CharField(max_length = 2 * 1024)
 
     @property
     def is_on_time(self):
