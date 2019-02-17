@@ -1,5 +1,6 @@
 import os
 import re
+import psutil
 import subprocess
 import traceback
 import threading
@@ -11,7 +12,7 @@ from celery import shared_task
 
 from .models import Submission
 
-KILL_TIMEOUT = 1
+KILL_TIMEOUT = 5
 
 @shared_task
 def run_submission(submission_id):
@@ -24,10 +25,18 @@ def run_submission(submission_id):
                 nonlocal terminated
                 if p.poll() is None:
                     terminated = True
+                    last_children = psutil.Process(p.pid).children(recursive = True)
                     p.terminate()
                     try:
                         p.wait(KILL_TIMEOUT)
+                        for child in last_children:
+                            try:
+                                child.kill()
+                            except psutil.NoSuchProcess:
+                                pass
                     except subprocess.TimeoutExpired:
+                        for child in psutil.Process(p.pid).children(recursive = True):
+                            child.kill()
                         p.kill()
 
             if submission.assignment.enable_grader_timeout:
@@ -66,4 +75,4 @@ def run_submission(submission_id):
                     submission.has_been_graded = True
     finally:
         submission.save()
-
+\
