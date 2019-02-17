@@ -13,9 +13,9 @@ class AssignmentForm(forms.ModelForm):
         model = Assignment
         fields = ["name", "description", "points_possible", "due", "enable_grader_timeout", "grader_timeout"]
         labels = {
-                "enable_grader_timeout": "Set a timeout for the grader?",
-                "grader_timeout": "Grader timeout (seconds):"
-                }
+            "enable_grader_timeout": "Set a timeout for the grader?",
+            "grader_timeout": "Grader timeout (seconds):"
+        }
 
 class GraderFileSubmissionForm(forms.ModelForm):
     class Meta:

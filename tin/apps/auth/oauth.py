@@ -2,8 +2,8 @@ from social_core.backends.oauth import BaseOAuth2
 from social_core.pipeline.user import get_username as social_get_username
 
 
-def get_username(strategy, details, user=None, *args, **kwargs):
-    result = social_get_username(strategy, details, user=user, *args, **kwargs)
+def get_username(strategy, details, user = None, *args, **kwargs):
+    result = social_get_username(strategy, details, user = user, *args, **kwargs)
     #if not hasattr(user, 'social_user'):
     #    user.social_user
     return result
@@ -23,8 +23,10 @@ class IonOauth2(BaseOAuth2):
         return ["read"]
 
     def get_user_details(self, response):
-        profile = self.get_json('https://ion.tjhsst.edu/api/profile',
-                                params={'access_token': response['access_token']})
+        profile = self.get_json(
+            'https://ion.tjhsst.edu/api/profile',
+            params = {'access_token': response['access_token']},
+        )
         # fields used to populate/update User model
         return {
             'id': profile['id'],
