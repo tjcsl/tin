@@ -1,5 +1,6 @@
 import os
 import re
+import signal
 import psutil
 import subprocess
 import traceback
@@ -12,38 +13,35 @@ from celery import shared_task
 
 from .models import Submission
 
-KILL_TIMEOUT = 5
-
 @shared_task
 def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)
     try:
         args = ["python3", "-u", os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name), os.path.join(settings.MEDIA_ROOT, submission.file.name)]
-        with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, stdin = subprocess.DEVNULL) as p:
-            terminated = False
-            def terminate():
-                nonlocal terminated
+        with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
+            killed = False
+            def kill_process():
+                nonlocal killed
                 if p.poll() is None:
-                    terminated = True
-                    last_children = psutil.Process(p.pid).children(recursive = True)
-                    p.terminate()
+                    killed = True
+
+                    children = psutil.Process(p.pid).children(recursive = True)
                     try:
-                        p.wait(KILL_TIMEOUT)
-                        for child in last_children:
-                            try:
-                                child.kill()
-                            except psutil.NoSuchProcess:
-                                pass
-                    except subprocess.TimeoutExpired:
-                        for child in psutil.Process(p.pid).children(recursive = True):
-                            child.kill()
+                        os.killpg(p.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        #Shouldn't happen, but just in case
                         p.kill()
+                    for child in children:
+                        try:
+                            child.kill()
+                        except psutil.NoSuchProcess:
+                            pass
 
             if submission.assignment.enable_grader_timeout:
-                term_timer = threading.Timer(submission.assignment.grader_timeout, terminate)
-                term_timer.start()
+                kill_timer = threading.Timer(submission.assignment.grader_timeout, kill_process)
+                kill_timer.start()
             else:
-                term_timer = None
+                kill_timer = None
 
             output = ""
             for line in p.stdout:
@@ -51,8 +49,8 @@ def run_submission(submission_id):
                 if p.poll() is not None:
                     break
 
-            if term_timer is not None:
-                term_timer.cancel()
+            if kill_timer is not None:
+                kill_timer.cancel()
 
             submission.grader_output = output
             submission.save()
