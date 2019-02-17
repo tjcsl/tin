@@ -25,7 +25,7 @@ class StudentImportUser(models.Model):
 
 class StudentImport(models.Model):
     students = models.ManyToManyField(StudentImportUser, related_name = "users")
-    course = models.ForeignKey(Course, null=True, unique = True, on_delete = models.SET_NULL)
+    course = models.OneToOneField(Course, unique = True, on_delete = models.CASCADE)
 
     def __str__(self):
         return "{} student(s) unimported ({})".format(self.students.count(), self.course.name)
