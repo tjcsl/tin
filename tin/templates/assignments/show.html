@@ -33,13 +33,17 @@
   {% if request.user.is_student %}
   <tr>
     <th>Grade:</th>
-    <td id="grade" class="{% if not latest_submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="formatted_grade">
-      {% if not latest_submission.has_been_graded %}
-      <span class="result-not-graded italic">Not graded</span>
-      {% else %}
-      {{ latest_submission.formatted_grade }}
-      {% endif %}
-    </td>
+    {% if latest_submission %}
+      <td id="grade" class="{% if not latest_submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="formatted_grade">
+        {% if not latest_submission.has_been_graded %}
+        <span class="result-not-graded italic">Not graded</span>
+        {% else %}
+        {{ latest_submission.formatted_grade }}
+        {% endif %}
+      </td>
+    {% else %}
+      <td class="italic">Not submitted</td>
+    {% endif %}
   </tr>
   {% endif %}
 </table>
