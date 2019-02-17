@@ -25,6 +25,8 @@ class Assignment(models.Model):
     due = models.DateTimeField()
 
     grader_file = models.FileField(upload_to = upload_grader_file_path, null=True)
+    enable_grader_timeout = models.BooleanField(default = False)
+    grader_timeout = models.IntegerField(default = 300, validators = [MinValueValidator(10)])
 
     def __str__(self):
         return "{} in {}".format(self.name, self.course)
