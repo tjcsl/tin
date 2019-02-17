@@ -49,6 +49,9 @@ def run_submission(submission_id):
                 if p.poll() is not None:
                     break
 
+                submission.grader_output = output
+                submission.save()
+
             errors = ""
             for line in p.stderr:
                 errors += line.decode()
