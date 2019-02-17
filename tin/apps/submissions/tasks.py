@@ -53,9 +53,27 @@ def run_submission(submission_id):
             for line in p.stderr:
                 errors += line.decode()
 
-
             if kill_timer is not None:
                 kill_timer.cancel()
+
+            if killed:
+                if not output.endswith("\n"):
+                    output += "\n"
+                output += "[Grader timed out]"
+
+                if not errors.endswith("\n"):
+                    errors += "\n"
+                errors += "[Grader timed out]"
+            else:
+                retcode = p.poll()
+                if retcode != 0:
+                    if not output.endswith("\n"):
+                        output += "\n"
+                    output += "[Grader error]"
+
+                    if not errors.endswith("\n"):
+                        errors += "\n"
+                    errors += "[Grader exited with status {}]".format(retcode)
 
             submission.grader_output = output
             submission.grader_errors = errors
