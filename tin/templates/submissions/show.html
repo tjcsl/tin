@@ -39,7 +39,7 @@ Submission #{{ submission_number }}
       {% if not submission.has_been_graded %}
       <span class="result-not-graded italic">Not graded</span>
       {% else %}
-      {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
+      {{ submission.formatted_grade }}
       {% endif %}
     </td>
   </tr>
@@ -70,7 +70,7 @@ Submission #{{ submission_number }}
       {% if not submission.has_been_graded %}
       <span class="result-not-graded italic">Not graded</span>
       {% else %}
-      {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
+      {{ submission.formatted_grade }}
       {% endif %}
     </td>
   </tr>

@@ -95,7 +95,7 @@
     <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
     <td>
       {% if submission.has_been_graded %}
-      {{ submission.points_received }}/{{ submission.points_possible }} ({{ submission.grade_percent }})
+      {{ submission.formatted_grade }}
       {% else %}
       <span class="italic">Not graded yet</span>
       {% endif %}
