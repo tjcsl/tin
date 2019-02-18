@@ -63,12 +63,16 @@
   <tr>
     <th style="min-width:125px;">Date submitted</th>
     <th style="min-width:65px;">On time?</th>
+    <th style="min-width:80px;">Completed?</th>
     <th style="min-width:90px;">Grade</th>
   </tr>
   {% for submission in submissions %}
   <tr>
     <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
     <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+    <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
+      {% if submission.complete %}Yes{% else %}No{% endif %}
+    </td>
     <td id="grade" class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
       {% if not submission.has_been_graded %}
       <span class="result-not-graded italic">Not graded</span>
@@ -88,7 +92,8 @@
   <tr>
     <th style="min-width:125px">Student</th>
     <th style="min-width:125px;">Last submission date</th>
-    <th style="min-width:125px;">On time?</th>
+    <th style="min-width:65px;">On time?</th>
+    <th style="min-width:80px;">Completed?</th>
     <th style="min-width:75px;">Grade</th>
   </tr>
   {% for student, submission in students_and_submissions %}
@@ -97,6 +102,7 @@
     {% if submission %}
     <td>{{ submission.date_submitted }}</td>
     <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+    <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
     <td>
       {% if submission.has_been_graded %}
       {{ submission.formatted_grade }}
@@ -105,14 +111,14 @@
       {% endif %}
     </td>
     {% else %}
-    <td colspan="3" class="italic center">No submissions</td>
+    <td colspan="5" class="italic center">No submissions</td>
     {% endif %}
   </tr>
   {% endfor %}
 
   {% if not students_and_submissions %}
   <tr>
-    <td colspan="4" class="italic center">No students in class</td>
+    <td colspan="5" class="italic center">No students in class</td>
   </tr>
   {% endif %}
 {% endif %}

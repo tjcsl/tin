@@ -32,6 +32,12 @@ Submission #{{ submission_number }}
       {% if submission.is_on_time %}Yes{% else %}No{% endif %}
     </td>
   </tr>
+  <tr>
+    <th>Completed?</th>
+    <td class="{% if not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
+      {% if submission.complete %}Yes{% else %}No{% endif %}
+    </td>
+  </tr>
   {% if request.user.is_student %}
   <tr>
     <th>Grade:</th>
@@ -62,6 +68,12 @@ Submission #{{ submission_number }}
     <th>On time?</th>
     <td>
       {% if submission.is_on_time %}Yes{% else %}No{% endif %}
+    </td>
+  </tr>
+  <tr>
+    <th>Completed?</th>
+    <td class="{% if not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
+      {% if submission.complete %}Yes{% else %}No{% endif %}
     </td>
   </tr>
   <tr>
