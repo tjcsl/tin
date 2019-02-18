@@ -205,4 +205,25 @@ input[type=submit] {
   #file-upload, #text-upload {
     display: table-cell;
   }
+  #text-upload {
+    width: 100%;
+  }
 }
+
+#text-upload .tbl {
+  width: 100%;
+}
+#text-upload .tbl-row .tbl-cell:first-child {
+  width: 15px;
+}
+
+#editor {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  height: 300px;
+  min-width: 400px;
+  max-width: 700px;
+  width: 75%;
+}
+

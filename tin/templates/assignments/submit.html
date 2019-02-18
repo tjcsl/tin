@@ -2,6 +2,23 @@
 {% load static %}
 
 {% block head %}
+  <script src="{% static 'vendor/ace/ace.js' %}"></script>
+  <script>
+    $(function() {
+      var textarea = $("#id_text");
+      textarea.css("display", "none");
+      textarea.prev().attr("id", "editor");
+
+      var editor = ace.edit("editor");
+      editor.setTheme("ace/theme/tomorrow");
+      editor.session.setMode("ace/mode/python");
+
+      editor.getSession().setValue(textarea.val());
+      editor.getSession().on("change", function() {
+        textarea.val(editor.getSession().getValue());
+      });
+    });
+  </script>
 {% endblock %}
 
 {% block main %}
@@ -37,7 +54,7 @@
             {% for field in text_form %}
               <div class="tbl-row">
                 <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
-                <span class="tbl-cell">{{ field }}</span>
+                <div class="tbl-cell"><div></div>{{ field }}</div>
               </div>
             {% endfor %}
           </div>
