@@ -89,27 +89,27 @@ body {
 }
 
 .tbl {
-    display: table;
+  display: table;
 }
 .tbl-row {
-    display: table-row;
+  display: table-row;
 }
 .tbl-cell {
-    display: table-cell;
+  display: table-cell;
 }
 
 #footer {
-    background-color: #f2f2f4;
-    border-top: 1px solid #AAAAAA;
-    box-sizing: border-box;
-    z-index: 10;
-    position: fixed;
-    bottom: 0px;
-    right: 0px;
-    width: 100%;
-    padding: 4px;
-    font-size: 10px;
-    text-align: right;
+  background-color: #f2f2f4;
+  border-top: 1px solid #AAAAAA;
+  box-sizing: border-box;
+  z-index: 10;
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  width: 100%;
+  padding: 4px;
+  font-size: 10px;
+  text-align: right;
 }
 
 ul#course-list, ul#assignment-list {
