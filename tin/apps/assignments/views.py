@@ -231,18 +231,19 @@ def submit_view(request, assignment_id):
                 else:
                     text_errors = "Submission too large"
 
-    return render(request,
-                  "assignments/submit.html",
-                  {
-                      "file_form": file_form,
-                      "text_form": text_form,
-                      "file_errors": file_errors,
-                      "text_errors": text_errors,
-                      "course": assignment.course,
-                      "assignment": assignment,
-                      "nav_item": "Submit",
-                  },
-                  )
+    return render(
+        request,
+        "assignments/submit.html",
+        {
+            "file_form": file_form,
+            "text_form": text_form,
+            "file_errors": file_errors,
+            "text_errors": text_errors,
+            "course": assignment.course,
+            "assignment": assignment,
+            "nav_item": "Submit",
+        },
+    )
 
 
 @teacher_or_superuser_required
