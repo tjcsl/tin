@@ -1,2 +1,3 @@
 [MAIN]
 disable=C0326
+max-line-length=200
