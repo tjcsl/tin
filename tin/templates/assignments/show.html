@@ -48,8 +48,6 @@
   {% endif %}
 </table>
 
-
-
 {% if request.user.is_student %}
   {% if submissions %}
     <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
@@ -119,6 +117,7 @@
   {% endif %}
 {% endif %}
 </table>
+
 {% if request.user.is_teacher or request.user.is_superuser %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h3>
     <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Export Scores</a>
