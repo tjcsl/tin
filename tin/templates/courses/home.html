@@ -23,15 +23,13 @@
       {{ course.students.count }} student{{ course.students.count | pluralize }}
     </div>
   </li>
-{% endfor %}
-
-{% if not courses %}
+{% empty %}
   <li>
     <div class="left">
       <p>No courses to show</p>
     </div>
   </li>
-{% endif %}
+{% endfor %}
 </ul>
 
 {% if request.user.is_student %}
@@ -43,6 +41,12 @@
       <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} - {{ assignment.course.name }}</a>
     </div>
     <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
+    </li>
+  {% empty %}
+    <li>
+      <div class="left">
+        <p>You're all caught up!</p>
+      </div>
     </li>
   {% endfor %}
   </ul>
