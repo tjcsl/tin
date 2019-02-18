@@ -73,4 +73,4 @@ def show_json_view(request, submission_id):
             data["grader_errors"] = submission.grader_errors
         return http.HttpResponse(json.dumps(data), content_type = "text/json")
 
-    return http.HttpResponse(json.dumps({"error": "Submission not found"}))
+    return http.Http404
