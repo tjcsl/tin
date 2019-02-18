@@ -185,7 +185,9 @@ def submit_view(request, assignment_id):
     saved = False
 
     if request.method == "POST":
-        if request.FILES.get("file"):
+        if assignment.grader_file is None:
+            return redirect("assignments:show", assignment.id)
+        elif request.FILES.get("file"):
             if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
                 file_form = FileSubmissionForm(request.POST, request.FILES)
                 if file_form.is_valid():
