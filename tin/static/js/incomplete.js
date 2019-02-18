@@ -58,7 +58,11 @@ setInterval(function() {
           $("<pre>").appendTo($("<code>").appendTo(result_obj)).text(res[obj.data("endpoint-key")]);
         }
         else {
-          result_obj.text(res[obj.data("endpoint-key")]);
+          var value = res[obj.data("endpoint-key")];
+          if(typeof value == "boolean") {
+            value = (value ? "Yes": "No");
+          }
+          result_obj.text(value);
         }
       });
       endpoint_elems[endpoint].filter(function(obj) {
