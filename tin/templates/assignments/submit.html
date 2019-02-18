@@ -9,36 +9,43 @@
 <h2>{% block title %}Turn-In: {{ assignment.name }}{% endblock %}</h2>
 
 {% if assignment.grader_file %}
-  <h3>File Upload</h3>
-  <p>Size limit is 1MB.</p>
-  <h4 style="color:red;">{{ file_errors }}</h4>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="tbl">
-      {% for field in file_form %}
-        <div class="tbl-row">
-          <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
-          <span class="tbl-cell">{{ field }}</span>
-        </div>
-      {% endfor %}
+  <div id="upload-container">
+    <div id="upload-row">
+      <div id="file-upload">
+        <h3>File Upload</h3>
+        <p>Size limit is 1MB.</p>
+        <h4 style="color:red;">{{ file_errors }}</h4>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="tbl">
+            {% for field in file_form %}
+              <div class="tbl-row">
+                <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
+                <span class="tbl-cell">{{ field }}</span>
+              </div>
+            {% endfor %}
+          </div>
+          <input type="submit" value="Submit">
+        </form>
+      </div>
+      <div id="text-upload">
+        <h3>Text Upload</h3>
+        <h4 style="color:red;">{{ text_errors }}</h4>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="tbl">
+            {% for field in text_form %}
+              <div class="tbl-row">
+                <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
+                <span class="tbl-cell">{{ field }}</span>
+              </div>
+            {% endfor %}
+          </div>
+          <input type="submit" value="Submit">
+        </form>
+      </div>
     </div>
-    <input type="submit" value="Submit">
-  </form>
-  <br>
-  <h3>Text Upload</h3>
-  <h4 style="color:red;">{{ text_errors }}</h4>
-  <form method="POST">
-    {% csrf_token %}
-    <div class="tbl">
-      {% for field in text_form %}
-        <div class="tbl-row">
-          <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
-          <span class="tbl-cell">{{ field }}</span>
-        </div>
-      {% endfor %}
-    </div>
-    <input type="submit" value="Submit">
-  </form>
+  </div>
 {% else %}
   Your teacher has not uploaded a grader file.
 {% endif %}

@@ -188,3 +188,15 @@ input[type=submit] {
   font-weight: bold;
   text-decoration: none;
 }
+
+@media(min-width:1000px) {
+  #upload-container {
+    display: table;
+  }
+  #upload-row {
+    display: table-row;
+  }
+  #file-upload, #text-upload {
+    display: table-cell;
+  }
+}
