@@ -38,7 +38,6 @@ def show_view(request, assignment_id):
                     "assignment": assignment,
                     "submissions": submissions,
                     "latest_submission": latest_submission,
-                    "latest_submission_url": reverse('submissions:show_json', args = (latest_submission.id,)) if latest_submission else None,
                 },
             )
         else:
