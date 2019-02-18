@@ -41,14 +41,16 @@
       {% endif %}
     </ul>
   </div>
-  <div id="main">
-    {% block main %}
+  <div id="content">
+    <div id="main">
+      {% block main %}
+      {% endblock %}
+    </div>
+    <div class="footer">
+    {% block footer %}
+      Developed by John Beutner and Theo Ouzhinski. Questions? Email <a href="mailto:tin@tjhsst.edu">tin@tjhsst.edu</a>
     {% endblock %}
-  </div>
-  <div class="footer">
-  {% block footer %}
-    Developed by John Beutner and Theo Ouzhinski. Questions? Email <a href="mailto:tin@tjhsst.edu">tin@tjhsst.edu</a>
-  {% endblock %}
+    </div>
   </div>
 </body>
 </html>
