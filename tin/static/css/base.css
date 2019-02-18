@@ -79,7 +79,7 @@ body {
 
 #content {
   margin: 0px 0px 0px 0px;
-  padding: 5px 26px 10px 26px;
+  padding: 5px 26px 26px 26px;
 }
 
 #main {
@@ -98,12 +98,18 @@ body {
     display: table-cell;
 }
 
-.footer {
+#footer {
+    background-color: #f2f2f4;
+    border-top: 1px solid #AAAAAA;
+    box-sizing: border-box;
     z-index: 10;
     position: fixed;
-    bottom: 4px;
-    right: 4px;
+    bottom: 0px;
+    right: 0px;
+    width: 100%;
+    padding: 4px;
     font-size: 10px;
+    text-align: right;
 }
 
 ul#course-list, ul#assignment-list {
