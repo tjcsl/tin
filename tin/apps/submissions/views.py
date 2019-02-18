@@ -3,11 +3,13 @@ import json
 from django import http
 from django.shortcuts import render
 
+from ..auth.decorators import login_required
 from .models import Submission
 
 # Create your views here.
 
 
+@login_required
 def show_view(request, submission_id):
     try:
         submission = Submission.objects.get(id = submission_id)
@@ -51,7 +53,7 @@ def show_view(request, submission_id):
         else:
             raise http.Http404
 
-
+@login_required
 def show_json_view(request, submission_id):
     # TODO: This is extremely hacky
     try:
