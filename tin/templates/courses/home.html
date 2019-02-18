@@ -34,17 +34,19 @@
 {% endif %}
 </ul>
 
-<h2>Unsubmitted Assignments</h2>
-<ul id="course-list">
-{% for assignment in unsubmitted_assignments %}
-  <li>
-  <div class="left">
-    <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} - {{ assignment.course.name }}</a>
-  </div>
-  <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
-  </li>
-{% endfor %}
-</ul>
+{% if request.user.is_student %}
+  <h2>Unsubmitted Assignments</h2>
+  <ul id="course-list">
+  {% for assignment in unsubmitted_assignments %}
+    <li>
+    <div class="left">
+      <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} - {{ assignment.course.name }}</a>
+    </div>
+    <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
+    </li>
+  {% endfor %}
+  </ul>
+{% endif %}
 
 {% if request.user.is_superuser %}
   <h2>Administration</h2>
