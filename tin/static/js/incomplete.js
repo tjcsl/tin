@@ -17,7 +17,7 @@ setInterval(function() {
           remove_elems.push(obj);
         }
         var result_obj = obj;
-        if(obj.children()) {
+        if(obj.children().length) {
           var result_div = null;
           var other_result_div = null;
 
