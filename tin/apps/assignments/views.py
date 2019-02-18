@@ -18,6 +18,11 @@ from ..auth.decorators import login_required, teacher_or_superuser_required
 
 @login_required
 def show_view(request, assignment_id):
+    """
+    Shows an overview of the assignment
+    :param request: The request
+    :param assignment_id: The assignment id
+    """
     assignment = get_object_or_404(Assignment, id = assignment_id)
 
     if request.user.is_student:
