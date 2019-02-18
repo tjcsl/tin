@@ -15,6 +15,7 @@ from ..submissions.tasks import run_submission
 from ..users.models import User
 from ..auth.decorators import login_required, teacher_or_superuser_required
 
+
 @login_required
 def show_view(request, assignment_id):
     assignment = get_object_or_404(Assignment, id = assignment_id)
@@ -59,6 +60,7 @@ def show_view(request, assignment_id):
         else:
             raise http.Http404
 
+
 @teacher_or_superuser_required
 def create_view(request, course_id):
     """ Creates an assignment """
@@ -87,6 +89,7 @@ def create_view(request, course_id):
         },
     )
 
+
 @teacher_or_superuser_required
 def edit_view(request, assignment_id):
     """ Edits an assignment """
@@ -104,8 +107,8 @@ def edit_view(request, assignment_id):
         if request.FILES.get("grader_file"):
             if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
                 if assignment.grader_file.name:
-                    old_grader_file_path = assignment.grader_file.path #LEAVE THIS HERE
-                
+                    old_grader_file_path = assignment.grader_file.path  # LEAVE THIS HERE
+
                 grader_form = GraderFileSubmissionForm(request.POST, request.FILES, instance = assignment)
                 if grader_form.is_valid():
                     try:
@@ -144,6 +147,7 @@ def edit_view(request, assignment_id):
         },
     )
 
+
 @teacher_or_superuser_required
 def student_submission_view(request, assignment_id, student_id):
     assignment = get_object_or_404(Assignment, id = assignment_id)
@@ -171,6 +175,7 @@ def student_submission_view(request, assignment_id, student_id):
             "latest_submission_text": latest_submission_text,
         },
     )
+
 
 @login_required
 def submit_view(request, assignment_id):
@@ -223,17 +228,18 @@ def submit_view(request, assignment_id):
                     text_errors = "Submission too large"
 
     return render(request,
-        "assignments/submit.html",
-        {
-            "file_form": file_form,
-            "text_form": text_form,
-            "file_errors": file_errors,
-            "text_errors": text_errors,
-            "course": assignment.course,
-            "assignment": assignment,
-            "nav_item": "Submit",
-        },
-    )
+                  "assignments/submit.html",
+                  {
+                      "file_form": file_form,
+                      "text_form": text_form,
+                      "file_errors": file_errors,
+                      "text_errors": text_errors,
+                      "course": assignment.course,
+                      "assignment": assignment,
+                      "nav_item": "Submit",
+                  },
+                  )
+
 
 @teacher_or_superuser_required
 def scores_csv_view(request, assignment_id):

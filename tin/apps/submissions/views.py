@@ -6,6 +6,8 @@ from django.shortcuts import render
 from .models import Submission
 
 # Create your views here.
+
+
 def show_view(request, submission_id):
     try:
         submission = Submission.objects.get(id = submission_id)
@@ -49,8 +51,9 @@ def show_view(request, submission_id):
         else:
             raise http.Http404
 
+
 def show_json_view(request, submission_id):
-    #TODO: This is extremely hacky
+    # TODO: This is extremely hacky
     try:
         submission = Submission.objects.get(id = submission_id)
     except Submission.DoesNotExist:
@@ -69,6 +72,5 @@ def show_json_view(request, submission_id):
         if not request.user.is_student:
             data["grader_errors"] = submission.grader_errors
         return http.HttpResponse(json.dumps(data), content_type = "text/json")
-    
-    return http.HttpResponse(json.dumps({"error": "Submission not found"}))
 
+    return http.HttpResponse(json.dumps({"error": "Submission not found"}))

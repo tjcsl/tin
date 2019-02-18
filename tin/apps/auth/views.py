@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 
 from ..courses.views import index_view as course_index_view
 
+
 def index_view(request):
     if request.user.is_authenticated:
         return course_index_view(request)

@@ -4,8 +4,10 @@ from django.conf import settings
 
 # Create your models here.
 
+
 def upload_submission_file_path(submission, filename):
     return "submission_{}_{}".format(submission.student.username, timezone.now().strftime("%Y%M%d_%H%M%S"))
+
 
 class Submission(models.Model):
     assignment = models.ForeignKey("assignments.Assignment", on_delete = models.CASCADE, related_name = "submissions")
@@ -43,4 +45,3 @@ class Submission(models.Model):
         if self.has_been_graded:
             return "{}/{} ({})".format(self.points_received, self.points_possible, self.grade_percent)
         return "Not graded"
-

@@ -16,4 +16,5 @@ def enroll(sender, user, request, **kwargs):
             student_import.students.remove(import_user_object)
         import_user_object.delete()
 
+
 user_logged_in.connect(enroll)

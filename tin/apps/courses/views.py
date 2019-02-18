@@ -22,7 +22,7 @@ def index_view(request):
     context = {
         "courses": courses,
     }
-    
+
     if request.user.is_student:
         courses_with_unsubmitted_assignments = set()
         unsubmitted_assignments = []
@@ -36,6 +36,7 @@ def index_view(request):
         context["unsubmitted_assignments"] = unsubmitted_assignments
 
     return render(request, "courses/home.html", context)
+
 
 @login_required
 def show_view(request, course_id):
@@ -53,6 +54,7 @@ def show_view(request, course_id):
         return render(request, "courses/show.html", context)
     else:
         raise http.Http404
+
 
 @teacher_or_superuser_required
 def create_view(request):
@@ -74,6 +76,7 @@ def create_view(request):
             "nav_item": "Create course",
         },
     )
+
 
 @teacher_or_superuser_required
 def edit_view(request, course_id):
@@ -108,7 +111,7 @@ def import_students_view(request, course_id):
 
     if request.user != course.teacher and not request.user.is_superuser:
         raise http.Http404
-    
+
     student_import = StudentImport.objects.get_or_create(course = course)[0]
 
     if request.method == "POST":
@@ -118,13 +121,13 @@ def import_students_view(request, course_id):
         return redirect("courses:show", course.id)
 
     return render(
-            request,
-            "courses/import_students.html",
-            {
-                "course": course,
-                "nav_item": "Import Students",
-                "unimported_users": student_import.students.all(),
-            },
+        request,
+        "courses/import_students.html",
+        {
+            "course": course,
+            "nav_item": "Import Students",
+            "unimported_users": student_import.students.all(),
+        },
     )
 
 

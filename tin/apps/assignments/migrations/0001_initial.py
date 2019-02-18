@@ -6,6 +6,7 @@ import django.db.models.deletion
 
 import tin.apps.assignments.models
 
+
 class Migration(migrations.Migration):
 
     initial = True

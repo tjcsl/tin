@@ -17,6 +17,7 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout": "Grader timeout (seconds):"
         }
 
+
 class GraderFileSubmissionForm(forms.ModelForm):
     class Meta:
         model = Assignment

@@ -13,6 +13,7 @@ from celery import shared_task
 
 from .models import Submission
 
+
 @shared_task
 def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)
@@ -20,6 +21,7 @@ def run_submission(submission_id):
         args = ["python3", "-u", os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name), os.path.join(settings.MEDIA_ROOT, submission.file.name)]
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
             killed = False
+
             def kill_process():
                 nonlocal killed
                 if p.poll() is None:
@@ -29,7 +31,7 @@ def run_submission(submission_id):
                     try:
                         os.killpg(p.pid, signal.SIGKILL)
                     except ProcessLookupError:
-                        #Shouldn't happen, but just in case
+                        # Shouldn't happen, but just in case
                         p.kill()
                     for child in children:
                         try:
@@ -101,4 +103,3 @@ def run_submission(submission_id):
                     submission.has_been_graded = True
     finally:
         submission.save()
-
