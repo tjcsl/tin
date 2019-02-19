@@ -26,13 +26,8 @@ def index_view(request):
     }
 
     if request.user.is_student:
-        courses_with_unsubmitted_assignments = set()
-        unsubmitted_assignments = []
-        for course in courses.all():
-            for assignment in course.assignments.all():
-                if not assignment.submissions_from_student(request.user):
-                    unsubmitted_assignments.append(assignment)
-                    courses_with_unsubmitted_assignments.add(course)
+        unsubmitted_assignments = Assignment.objects.filter(course__in = request.user.courses.all(), submissions__student__isnull = True)
+        courses_with_unsubmitted_assignments = set(assignment.course for assignment in unsubmitted_assignments)
 
         context["courses_with_unsubmitted_assignments"] = courses_with_unsubmitted_assignments
         context["unsubmitted_assignments"] = unsubmitted_assignments
