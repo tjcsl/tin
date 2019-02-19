@@ -108,29 +108,32 @@ def edit_view(request, assignment_id):
     grader_file_errors = ""
 
     if request.method == "POST":
-        if request.FILES.get("grader_file"):
-            if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                if assignment.grader_file.name:
-                    old_grader_file_path = assignment.grader_file.path  # LEAVE THIS HERE
+        if request.POST.get("grader_file") is not None or request.FILES.get("grader_file") is not None:
+            if request.FILES.get("grader_file"):
+                if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                    if assignment.grader_file.name:
+                        old_grader_file_path = assignment.grader_file.path  # LEAVE THIS HERE
 
-                grader_form = GraderFileSubmissionForm(request.POST, request.FILES, instance = assignment)
-                if grader_form.is_valid():
-                    try:
-                        request.FILES["grader_file"].read().decode()
-                    except UnicodeDecodeError:
-                        grader_file_errors = "Please don't upload binary files."
+                    grader_form = GraderFileSubmissionForm(request.POST, request.FILES, instance = assignment)
+                    if grader_form.is_valid():
+                        try:
+                            request.FILES["grader_file"].read().decode()
+                        except UnicodeDecodeError:
+                            grader_file_errors = "Please don't upload binary files."
+                        else:
+                            if "old_grader_file_path" in locals():
+                                if os.path.exists(old_grader_file_path):
+                                    os.remove(old_grader_file_path)
+
+                            grader_form.save()
+
+                            return redirect("assignments:show", assignment.id)
                     else:
-                        if "old_grader_file_path" in locals():
-                            if os.path.exists(old_grader_file_path):
-                                os.remove(old_grader_file_path)
-
-                        grader_form.save()
-
-                        return redirect("assignments:show", assignment.id)
+                        grader_file_errors = grader_form.errors
                 else:
-                    grader_file_errors = grader_form.errors
+                    grader_file_errors = "That file's too large. Are you sure it's a Python program?"
             else:
-                grader_file_errors = "That file's too large. Are you sure it's a Python program?"
+                grader_file_errors = "Please select a file."
         else:
             assignment_form = AssignmentForm(data = request.POST, instance = assignment)
             if assignment_form.is_valid():
