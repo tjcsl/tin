@@ -48,8 +48,6 @@ def run_submission(submission_id):
             output = ""
             for line in p.stdout:
                 output += line.decode()
-                if p.poll() is not None:
-                    break
 
                 submission.grader_output = output
                 submission.save()
