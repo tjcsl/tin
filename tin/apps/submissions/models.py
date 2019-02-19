@@ -6,7 +6,7 @@ from django.conf import settings
 
 
 def upload_submission_file_path(submission, filename):
-    return "submission_{}_{}".format(submission.student.username, timezone.now().strftime("%Y%M%d_%H%M%S"))
+    return "submission_{}_{}".format(submission.student.username, timezone.now().strftime("%Y%m%d_%H%M%S"))
 
 
 class Submission(models.Model):
