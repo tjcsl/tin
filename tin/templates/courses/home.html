@@ -37,10 +37,10 @@
   <ul id="course-list">
   {% for assignment in unsubmitted_assignments %}
     <li>
-    <div class="left">
-      <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} - {{ assignment.course.name }}</a>
-    </div>
-    <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
+      <div class="left">
+        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} - {{ assignment.course.name }}</a>
+      </div>
+      <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
     </li>
   {% empty %}
     <li>
