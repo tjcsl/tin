@@ -15,7 +15,7 @@ def index_view(request):
     if request.user.is_superuser:
         courses = Course.objects.all()
     elif request.user.is_teacher:
-        courses = Course.objects.filter(teacher = request.user)
+        courses = request.user.taught_courses.all()
     else:
         courses = request.user.courses.all()
 

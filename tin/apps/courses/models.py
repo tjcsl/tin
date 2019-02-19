@@ -4,7 +4,7 @@ from django.conf import settings
 
 class Course(models.Model):
     name = models.CharField(max_length = 50)
-    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, null = True, on_delete = models.SET_NULL)
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, null = True, on_delete = models.SET_NULL, related_name = "taught_courses")
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = "courses")
 
     created = models.DateTimeField(auto_now_add = True)
