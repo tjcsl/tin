@@ -188,6 +188,7 @@ input[type=submit] {
   border: 1px solid #cfcfcf;
   border-radius: 4px;
 
+  margin-top: 5px;
   padding: 3px 5px;
   background: linear-gradient(to bottom, #dfdfdf 0%, #cfcfcf 100%);
 
