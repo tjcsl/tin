@@ -50,6 +50,23 @@
     </li>
   {% endfor %}
   </ul>
+  <h2>Assignments due in the next week</h2>
+  <ul id="course-list">
+  {% for assignment in due_soon_assignments %}
+    <li>
+      <div class="left">
+        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} - {{ assignment.course.name }}</a>
+      </div>
+      <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
+    </li>
+  {% empty %}
+    <li>
+      <div class="left">
+        Nothing's due in the next week.
+      </div>
+    </li>
+  {% endfor %}
+  </ul>
 {% endif %}
 
 {% if request.user.is_superuser %}

@@ -1,8 +1,10 @@
 from django import http
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Course, StudentImport
 from .forms import CourseForm
+from ..assignments.models import Assignment
 from ..auth.decorators import login_required, teacher_or_superuser_required
 
 
@@ -34,6 +36,9 @@ def index_view(request):
 
         context["courses_with_unsubmitted_assignments"] = courses_with_unsubmitted_assignments
         context["unsubmitted_assignments"] = unsubmitted_assignments
+
+        now = timezone.now()
+        context["due_soon_assignments"] = Assignment.objects.filter(course__students = request.user, due__gte = timezone.now(), due__lte = timezone.now() + timezone.timedelta(weeks = 1))
 
     return render(request, "courses/home.html", context)
 
