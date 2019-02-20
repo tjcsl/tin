@@ -125,7 +125,7 @@ def import_students_view(request, course_id):
         "courses/import_students.html",
         {
             "course": course,
-            "nav_item": "Import Students",
+            "nav_item": "Import students",
             "unimported_users": student_import.students.all(),
         },
     )
