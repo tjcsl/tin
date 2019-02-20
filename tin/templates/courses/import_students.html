@@ -17,10 +17,12 @@
   <input class="tin-btn" type="submit" value="{% if course %}Save{% else %}Create{% endif %}">
 </form>
 
-<h3>Queued Students:</h3>
-{% for user in unimported_users %}
-  {{ user }}<br>
-{% endfor %}
+{% if unimported_users %}
+  <h3>Queued Students:</h3>
+  {% for user in unimported_users %}
+    {{ user }}<br>
+  {% endfor %}
+{% endif %}
 
 {% endblock %}
 
