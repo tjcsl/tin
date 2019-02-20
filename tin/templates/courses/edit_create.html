@@ -8,9 +8,11 @@
     });
   </script>
 {% endblock %}
-{% block main %}
 
-<h2>{% block title %}Turn-In: {% if course %}{{ course.name }}{% else %}Create course{% endif %}{% endblock %}</h2>
+{% block title %}Turn-In: {% if course %}{{ course.name }}: Edit{% else %}Create course{% endif %}{% endblock %}
+
+{% block main %}
+<h2>{% if course %}{{ course.name }}{% else %}Create course{% endif %}</h2>
 <form action="" method="post">
   {% csrf_token %}
   <div class="tbl">

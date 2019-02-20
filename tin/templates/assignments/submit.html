@@ -21,9 +21,10 @@
   </script>
 {% endblock %}
 
-{% block main %}
+{% block title %}{{ assignment.name }}: Submit{% endblock %}
 
-<h2>{% block title %}Turn-In: {{ assignment.name }}{% endblock %}</h2>
+{% block main %}
+<h2>{{ assignment.name }}: Submit</h2>
 
 {% if assignment.grader_file %}
   <div id="upload-container">

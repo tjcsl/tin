@@ -14,9 +14,11 @@
     });
   </script>
 {% endblock %}
-{% block main %}
 
-<h2>{% block title %}Turn-In: {% if action == "add" %}Create assignment{% else %}{{ assignment.name }}{% endif %}{% endblock %}</h2>
+{% block title %}Turn-In: {{ course.name }}: {% if action == "add" %}Create assignment{% else %}{{ assignment.name }}{% endif %}{% endblock %}
+
+{% block main %}
+<h2>{{ course.name }}: {% if action == "add" %}Create assignment{% else %}{{ assignment.name }}{% endif %}</h2>
 <form action="" method="post">
   {% csrf_token %}
   <div class="tbl">

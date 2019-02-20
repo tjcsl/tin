@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Turn-In: {{ assignment.name }}{% endblock %}
+{% block title %}Turn-In: {{ course.name }}: {{ assignment.name }}{% endblock %}
 
 {% if latest_submission %}
   {% block head %}

@@ -3,9 +3,12 @@
 
 {% block head %}
 {% endblock %}
+
+{% block title %}Turn-In: {{ course.name }}: Import students{% endblock %}
+
 {% block main %}
 
-<h2>{% block title %}Turn-In: Import Students {{ course.name }}{% endblock %}</h2>
+<h2>{{ course.name }}</h2>
 <form action="" method="post">
   {% csrf_token %}
   <p>This form puts all students with the inputted usernames in a queue.  When they login for the first time, they will be enrolled in this course.</p>

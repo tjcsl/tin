@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Turn-In: {{ assignment.name }} - {{ student.full_name }}{% endblock %}
+{% block title %}Turn-In: {{ course.name }}: {{ assignment.name }}: {{ student.username }}{% endblock %}
 
 {% block head %}
   <script src="{% static 'js/incomplete.js' %}"></script>
 {% endblock %}
 
 {% block main %}
-<h2>{{ assignment.name }} &mdash; {{ student.full_name }} ({{ student.username }})</h2>
+<h2>{{ assignment.name }}: {{ student.full_name }} ({{ student.username }})</h2>
 
 <table id="assignment-info">
   <tr>
