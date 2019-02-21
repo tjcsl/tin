@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/datetimepicker/jquery.datetimepicker.css' %}" />
+  <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
+{% endblock %}
+
+{% block title %}Turn-In: {{ course.name }}: {{ assignment.name }}: Grader {% endblock %}
+
+{% block main %}
+<h3>Grader File Upload</h3>
+<p>Size limit is 1MB.</p>
+<h4 style="color:red;">{{ grader_file_errors }}</h4>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% if assignment.grader_file %}
+  You have already uploaded a grader script. Uploading here will replace it.
+  {% else %}
+  There is no grader script for this assignment.
+  {% endif %}
+  <div class="tbl">
+    {% for field in grader_form %}
+      {% if field.name != "grader_file" %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell">{{ field }}</span>
+        </div>
+      {% endif %}
+    {% endfor %}
+    <div class="tbl-row">
+      <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;"><label for="id_grader_file">Grader file:</label></span>
+      <span class="tbl-cell"><input type="file" name="grader_file" id="id_grader_file"></span>
+    </div>
+  </div>
+  <input type="submit" value="Submit">
+</form>
+{% endblock %}
+

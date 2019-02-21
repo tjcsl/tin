@@ -103,54 +103,73 @@ def edit_view(request, assignment_id):
         raise http.Http404
 
     assignment_form = AssignmentForm(instance = assignment)
-    grader_form = GraderFileSubmissionForm(instance = assignment)
-
-    grader_file_errors = ""
-
     if request.method == "POST":
-        if request.POST.get("grader_file") is not None or request.FILES.get("grader_file") is not None:
-            if request.FILES.get("grader_file"):
-                if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                    if assignment.grader_file.name:
-                        old_grader_file_path = assignment.grader_file.path  # LEAVE THIS HERE
-
-                    grader_form = GraderFileSubmissionForm(request.POST, request.FILES, instance = assignment)
-                    if grader_form.is_valid():
-                        try:
-                            request.FILES["grader_file"].read().decode()
-                        except UnicodeDecodeError:
-                            grader_file_errors = "Please don't upload binary files."
-                        else:
-                            if "old_grader_file_path" in locals():
-                                if os.path.exists(old_grader_file_path):
-                                    os.remove(old_grader_file_path)
-
-                            grader_form.save()
-
-                            return redirect("assignments:show", assignment.id)
-                    else:
-                        grader_file_errors = grader_form.errors
-                else:
-                    grader_file_errors = "That file's too large. Are you sure it's a Python program?"
-            else:
-                grader_file_errors = "Please select a file."
-        else:
-            assignment_form = AssignmentForm(data = request.POST, instance = assignment)
-            if assignment_form.is_valid():
-                assignment_form.save()
-                return redirect("assignments:show", assignment.id)
+        assignment_form = AssignmentForm(data = request.POST, instance = assignment)
+        if assignment_form.is_valid():
+            assignment_form.save()
+            return redirect("assignments:show", assignment.id)
 
     return render(
         request,
         "assignments/edit_create.html",
         {
             "assignment_form": assignment_form,
-            "grader_form": grader_form,
-            "grader_file_errors": grader_file_errors,
             "course": assignment.course,
             "assignment": assignment,
             "action": "edit",
             "nav_item": "Edit",
+        },
+    )
+
+
+@teacher_or_superuser_required
+def upload_grader_view(request, assignment_id):
+    """ Uploads a grader for an assignment """
+    assignment = get_object_or_404(Assignment, id = assignment_id)
+
+    if request.user != assignment.course.teacher and not request.user.is_superuser:
+        raise http.Http404
+
+    grader_form = GraderFileSubmissionForm(instance = assignment)
+
+    grader_file_errors = ""
+
+    if request.method == "POST":
+        if request.FILES.get("grader_file"):
+            if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                if assignment.grader_file.name:
+                    old_grader_file_path = assignment.grader_file.path  # LEAVE THIS HERE
+
+                grader_form = GraderFileSubmissionForm(request.POST, request.FILES, instance = assignment)
+                if grader_form.is_valid():
+                    try:
+                        request.FILES["grader_file"].read().decode()
+                    except UnicodeDecodeError:
+                        grader_file_errors = "Please don't upload binary files."
+                    else:
+                        if "old_grader_file_path" in locals():
+                            if os.path.exists(old_grader_file_path):
+                                os.remove(old_grader_file_path)
+
+                        grader_form.save()
+
+                        return redirect("assignments:show", assignment.id)
+                else:
+                    grader_file_errors = grader_form.errors
+            else:
+                grader_file_errors = "That file's too large. Are you sure it's a Python program?"
+        else:
+            grader_file_errors = "Please select a file."
+
+    return render(
+        request,
+        "assignments/upload_grader.html",
+        {
+            "grader_form": grader_form,
+            "grader_file_errors": grader_file_errors,
+            "course": assignment.course,
+            "assignment": assignment,
+            "nav_item": "Upload grader",
         },
     )
 

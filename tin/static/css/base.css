@@ -62,6 +62,9 @@
   text-align: left;
 }
 .header > .right {
+  margin-left: 5px;
+}
+.header > .left + .right {
   margin-left: auto;
   text-align: right;
 }
