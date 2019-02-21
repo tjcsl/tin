@@ -49,7 +49,7 @@ def show_view(request, course_id):
             "assignments": assignments,
         }
         if request.user.is_student:
-            context["unsubmitted_assignments"] = [assignment for assignment in assignments.all() if not assignment.submissions_from_student(request.user)]
+            context["unsubmitted_assignments"] = assignments.exclude(submissions__student = request.user)
 
         return render(request, "courses/show.html", context)
     else:
@@ -141,7 +141,7 @@ def students_view(request, course_id):
 
     students = course.students.all()
 
-    students_missing_assignments = [(student, [assignment.name for assignment in course.assignments.all() if not len(assignment.submissions_from_student(student))]) for student in students]
+    students_missing_assignments = [(student, [assignment.name for assignment in Assignment.objects.filter(course = course).exclude(submissions__student = student)]) for student in students]
 
     return render(
         request,
