@@ -91,7 +91,12 @@ Submission #{{ submission_number }}
 
 <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
 <div id="grader-output" class="code-result{% if not submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="grader_output">
-  <code><pre>{{ submission.grader_output }}</pre></code>
+  <div class="result">
+    <code><pre>{{ submission.grader_output }}</pre></code>
+  </div>
+  {% if not latest_submission.complete %}
+    <div class="continuous-progress"></div>
+  {% endif %}
 </div>
 
 {% if not request.user.is_student %}

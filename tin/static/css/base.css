@@ -233,3 +233,7 @@ code > pre {
   white-space: pre-wrap;
 }
 
+.complete .continuous-progress {
+  display: none;
+}
+
