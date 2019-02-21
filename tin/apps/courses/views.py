@@ -26,7 +26,7 @@ def index_view(request):
     }
 
     if request.user.is_student:
-        unsubmitted_assignments = Assignment.objects.filter(course__in = request.user.courses.all(), submissions__student__isnull = True)
+        unsubmitted_assignments = Assignment.objects.filter(course__in = request.user.courses.all()).exclude(submissions__student = request.user)
         courses_with_unsubmitted_assignments = set(assignment.course for assignment in unsubmitted_assignments)
 
         context["courses_with_unsubmitted_assignments"] = courses_with_unsubmitted_assignments
