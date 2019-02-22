@@ -18,7 +18,15 @@ from .models import Submission
 def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)
     try:
-        args = ["python3", "-u", os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name), os.path.join(settings.MEDIA_ROOT, submission.file.name)]
+        args = [
+            "python3",
+            "-u",
+            os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name),
+            #This is duplicated to allow us to eventually pass a wrapper script that runs firejail as the first argument
+            os.path.join(settings.MEDIA_ROOT, submission.file.name),
+            os.path.join(settings.MEDIA_ROOT, submission.file.name),
+            submission.student.username,
+        ]
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
             killed = False
 
