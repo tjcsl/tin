@@ -94,7 +94,7 @@ Submission #{{ submission_number }}
   <div class="result">
     <code><pre>{{ submission.grader_output }}</pre></code>
   </div>
-  {% if not latest_submission.complete %}
+  {% if not submission.complete %}
     <div class="continuous-progress"></div>
   {% endif %}
 </div>
