@@ -5,7 +5,7 @@ from ..submissions.models import Submission
 
 
 def upload_grader_file_path(assignment, filename):
-    return "grader_{}_{}".format(assignment.course.id, assignment.id)
+    return "graders/grader_{}_{}".format(assignment.course.id, assignment.id)
 
 
 class Assignment(models.Model):
