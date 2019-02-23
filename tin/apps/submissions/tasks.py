@@ -92,8 +92,10 @@ def run_submission(submission_id):
             submission.save()
     except subprocess.CalledProcessError as e:
         submission.grader_output = str(e.output)
+        submission.grader_errors = str(e.stderr)
     except Exception as e:
-        submission.grader_output = traceback.format_exc()
+        submission.grader_output = "[Internal error]"
+        submission.grader_errors = traceback.format_exc()
     else:
         if output:
             last_line = output.splitlines()[-1]
