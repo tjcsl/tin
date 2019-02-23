@@ -183,7 +183,7 @@ def student_submission_view(request, assignment_id, student_id):
         raise http.Http404
 
     submissions = Submission.objects.filter(student = student, assignment = assignment).order_by("-date_submitted")
-    latest_submission = (submissions.latest("date_submitted") if submissions else None)
+    latest_submission = submissions.latest("date_submitted") if submissions else None
 
     latest_submission_text = None
     if latest_submission:
