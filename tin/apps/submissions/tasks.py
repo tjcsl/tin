@@ -1,7 +1,9 @@
 import os
 import re
+import sys
 import signal
 import psutil
+import shutil
 import subprocess
 import traceback
 import threading
@@ -13,18 +15,53 @@ from celery import shared_task
 
 from .models import Submission
 
+firejail_profile_path = os.path.join(settings.BASE_DIR, "submission.profile")
 
 @shared_task
 def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)
+
+    try:
+        grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
+        submission_path = os.path.join(settings.MEDIA_ROOT, submission.file.name)
+
+        submission_wrapper_path = os.path.join(settings.MEDIA_ROOT, "wrappers", os.path.basename(submission.file.name))
+
+        wrapper_command_args = [
+            "python3",
+            "-u",
+            submission_path,
+        ]
+        if shutil.which("firejail") is not None:
+            os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok = True)
+
+            wrapper_command_args = [
+                "firejail",
+                "--quiet",
+                "--profile={}".format(firejail_profile_path),
+                "--whitelist={}".format(submission_path),
+                "--read-only={}".format(submission_path),
+                *wrapper_command_args,
+            ]
+
+        with open(submission_wrapper_path, "w") as f:
+            f.write("#!/usr/bin/env python3\nimport sys,subprocess;subprocess.call({!r}+sys.argv[1:])".format(wrapper_command_args))
+
+        os.chmod(submission_wrapper_path, 0o700)
+    except IOError as e:
+        submission.grader_output = "An internal error occurred. Please try again. If the problem persists, contact your teacher."
+        submission.grader_error = traceback.format_exc()
+        submission.completed = True
+        submission.save()
+        return
+
     try:
         args = [
             "python3",
             "-u",
-            os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name),
-            #This is duplicated to allow us to eventually pass a wrapper script that runs firejail as the first argument
-            os.path.join(settings.MEDIA_ROOT, submission.file.name),
-            os.path.join(settings.MEDIA_ROOT, submission.file.name),
+            grader_path,
+            submission_wrapper_path,
+            submission_path,
             submission.student.username,
         ]
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
