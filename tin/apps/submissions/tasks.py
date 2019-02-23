@@ -17,6 +17,7 @@ from .models import Submission
 
 firejail_profile_path = os.path.join(settings.BASE_DIR, "submission.profile")
 
+
 @shared_task
 def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)

@@ -53,6 +53,7 @@ def show_view(request, submission_id):
         else:
             raise http.Http404
 
+
 @login_required
 def show_json_view(request, submission_id):
     # TODO: This is extremely hacky
