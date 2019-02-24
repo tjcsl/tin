@@ -11,10 +11,11 @@ class AssignmentForm(forms.ModelForm):
 
     class Meta:
         model = Assignment
-        fields = ["name", "description", "points_possible", "due", "enable_grader_timeout", "grader_timeout"]
+        fields = ["name", "description", "points_possible", "due", "enable_grader_timeout", "grader_timeout", "has_network_access"]
         labels = {
             "enable_grader_timeout": "Set a timeout for the grader?",
-            "grader_timeout": "Grader timeout (seconds):"
+            "grader_timeout": "Grader timeout (seconds):",
+            "has_network_access": "Give submissions internet access?",
         }
 
 

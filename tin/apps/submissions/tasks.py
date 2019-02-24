@@ -15,12 +15,27 @@ from celery import shared_task
 
 from .models import Submission
 
-firejail_profile_path = os.path.join(settings.BASE_DIR, "submission.profile")
-
+firejail_profile_names =  {
+    "network": {
+        True: "submission-network.profile",
+        False: "submission-no-network.profile",
+    },
+}
 
 @shared_task
 def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)
+
+    assignment_attrs = {"network": submission.assignment.has_network_access}
+
+    firejail_profile = firejail_profile_names
+    while isinstance(firejail_profile, dict):
+        for key in assignment_attrs:
+            if key in firejail_profile:
+                firejail_profile = firejail_profile[key][assignment_attrs[key]]
+                break
+
+    firejail_profile_path = os.path.join(settings.BASE_DIR, firejail_profile)
 
     try:
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
