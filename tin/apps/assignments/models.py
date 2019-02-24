@@ -1,12 +1,11 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from django.utils.text import slugify
 
 from ..submissions.models import Submission
 
 
 def upload_grader_file_path(assignment, filename):
-    return "{}/grader_{}_{}".format(slugify(assignment.name), assignment.course.id, assignment.id)
+    return "assignment-{}/grader.py".format(assignment.id)
 
 
 class Assignment(models.Model):

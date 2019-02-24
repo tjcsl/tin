@@ -41,7 +41,7 @@ def run_submission(submission_id):
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
         submission_path = os.path.join(settings.MEDIA_ROOT, submission.file.name)
 
-        submission_wrapper_path = os.path.join(settings.MEDIA_ROOT, "wrappers", os.path.basename(submission.file.name))
+        submission_wrapper_path = os.path.join(settings.MEDIA_ROOT, os.path.dirname(submission.file.name), "wrappers", os.path.basename(submission.file.name))
 
         wrapper_command_args = [
             "python3",
