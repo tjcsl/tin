@@ -46,3 +46,4 @@ class Submission(models.Model):
         if self.has_been_graded:
             return "{}/{} ({})".format(self.points_received, self.points_possible, self.grade_percent)
         return "Not graded"
+

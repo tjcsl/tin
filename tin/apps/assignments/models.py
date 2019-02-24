@@ -39,3 +39,4 @@ class Assignment(models.Model):
 
     def submissions_from_student(self, student):
         return Submission.objects.filter(assignment = self, student = student)
+

@@ -152,3 +152,4 @@ def students_view(request, course_id):
             "nav_item": "Students",
         },
     )
+

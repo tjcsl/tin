@@ -12,3 +12,4 @@ urlpatterns = [
     path("<int:course_id>/students", views.students_view, name = "students"),
     path("<int:course_id>/import", views.import_students_view, name = "import")
 ]
+
