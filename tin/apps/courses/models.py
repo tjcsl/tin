@@ -35,3 +35,4 @@ class StudentImport(models.Model):
             import_user_object = StudentImportUser.objects.get_or_create(user = username)[0]
             self.students.add(import_user_object)
         self.save()
+

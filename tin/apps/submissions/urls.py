@@ -8,3 +8,4 @@ urlpatterns = [
     path("<int:submission_id>", views.show_view, name = "show"),
     path("<int:submission_id>.json", views.show_json_view, name = "show_json"),
 ]
+

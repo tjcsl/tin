@@ -77,3 +77,4 @@ def show_json_view(request, submission_id):
         return http.HttpResponse(json.dumps(data), content_type = "text/json")
 
     return http.Http404
+

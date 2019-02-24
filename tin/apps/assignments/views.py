@@ -300,3 +300,4 @@ def scores_csv_view(request, assignment_id):
         writer.writerow(row)
 
     return response
+
