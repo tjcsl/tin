@@ -1,13 +1,12 @@
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
-from django.utils.text import slugify
 
 # Create your models here.
 
 
 def upload_submission_file_path(submission, filename):
-    return "{}/submission_{}_{}".format(slugify(submission.assignment.name), submission.student.username, timezone.now().strftime("%Y%m%d_%H%M%S"))
+    return "assignment-{}/{}/submission_{}.py".format(submission.assignment.id, submission.student.username, timezone.now().strftime("%Y%m%d_%H%M%S"))
 
 
 class Submission(models.Model):
