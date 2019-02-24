@@ -164,3 +164,7 @@ def run_submission(submission_id):
                     submission.has_been_graded = True
     finally:
         submission.save()
+
+        if os.path.exists(submission_wrapper_path):
+            os.remove(submission_wrapper_path)
+
