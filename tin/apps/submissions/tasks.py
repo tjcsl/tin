@@ -61,7 +61,7 @@ def run_submission(submission_id):
             ]
 
         with open(submission_wrapper_path, "w") as f:
-            f.write("#!/usr/bin/env python3\nimport sys,subprocess;subprocess.call({!r}+sys.argv[1:])".format(wrapper_command_args))
+            f.write("#!/usr/bin/env python3\nimport os,sys;os.execvp({!r},{!r}+sys.argv[1:])".format(wrapper_command_args[0], wrapper_command_args))
 
         os.chmod(submission_wrapper_path, 0o700)
     except IOError as e:
