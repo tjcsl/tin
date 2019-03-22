@@ -60,8 +60,15 @@ def run_submission(submission_id):
                 *wrapper_command_args,
             ]
 
+            template = """
+<REMOVED>
+"""[1:-1]
+        else:
+            template = """
+<REMOVED>
+"""[1:-1]
         with open(submission_wrapper_path, "w") as f:
-            f.write("#!/usr/bin/env python3\nimport os,sys;os.execvp({!r},{!r}+sys.argv[1:])".format(wrapper_command_args[0], wrapper_command_args))
+            f.write(template.format(command = wrapper_command_args[0], args = wrapper_command_args))
 
         os.chmod(submission_wrapper_path, 0o700)
     except IOError as e:
