@@ -26,6 +26,7 @@ urlpatterns = [
     path('submissions/', include("tin.apps.submissions.urls", namespace = "submissions")),
 
     path('users/', include("tin.apps.users.urls", namespace = "users")),
+    path('docs/', include("tin.apps.docs.urls", namespace = "docs")),
     path('', include("tin.apps.auth.urls", namespace = "auth")),
 ]
 

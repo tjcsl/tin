@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}
+Turn-In: Documentation: Graders
+{% endblock %}
+
+{% block main %}
+    <p>Every assignment has a grader script that is run to grade each submission. This page details how to write graders for <code>tin</code>.</p>
+    <p class="bold">Warning: It isn't as simple as it sounds. Certain restrictions put in place by the system create traps that are very easy to fall into, and  you should read this entire page before writing a grader script.</p>
+
+    <p>When a submission is uploaded, the grader script is passed the following arguments:</p>
+    <ul>
+        <li>The full path to a Python program that, when run, will run the student's submission. This separate script is required for reasons that will be explained later.</li>
+        <li>The full path to the student's actual submission file, in case parsing of it is required for some purpose. Do not run this directly.</li>
+        <li>
+            The submitting student's username.
+            <ul>
+                <li>Do not parse the submission filename to extract this information (or any other information) as the format for submission filenames may change without warning.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <p>Why is it not recommended to run the student's submission directly? Well, running student-uploaded scripts without any kind of restrictions in place is always a bad idea, as it allows students to upload malicious scripts that, for example, read other students' submissions and copy them to a location the student can later access. As such, a system was put in place that limits the access that student submissions have by default. The implementation of this system necessitated the creation of a "wrapper script" for each submission that runs the submission in an appropriately restricted environment.</p>
+    <p>Summary: The first argument that is passed is a "wrapper script" that runs the student's submission while limiting the access the submission has in order to prevent cheating.<p>
+
+    <h2>Restrictions placed on student submissions</h2>
+    <ul>
+        <li>Not able to access the Internet</li>
+        <li>Only allowed access to 500MB of memory</li>
+        <li>Only able to access the submission itself, not any other files</li>
+        <li>Not able to access files in the <code>/tmp</code> directory (used on Linux to store temporary files)</li>
+    </ul>
+
+    <p class="bold">Warning: Since the grader script itself runs without restrictions, all of these restrictions can be bypassed if the grader script uses output from a student's submission in an unsafe way (such as <code>eval()</code>ing or <code>pickle.load()</code>ing it). Please be careful.</p>
+
+    <p>The Internet access restriction can be lifted on a per-assignment basis by going to the assignment's "Edit" page and checking the box labeled "Give submissions internet access." However, this should be done with caution, as giving scripts Internet access makes it much easier for students to cheat.</p>
+    <p>The memory restriction is currently hardcoded in and cannot be changed. 500MB should be enough for many cases, but if it becomes an issue, please contact <code>tin</code>'s developers to increase the limit.</p>
+    <p>Submissions can be given access to files by passing additional arguments to the wrapper script as follows (these must precede any other arguments to be passed to the submission):</p>
+    <ul>
+        <li><code>--write &lt;filename&gt;</code>: Give the submission read/write access to the specified file. The filename should be given as an absolute path.</li>
+        <li><code>--read &lt;filename&gt;</code>: Give the submission read-only access to the specified file. The filename should be given as an absolute path.</li>
+    </ul>
+    <p>The special argument <code>--</code> may be passed to the wrapper script after all of the file restrictions have been passed to denote that the wrapper should stop parsing arguments and pass the rest of the arguments directly to the student's submission.<p>
+
+    <h2>Grader scripts and files</h2>
+    <p>Grader scripts should only write to files in the directory containing the grader script itself (i.e. <code>os.path.dirname(__file__)</code>) and the directory containing the student submission (i.e. <code>os.path.dirname(sys.argv[2])</code>). Files placed in other locations may cause conflict with other graders, but these directories are guaranteed to be specific to each grader.</p>
+    <p>The submission directories are actually created in the grader script directory. Each submission directory's name is the username of the student, so attempting to create a file in the grader script directory with the same name as a student's username will lead to errors.</p>
+    <p>Additionally, since all of a student's submissions are placed in the same directory, files created in the submission directory (for example, filenames passed to the submission as output files) should be given random names to avoid conflicts in case the student uploads a second submission while their last submission has not yet been graded.</p>
+
+    <h2>Examples</h3>
+    <p>All of these run the submission with read-only access to <code>input.txt</code> in the grader script directory, read-write access to <code>output.txt</code> (in practice, the name should be randomized) in the submission directory, and the command-line arguments <code>abc</code> and <code>123</code>.</p>
+    <p><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "abc", "123"])</code> (avoid this style; always pass <code>--</code> so it is clear where the wrapper script arguments end)</p>
+    <p><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--", "abc", "123"])</code></p>
+    <p><code>subprocess.run([sys.argv[1], "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--", "abc", "123"])</code></p>
+    <p>The following code does not do what the author intended. It runs the submission with two arguments: the string <code>"--read"</code> and the path to a file named <code>input.txt</code> in the grader script directory. It does NOT give the script read access to <code>input.txt</code>.</p>
+    <p><code>subprocess.run([sys.argv[1], "--", "--read", os.path.join(os.path.dirname(__file__), "input.txt")])</code></p>
+
+    <h2>Grader script output</h2>
+    <p>Students can only see output from the grader that has been printed on the standard output (<code>sys.stdout</code>). Output on the standard error (<code>sys.stderr</code>) can only be viewed by teachers. This is to prevent students from accidentally seeing a solution in the output if the grader throws an exception.</p>
+    <p>However, if the grader script exits with a non-zero status code (which Python does by default when an exception is raised) the student will see the text <code>[Grader error]</code> at the end of the output. If the grader exceeds its timeout (as set in the assignment "Edit" page), the student will see the text <code>[Grader timed out]</code>. Similar text will also be added to the error output.</p>
+    <h2>Automatic scoring</h2>
+    <p>Each submission has a "Score" field that can be set by the grader. If this field is set, you will be able to see a list of each student's scores on the assignment's page, which is designed to make entering grades into the gradebook easier.</p>
+    <p>To set this field, the grader simply needs to output <code>Score: &lt;score&gt;</code> as the last line of its output. This line is case-sensitive and the spacing must be exactly right (no trailing spaces!). Scores can be percentages (such as <code>90%</code>) or they can simply be a number of points. In either case, they are interpreted as being out of the "Points possible" value set on the assignment "Edit" page.</p>
+    <p>Note: If the grader times out or exits with a non-zero status code, this auto-scoring will not take place. This is to prevent inaccurate scores in the event of a grader error.</p>
+
+{% endblock %}
+
