@@ -4,6 +4,7 @@ import csv
 from django import http
 from django.conf import settings
 from django.utils import timezone
+from django.utils.text import slugify
 from django.shortcuts import render, reverse, redirect, get_object_or_404
 from django.core.files.base import ContentFile
 
@@ -59,6 +60,7 @@ def show_view(request, assignment_id):
                     "course": assignment.course,
                     "assignment": assignment,
                     "students_and_submissions": students_and_submissions,
+                    "log_file_exists": (assignment.grader_log_filename is not None and os.path.exists(os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename))),
                 },
             )
         else:
@@ -298,6 +300,26 @@ def scores_csv_view(request, assignment_id):
             row.append("M")
             row.append("M")
         writer.writerow(row)
+
+    return response
+
+@teacher_or_superuser_required
+def download_log_view(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id = assignment_id)
+
+    if assignment.grader_log_filename is None:
+        raise http.Http404
+
+    log_file_name = os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
+
+    if (request.user != assignment.course.teacher and not request.user.is_superuser) or not os.path.exists(log_file_name):
+        raise http.Http404
+
+    with open(log_file_name) as f_obj:
+        data = f_obj.read()
+
+    response = http.HttpResponse(data, content_type = "text/plain")
+    response["Content-Disposition"] = "attachment; filename=\"{}-grader.log\"".format(slugify(assignment.name))
 
     return response
 

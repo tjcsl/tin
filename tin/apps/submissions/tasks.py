@@ -39,6 +39,7 @@ def run_submission(submission_id):
 
     try:
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
+        grader_log_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_log_filename)
         submission_path = os.path.join(settings.MEDIA_ROOT, submission.file.name)
 
         submission_wrapper_path = os.path.join(settings.MEDIA_ROOT, os.path.dirname(submission.file.name), "wrappers", os.path.basename(submission.file.name))
@@ -86,6 +87,7 @@ def run_submission(submission_id):
             submission_wrapper_path,
             submission_path,
             submission.student.username,
+            grader_log_path,
         ]
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
             killed = False

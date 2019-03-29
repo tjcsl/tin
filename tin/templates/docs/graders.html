@@ -18,6 +18,7 @@ Turn-In: Documentation: Graders
                 <li>Do not parse the submission filename to extract this information (or any other information) as the format for submission filenames may change without warning.</li>
             </ul>
         </li>
+        <li>The full path to a log file that the grader can write logs to. The log file is not created automatically, but its path is always passed to the grader file, so the grader script can easily create it if it doesn't exist and then append new output to it. Once the file has been created, the assignment information page will show a button with a link to download the log.</li>
     </ul>
 
     <p>Why is it not recommended to run the student's submission directly? Well, running student-uploaded scripts without any kind of restrictions in place is always a bad idea, as it allows students to upload malicious scripts that, for example, read other students' submissions and copy them to a location the student can later access. As such, a system was put in place that limits the access that student submissions have by default. The implementation of this system necessitated the creation of a "wrapper script" for each submission that runs the submission in an appropriately restricted environment.</p>
@@ -45,6 +46,7 @@ Turn-In: Documentation: Graders
     <h2>Grader scripts and files</h2>
     <p>Grader scripts should only write to files in the directory containing the grader script itself (i.e. <code>os.path.dirname(__file__)</code>) and the directory containing the student submission (i.e. <code>os.path.dirname(sys.argv[2])</code>). Files placed in other locations may cause conflict with other graders, but these directories are guaranteed to be specific to each grader.</p>
     <p>The submission directories are actually created in the grader script directory. Each submission directory's name is the username of the student, so attempting to create a file in the grader script directory with the same name as a student's username will lead to errors.</p>
+    <p>Furthermore, files with the text "grader" in their name may be created by the server, so please avoid using these names. For example, at the time of this writing the grader script is saved as <code>grader.py</code> and its log file is saved as <code>grader.log</code>.</p>
     <p>Additionally, since all of a student's submissions are placed in the same directory, files created in the submission directory (for example, filenames passed to the submission as output files) should be given random names to avoid conflicts in case the student uploads a second submission while their last submission has not yet been graded.</p>
 
     <h2>Examples</h3>
