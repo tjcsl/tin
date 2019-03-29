@@ -40,3 +40,7 @@ class Assignment(models.Model):
     def submissions_from_student(self, student):
         return Submission.objects.filter(assignment = self, student = student)
 
+    @property
+    def grader_log_filename(self):
+        return (self.grader_file.name[:-3] + ".log" if self.grader_file else None)
+

@@ -13,8 +13,11 @@
 <div class="header">
   <h2 class="left">{{ assignment.name }}</h2>
   {% if request.user.is_teacher or request.user.is_superuser %}
-  <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
+    <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
     <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"{% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload grader</a>
+    {% if log_file_exists %}
+      <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
+    {% endif %}
   {% endif %}
   {% if request.user.is_student %}
     <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>

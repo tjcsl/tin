@@ -12,5 +12,6 @@ urlpatterns = [
     path("<int:assignment_id>/grader/upload", views.upload_grader_view, name = "upload_grader"),
     path("<int:assignment_id>/submit", views.submit_view, name = "submit"),
     path("<int:assignment_id>/scores_csv", views.scores_csv_view, name = "scores_csv"),
+    path("<int:assignment_id>/download_log", views.download_log_view, name = "download_log"),
 ]
 
