@@ -82,7 +82,7 @@ TEMPLATES = [
 
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
-                'tin.apps.context_processors.response_developer_email'
+                'tin.apps.context_processors.response_developer_email',
             ],
         },
     },
