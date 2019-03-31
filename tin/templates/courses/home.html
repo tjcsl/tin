@@ -68,7 +68,7 @@
   {% endfor %}
   </ul>
 {% else %}
-  <h4><a href="{% url 'docs:index' %}">Tin documentation</a></h4>
+  <h4><a href="{% url 'docs:index' %}" class="tin-btn fa fa-book">Tin documentation</a></h4>
 {% endif %}
 
 {% if request.user.is_superuser %}
