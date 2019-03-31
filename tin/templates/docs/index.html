@@ -6,10 +6,10 @@ Turn-In: Documentation
 
 {% block main %}
   <h2>Tin Documentation</h2>
-    <ul>
-        {% for url, text in pages.items %}
-        <li><a href="{{ url }}">{{ text }}</a></li>
-        {% endfor %}
-    </ul>
+  <ul>
+    {% for url, text in pages.items %}
+      <li><a href="{{ url }}">{{ text }}</a></li>
+    {% endfor %}
+  </ul>
 {% endblock %}
 
