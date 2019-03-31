@@ -23,14 +23,14 @@
   {% csrf_token %}
   <div class="tbl">
     {% for field in assignment_form %}
-    <div class="tbl-row">
-      <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
-      <span class="tbl-cell">{{ field }}</span>
-    </div>
+      <div class="tbl-row">
+        <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
+        <span class="tbl-cell">{{ field }}</span>
+      </div>
     {% endfor %}
   </div>
   {% if not grader_form %}
-  <div>Note: You'll be able to upload a grader script after you create the assignment.</div>
+    <div>Note: You'll be able to upload a grader script after you create the assignment.</div>
   {% endif %}
   <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
 </form>

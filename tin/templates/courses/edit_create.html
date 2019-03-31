@@ -17,10 +17,10 @@
   {% csrf_token %}
   <div class="tbl">
     {% for field in form %}
-    <div class="tbl-row">
-      <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
-      <span class="tbl-cell">{{ field }}</span>
-    </div>
+      <div class="tbl-row">
+        <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
+        <span class="tbl-cell">{{ field }}</span>
+      </div>
     {% endfor %}
   </div>
   <input class="tin-btn" type="submit" value="{% if course %}Save{% else %}Create{% endif %}">
