@@ -82,6 +82,7 @@ TEMPLATES = [
 
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'tin.apps.context_processors.response_developer_email'
             ],
         },
     },
@@ -185,3 +186,4 @@ STATICFILES_DIRS = (
 
 SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000 #1 MB
 
+DEVELOPER_EMAIL = "tin@tjhsst.edu"
