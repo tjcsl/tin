@@ -15,9 +15,9 @@
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {% if assignment.grader_file %}
-  You have already uploaded a grader script. Uploading here will replace it.
+    You have already uploaded a grader script. Uploading here will replace it.
   {% else %}
-  There is no grader script for this assignment.
+    There is no grader script for this assignment.
   {% endif %}
   <div class="tbl">
     {% for field in grader_form %}

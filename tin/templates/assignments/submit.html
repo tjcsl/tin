@@ -24,6 +24,7 @@
 {% block title %}{{ assignment.name }}: Submit{% endblock %}
 
 {% block main %}
+
 <h2>{{ assignment.name }}: Submit</h2>
 
 {% if assignment.grader_file %}
@@ -67,5 +68,6 @@
 {% else %}
   Your teacher has not uploaded a grader file.
 {% endif %}
+
 {% endblock %}
 

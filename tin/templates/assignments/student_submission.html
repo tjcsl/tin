@@ -15,11 +15,11 @@
     <th>On time?</th>
     <td>
       {% if not latest_submission %}
-      <span class="italic">Not yet submitted</span>
+        <span class="italic">Not yet submitted</span>
       {% elif latest_submission.is_on_time %}
-      Yes
+        Yes
       {% else %}
-      No
+        No
       {% endif %}
     </td>
   </tr>
@@ -28,9 +28,9 @@
     {% if latest_submission %}
       <td id="grade" class="{% if not latest_submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="formatted_grade">
         {% if not latest_submission.has_been_graded %}
-        <span class="result-not-graded italic">Not graded</span>
+          <span class="result-not-graded italic">Not graded</span>
         {% else %}
-        {{ latest_submission.formatted_grade }}
+          {{ latest_submission.formatted_grade }}
         {% endif %}
       </td>
     {% else %}
@@ -76,28 +76,28 @@
     <th style="min-width:75px;">Grade</th>
   </tr>
   {% for submission in submissions %}
-  <tr>
-    {% if submission %}
-    <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
-    <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-    <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
-      {% if submission.complete %}Yes{% else %}No{% endif %}
-    </td>
-    <td id="grade" class="{% if latest_submission == submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
-      {% if submission.has_been_graded %}
-      {{ submission.formatted_grade }}
-      {% else %}
-      <span class="result-not-graded italic">Not graded</span>
+    <tr>
+      {% if submission %}
+      <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+      <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+      <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
+        {% if submission.complete %}Yes{% else %}No{% endif %}
+      </td>
+      <td id="grade" class="{% if latest_submission == submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
+        {% if submission.has_been_graded %}
+          {{ submission.formatted_grade }}
+        {% else %}
+          <span class="result-not-graded italic">Not graded</span>
+        {% endif %}
+      </td>
       {% endif %}
-    </td>
-    {% endif %}
-  </tr>
+    </tr>
   {% endfor %}
 
   {% if not submissions %}
-  <tr>
-    <td colspan="4" class="italic center">No submissions</td>
-  </tr>
+    <tr>
+      <td colspan="4" class="italic center">No submissions</td>
+    </tr>
   {% endif %}
 </table>
 
