@@ -35,7 +35,7 @@ Turn-In: Documentation: Graders
     <p class="bold">Warning: Since the grader script itself runs without restrictions, all of these restrictions can be bypassed if the grader script uses output from a student's submission in an unsafe way (such as <code>eval()</code>ing or <code>pickle.load()</code>ing it). Please be careful.</p>
 
     <p>The Internet access restriction can be lifted on a per-assignment basis by going to the assignment's "Edit" page and checking the box labeled "Give submissions internet access." However, this should be done with caution, as giving scripts Internet access makes it much easier for students to cheat.</p>
-    <p>The memory restriction is currently hardcoded in and cannot be changed. 500MB should be enough for many cases, but if it becomes an issue, please contact <code>tin</code>'s developers to increase the limit.</p>
+    <p>The memory restriction is currently hardcoded in and cannot be changed. 500MB should be enough for many cases, but if it becomes an issue, please contact <a href="mailto:{{ DEVELOPER_EMAIL }}"><code>tin</code>'s developers</a> to increase the limit.</p>
     <p>Submissions can be given access to files by passing additional arguments to the wrapper script as follows (these must precede any other arguments to be passed to the submission):</p>
     <ul>
         <li><code>--write &lt;filename&gt;</code>: Give the submission read/write access to the specified file. The filename should be given as an absolute path.</li>
