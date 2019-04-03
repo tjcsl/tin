@@ -13,6 +13,7 @@ def index_view(request):
             "docs_app": True,
             "pages": {
                 reverse("docs:graders"): "Graders",
+                reverse("docs:sample-graders"): "Sample graders",
             },
         },
     )
@@ -20,4 +21,8 @@ def index_view(request):
 @teacher_or_superuser_required
 def graders_view(request):
     return render(request, "docs/graders.html", {"docs_app": True, "nav_item": "Graders"})
+
+@teacher_or_superuser_required
+def sample_graders_view(request):
+    return render(request, "docs/sample_graders.html", {"docs_app": True, "nav_item": "Sample graders"})
 
