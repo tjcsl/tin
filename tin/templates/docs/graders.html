@@ -51,11 +51,11 @@
 
   <h2>Examples</h3>
   <p>All of these run the submission with read-only access to <code>input.txt</code> in the grader script directory, read-write access to <code>output.txt</code> (in practice, the name should be randomized) in the submission directory, and the command-line arguments <code>abc</code> and <code>123</code>.</p>
-  <p><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "abc", "123"])</code> (avoid this style; always pass <code>--</code> so it is clear where the wrapper script arguments end)</p>
-  <p><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--", "abc", "123"])</code></p>
-  <p><code>subprocess.run([sys.argv[1], "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--", "abc", "123"])</code></p>
+  <p><pre><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "abc", "123"])</code></pre> (avoid this style; always pass <code>--</code> so it is clear where the wrapper script arguments end)</p>
+  <p><pre><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--", "abc", "123"])</code></pre></p>
+  <p><pre><code>subprocess.run([sys.argv[1], "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--", "abc", "123"])</code></pre></p>
   <p>The following code does not do what the author intended. It runs the submission with two arguments: the string <code>"--read"</code> and the path to a file named <code>input.txt</code> in the grader script directory. It does NOT give the script read access to <code>input.txt</code>.</p>
-  <p><code>subprocess.run([sys.argv[1], "--", "--read", os.path.join(os.path.dirname(__file__), "input.txt")])</code></p>
+  <p><pre><code>subprocess.run([sys.argv[1], "--", "--read", os.path.join(os.path.dirname(__file__), "input.txt")])</code></pre></p>
 
   <h2>Grader script output</h2>
   <p>Students can only see output from the grader that has been printed on the standard output (<code>sys.stdout</code>). Output on the standard error (<code>sys.stderr</code>) can only be viewed by teachers. This is to prevent students from accidentally seeing a solution in the output if the grader throws an exception.</p>
