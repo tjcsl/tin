@@ -35,7 +35,7 @@ def run_submission(submission_id):
                 firejail_profile = firejail_profile[key][assignment_attrs[key]]
                 break
 
-    firejail_profile_path = os.path.join(settings.BASE_DIR, firejail_profile)
+    firejail_profile_path = os.path.join(settings.BASE_DIR, "sandboxing", firejail_profile)
 
     try:
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
@@ -89,6 +89,7 @@ def run_submission(submission_id):
             submission.student.username,
             grader_log_path,
         ]
+
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
             killed = False
 
