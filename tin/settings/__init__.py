@@ -183,6 +183,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+STATIC_ROOT = os.path.join(BASE_DIR, "serve")
 
 SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000 #1 MB
 
