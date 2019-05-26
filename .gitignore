@@ -6,5 +6,6 @@ venv/
 media/
 
 tin/settings/secret.py
+tin/serve
 
 nevek.txt
