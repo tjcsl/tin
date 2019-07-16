@@ -1,0 +1,16 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+django = "~=2.2.3"
+gevent = "*"
+gunicorn = "*"
+social-auth-app-django = "~=3.1.0"
+requests = "~=2.20.1"
+psutil = "~=5.5.1"
+celery = "~=4.2.1"
+django-celery-results = "~=1.0.4"
