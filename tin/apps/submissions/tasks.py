@@ -83,6 +83,12 @@ def run_submission(submission_id):
         return
 
     try:
+        retcode = None
+        killed = False
+
+        output = ""
+        errors = ""
+
         args = [
             "python3",
             "-u",
@@ -96,12 +102,7 @@ def run_submission(submission_id):
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE,
                               stdin = subprocess.DEVNULL, universal_newlines = True,
                               preexec_fn = os.setsid) as p:
-            killed = False
-
             start_time = time.time()
-
-            output = ""
-            errors = ""
 
             while p.poll() is None:
                 if submission.assignment.enable_grader_timeout:
@@ -168,7 +169,7 @@ def run_submission(submission_id):
         submission.grader_output = "[Internal error]"
         submission.grader_errors = traceback.format_exc()
     else:
-        if output:
+        if output and not killed and retcode == 0:
             last_line = output.splitlines()[-1]
             m = re.search(r'^Score: ([\d\.]+%?)$', last_line)
             if m is not None:
