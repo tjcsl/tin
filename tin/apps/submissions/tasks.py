@@ -1,7 +1,9 @@
 import os
 import re
 import sys
+import time
 import signal
+import select
 import psutil
 import shutil
 import subprocess
@@ -73,7 +75,8 @@ def run_submission(submission_id):
 
         os.chmod(submission_wrapper_path, 0o700)
     except IOError as e:
-        submission.grader_output = "An internal error occurred. Please try again. If the problem persists, contact your teacher."
+        submission.grader_output = "An internal error occurred. Please try again.\n" \
+            "If the problem persists, contact your teacher."
         submission.grader_error = traceback.format_exc()
         submission.completed = True
         submission.save()
@@ -90,45 +93,55 @@ def run_submission(submission_id):
             grader_log_path,
         ]
 
-        with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE, stdin = subprocess.DEVNULL, preexec_fn = os.setsid) as p:
+        with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE,
+                              stdin = subprocess.DEVNULL, universal_newlines = True,
+                              preexec_fn = os.setsid) as p:
             killed = False
 
-            def kill_process():
-                nonlocal killed
-                if p.poll() is None:
-                    killed = True
-
-                    children = psutil.Process(p.pid).children(recursive = True)
-                    try:
-                        os.killpg(p.pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        # Shouldn't happen, but just in case
-                        p.kill()
-                    for child in children:
-                        try:
-                            child.kill()
-                        except psutil.NoSuchProcess:
-                            pass
-
-            if submission.assignment.enable_grader_timeout:
-                kill_timer = threading.Timer(submission.assignment.grader_timeout, kill_process)
-                kill_timer.start()
-            else:
-                kill_timer = None
+            start_time = time.time()
 
             output = ""
-            for line in p.stdout:
-                output += line.decode()
+            errors = ""
+
+            while p.poll() is None:
+                if submission.assignment.enable_grader_timeout:
+                    time_elapsed = time.time() - start_time
+                    timeout = submission.assignment.grader_timeout - time_elapsed
+                    if timeout <= 0:
+                        break
+                else:
+                    timeout = None
+
+                files_ready = select.select([p.stdout, p.stderr], [], [], timeout)[0]
+                if p.stdout in files_ready:
+                    output += p.stdout.readline()
+                if p.stderr in files_ready:
+                    errors += p.stderr.readline()
 
                 submission.grader_output = output
+                submission.grader_errors = errors
                 submission.save()
 
-            errors = ""
-            for line in p.stderr:
-                errors += line.decode()
+            if p.poll() is None:
+                killed = True
 
-            if kill_timer is not None:
-                kill_timer.cancel()
+                children = psutil.Process(p.pid).children(recursive = True)
+                try:
+                    os.killpg(p.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    # Shouldn't happen, but just in case
+                    p.kill()
+                for child in children:
+                    try:
+                        child.kill()
+                    except psutil.NoSuchProcess:
+                        pass
+
+            for line in p.stdout:
+                output += line
+
+            for line in p.stderr:
+                errors += line
 
             if killed:
                 if not output.endswith("\n"):
@@ -151,11 +164,6 @@ def run_submission(submission_id):
 
             submission.grader_output = output
             submission.grader_errors = errors
-            submission.complete = True
-            submission.save()
-    except subprocess.CalledProcessError as e:
-        submission.grader_output = str(e.output)
-        submission.grader_errors = str(e.stderr)
     except Exception as e:
         submission.grader_output = "[Internal error]"
         submission.grader_errors = traceback.format_exc()
@@ -173,6 +181,7 @@ def run_submission(submission_id):
                     submission.points_received = score
                     submission.has_been_graded = True
     finally:
+        submission.complete = True
         submission.save()
 
         if os.path.exists(submission_wrapper_path):

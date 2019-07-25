@@ -100,10 +100,6 @@ Submission #{{ submission_number }}
 {% if not request.user.is_student %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
   <div id="grader-errors" class="code-result{% if not submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="grader_errors">
-    {% if not submission.complete and not submission.grader_errors %}
-      <span class="italic">Error output is unavailable until the current run finishes</span>
-      <span class="result-incomplete"></span>
-    {% endif %}
     <code><pre>{{ submission.grader_errors }}</pre></code>
   </div>
 {% endif %}
