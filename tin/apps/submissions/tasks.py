@@ -105,13 +105,16 @@ def run_submission(submission_id):
             start_time = time.time()
 
             while p.poll() is None:
+                submission.assignment.refresh_from_db()
                 if submission.assignment.enable_grader_timeout:
                     time_elapsed = time.time() - start_time
                     timeout = submission.assignment.grader_timeout - time_elapsed
                     if timeout <= 0:
                         break
+
+                    timeout = min(timeout, 60)
                 else:
-                    timeout = None
+                    timeout = 60
 
                 files_ready = select.select([p.stdout, p.stderr], [], [], timeout)[0]
                 if p.stdout in files_ready:
