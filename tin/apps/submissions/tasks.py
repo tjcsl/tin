@@ -60,6 +60,7 @@ def run_submission(submission_id):
                 "--profile={}".format(firejail_profile_path),
                 "--whitelist={}".format(submission_path),
                 "--read-only={}".format(submission_path),
+                "--blacklist={}".format(os.path.dirname(submission_wrapper_path)),
                 *wrapper_command_args,
             ]
 
