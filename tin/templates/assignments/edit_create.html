@@ -19,6 +19,19 @@
 
 {% block main %}
 <h2>{{ course.name }}: {% if action == "add" %}Create assignment{% else %}{{ assignment.name }}{% endif %}</h2>
+{% if assignment_form.errors %}
+  <h3 class="errors">Please correct the errors below.</h3>
+  <ul class="errors">
+      {% for field in assignment_form %}
+          {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error }}</li>
+          {% endfor %}
+      {% endfor %}
+      {% for error in assignment_form.non_field_errors %}
+          <li>{{ error }}</li>
+      {% endfor %}
+  </ul>
+{% endif %}
 <form action="" method="post">
   {% csrf_token %}
   <div class="tbl">
