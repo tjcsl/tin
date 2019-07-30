@@ -20,7 +20,7 @@ class Submission(models.Model):
 
     complete = models.BooleanField(default = False)
 
-    points_received = models.DecimalField(max_digits = 4, decimal_places = 1, null = True, blank = True)
+    points_received = models.DecimalField(max_digits = 6, decimal_places = 3, null = True, blank = True)
 
     file = models.FileField(upload_to = upload_submission_file_path, null = True)
 

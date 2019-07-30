@@ -17,8 +17,8 @@ class Assignment(models.Model):
     course = models.ForeignKey("courses.Course", on_delete = models.CASCADE, related_name = "assignments")
 
     points_possible = models.DecimalField(
-        max_digits = 4,
-        decimal_places = 1,
+        max_digits = 6,
+        decimal_places = 3,
         validators = [
             MinValueValidator(1),
         ],
