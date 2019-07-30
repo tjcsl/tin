@@ -29,11 +29,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-try:
-    from .secret import *
-except ImportError:
-    pass
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -189,3 +184,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "serve")
 SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000 #1 MB
 
 DEVELOPER_EMAIL = "tin@tjhsst.edu"
+
+try:
+    from .secret import *
+except ImportError:
+    pass
