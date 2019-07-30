@@ -15,6 +15,7 @@ from ..submissions.models import Submission, upload_submission_file_path
 from ..submissions.tasks import run_submission
 from ..users.models import User
 from ..auth.decorators import login_required, teacher_or_superuser_required
+from ..containers.tasks import create_containers_for_assigment
 
 
 @login_required
@@ -81,6 +82,8 @@ def create_view(request, course_id):
             assignment = assignment_form.save(commit = False)
             assignment.course = course
             assignment.save()
+            if not settings.DEBUG:
+                create_containers_for_assigment.delay(assignment.id)
             return redirect("assignments:show", assignment.id)
     else:
         assignment_form = AssignmentForm()
@@ -109,6 +112,8 @@ def edit_view(request, assignment_id):
         assignment_form = AssignmentForm(data = request.POST, instance = assignment)
         if assignment_form.is_valid():
             assignment_form.save()
+            if not settings.DEBUG:
+                create_containers_for_assigment.delay(assignment.id)
             return redirect("assignments:show", assignment.id)
 
     return render(
