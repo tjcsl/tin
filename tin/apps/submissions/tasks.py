@@ -16,6 +16,7 @@ from django.conf import settings
 from celery import shared_task
 
 from .models import Submission
+from ..containers.models import ContainerTask
 
 firejail_profile_names =  {
     "network": {
@@ -44,6 +45,8 @@ def run_submission(submission_id):
         grader_log_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_log_filename)
         submission_path = os.path.join(settings.MEDIA_ROOT, submission.file.name)
 
+        assignment_dir = os.path.dirname(grader_path)
+
         submission_wrapper_path = os.path.join(settings.MEDIA_ROOT, os.path.dirname(submission.file.name), "wrappers", os.path.basename(submission.file.name))
 
         wrapper_command_args = [
@@ -51,7 +54,7 @@ def run_submission(submission_id):
             "-u",
             submission_path,
         ]
-        if shutil.which("firejail") is not None:
+        if not settings.DEBUG or shutil.which("firejail") is not None:
             os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok = True)
 
             wrapper_command_args = [
@@ -83,6 +86,14 @@ def run_submission(submission_id):
         submission.save()
         return
 
+    if not settings.DEBUG:
+        task = ContainerTask.create_task_for_submission(submission)
+        if task is None:  # Submission deleted
+            if os.path.exists(submission_wrapper_path):
+                os.remove(submission_wrapper_path)
+
+            return
+
     try:
         retcode = None
         killed = False
@@ -99,6 +110,13 @@ def run_submission(submission_id):
             submission.student.username,
             grader_log_path,
         ]
+
+        if not settings.DEBUG:
+            task.container.ensure_started()
+            args = task.container.get_run_args(args, root = False, cwd = assignment_dir)
+
+            task.container.mount_path("assignment-{}".format(submission.assignment.id), assignment_dir,
+                                      assignment_dir)
 
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE,
                               stdin = subprocess.DEVNULL, universal_newlines = True,
@@ -188,6 +206,11 @@ def run_submission(submission_id):
     finally:
         submission.complete = True
         submission.save()
+
+        if not settings.DEBUG:
+            task.container.post_task_cleanup()
+            task.container.unmount_path("assignment-{}".format(submission.assignment.id))
+            task.delete()
 
         if os.path.exists(submission_wrapper_path):
             os.remove(submission_wrapper_path)
