@@ -115,6 +115,9 @@ def run_submission(submission_id):
             task.container.ensure_started()
             args = task.container.get_run_args(args, root = False)
 
+            task.container.mount_path(os.path.basename(firejail_profile_path), firejail_profile_path,
+                                      firejail_profile_path)
+
             task.container.mount_path("assignment-{}".format(submission.assignment.id), assignment_dir,
                                       assignment_dir)
 
