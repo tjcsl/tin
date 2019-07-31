@@ -71,10 +71,7 @@ class Container(models.Model):
 
     def set_idmap(self):
         subprocess.call(["lxc", "config", "set", self.name,
-                         "raw.idmap", "uid {uid} {uid}\ngid {gid} {gid}".format(
-                            uid = os.getuid(),
-                            gid = os.getgid(),
-                        )])
+                         "raw.idmap", "uid {uid} {uid}".format(uid = os.getuid())])
 
     def ensure_started(self):
         self.set_idmap()
