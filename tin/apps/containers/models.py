@@ -47,6 +47,7 @@ class Container(models.Model):
             else:
                 return container
 
+    @property
     def has_task(self) -> bool:
         return hasattr(self, "task")
 
