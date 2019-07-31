@@ -113,7 +113,7 @@ def run_submission(submission_id):
 
         if not settings.DEBUG:
             task.container.ensure_started()
-            args = task.container.get_run_args(args, root = False, cwd = assignment_dir)
+            args = task.container.get_run_args(args, root = False)
 
             task.container.mount_path("assignment-{}".format(submission.assignment.id), assignment_dir,
                                       assignment_dir)
