@@ -8,6 +8,7 @@ import uuid
 from django.db import models
 from django.db import IntegrityError
 from django.db.models import Q
+from django.utils import timezone
 
 from ..assignments.models import Assignment
 from ..submissions.models import Submission
@@ -33,7 +34,9 @@ class Container(models.Model):
             container = cls(assignment = assignment, name = name)
 
             subprocess.call(["lxc", "launch", "ubuntu:18.04", name])
-            subprocess.call(container.get_run_args("useradd", "-m", "-u", os.getuid(), getpass.getuser()))
+            container.ensure_started()
+            subprocess.call(container.get_run_args(["useradd", "-m", "-u", str(os.getuid()), getpass.getuser()], root = True))
+            container.system_upgrade()
             container.install_packages()
             container.ensure_stopped()
 
@@ -55,9 +58,20 @@ class Container(models.Model):
 
         return None
 
+    def check_has_ip(self) -> bool:
+        output = subprocess.getoutput(subprocess.list2cmdline(["lxc", "info", self.name]))
+        for line in output.splitlines():
+            if line.lower().strip().startswith("eth0:"):
+                return "inet" in line.lower().split()
+
+        return None
+
     def ensure_started(self):
         if not self.check_running():
             subprocess.call(["lxc", "start", self.name])
+
+        while not self.check_has_ip():
+            time.sleep(1)
 
     def ensure_stopped(self):
         if self.check_running():
@@ -82,20 +96,20 @@ class Container(models.Model):
         subprocess.run(self.get_run_args(["apt-get", "-y", "update"], root = True))
         subprocess.run(self.get_run_args(["apt-get", "-y", "upgrade"], root = True))
 
+        self.last_upgrade = timezone.now()
+        if self.pk is not None:
+            self.save(fields=["last_upgrade"])
+
     def post_task_cleanup(self):
         if timezone.localtime() >= self.assignment.due + datetime.timedelta(days = 2):
             self.ensure_stopped()
 
-    def get_run_args(self, args: List[str], *, root: bool = False,
-                     cwd: Optional[str] = None) -> List[str]:
-        run_args = ["lxc", "exec", self.name]
+    def get_run_args(self, args: List[str], *, root: bool = False) -> List[str]:
+        run_args = ["lxc", "exec", self.name, "--"]
 
         if not root:
-            run_args.extend(["--user", os.getuid()])
-        if cwd is not None:
-            run_args.extend(["--cwd", cwd])
+            run_args.extend(["sudo", "-u", "#{}".format(os.getuid())])
 
-        run_args.append("--")
         run_args.extend(args)
 
         return run_args
@@ -159,5 +173,5 @@ class ContainerPackage(models.Model):
 
     @classmethod
     def query_for_assignment(cls, assignment: Assignment):
-        return cls.objects.query(Q(install_globally = True) | Q(assignments = assignment))
+        return cls.objects.filter(Q(install_globally = True) | Q(assignments = assignment))
 
