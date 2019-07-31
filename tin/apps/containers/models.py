@@ -34,6 +34,7 @@ class Container(models.Model):
             container = cls(assignment = assignment, name = name)
 
             subprocess.call(["lxc", "launch", "ubuntu:18.04", name])
+            container.ensure_stopped()
             container.ensure_started()
             subprocess.call(container.get_run_args(["useradd", "-m", "-u", str(os.getuid()), getpass.getuser()], root = True))
             container.system_upgrade()
@@ -67,7 +68,15 @@ class Container(models.Model):
 
         return None
 
+    def set_idmap(self):
+        subprocess.call(["lxc", "config", "set", self.name,
+                         "raw.idmap", "uid {uid} {uid}\ngid {gid} {gid}".format(
+                            uid = os.getuid(),
+                            gid = os.getgid(),
+                        )])
+
     def ensure_started(self):
+        self.set_idmap()
         if not self.check_running():
             subprocess.call(["lxc", "start", self.name])
 
