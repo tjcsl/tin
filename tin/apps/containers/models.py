@@ -125,6 +125,12 @@ class Container(models.Model):
     def delete_command(self) -> List[str]:
         return ["lxc", "delete", self.name]
 
+    def __str__(self):
+        return "Container {} for assignment {}".format(self.name, self.assignment)
+
+    def __repr__(self):
+        return "<{}>".format(self)
+
 
 class ContainerTask(models.Model):
     container = models.OneToOneField(Container, related_name = "task", null = False,
@@ -160,6 +166,12 @@ class ContainerTask(models.Model):
             if not Submission.objects.filter(id = submission_id).exists():
                 return None
 
+    def __str__(self):
+        return "Submission #{} by {} for assignment #{} running on container {}".format(self.submission.id, self.submission.student, self.submission.assignment.id, self.container.name)
+
+    def __repr__(self):
+        return "<{}>".format(self)
+
 
 class ContainerPackage(models.Model):
     TYPE_CHOICES = (("apt", "Apt"), ("pip", "Pip"))
@@ -174,4 +186,10 @@ class ContainerPackage(models.Model):
     @classmethod
     def query_for_assignment(cls, assignment: Assignment):
         return cls.objects.filter(Q(install_globally = True) | Q(assignments = assignment))
+
+    def __str__(self):
+        return "{}: {}".format(self.get_package_type_display(), self.name)
+
+    def __repr__(self):
+        return "<{}>".format(self)
 
