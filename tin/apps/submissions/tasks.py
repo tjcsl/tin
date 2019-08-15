@@ -25,6 +25,11 @@ firejail_profile_names =  {
     },
 }
 
+def truncate_output(text, is_error):
+    field_name_end = "errors" if is_error else "output"
+    max_len = Submission._meta.get_field("grader_{}".format(field_name_end))
+    return (text[:max_len-5] + "...") if len(text) > max_len else text
+
 @shared_task
 def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)
@@ -144,8 +149,8 @@ def run_submission(submission_id):
                 if p.stderr in files_ready:
                     errors += p.stderr.readline()
 
-                submission.grader_output = output
-                submission.grader_errors = errors
+                submission.grader_output = truncate_output(output, False)
+                submission.grader_errors = truncate_output(errors, True)
                 submission.save()
 
             if p.poll() is None:
@@ -188,8 +193,8 @@ def run_submission(submission_id):
                         errors += "\n"
                     errors += "[Grader exited with status {}]".format(retcode)
 
-            submission.grader_output = output
-            submission.grader_errors = errors
+            submission.grader_output = truncate_output(output, False)
+            submission.grader_errors = truncate_output(errors, True)
     except Exception as e:
         submission.grader_output = "[Internal error]"
         submission.grader_errors = traceback.format_exc()
