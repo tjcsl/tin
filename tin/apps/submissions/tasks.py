@@ -41,16 +41,18 @@ def run_submission(submission_id):
             if task is None:  # Submission deleted
                 return
 
-            template = """
+            task.container.ensure_started()
+
+            wrapper_text = """
 <REMOVED>
-"""[1:-1]
+"""[1:-1].format(continer_name=task.container.name, submission_path=submission_path)
         else:
-            template = """
+            wrapper_text = """
 <REMOVED>
-"""[1:-1]
+"""[1:-1].format(submission_path=submission_path)
 
         with open(submission_wrapper_path, "w") as f:
-            f.write(wrapper_template.format(submission_path=submission_path))
+            f.write(wrapper_text)
 
         os.chmod(submission_wrapper_path, 0o700)
     except IOError as e:
