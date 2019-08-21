@@ -181,6 +181,39 @@ STATICFILES_DIRS = (
 )
 STATIC_ROOT = os.path.join(BASE_DIR, "serve")
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    "formatters": {
+        "simple": {"format": "{asctime}: {levelname:>8s}: {message}", "style": "{"},
+    },
+    'handlers': {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        'info_log': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/info.log'),
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'info_log'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'tin': {
+            'handlers': ['console', 'info_log'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
 SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000 #1 MB
 
 DEVELOPER_EMAIL = "tin@tjhsst.edu"
