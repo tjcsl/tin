@@ -18,12 +18,6 @@ from celery import shared_task
 from .models import Submission
 from ..containers.models import ContainerTask
 
-firejail_profile_names =  {
-    "network": {
-        True: "submission-network.profile",
-        False: "submission-no-network.profile",
-    },
-}
 
 def truncate_output(text, field_name):
     max_len = Submission._meta.get_field(field_name).max_length
@@ -33,43 +27,19 @@ def truncate_output(text, field_name):
 def run_submission(submission_id):
     submission = Submission.objects.get(id = submission_id)
 
-    assignment_attrs = {"network": submission.assignment.has_network_access}
-
-    firejail_profile = firejail_profile_names
-    while isinstance(firejail_profile, dict):
-        for key in assignment_attrs:
-            if key in firejail_profile:
-                firejail_profile = firejail_profile[key][assignment_attrs[key]]
-                break
-
-    firejail_profile_path = os.path.join(settings.BASE_DIR, "sandboxing", firejail_profile)
-
     try:
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
         grader_log_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_log_filename)
         submission_path = os.path.join(settings.MEDIA_ROOT, submission.file.name)
 
-        assignment_dir = os.path.dirname(grader_path)
-
         submission_wrapper_path = os.path.join(settings.MEDIA_ROOT, os.path.dirname(submission.file.name), "wrappers", os.path.basename(submission.file.name))
 
-        wrapper_command_args = [
-            "python3",
-            "-u",
-            submission_path,
-        ]
-        if not settings.DEBUG or shutil.which("firejail") is not None:
-            os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok = True)
+        os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok = True)
 
-            wrapper_command_args = [
-                "firejail",
-                "--quiet",
-                "--profile={}".format(firejail_profile_path),
-                "--whitelist={}".format(submission_path),
-                "--read-only={}".format(submission_path),
-                "--blacklist={}".format(os.path.dirname(submission_wrapper_path)),
-                *wrapper_command_args,
-            ]
+        if not settings.DEBUG:
+            task = ContainerTask.create_task_for_submission(submission)
+            if task is None:  # Submission deleted
+                return
 
             template = """
 <REMOVED>
@@ -78,8 +48,9 @@ def run_submission(submission_id):
             template = """
 <REMOVED>
 """[1:-1]
+
         with open(submission_wrapper_path, "w") as f:
-            f.write(template.format(command = wrapper_command_args[0], args = wrapper_command_args))
+            f.write(wrapper_template.format(submission_path=submission_path))
 
         os.chmod(submission_wrapper_path, 0o700)
     except IOError as e:
@@ -89,14 +60,6 @@ def run_submission(submission_id):
         submission.completed = True
         submission.save()
         return
-
-    if not settings.DEBUG:
-        task = ContainerTask.create_task_for_submission(submission)
-        if task is None:  # Submission deleted
-            if os.path.exists(submission_wrapper_path):
-                os.remove(submission_wrapper_path)
-
-            return
 
     try:
         retcode = None
@@ -115,15 +78,17 @@ def run_submission(submission_id):
             grader_log_path,
         ]
 
-        if not settings.DEBUG:
-            task.container.ensure_started()
-            args = task.container.get_run_args(args, root = False)
-
-            task.container.mount_path(os.path.basename(firejail_profile_path), firejail_profile_path,
-                                      firejail_profile_path)
-
-            task.container.mount_path("assignment-{}".format(submission.assignment.id), assignment_dir,
-                                      assignment_dir)
+        if not settings.DEBUG or shutil.which("firejail") is not None:
+            args = [
+                "firejail",
+                "--quiet",
+                "--profile={}".format(os.path.join(settings.BASE_DIR, "sandboxing", "grader.profile")),
+                "--whitelist={}".format(os.path.dirname(grader_path)),
+                "--read-only={}".format(grader_path),
+                "--read-only={}".format(submission_path),
+                "--read-only={}".format(os.path.dirname(submission_wrapper_path)),
+                *args,
+            ]
 
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE,
                               stdin = subprocess.DEVNULL, universal_newlines = True,
@@ -216,7 +181,6 @@ def run_submission(submission_id):
 
         if not settings.DEBUG:
             task.container.post_task_cleanup()
-            task.container.unmount_path("assignment-{}".format(submission.assignment.id))
             task.delete()
 
         if os.path.exists(submission_wrapper_path):

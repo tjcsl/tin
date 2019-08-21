@@ -109,6 +109,10 @@ class Container(models.Model):
             self.save(fields=["last_upgrade"])
 
     def post_task_cleanup(self):
+        for device_name in self.list_devices():
+            if device_name.startswith("DISK:"):
+                self.unmount_path(device_name)
+
         if timezone.localtime() >= self.assignment.due + datetime.timedelta(days = 2):
             self.ensure_stopped()
 
@@ -125,6 +129,9 @@ class Container(models.Model):
     def mount_path(self, disk_name: str, source: str, dest: str):
         subprocess.call(["lxc", "config", "device", "add", self.name, disk_name, "disk",
                          "source={}".format(source), "path={}".format(dest)])
+
+    def list_devices(self):
+        return subprocess.run(["lxc", "config", "device", "list", self.name], stdout=subprocess.PIPE).stdout.decode().strip().splitlines()
 
     def unmount_path(self, disk_name):
         subprocess.call(["lxc", "config", "device", "remove", self.name, disk_name])
