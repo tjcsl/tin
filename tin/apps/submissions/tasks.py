@@ -45,7 +45,7 @@ def run_submission(submission_id):
 
             wrapper_text = """
 <REMOVED>
-"""[1:-1].format(continer_name=task.container.name, submission_path=submission_path)
+"""[1:-1].format(container_name=task.container.name, submission_path=submission_path)
         else:
             wrapper_text = """
 <REMOVED>
