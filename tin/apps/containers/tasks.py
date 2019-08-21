@@ -35,7 +35,7 @@ def periodic_container_checks():
     for assignment in Assignment.objects.all():
         if assignment.containers.count() > assignment.preferred_num_containers:
             for container in list(assignment.containers.all()):
-                if not container.has_task:
+                if Container.objects.filter(id=container.id).exists() and not container.has_task:
                     try:
                         container.delete()
                     except models.ProtectedError:
@@ -47,10 +47,10 @@ def periodic_container_checks():
                 assignment.refresh_from_db()
                 if assignment.containers.count() <= assignment.preferred_num_containers:
                     break
-        else:
-            while assignment.containers.count() < assignment.preferred_num_containers:
-                Container.create_container_for_assignment(assignment)
-                assignment.refresh_from_db()
+
+        while assignment.containers.count() < assignment.preferred_num_containers:
+            Container.create_container_for_assignment(assignment)
+            assignment.refresh_from_db()
 
     update_containers()
 
