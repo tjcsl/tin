@@ -1,10 +1,9 @@
-from contextlib import contextmanager
+import subprocess
 
 from celery import shared_task
 from django.db import models
 from django.db import IntegrityError
 from django.conf import settings
-from django.utils import timezone
 
 from .models import Container, ContainerTask
 from ..assignments.models import Assignment
