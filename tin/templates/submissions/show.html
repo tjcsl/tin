@@ -97,7 +97,7 @@ Submission #{{ submission_number }}
   {% endif %}
 </div>
 
-{% if not request.user.is_student %}
+{% if not request.user.is_student or request.user.is_superuser %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
   <div id="grader-errors" class="code-result{% if not submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="grader_errors">
     <div class="result">
