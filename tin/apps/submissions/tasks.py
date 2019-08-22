@@ -94,7 +94,7 @@ def run_submission(submission_id):
 
         with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE,
                               stdin = subprocess.DEVNULL, universal_newlines = True,
-                              cwd = os.path.dirname(grader_path), preexec_fn = os.setsid) as p:
+                              cwd = os.path.dirname(grader_path), preexec_fn = os.setpgrp) as p:
             start_time = time.time()
 
             while p.poll() is None:
