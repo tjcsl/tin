@@ -209,6 +209,6 @@ DEVELOPER_EMAIL = "tin@tjhsst.edu"
 
 
 try:
-    from .secret import *
+    from .secret import *  # noqa
 except ImportError:
     pass

@@ -7,7 +7,7 @@ from django.utils import timezone
 from ..submissions.models import Submission
 
 
-def upload_grader_file_path(assignment, filename):
+def upload_grader_file_path(assignment, filename):  # pylint: disable=unused-argument
     return "assignment-{}/grader.py".format(assignment.id)
 
 

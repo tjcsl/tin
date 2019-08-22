@@ -1,5 +1,4 @@
 from django.contrib.auth import logout
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 from ..courses.views import index_view as course_index_view

@@ -2,21 +2,22 @@ from social_core.backends.oauth import BaseOAuth2
 from social_core.pipeline.user import get_username as social_get_username
 
 
-def get_username(strategy, details, user=None, *args, **kwargs):
+def get_username(strategy, details, *args, user=None, **kwargs):
     result = social_get_username(strategy, details, user=user, *args, **kwargs)
     # if not hasattr(user, 'social_user'):
     #    user.social_user
     return result
 
 
-class IonOauth2(BaseOAuth2):
+class IonOauth2(BaseOAuth2):  # pylint: disable=abstract-method
     name = "ion"
     AUTHORIZATION_URL = "https://ion.tjhsst.edu/oauth/authorize"
     ACCESS_TOKEN_URL = "https://ion.tjhsst.edu/oauth/token"
     ACCESS_TOKEN_METHOD = "POST"
     EXTRA_DATA = [("refresh_token", "refresh_token", True), ("expires_in", "expires")]
 
-    def get_scope(self):
+    @staticmethod
+    def get_scope():
         return ["read"]
 
     def get_user_details(self, response):
@@ -36,5 +37,6 @@ class IonOauth2(BaseOAuth2):
             "is_teacher": profile["is_teacher"],
         }
 
-    def get_user_id(self, details, response):
+    @staticmethod
+    def get_user_id(details, response):  # pylint: disable=unused-argument
         return details["id"]

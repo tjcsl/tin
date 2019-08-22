@@ -6,7 +6,7 @@ from django.utils.text import slugify
 # Create your models here.
 
 
-def upload_submission_file_path(submission, filename):
+def upload_submission_file_path(submission, filename):  # pylint: disable=unused-argument
     return "assignment-{}/{}/submission_{}.py".format(
         submission.assignment.id,
         slugify(submission.student.username),

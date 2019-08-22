@@ -4,8 +4,6 @@ import select
 import shutil
 import signal
 import subprocess
-import sys
-import threading
 import time
 import traceback
 from decimal import Decimal
@@ -66,11 +64,11 @@ def run_submission(submission_id):
                 submission_path=submission_path
             )
 
-        with open(submission_wrapper_path, "w") as f:
-            f.write(wrapper_text)
+        with open(submission_wrapper_path, "w") as f_obj:
+            f_obj.write(wrapper_text)
 
         os.chmod(submission_wrapper_path, 0o700)
-    except IOError as e:
+    except IOError:
         submission.grader_output = (
             "An internal error occurred. Please try again.\n"
             "If the problem persists, contact your teacher."
@@ -111,7 +109,7 @@ def run_submission(submission_id):
                 *args,
             ]
 
-        with subprocess.Popen(
+        with subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
             args,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -119,10 +117,10 @@ def run_submission(submission_id):
             universal_newlines=True,
             cwd=os.path.dirname(grader_path),
             preexec_fn=os.setpgrp,
-        ) as p:
+        ) as proc:
             start_time = time.time()
 
-            while p.poll() is None:
+            while proc.poll() is None:
                 submission.assignment.refresh_from_db()
                 if submission.assignment.enable_grader_timeout:
                     time_elapsed = time.time() - start_time
@@ -134,35 +132,35 @@ def run_submission(submission_id):
                 else:
                     timeout = 60
 
-                files_ready = select.select([p.stdout, p.stderr], [], [], timeout)[0]
-                if p.stdout in files_ready:
-                    output += p.stdout.readline()
-                if p.stderr in files_ready:
-                    errors += p.stderr.readline()
+                files_ready = select.select([proc.stdout, proc.stderr], [], [], timeout)[0]
+                if proc.stdout in files_ready:
+                    output += proc.stdout.readline()
+                if proc.stderr in files_ready:
+                    errors += proc.stderr.readline()
 
                 submission.grader_output = truncate_output(output, "grader_output")
                 submission.grader_errors = truncate_output(errors, "grader_errors")
                 submission.save()
 
-            if p.poll() is None:
+            if proc.poll() is None:
                 killed = True
 
-                children = psutil.Process(p.pid).children(recursive=True)
+                children = psutil.Process(proc.pid).children(recursive=True)
                 try:
-                    os.killpg(p.pid, signal.SIGKILL)
+                    os.killpg(proc.pid, signal.SIGKILL)
                 except ProcessLookupError:
                     # Shouldn't happen, but just in case
-                    p.kill()
+                    proc.kill()
                 for child in children:
                     try:
                         child.kill()
                     except psutil.NoSuchProcess:
                         pass
 
-            for line in p.stdout:
+            for line in proc.stdout:
                 output += line
 
-            for line in p.stderr:
+            for line in proc.stderr:
                 errors += line
 
             if killed:
@@ -174,7 +172,7 @@ def run_submission(submission_id):
                     errors += "\n"
                 errors += "[Grader timed out]"
             else:
-                retcode = p.poll()
+                retcode = proc.poll()
                 if retcode != 0:
                     if not output.endswith("\n"):
                         output += "\n"
@@ -186,15 +184,15 @@ def run_submission(submission_id):
 
             submission.grader_output = truncate_output(output, "grader_output")
             submission.grader_errors = truncate_output(errors, "grader_errors")
-    except Exception as e:
+    except Exception:  # pylint: disable=broad-except
         submission.grader_output = "[Internal error]"
         submission.grader_errors = traceback.format_exc()
     else:
         if output and not killed and retcode == 0:
             last_line = output.splitlines()[-1]
-            m = re.search(r"^Score: ([\d\.]+%?)$", last_line)
-            if m is not None:
-                score = m.group(1)
+            match = re.search(r"^Score: ([\d\.]+%?)$", last_line)
+            if match is not None:
+                score = match.group(1)
                 if score.endswith("%"):
                     score = submission.assignment.points_possible * Decimal(score[:-1]) / 100
                 else:
