@@ -1,5 +1,5 @@
 //Based off of https://github.com/ovkulkarni/ai-grader/blob/master/templates/upload.html
-setInterval(function() {
+function update() {
   var endpoint_elems = {};
   $(".incomplete").each(function(i, obj) {
     var obj = $(obj);
@@ -70,4 +70,9 @@ setInterval(function() {
       });
     });
   });
-}, 3000);
+}
+
+$(function() {
+  setTimeout(update, 1000);
+  setInterval(update, 3000);
+});
