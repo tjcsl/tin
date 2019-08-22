@@ -1,3 +1,4 @@
 [flake8]
 ignore = E251
-max-line-length = 200
+max-line-length = 100
+exclude=*/media/*,*/migrations/*
