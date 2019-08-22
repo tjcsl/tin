@@ -86,7 +86,7 @@ class Container(models.Model):
             subprocess.call(["lxc", "stop", self.name])
 
     def install_packages(self):
-        self._install_packages(["python3", "firejail"], "apt")
+        self._install_packages(["python3"], "apt")
         for package in ContainerPackage.query_for_assignment(self.assignment).exclude(containers = self):
             if self._install_packages([package.name], package.package_type):
                 self.installed_packages.add(package)
