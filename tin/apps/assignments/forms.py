@@ -1,6 +1,7 @@
 from django import forms
-from .models import Assignment
+
 from ..submissions.models import Submission
+from .models import Assignment
 
 
 class AssignmentForm(forms.ModelForm):
@@ -11,7 +12,14 @@ class AssignmentForm(forms.ModelForm):
 
     class Meta:
         model = Assignment
-        fields = ["name", "description", "points_possible", "due", "enable_grader_timeout", "grader_timeout"]
+        fields = [
+            "name",
+            "description",
+            "points_possible",
+            "due",
+            "enable_grader_timeout",
+            "grader_timeout",
+        ]
         labels = {
             "enable_grader_timeout": "Set a timeout for the grader?",
             "grader_timeout": "Grader timeout (seconds):",
@@ -31,7 +39,7 @@ class FileSubmissionForm(forms.ModelForm):
 
 
 class TextSubmissionForm(forms.ModelForm):
-    text = forms.CharField(widget = forms.Textarea(attrs = {"cols": 80, "rows": 20}))
+    text = forms.CharField(widget=forms.Textarea(attrs={"cols": 80, "rows": 20}))
 
     class Meta:
         model = Submission

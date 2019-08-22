@@ -1,11 +1,11 @@
 from django import http
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import Course, StudentImport
-from .forms import CourseForm
 from ..assignments.models import Assignment
 from ..auth.decorators import login_required, teacher_or_superuser_required
+from .forms import CourseForm
+from .models import Course, StudentImport
 
 
 # Create your views here.
@@ -21,19 +21,25 @@ def index_view(request):
 
     courses = courses.order_by("-created")
 
-    context = {
-        "courses": courses,
-    }
+    context = {"courses": courses}
 
     if request.user.is_student:
-        unsubmitted_assignments = Assignment.objects.filter(course__in = request.user.courses.all()).exclude(submissions__student = request.user)
-        courses_with_unsubmitted_assignments = set(assignment.course for assignment in unsubmitted_assignments)
+        unsubmitted_assignments = Assignment.objects.filter(
+            course__in=request.user.courses.all()
+        ).exclude(submissions__student=request.user)
+        courses_with_unsubmitted_assignments = set(
+            assignment.course for assignment in unsubmitted_assignments
+        )
 
         context["courses_with_unsubmitted_assignments"] = courses_with_unsubmitted_assignments
         context["unsubmitted_assignments"] = unsubmitted_assignments
 
         now = timezone.now()
-        context["due_soon_assignments"] = Assignment.objects.filter(course__students = request.user, due__gte = timezone.now(), due__lte = timezone.now() + timezone.timedelta(weeks = 1))
+        context["due_soon_assignments"] = Assignment.objects.filter(
+            course__students=request.user,
+            due__gte=timezone.now(),
+            due__lte=timezone.now() + timezone.timedelta(weeks=1),
+        )
 
     return render(request, "courses/home.html", context)
 
@@ -41,15 +47,18 @@ def index_view(request):
 @login_required
 def show_view(request, course_id):
     """ Lists information about a course """
-    course = get_object_or_404(Course, id = course_id)
-    if request.user.is_superuser or course in request.user.courses.all() or request.user == course.teacher:
+    course = get_object_or_404(Course, id=course_id)
+    if (
+        request.user.is_superuser
+        or course in request.user.courses.all()
+        or request.user == course.teacher
+    ):
         assignments = course.assignments.order_by("-due")
-        context = {
-            "course": course,
-            "assignments": assignments,
-        }
+        context = {"course": course, "assignments": assignments}
         if request.user.is_student:
-            context["unsubmitted_assignments"] = assignments.exclude(submissions__student = request.user)
+            context["unsubmitted_assignments"] = assignments.exclude(
+                submissions__student=request.user
+            )
 
         return render(request, "courses/show.html", context)
     else:
@@ -62,57 +71,44 @@ def create_view(request):
     if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
-            course = form.save(commit = True)
+            course = form.save(commit=True)
             course.teacher = request.user
             course.save()
             return redirect("courses:show", course.id)
     else:
         form = CourseForm()
-    return render(
-        request,
-        "courses/edit_create.html",
-        {
-            "form": form,
-            "nav_item": "Create course",
-        },
-    )
+    return render(request, "courses/edit_create.html", {"form": form, "nav_item": "Create course"})
 
 
 @teacher_or_superuser_required
 def edit_view(request, course_id):
     """ Edits a course """
-    course = get_object_or_404(Course, id = course_id)
+    course = get_object_or_404(Course, id=course_id)
 
     if request.user != course.teacher and not request.user.is_superuser:
         raise http.Http404
 
     if request.method == "POST":
-        form = CourseForm(data = request.POST, instance = course)
+        form = CourseForm(data=request.POST, instance=course)
         if form.is_valid():
             course = form.save()
             return redirect("courses:show", course.id)
     else:
-        form = CourseForm(instance = course)
+        form = CourseForm(instance=course)
 
     return render(
-        request,
-        "courses/edit_create.html",
-        {
-            "form": form,
-            "course": course,
-            "nav_item": "Edit",
-        },
+        request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Edit"}
     )
 
 
 @teacher_or_superuser_required
 def import_students_view(request, course_id):
-    course = get_object_or_404(Course, id = course_id)
+    course = get_object_or_404(Course, id=course_id)
 
     if request.user != course.teacher and not request.user.is_superuser:
         raise http.Http404
 
-    student_import = StudentImport.objects.get_or_create(course = course)[0]
+    student_import = StudentImport.objects.get_or_create(course=course)[0]
 
     if request.method == "POST":
         students = request.POST.get("students", "").splitlines()
@@ -134,14 +130,25 @@ def import_students_view(request, course_id):
 @teacher_or_superuser_required
 def students_view(request, course_id):
     """ View students enrolled in a course """
-    course = get_object_or_404(Course, id = course_id)
+    course = get_object_or_404(Course, id=course_id)
 
     if request.user != course.teacher and not request.user.is_superuser:
         raise http.Http404
 
     students = course.students.all()
 
-    students_missing_assignments = [(student, [assignment.name for assignment in Assignment.objects.filter(course = course).exclude(submissions__student = student)]) for student in students]
+    students_missing_assignments = [
+        (
+            student,
+            [
+                assignment.name
+                for assignment in Assignment.objects.filter(course=course).exclude(
+                    submissions__student=student
+                )
+            ],
+        )
+        for student in students
+    ]
 
     return render(
         request,
@@ -152,4 +159,3 @@ def students_view(request, course_id):
             "nav_item": "Students",
         },
     )
-

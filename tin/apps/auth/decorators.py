@@ -8,4 +8,6 @@ student_required = user_passes_test(lambda u: not u.is_anonymous and u.is_studen
 
 teacher_required = user_passes_test(lambda u: not u.is_anonymous and u.is_teacher)
 
-teacher_or_superuser_required = user_passes_test(lambda u: not u.is_anonymous and (u.is_teacher or u.is_superuser))
+teacher_or_superuser_required = user_passes_test(
+    lambda u: not u.is_anonymous and (u.is_teacher or u.is_superuser)
+)

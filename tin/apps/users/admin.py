@@ -1,6 +1,7 @@
 from django.contrib import admin
+
+from ..courses.models import StudentImport, StudentImportUser
 from .models import User
-from ..courses.models import StudentImportUser, StudentImport
 
 # Register your models here.
 
