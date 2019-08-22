@@ -12,5 +12,6 @@ def periodic_checks_view(request):
 
         return redirect("auth:index")
 
-    return render(request, "containers/run-periodic-checks.html", {"nav_item": "Periodic container checks"})
-
+    return render(
+        request, "containers/run-periodic-checks.html", {"nav_item": "Periodic container checks"}
+    )

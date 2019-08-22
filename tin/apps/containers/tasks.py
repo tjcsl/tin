@@ -1,13 +1,12 @@
 import subprocess
 
 from celery import shared_task
-from django.db import models
-from django.db import IntegrityError
 from django.conf import settings
+from django.db import IntegrityError, models
 
-from .models import Container, ContainerTask
 from ..assignments.models import Assignment
 from ..submissions.models import Submission
+from .models import Container, ContainerTask
 
 
 @shared_task
@@ -15,7 +14,7 @@ def create_containers_for_assigment(assignment_id):
     if settings.DEBUG:
         return
 
-    assignment = Assignment.objects.get(id = assignment_id)
+    assignment = Assignment.objects.get(id=assignment_id)
 
     while assignment.containers.count() < assignment.preferred_num_containers:
         Container.create_container_for_assignment(assignment)
@@ -62,7 +61,7 @@ def update_containers():
     for container in Container.objects.all():
         if not container.has_task:
             try:
-                task = ContainerTask.objects.create(container = container, submission = None)
+                task = ContainerTask.objects.create(container=container, submission=None)
             except IntegrityError:
                 pass
             else:
@@ -71,4 +70,3 @@ def update_containers():
             finally:
                 if "task" in locals():
                     task.delete()
-

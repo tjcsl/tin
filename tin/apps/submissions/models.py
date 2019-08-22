@@ -1,31 +1,37 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.conf import settings
 from django.utils.text import slugify
 
 # Create your models here.
 
 
 def upload_submission_file_path(submission, filename):
-    return "assignment-{}/{}/submission_{}.py".format(submission.assignment.id, slugify(submission.student.username), timezone.now().strftime("%Y%m%d_%H%M%S"))
+    return "assignment-{}/{}/submission_{}.py".format(
+        submission.assignment.id,
+        slugify(submission.student.username),
+        timezone.now().strftime("%Y%m%d_%H%M%S"),
+    )
 
 
 class Submission(models.Model):
-    assignment = models.ForeignKey("assignments.Assignment", on_delete = models.CASCADE, related_name = "submissions")
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE)
+    assignment = models.ForeignKey(
+        "assignments.Assignment", on_delete=models.CASCADE, related_name="submissions"
+    )
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    date_submitted = models.DateTimeField(auto_now_add = True)
+    date_submitted = models.DateTimeField(auto_now_add=True)
 
-    has_been_graded = models.BooleanField(default = False)
+    has_been_graded = models.BooleanField(default=False)
 
-    complete = models.BooleanField(default = False)
+    complete = models.BooleanField(default=False)
 
-    points_received = models.DecimalField(max_digits = 6, decimal_places = 3, null = True, blank = True)
+    points_received = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True)
 
-    file = models.FileField(upload_to = upload_submission_file_path, null = True)
+    file = models.FileField(upload_to=upload_submission_file_path, null=True)
 
-    grader_output = models.CharField(max_length = 10 * 1024, blank = True)
-    grader_errors = models.CharField(max_length = 2 * 1024, blank = True)
+    grader_output = models.CharField(max_length=10 * 1024, blank=True)
+    grader_errors = models.CharField(max_length=2 * 1024, blank=True)
 
     @property
     def is_on_time(self):
@@ -44,6 +50,7 @@ class Submission(models.Model):
     @property
     def formatted_grade(self):
         if self.has_been_graded:
-            return "{}/{} ({})".format(self.points_received, self.points_possible, self.grade_percent)
+            return "{}/{} ({})".format(
+                self.points_received, self.points_possible, self.grade_percent
+            )
         return "Not graded"
-

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Container, ContainerTask, ContainerPackage
+
+from .models import Container, ContainerPackage, ContainerTask
 
 # Register your models here.
 
