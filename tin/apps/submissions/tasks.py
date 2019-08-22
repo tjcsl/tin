@@ -1,40 +1,47 @@
 import os
 import re
-import sys
-import time
-import signal
 import select
-import psutil
 import shutil
+import signal
 import subprocess
-import traceback
+import sys
 import threading
+import time
+import traceback
 from decimal import Decimal
 
+import psutil
+from celery import shared_task
 from django.conf import settings
 
-from celery import shared_task
-
-from .models import Submission
 from ..containers.models import ContainerTask
+from .models import Submission
 
 
 def truncate_output(text, field_name):
     max_len = Submission._meta.get_field(field_name).max_length
-    return (text[:max_len-5] + "...") if len(text) > max_len else text
+    return (text[: max_len - 5] + "...") if len(text) > max_len else text
+
 
 @shared_task
 def run_submission(submission_id):
-    submission = Submission.objects.get(id = submission_id)
+    submission = Submission.objects.get(id=submission_id)
 
     try:
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
-        grader_log_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_log_filename)
+        grader_log_path = os.path.join(
+            settings.MEDIA_ROOT, submission.assignment.grader_log_filename
+        )
         submission_path = os.path.join(settings.MEDIA_ROOT, submission.file.name)
 
-        submission_wrapper_path = os.path.join(settings.MEDIA_ROOT, os.path.dirname(submission.file.name), "wrappers", os.path.basename(submission.file.name))
+        submission_wrapper_path = os.path.join(
+            settings.MEDIA_ROOT,
+            os.path.dirname(submission.file.name),
+            "wrappers",
+            os.path.basename(submission.file.name),
+        )
 
-        os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok = True)
+        os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok=True)
 
         if not settings.DEBUG:
             task = ContainerTask.create_task_for_submission(submission)
@@ -45,19 +52,29 @@ def run_submission(submission_id):
 
             wrapper_text = """
 <REMOVED>
-"""[1:-1].format(container_name=task.container.name, submission_path=submission_path)
+"""[
+                1:-1
+            ].format(
+                container_name=task.container.name, submission_path=submission_path
+            )
         else:
             wrapper_text = """
 <REMOVED>
-"""[1:-1].format(submission_path=submission_path)
+"""[
+                1:-1
+            ].format(
+                submission_path=submission_path
+            )
 
         with open(submission_wrapper_path, "w") as f:
             f.write(wrapper_text)
 
         os.chmod(submission_wrapper_path, 0o700)
     except IOError as e:
-        submission.grader_output = "An internal error occurred. Please try again.\n" \
+        submission.grader_output = (
+            "An internal error occurred. Please try again.\n"
             "If the problem persists, contact your teacher."
+        )
         submission.grader_error = traceback.format_exc()
         submission.completed = True
         submission.save()
@@ -84,7 +101,9 @@ def run_submission(submission_id):
             args = [
                 "firejail",
                 "--quiet",
-                "--profile={}".format(os.path.join(settings.BASE_DIR, "sandboxing", "grader.profile")),
+                "--profile={}".format(
+                    os.path.join(settings.BASE_DIR, "sandboxing", "grader.profile")
+                ),
                 "--whitelist={}".format(os.path.dirname(grader_path)),
                 "--read-only={}".format(grader_path),
                 "--read-only={}".format(submission_path),
@@ -92,9 +111,15 @@ def run_submission(submission_id):
                 *args,
             ]
 
-        with subprocess.Popen(args, stdout = subprocess.PIPE, stderr = subprocess.PIPE,
-                              stdin = subprocess.DEVNULL, universal_newlines = True,
-                              cwd = os.path.dirname(grader_path), preexec_fn = os.setpgrp) as p:
+        with subprocess.Popen(
+            args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL,
+            universal_newlines=True,
+            cwd=os.path.dirname(grader_path),
+            preexec_fn=os.setpgrp,
+        ) as p:
             start_time = time.time()
 
             while p.poll() is None:
@@ -122,7 +147,7 @@ def run_submission(submission_id):
             if p.poll() is None:
                 killed = True
 
-                children = psutil.Process(p.pid).children(recursive = True)
+                children = psutil.Process(p.pid).children(recursive=True)
                 try:
                     os.killpg(p.pid, signal.SIGKILL)
                 except ProcessLookupError:
@@ -167,7 +192,7 @@ def run_submission(submission_id):
     else:
         if output and not killed and retcode == 0:
             last_line = output.splitlines()[-1]
-            m = re.search(r'^Score: ([\d\.]+%?)$', last_line)
+            m = re.search(r"^Score: ([\d\.]+%?)$", last_line)
             if m is not None:
                 score = m.group(1)
                 if score.endswith("%"):
@@ -187,4 +212,3 @@ def run_submission(submission_id):
 
         if os.path.exists(submission_wrapper_path):
             os.remove(submission_wrapper_path)
-
