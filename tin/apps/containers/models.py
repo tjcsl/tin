@@ -106,7 +106,7 @@ class Container(models.Model):
 
         self.last_upgrade = timezone.now()
         if self.pk is not None:
-            self.save(fields=["last_upgrade"])
+            self.save(update_fields=["last_upgrade"])
 
     def post_task_cleanup(self):
         for device_name in self.list_devices():
