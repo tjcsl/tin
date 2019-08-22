@@ -29,6 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -116,6 +117,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# Authentication-related settings
+
 AUTHENTICATION_BACKENDS = (
     'tin.apps.auth.oauth.IonOauth2',
 )
@@ -146,6 +150,16 @@ AUTH_USER_MODEL = "users.User"
 
 SOCIAL_AUTH_ALWAYS_ASSOCIATE = True
 
+LOGOUT_URL = '/logout/'
+
+LOGIN_URL = '/login/'
+
+LOGIN_REDIRECT_URL = '/'
+
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/'
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -159,20 +173,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-LOGOUT_URL = '/logout/'
-
-LOGIN_URL = '/login/'
-
-LOGIN_REDIRECT_URL = '/'
-
-SOCIAL_AUTH_LOGIN_ERROR_URL = '/'
-SOCIAL_AUTH_RAISE_EXCEPTIONS = False
-
 CELERY_RESULT_BACKEND = 'django-db'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
-
 
 STATIC_URL = '/static/'
 
@@ -180,6 +185,9 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 STATIC_ROOT = os.path.join(BASE_DIR, "serve")
+
+
+# Logging
 
 LOGGING = {
     'version': 1,
@@ -214,9 +222,13 @@ LOGGING = {
     },
 }
 
-SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000 #1 MB
+
+# Tin-specific settings
+
+SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000 # 1 MB
 
 DEVELOPER_EMAIL = "tin@tjhsst.edu"
+
 
 try:
     from .secret import *
