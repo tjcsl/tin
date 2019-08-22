@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+{% block title %}
+Turn-In: Run periodic container chekcs
+{% endblock %}
+
+{% block main %}
+  <h2>Are you sure you want to foce the periodic container checks to run?</h2>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="confirm" value="CONFIRM">
+    <input type="submit" value="Yes">
+    <a href="{% url 'auth:index' %}">No</a>
+  </form>
+{% endblock %}
+

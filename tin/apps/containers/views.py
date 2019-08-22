@@ -1,5 +1,5 @@
 from django import http
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 
 from ..auth.decorators import superuser_required
 from ..containers.tasks import periodic_container_checks
@@ -7,10 +7,10 @@ from ..containers.tasks import periodic_container_checks
 
 @superuser_required
 def periodic_checks_view(request):
-    if request.method != "POST":
-        raise http.Http404
+    if request.method == "POST" and request.POST["confirm"] == "CONFIRM":
+        periodic_container_checks.delay()
 
-    periodic_container_checks.delay()
+        return redirect("auth:index")
 
-    return redirect("auth:index")
+    return render(request, "containers/run-periodic-checks.html", {"nav_item": "Periodic container checks"})
 
