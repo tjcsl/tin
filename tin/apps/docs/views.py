@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
 
-from ..auth.decorators import login_required, teacher_or_superuser_required
+from ..auth.decorators import teacher_or_superuser_required
 
 # Create your views here.
 

@@ -1,4 +1,3 @@
-from django import http
 from django.shortcuts import redirect, render
 
 from ..auth.decorators import superuser_required
