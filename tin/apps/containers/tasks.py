@@ -29,7 +29,7 @@ def periodic_container_checks():
         return
 
     for submission in Submission.objects.all():
-        if submission.complete and submission.container_task is not None:
+        if submission.complete and getattr(submission, "container_task", None) is not None:
             submission.container_task.delete()
 
     for assignment in Assignment.objects.all():
