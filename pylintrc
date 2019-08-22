@@ -1,3 +1,4 @@
 [MAIN]
-disable=C0326
-max-line-length=200
+disable=missing-docstring,no-else-return,no-else-raise,bad-continuation
+max-line-length=100
+ignore=media,migrations
