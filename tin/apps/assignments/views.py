@@ -4,8 +4,7 @@ import os
 from django import http
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.utils import timezone
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 
 from ..auth.decorators import login_required, teacher_or_superuser_required
@@ -238,8 +237,6 @@ def submit_view(request, assignment_id):
 
     file_errors = ""
     text_errors = ""
-
-    saved = False
 
     if request.method == "POST":
         if assignment.grader_file is None:

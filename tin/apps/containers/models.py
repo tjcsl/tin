@@ -4,7 +4,7 @@ import os
 import subprocess
 import time
 import uuid
-from typing import List, Optional
+from typing import List
 
 from django.db import IntegrityError, models
 from django.db.models import Q
@@ -194,7 +194,8 @@ class ContainerTask(models.Model):
             submission: The submission to create a ContainerTask for.
 
         Returns:
-            Optional[ContainerTask]: The created ContainerTask, or None if the submission was deleted.
+            Optional[ContainerTask]: The created ContainerTask, or None if the submission was
+            deleted.
 
         """
         submission_id = submission.id
