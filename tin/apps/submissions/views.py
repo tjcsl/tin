@@ -68,6 +68,7 @@ def show_json_view(request, submission_id):
     ):
         data = {
             "grader_output": submission.grader_output,
+            "grader_errors": submission.grader_errors,
             "has_been_graded": submission.has_been_graded,
             "complete": submission.complete,
             "points_received": (

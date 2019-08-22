@@ -55,7 +55,12 @@
   {% if not request.user.is_student %}
     <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
     <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
-      <code><pre>{{ latest_submission.grader_errors }}</pre></code>
+      <div class="result">
+        <code><pre>{{ latest_submission.grader_errors }}</pre></code>
+      </div>
+      {% if not latest_submission.complete %}
+        <div class="continuous-progress"></div>
+      {% endif %}
     </div>
   {% endif %}
 
