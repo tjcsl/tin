@@ -14,10 +14,10 @@ def show_view(request, submission_id):
     except Submission.DoesNotExist:
         raise http.Http404
 
-    student_submissions = Submission.objects.filter(
-        student=submission.student, assignment=submission.assignment
-    ).order_by("date_submitted")
-    submission_number = list(student_submissions).index(submission) + 1
+    before_submissions = Submission.objects.filter(
+        student=submission.student, assignment=submission.assignment, id__lt=submission.id
+    )
+    submission_number = before_submissions.count() + 1
 
     submission_text = submission.file.read().decode()
 
