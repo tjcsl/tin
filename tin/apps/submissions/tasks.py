@@ -53,6 +53,8 @@ def run_submission(submission_id):
             else:
                 task.container.ensure_network_offline()
 
+            task.container.mount_path("DISK:" + submission_path, submission_path, submission_path, readonly=True)
+
             wrapper_text = """
 <REMOVED>
 """[
