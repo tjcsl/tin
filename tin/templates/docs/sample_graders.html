@@ -27,7 +27,7 @@ for i in range(1, N + 1):
         print("Script timeout for number {}".format(i))
     else:
         stdout = res.stdout.strip()
-        if not res.stderr or res.returncode:
+        if not res.stderr and res.returncode == 0:
             try:
                 if int(stdout) == cur_fib:
                     score += 1
