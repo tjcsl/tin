@@ -19,10 +19,12 @@ class AssignmentForm(forms.ModelForm):
             "due",
             "enable_grader_timeout",
             "grader_timeout",
+            "has_network_access",
         ]
         labels = {
             "enable_grader_timeout": "Set a timeout for the grader?",
             "grader_timeout": "Grader timeout (seconds):",
+            "has_network_access": "Give submissions internet access?",
         }
 
 

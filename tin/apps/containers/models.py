@@ -90,8 +90,7 @@ class Container(models.Model):
         if not self.check_running():
             subprocess.call(["lxc", "start", self.name])
 
-        while not self.check_has_ip():
-            time.sleep(1)
+        self.ensure_network_online()
 
     def ensure_stopped(self):
         if self.check_running():
@@ -126,6 +125,8 @@ class Container(models.Model):
         for device_name in self.list_devices():
             if device_name.startswith("DISK:"):
                 self.unmount_path(device_name)
+
+        self.ensure_network_online()
 
         if timezone.localtime() >= self.assignment.due + datetime.timedelta(days=2):
             self.ensure_stopped()
@@ -165,6 +166,18 @@ class Container(models.Model):
 
     def unmount_path(self, disk_name):
         subprocess.call(["lxc", "config", "device", "remove", self.name, disk_name])
+
+    def ensure_network_offline(self):
+        subprocess.call(self.get_run_args(["ifconfig", "eth0", "down"], root=True))
+
+        while self.check_has_ip():
+            time.sleep(0.5)
+
+    def ensure_network_online(self):
+        subprocess.call(self.get_run_args(["ifconfig", "eth0", "up"], root=True))
+
+        while not self.check_has_ip():
+            time.sleep(0.5)
 
     @property
     def delete_command(self) -> List[str]:
