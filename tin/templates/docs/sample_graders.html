@@ -44,7 +44,7 @@ for i in range(1, N + 1):
 print("Score: {}".format(score / N))
 
 with open(sys.argv[4], "a") as logfile:
-    logfile.write("User: {}; Score: {}/{}; Failing test cases: {}\n".format(sys.argv[3], score, N, ", ".join(failing_cases)))</code></pre>
+    logfile.write("User: {}; Score: {}/{}; Failing test cases: {}\n".format(sys.argv[3], score, N, ", ".join(map(str, failing_cases))))</code></pre>
 
 {% endblock %}
 
