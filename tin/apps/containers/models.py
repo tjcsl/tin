@@ -87,6 +87,12 @@ class Container(models.Model):
 
     def ensure_started(self):
         self.set_idmap()
+
+        self.set_cpu_core_limit(1)
+        self.set_cpu_allowance_pct(1.0)
+        self.set_memory_limit(500 * 1024 ** 3)
+        self.set_swap_enabled(False)
+
         if not self.check_running():
             subprocess.call(["lxc", "start", self.name])
 
@@ -178,6 +184,19 @@ class Container(models.Model):
 
         while not self.check_has_ip():
             time.sleep(0.5)
+
+    def set_cpu_core_limit(self, num_cores: int):
+        subprocess.call(["lxc", "config", "set", self.name, "limits.cpu", str(num_cores)])
+
+    def set_cpu_allowance_pct(self, pct: float):
+        # pct should be from 0 to 1
+        subprocess.call(["lxc", "config", "set", self.name, "limits.cpu.allowance", "{:.0%}".format(pct)])
+
+    def set_memory_limit(self, memory_size_bytes: int):
+        subprocess.call(["lxc", "config", "set", self.name, "limits.memory", str(memory_size_bytes)])
+
+    def set_swap_enabled(self, swap_enabled: bool):
+        subprocess.call(["lxc", "config", "set", self.name, "limits.memory.swap", ("true" if swap_enabled else "false")])
 
     @property
     def delete_command(self) -> List[str]:
