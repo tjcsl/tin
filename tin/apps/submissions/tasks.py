@@ -48,7 +48,7 @@ def run_submission(submission_id):
 
             task.container.ensure_started()
 
-            if submission.has_network_access:
+            if submission.assignment.has_network_access:
                 task.container.ensure_network_online()
             else:
                 task.container.ensure_network_offline()
