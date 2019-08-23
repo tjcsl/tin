@@ -147,7 +147,7 @@ class Container(models.Model):
 
         return run_args
 
-    def mount_path(self, disk_name: str, source: str, dest: str):
+    def mount_path(self, disk_name: str, source: str, dest: str, *, readonly: bool = False):
         subprocess.call(
             [
                 "lxc",
@@ -159,7 +159,11 @@ class Container(models.Model):
                 "disk",
                 "source={}".format(source),
                 "path={}".format(dest),
-            ]
+                "readonly=true" if readonly else "readonly=false",
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
 
     def list_devices(self):
