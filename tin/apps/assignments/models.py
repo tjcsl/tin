@@ -32,6 +32,8 @@ class Assignment(models.Model):
     enable_grader_timeout = models.BooleanField(default=False)
     grader_timeout = models.IntegerField(default=300, validators=[MinValueValidator(10)])
 
+    has_network_access = models.BooleanField(default=False)
+
     def __str__(self):
         return "{} in {}".format(self.name, self.course)
 
