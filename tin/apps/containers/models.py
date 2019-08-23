@@ -126,10 +126,10 @@ class Container(models.Model):
             if device_name.startswith("DISK:"):
                 self.unmount_path(device_name)
 
-        self.ensure_network_online()
-
         if timezone.localtime() >= self.assignment.due + datetime.timedelta(days=2):
             self.ensure_stopped()
+        else:
+            self.ensure_network_online()
 
     def get_run_args(self, args: List[str], *, root: bool = False) -> List[str]:
         run_args = ["lxc", "exec", self.name, "--"]
