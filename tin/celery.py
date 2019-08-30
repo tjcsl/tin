@@ -9,15 +9,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tin.settings")
 
 app = Celery("tin")
 
-if not settings.DEBUG:
-    app.conf.beat_schedule = {
-        "periodic-container-checks": {
-            "task": "tin.apps.containers.tasks.periodic_container_checks",
-            "schedule": crontab(hour=4, minute=0),
-            "args": (),
-        }
-    }
-
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
 # - namespace='CELERY' means all celery-related configuration keys

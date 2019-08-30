@@ -26,8 +26,6 @@ class Assignment(models.Model):
     assigned = models.DateTimeField(auto_now_add=True)
     due = models.DateTimeField()
 
-    requested_num_containers = models.IntegerField(default=-1)
-
     grader_file = models.FileField(upload_to=upload_grader_file_path, null=True)
     enable_grader_timeout = models.BooleanField(default=False)
     grader_timeout = models.IntegerField(default=300, validators=[MinValueValidator(10)])
@@ -42,21 +40,6 @@ class Assignment(models.Model):
 
     def submissions_from_student(self, student):
         return Submission.objects.filter(assignment=self, student=student)
-
-    @property
-    def preferred_num_containers(self):
-        if self.requested_num_containers is not None and self.requested_num_containers > 0:
-            return min(self.requested_num_containers, 20)
-
-        now = timezone.localtime()
-        if now < self.due:
-            return 4
-        elif now < self.due + datetime.timedelta(days=2):
-            return 3
-        elif now < self.due + datetime.timedelta(days=4):
-            return 2
-        else:
-            return 1
 
     @property
     def grader_log_filename(self):
