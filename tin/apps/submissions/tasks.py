@@ -46,7 +46,8 @@ def run_submission(submission_id):
 """[
                 1:-1
             ].format(
-                has_network_access=bool(submission.assignment.has_network_access), submission_path=submission_path
+                has_network_access=bool(submission.assignment.has_network_access),
+                submission_path=submission_path,
             )
         else:
             wrapper_text = """
