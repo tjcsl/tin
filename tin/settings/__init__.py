@@ -27,7 +27,7 @@ SECRET_KEY = "naxigo(w3=$1&!-t4vbb9)g^8#lnt6ygr)(2qfi1z(h(r_cjhy"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "tin", "tin.tjhsst.edu", "tin.csl.tjhsst.edu", "tin.sites.tjhsst.edu"]
 
 
 # Application definition
@@ -166,8 +166,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-CELERY_RESULT_BACKEND = "django-db"
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -198,6 +196,11 @@ LOGGING = {
         "tin": {"handlers": ["console", "info_log"], "level": "INFO", "propagate": True},
     },
 }
+
+
+# Celery settings
+
+CELERY_RESULT_BACKEND = "django-db"
 
 
 # Tin-specific settings
