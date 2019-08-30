@@ -12,7 +12,6 @@ import psutil
 from celery import shared_task
 from django.conf import settings
 
-from ..containers.models import ContainerTask
 from .models import Submission
 
 
@@ -41,28 +40,13 @@ def run_submission(submission_id):
 
         os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok=True)
 
-        if not settings.DEBUG:
-            task = ContainerTask.create_task_for_submission(submission)
-            if task is None:  # Submission deleted
-                return
-
-            task.container.ensure_started()
-
-            if submission.assignment.has_network_access:
-                task.container.ensure_network_online()
-            else:
-                task.container.ensure_network_offline()
-
-            task.container.mount_path(
-                "DISK:" + submission_path, submission_path, submission_path, readonly=True
-            )
-
+        if not settings.DEBUG or shutil.which("bwrap") is not None:
             wrapper_text = """
 <REMOVED>
 """[
                 1:-1
             ].format(
-                container_name=task.container.name, submission_path=submission_path
+                has_network_access=bool(submission.assignment.has_network_access), submission_path=submission_path
             )
         else:
             wrapper_text = """
@@ -212,10 +196,6 @@ def run_submission(submission_id):
     finally:
         submission.complete = True
         submission.save()
-
-        if not settings.DEBUG:
-            task.container.post_task_cleanup()
-            task.delete()
 
         if os.path.exists(submission_wrapper_path):
             os.remove(submission_wrapper_path)
