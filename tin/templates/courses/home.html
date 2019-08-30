@@ -74,12 +74,6 @@
 {% if request.user.is_superuser %}
   <h2>Administration</h2>
   <a href="/admin">Django Administrative Interface</a>
-  <br>
-  <br>
-  <form method="get" action="{% url 'containers:run_periodic_checks' %}" >
-    <input type="submit" value="Force periodic container checks to run">
-    <p class="italic" style="margin-top:0px">Note: This is not normally recommended.</p>
-  </form>
 {% endif %}
 
 {% endblock %}
