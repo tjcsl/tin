@@ -1,8 +1,5 @@
-import datetime
-
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
 
 from ..submissions.models import Submission
 
