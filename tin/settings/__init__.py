@@ -27,7 +27,14 @@ SECRET_KEY = "naxigo(w3=$1&!-t4vbb9)g^8#lnt6ygr)(2qfi1z(h(r_cjhy"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "tin", "tin.tjhsst.edu", "tin.csl.tjhsst.edu", "tin.sites.tjhsst.edu"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "tin",
+    "tin.tjhsst.edu",
+    "tin.csl.tjhsst.edu",
+    "tin.sites.tjhsst.edu",
+]
 
 
 # Application definition
