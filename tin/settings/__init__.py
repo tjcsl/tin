@@ -233,7 +233,5 @@ except ImportError:
 
 if not DEBUG:
     sentry_sdk.init(
-        dsn=SENTRY_PUBLIC_DSN,
-        integrations=[DjangoIntegration()],
-        send_default_pii=True,
+        dsn=SENTRY_PUBLIC_DSN, integrations=[DjangoIntegration()], send_default_pii=True
     )
