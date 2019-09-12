@@ -12,6 +12,7 @@ import psutil
 from celery import shared_task
 
 from django.conf import settings
+from django.utils import timezone
 
 from .models import Submission
 
@@ -115,6 +116,10 @@ def run_submission(submission_id):
         ) as proc:
             start_time = time.time()
 
+            submission.grader_pid = proc.pid
+            submission.grader_start_time = timezone.localtime().timestamp()
+            submission.save()
+
             while proc.poll() is None:
                 submission.assignment.refresh_from_db()
                 if submission.assignment.enable_grader_timeout:
@@ -197,6 +202,7 @@ def run_submission(submission_id):
                     submission.has_been_graded = True
     finally:
         submission.complete = True
+        submission.grader_pid = None
         submission.save()
 
         if os.path.exists(submission_wrapper_path):
