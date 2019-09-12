@@ -57,3 +57,15 @@ class Submission(models.Model):
                 self.points_received, self.points_possible, self.grade_percent
             )
         return "Not graded"
+
+    def __str__(self):
+        return "{}{} [{}]: {} ({})".format(
+            ("[INCOMPLETE] " if not self.complete else ""),
+            self.student.username,
+            self.date_submitted.strftime("%Y-%m-%d %H:%M:%S"),
+            self.assignment.name,
+            (self.grade_percent if self.has_been_graded else "not graded"),
+        )
+
+    def __repr__(self):
+        return "<{}>".format(self)
