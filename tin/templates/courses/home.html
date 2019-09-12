@@ -73,7 +73,18 @@
 
 {% if request.user.is_superuser %}
   <h2>Administration</h2>
-  <a href="/admin">Django Administrative Interface</a>
+  <p><a href="/admin">Django Administrative Interface</a></p>
+
+  <form method="post" action="{% url 'submissions:set_aborted_complete' %}">
+    {% csrf_token %}
+    <input type="submit" value="Mark all aborted submissions as complete">
+  </form>
+
+  <form method="post" action="{% url 'submissions:set_past_timeout_complete' %}">
+    {% csrf_token %}
+    <input type="submit" value="Mark all submissions that have passed the grader timeout as complete">
+  </form>
+
 {% endif %}
 
 {% endblock %}
