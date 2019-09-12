@@ -10,6 +10,7 @@ from decimal import Decimal
 
 import psutil
 from celery import shared_task
+
 from django.conf import settings
 
 from .models import Submission
