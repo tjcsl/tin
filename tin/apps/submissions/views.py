@@ -1,7 +1,11 @@
-from django import http
-from django.shortcuts import render
+import psutil
 
-from ..auth.decorators import login_required
+from django import http
+from django.db.models import F
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from ..auth.decorators import login_required, superuser_required
 from .models import Submission
 
 # Create your views here.
@@ -91,3 +95,26 @@ def show_json_view(request, submission_id):
         return http.JsonResponse(data)
 
     return http.Http404
+
+
+@superuser_required
+def set_aborted_complete_view(request):
+    if request.method == "POST":
+        submissions = Submission.objects.filter(complete=False, grader_pid__isnull=False)
+
+        for submission in submissions:
+            try:
+                psutil.Process(submission.grader_pid)
+            except psutil.NoSuchProcess:
+                submission.complete = True
+                submission.save(update_fields=["complete"])
+
+    return redirect("auth:index")
+
+
+@superuser_required
+def set_past_timeout_complete_view(request):
+    if request.method == "POST":
+        Submission.objects.filter(complete=False, grader_start_time__isnull=False, assignment__enable_grader_timeout=True, grader_start_time__lte=timezone.localtime().timestamp() - F("assignment__grader_timeout")).update(complete=True)
+
+    return redirect("auth:index")
