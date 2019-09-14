@@ -1,3 +1,6 @@
+import os
+from typing import Optional
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -57,6 +60,38 @@ class Submission(models.Model):
                 self.points_received, self.points_possible, self.grade_percent
             )
         return "Not graded"
+
+    @property
+    def file_path(self) -> Optional[str]:
+        if self.file is None:
+            return None
+
+        return os.path.join(settings.MEDIA_ROOT, self.file.name)
+
+    @property
+    def wrapper_file_path(self) -> Optional[str]:
+        if self.file is None:
+            return None
+
+        return os.path.join(settings.MEDIA_ROOT, os.path.dirname(self.file.name), "wrappers", os.path.basename(self.file.name))
+
+    @property
+    def backup_file_path(self) -> Optional[str]:
+        if self.file is None:
+            return None
+
+        return os.path.join(settings.MEDIA_ROOT, "submission-backups", self.file.name)
+
+    def create_backup_copy(self, submission_text: str) -> None:
+        backup_fpath = self.backup_file_path
+
+        if backup_fpath is None:
+            raise ValueError
+
+        os.makedirs(os.path.dirname(backup_fpath), mode=0o755, exist_ok=True)
+
+        with open(backup_fpath, "w") as f_obj:
+            f_obj.write(submission_text)
 
     def __str__(self):
         return "{}{} [{}]: {} ({})".format(

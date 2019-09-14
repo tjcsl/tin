@@ -238,7 +238,7 @@ def submit_view(request, assignment_id):
                 file_form = FileSubmissionForm(request.POST, request.FILES)
                 if file_form.is_valid():
                     try:
-                        request.FILES["file"].read().decode()
+                        submission_text = request.FILES["file"].read().decode()
                     except UnicodeDecodeError:
                         file_errors = "Please don't upload binary files."
                     else:
@@ -246,6 +246,9 @@ def submit_view(request, assignment_id):
                         submission.assignment = assignment
                         submission.student = student
                         submission.save()
+
+                        submission.create_backup_copy(submission_text)
+
                         run_submission.delay(submission.id)
                         return redirect("assignments:show", assignment.id)
             else:
@@ -253,7 +256,8 @@ def submit_view(request, assignment_id):
         else:
             text_form = TextSubmissionForm(request.POST)
             if text_form.is_valid():
-                if len(text_form.cleaned_data["text"]) <= settings.SUBMISSION_SIZE_LIMIT:
+                submission_text = text_form.cleaned_data["text"]
+                if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
                     submission = text_form.save(commit=False)
                     submission.assignment = assignment
                     submission.student = student
@@ -263,6 +267,9 @@ def submit_view(request, assignment_id):
                         save=False,
                     )
                     submission.save()
+
+                    submission.create_backup_copy(submission_text)
+
                     run_submission.delay(submission.id)
                     return redirect("assignments:show", assignment.id)
                 else:

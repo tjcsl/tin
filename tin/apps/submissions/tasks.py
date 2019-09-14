@@ -31,14 +31,9 @@ def run_submission(submission_id):
         grader_log_path = os.path.join(
             settings.MEDIA_ROOT, submission.assignment.grader_log_filename
         )
-        submission_path = os.path.join(settings.MEDIA_ROOT, submission.file.name)
+        submission_path = submission.file_path
 
-        submission_wrapper_path = os.path.join(
-            settings.MEDIA_ROOT,
-            os.path.dirname(submission.file.name),
-            "wrappers",
-            os.path.basename(submission.file.name),
-        )
+        submission_wrapper_path = submission.wrapper_file_path
 
         os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok=True)
 
