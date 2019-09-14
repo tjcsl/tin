@@ -18,20 +18,48 @@
         <li>Do not parse the submission filename to extract this information (or any other information) as the format for submission filenames may change without warning.</li>
       </ul>
     </li>
-    <li>The full path to a log file that the grader can write logs to. The log file is not created automatically, but its path is always passed to the grader file, so the grader script can easily create it if it doesn't exist and then append new output to it. Once the file has been created, the assignment information page will show a button with a link to download the log.</li>
+    <li>
+      The full path to a log file that the grader can write logs to. The log file is not created automatically, but its path is always passed to the grader file, so the grader script can easily create it if it doesn't exist and then append new output to it. Once the file has been created, the assignment information page will show a button with a link to download the log.<br>
+      <span class="bold">Note: Since multiple submissions for the same lab may be run at the same time, it is recommended that the grader not open or write to the logfile until immediately before it exits. This will minimize any issues caused by multiple instances of the grader writing to the same file.</span>
+    </li>
   </ul>
 
   <p>Why is it not recommended to run the student's submission directly? Well, running student-uploaded scripts without any kind of restrictions in place is always a bad idea, as it allows students to upload malicious scripts that, for example, read other students' submissions and copy them to a location the student can later access. As such, a system was put in place that limits the access that student submissions have by default. The implementation of this system necessitated the creation of a "wrapper script" for each submission that runs the submission in an appropriately restricted environment.</p>
-  <p>Summary: The first argument that is passed is a "wrapper script" that runs the student's submission while limiting the access the submission has in order to prevent cheating.<p>
+  <p>Summary: The first argument that is passed is a "wrapper script" that runs the student's submission while limiting the access the submission has in order to prevent cheating.</p>
+
+  <h2>Directory structure</h2>
+
+  <p>Currently, <code>tin</code> follows the following directory structure for assignments and submission.</p>
+
+  <p>This structure assumes a single submission from <code>2020awilliam</code> on 01/01/2019 at 12:34 AM.</p>
+
+  <ul>
+    <li><code>grader.py</code> &ndash; The grader script</li>
+    <li><code>grader.log</code> &ndash; The grader's logfile (not automatically created, but recognized specially by <code>tin</code>)</li>
+    <li>
+      <code>2020awilliam/</code> &ndash; A directory containing everything related to a particular student's submissions
+      <ul>
+        <li><code>submission_20190101_001234.py</code> &ndash; The actual submission (do not run directly)</li>
+        <li>
+          <code>wrappers/</code> &ndash; The directory containing the submission wrappers
+          <ul>
+            <li><code>submission_20190101_001234.py</code> &ndash; The submission wrapper</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+  <p class="bold">Note: This is subject to change at any time, and the only lasting guarantee made about this structure is that all of a particular student's submissions will be in the same directory. This structure is solely provided as a visual aid.</p>
 
   <h2>Restrictions placed on student submissions</h2>
   <ul>
     <li>Not able to access the Internet</li>
-    <li>Only allowed access to 500MB of memory</li>
     <li>Only able to access the submission itself, not any other files</li>
+    <li>Not able to change the submission file</li>
   </ul>
 
-  <p class="bold">Warning: All of these restrictions can be bypassed if the grader script uses output from a student's submission in an unsafe way (such as <code>eval()</code>ing or <code>pickle.load()</code>ing it). <code>tin</code> runs the grader script in its own restricted environment, but all this can really do is prevent the submission from affecting code for other assignments. Please be careful.</p>
+  <p class="bold">Warning: Most of these restrictions can be bypassed if the grader script uses output from a student's submission in an unsafe way (such as <code>eval()</code>ing or <code>pickle.load()</code>ing it). <code>tin</code> runs the grader script in its own restricted environment, but all this can really do is prevent the submission from affecting code for other assignments. Please be careful.</p>
 
   <p>The Internet access restriction can be lifted on a per-assignment basis by going to the assignment's "Edit" page and checking the box labeled "Give submissions internet access." However, this should be done with caution, as giving scripts Internet access makes it much easier for students to cheat.</p>
   <p>The memory restriction is currently hardcoded in and cannot be changed. 500MB should be enough for many cases, but if it becomes an issue, please contact <a href="mailto:{{ DEVELOPER_EMAIL }}"><code>tin</code>'s developers</a> to increase the limit.</p>
