@@ -42,8 +42,10 @@
       </div>
     {% endfor %}
   </div>
-  {% if not grader_form %}
+  {% if action == "add" %}
     <div>Note: You'll be able to upload a grader script after you create the assignment.</div>
+  {% else %}
+    <div>Note: You can upload a grader script with the "Upload grader" button on the assignment page.</div>
   {% endif %}
   <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
 </form>
