@@ -10,7 +10,7 @@ def upload_grader_file_path(assignment, filename):  # pylint: disable=unused-arg
 
 class Assignment(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=4096)
 
     course = models.ForeignKey(
         "courses.Course", on_delete=models.CASCADE, related_name="assignments"
