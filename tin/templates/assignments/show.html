@@ -23,7 +23,7 @@
     <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
   {% endif %}
 </div>
-<p>{{ assignment.description }}</h1>
+{{ assignment.description|linebreaks }}
 
 <table id="assignment-info">
   <tr>
