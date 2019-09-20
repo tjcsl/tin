@@ -26,6 +26,9 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout": "Grader timeout (seconds):",
             "has_network_access": "Give submissions internet access?",
         }
+        widgets = {
+            "description": forms.Textarea(attrs={"cols": 30, "rows": 10}),
+        }
 
 
 class GraderFileSubmissionForm(forms.ModelForm):
