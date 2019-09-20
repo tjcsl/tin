@@ -13,6 +13,11 @@
       });
     });
   </script>
+  <style>
+    #id_description {
+      font-family: inherit;
+    }
+  </style>
 {% endblock %}
 
 {% block title %}Turn-In: {{ course.name }}: {% if action == "add" %}Create assignment{% else %}{{ assignment.name }}{% endif %}{% endblock %}
