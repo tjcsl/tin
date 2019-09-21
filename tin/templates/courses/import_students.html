@@ -13,7 +13,7 @@
   {% csrf_token %}
   <p>This form puts all students with the inputted usernames in a queue.  When they login for the first time, they will be enrolled in this course.</p>
   <textarea class="tbl-cell" id="students" name="students" rows="30" cols="15"></textarea>
-  <br></br>
+  <br>
   <input class="tin-btn" type="submit" value="{% if course %}Save{% else %}Create{% endif %}">
 </form>
 
