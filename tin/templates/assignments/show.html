@@ -77,9 +77,9 @@
   {% endif %}
 {% endif %}
 
-<h3 style="border-top:1px solid lightgray;padding-top:15px;">Submissions</h3>
-<table id="submission-list" class="has-border">
 {% if request.user.is_student %}
+<h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser %}Your submissions{% else %}Submissions{% endif %}</h3>
+<table id="submission-list" class="has-border">
   <tr>
     <th style="min-width:125px;">Date submitted</th>
     <th style="min-width:65px;">On time?</th>
@@ -108,7 +108,12 @@
       <td colspan="4" class="italic center">No submissions</td>
     </tr>
   {% endif %}
-{% else %}
+</table>
+{% endif %}
+
+{% if not request.user.is_student or request.user.is_superuser %}
+<h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_student %}All submissions{% else %}Submissions{% endif %}</h3>
+<table id="submission-list" class="has-border">
   <tr>
     <th style="min-width:125px">Student</th>
     <th style="min-width:125px;">Last submission date</th>
@@ -141,8 +146,8 @@
       <td colspan="5" class="italic center">No students in class</td>
     </tr>
   {% endif %}
-{% endif %}
 </table>
+{% endif %}
 
 {% if request.user.is_teacher or request.user.is_superuser %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h3>
