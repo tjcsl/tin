@@ -15,7 +15,7 @@ Submission #{{ submission_number }}
 {% block main %}
 {% if request.user.is_student %}
 <h2>{{ assignment.name }}: Submission #{{ submission_number }}</h2>
-<p>{{ assignment.description }}</h1>
+{{ assignment.description|linebreaks }}
 
 <table id="submission-info">
   <tr>
@@ -51,7 +51,7 @@ Submission #{{ submission_number }}
 </table>
 {% else %}
 <h2>{{ assignment.name }}: {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}</h2>
-<p>{{ assignment.description }}</h1>
+{{ assignment.description|linebreaks }}
 
 <table id="submission-info">
   <tr>
