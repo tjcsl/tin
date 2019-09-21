@@ -73,7 +73,12 @@ class Submission(models.Model):
         if self.file is None:
             return None
 
-        return os.path.join(settings.MEDIA_ROOT, os.path.dirname(self.file.name), "wrappers", os.path.basename(self.file.name))
+        return os.path.join(
+            settings.MEDIA_ROOT,
+            os.path.dirname(self.file.name),
+            "wrappers",
+            os.path.basename(self.file.name),
+        )
 
     @property
     def backup_file_path(self) -> Optional[str]:

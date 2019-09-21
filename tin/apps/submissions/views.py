@@ -115,6 +115,12 @@ def set_aborted_complete_view(request):
 @superuser_required
 def set_past_timeout_complete_view(request):
     if request.method == "POST":
-        Submission.objects.filter(complete=False, grader_start_time__isnull=False, assignment__enable_grader_timeout=True, grader_start_time__lte=timezone.localtime().timestamp() - F("assignment__grader_timeout")).update(complete=True)
+        Submission.objects.filter(
+            complete=False,
+            grader_start_time__isnull=False,
+            assignment__enable_grader_timeout=True,
+            grader_start_time__lte=timezone.localtime().timestamp()
+            - F("assignment__grader_timeout"),
+        ).update(complete=True)
 
     return redirect("auth:index")
