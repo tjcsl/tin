@@ -27,7 +27,7 @@ class AssignmentForm(forms.ModelForm):
             "has_network_access": "Give submissions internet access?",
         }
         widgets = {
-            "description": forms.Textarea(attrs={"cols": 30, "rows": 10}),
+            "description": forms.Textarea(attrs={"cols": 40, "rows": 12}),
         }
 
 
