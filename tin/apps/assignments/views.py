@@ -25,7 +25,7 @@ def show_view(request, assignment_id):
     """
     assignment = get_object_or_404(Assignment, id=assignment_id)
 
-    if request.user.is_student:
+    if request.user.is_student and not request.user.is_superuser:
         if assignment.course in request.user.courses.all():
             submissions = Submission.objects.filter(
                 student=request.user, assignment=assignment
@@ -55,21 +55,26 @@ def show_view(request, assignment_id):
                 )
                 students_and_submissions.append((student, latest_submission))
 
-            return render(
-                request,
-                "assignments/show.html",
-                {
-                    "course": assignment.course,
-                    "assignment": assignment,
-                    "students_and_submissions": students_and_submissions,
-                    "log_file_exists": (
-                        assignment.grader_log_filename is not None
-                        and os.path.exists(
-                            os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
-                        )
-                    ),
-                },
-            )
+            context = {
+                "course": assignment.course,
+                "assignment": assignment,
+                "students_and_submissions": students_and_submissions,
+                "log_file_exists": (
+                    assignment.grader_log_filename is not None
+                    and os.path.exists(
+                        os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
+                    )
+                ),
+            }
+
+            if request.user.is_student:
+                submissions = Submission.objects.filter(
+                    student=request.user, assignment=assignment
+                ).order_by("-date_submitted")
+                latest_submission = submissions.first() if submissions else None
+                context.update({"submissions": submissions, "latest_submission": latest_submission})
+
+            return render(request, "assignments/show.html", context)
         else:
             raise http.Http404
 
