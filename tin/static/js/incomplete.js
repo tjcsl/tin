@@ -53,16 +53,27 @@ function update() {
             other_result_div.text("");
           }
         }
+        var value = res[obj.data("endpoint-key")];
         if(obj.hasClass("code-result")) {
           result_obj.text("");
-          $("<pre>").appendTo($("<code>").appendTo(result_obj)).text(res[obj.data("endpoint-key")]);
+          $("<pre>").appendTo($("<code>").appendTo(result_obj)).text(value);
+        }
+        else if(obj.hasClass("conditional-result")) {
+          var show = Boolean(value);
+          if(obj.data("resultNegate") == true) {
+            show = !show;
+          }
+          result_obj.css("display", (show ? "initial" : "none"));
         }
         else {
-          var value = res[obj.data("endpoint-key")];
           if(typeof value == "boolean") {
             value = (value ? "Yes": "No");
           }
           result_obj.text(value);
+        }
+
+        if(res.complete && obj.data("hideWhenComplete") == true) {
+          result_obj.css("display", "none");
         }
       });
       endpoint_elems[endpoint].filter(function(obj) {

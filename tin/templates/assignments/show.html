@@ -74,6 +74,24 @@
        {% endif %}
       </div>
     {% endif %}
+
+    {% if not latest_submission.complete %}
+      <div class="conditional-result incomplete italic" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"{% if not latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
+        <br>
+        This submission is in the process of being killed. This should complete within 15 seconds. If it does not, please email the tin administrators.
+      </div>
+
+      {% if not latest_submission.kill_requested %}
+        <div class="conditional-result incomplete" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested" data-result-negate="true"{% if latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
+          <br>
+          {% csrf_token %}
+          <form method="post" action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path|urlencode }}">
+            {% csrf_token %}
+            <input type="submit" value="Kill submission">
+          </form>
+        </div>
+      {% endif %}
+    {% endif %}
   {% endif %}
 {% endif %}
 

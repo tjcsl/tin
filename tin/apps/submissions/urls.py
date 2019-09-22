@@ -7,6 +7,7 @@ app_name = "submissions"
 urlpatterns = [
     path("<int:submission_id>", views.show_view, name="show"),
     path("<int:submission_id>.json", views.show_json_view, name="show_json"),
+    path("<int:submission_id>/kill", views.kill_view, name="kill"),
     path("set-aborted-complete", views.set_aborted_complete_view, name="set_aborted_complete"),
     path(
         "set-past-timeout-complete",
