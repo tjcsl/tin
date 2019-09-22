@@ -13,14 +13,9 @@ blacklist /lost+found
 blacklist /swapfile
 blacklist /lib/systemd
 
-blacklist /etc/passwd
-blacklist /etc/passwd-
-blacklist /etc/shadow
-blacklist /etc/shadow-
-blacklist /etc/group
-blacklist /etc/group-
-blacklist /etc/gshadow
-blacklist /etc/gshadow-
+# localtime for the time, nsswitch.conf/resolv.conf for nameserver configuration, and
+# profile/skel/bash.bashrc in case they want to start a shell or something
+private-etc localtime,nsswitch.conf,resolv.conf,profile,skel,bash.bashrc
 
 read-only /etc
 read-only /opt
