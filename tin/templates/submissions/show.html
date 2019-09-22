@@ -109,6 +109,24 @@ Submission #{{ submission_number }}
   </div>
 {% endif %}
 
+{% if not submission.complete %}
+  <div class="conditional-result incomplete italic" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="kill_requested"{% if not submission.kill_requested %}style="display: none"{% endif %} data-hide-when-complete="true">
+    <br>
+    This submission is in the process of being killed. This should complete within 15 seconds. If it does not, please email the tin administrators.
+  </div>
+
+  {% if not submission.kill_requested %}
+    <div class="conditional-result incomplete" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="kill_requested" data-result-negate="true" data-hide-when-complete="true">
+      <br>
+      {% csrf_token %}
+      <form method="post" action="{% url 'submissions:kill' submission.id %}?next={{ request.get_full_path|urlencode }}">
+        {% csrf_token %}
+        <input type="submit" value="Kill submission">
+      </form>
+    </div>
+  {% endif %}
+{% endif %}
+
 <h3 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h3>
 <pre><code>{{ submission_text }}</code></pre>
 
