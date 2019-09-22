@@ -27,6 +27,8 @@ class Assignment(models.Model):
     enable_grader_timeout = models.BooleanField(default=False)
     grader_timeout = models.IntegerField(default=300, validators=[MinValueValidator(10)])
 
+    grader_has_network_access = models.BooleanField(default=False)
+
     has_network_access = models.BooleanField(default=False)
 
     def __str__(self):
