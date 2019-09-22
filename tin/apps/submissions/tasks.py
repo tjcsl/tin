@@ -115,17 +115,24 @@ def run_submission(submission_id):
             submission.grader_start_time = timezone.localtime().timestamp()
             submission.save()
 
+            timed_out = False
+
             while proc.poll() is None:
+                submission.refresh_from_db()
                 submission.assignment.refresh_from_db()
                 if submission.assignment.enable_grader_timeout:
                     time_elapsed = time.time() - start_time
                     timeout = submission.assignment.grader_timeout - time_elapsed
                     if timeout <= 0:
+                        timed_out = True
                         break
 
                     timeout = min(timeout, 15)
                 else:
                     timeout = 15
+
+                if submission.kill_requested:
+                    break
 
                 files_ready = select.select([proc.stdout, proc.stderr], [], [], timeout)[0]
                 if proc.stdout in files_ready:
@@ -135,7 +142,7 @@ def run_submission(submission_id):
 
                 submission.grader_output = truncate_output(output, "grader_output")
                 submission.grader_errors = truncate_output(errors, "grader_errors")
-                submission.save()
+                submission.save(update_fields=["grader_output", "grader_errors"])
 
             if proc.poll() is None:
                 killed = True
@@ -159,21 +166,23 @@ def run_submission(submission_id):
                 errors += line
 
             if killed:
-                if not output.endswith("\n"):
-                    output += "\n"
-                output += "[Grader timed out]"
+                msg = "[Grader timed out]" if timed_out else "[Grader killed]"
 
-                if not errors.endswith("\n"):
+                if output and not output.endswith("\n"):
+                    output += "\n"
+                output += msg
+
+                if errors and not errors.endswith("\n"):
                     errors += "\n"
-                errors += "[Grader timed out]"
+                errors += msg
             else:
                 retcode = proc.poll()
                 if retcode != 0:
-                    if not output.endswith("\n"):
+                    if output and not output.endswith("\n"):
                         output += "\n"
                     output += "[Grader error]"
 
-                    if not errors.endswith("\n"):
+                    if errors and not errors.endswith("\n"):
                         errors += "\n"
                     errors += "[Grader exited with status {}]".format(retcode)
 

@@ -29,6 +29,9 @@ class Submission(models.Model):
 
     complete = models.BooleanField(default=False)
 
+    # If this is set to True, it will make the Celery task kill the submission
+    kill_requested = models.BooleanField(default=False)
+
     grader_pid = models.IntegerField(null=True, default=None, blank=True)
     grader_start_time = models.FloatField(null=True, default=None, blank=True)
 
