@@ -29,9 +29,9 @@ class AssignmentForm(forms.ModelForm):
             "has_network_access": "Give submissions internet access?",
         }
         help_texts = {
-            "grader_has_network_access": 'This effectively disables "Give submissions internet'
-            ' access" below. It also increases the amount of time it takes to start up the grader '
-            "(to about 1.5 seconds). This is not recommended unless necessary."
+            "grader_has_network_access": 'If unset, this effectively disables "Give submissions'
+            ' internet access" below. If set, it increases the amount of time it takes to start up'
+            " the grader (to about 1.5 seconds). This is not recommended unless necessary."
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
 
