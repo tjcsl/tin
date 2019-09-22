@@ -123,9 +123,9 @@ def run_submission(submission_id):
                     if timeout <= 0:
                         break
 
-                    timeout = min(timeout, 60)
+                    timeout = min(timeout, 15)
                 else:
-                    timeout = 60
+                    timeout = 15
 
                 files_ready = select.select([proc.stdout, proc.stderr], [], [], timeout)[0]
                 if proc.stdout in files_ready:
