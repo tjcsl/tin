@@ -1,6 +1,11 @@
 caps.drop all
-#1G memory limit
+
+# Resource limits
+# 1G memory, 10M files, 500 open file descriptors, 500 processes
 rlimit-as 1000000000
+rlimit-fsize 10485760
+rlimit-nofile 500
+rlimit-nproc 1000
 
 private-tmp
 private-dev
