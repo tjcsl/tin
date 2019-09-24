@@ -1,5 +1,8 @@
 caps.drop all
 
+noroot
+x11 none
+
 # Resource limits
 # 1G memory, 10M files, 500 open file descriptors, 500 processes
 rlimit-as 1000000000
