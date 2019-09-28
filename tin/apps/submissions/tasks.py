@@ -64,7 +64,7 @@ def run_submission(submission_id):
             "An internal error occurred. Please try again.\n"
             "If the problem persists, contact your teacher."
         )
-        submission.grader_error = traceback.format_exc()
+        submission.grader_errors = truncate_output(traceback.format_exc(), "grader_errors")
         submission.completed = True
         submission.save()
         return
@@ -220,9 +220,11 @@ def run_submission(submission_id):
 
             submission.grader_output = truncate_output(output, "grader_output")
             submission.grader_errors = truncate_output(errors, "grader_errors")
+            submission.save()
     except Exception:  # pylint: disable=broad-except
         submission.grader_output = "[Internal error]"
-        submission.grader_errors = traceback.format_exc()
+        submission.grader_errors = truncate_output(traceback.format_exc(), "grader_errors")
+        submission.save()
     else:
         if output and not killed and retcode == 0:
             last_line = output.splitlines()[-1]
