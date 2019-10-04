@@ -64,7 +64,9 @@ def run_submission(submission_id):
             "An internal error occurred. Please try again.\n"
             "If the problem persists, contact your teacher."
         )
-        submission.grader_errors = truncate_output(traceback.format_exc().replace("\0", ""), "grader_errors")
+        submission.grader_errors = truncate_output(
+            traceback.format_exc().replace("\0", ""), "grader_errors"
+        )
         submission.completed = True
         submission.save()
         return
@@ -172,8 +174,12 @@ def run_submission(submission_id):
                 if proc.stderr in files_ready:
                     errors += proc.stderr.readline()
 
-                submission.grader_output = truncate_output(output.replace("\0", ""), "grader_output")
-                submission.grader_errors = truncate_output(errors.replace("\0", ""), "grader_errors")
+                submission.grader_output = truncate_output(
+                    output.replace("\0", ""), "grader_output"
+                )
+                submission.grader_errors = truncate_output(
+                    errors.replace("\0", ""), "grader_errors"
+                )
                 submission.save(update_fields=["grader_output", "grader_errors"])
 
             if proc.poll() is None:
@@ -223,7 +229,9 @@ def run_submission(submission_id):
             submission.save()
     except Exception:  # pylint: disable=broad-except
         submission.grader_output = "[Internal error]"
-        submission.grader_errors = truncate_output(traceback.format_exc().replace("\0", ""), "grader_errors")
+        submission.grader_errors = truncate_output(
+            traceback.format_exc().replace("\0", ""), "grader_errors"
+        )
         submission.save()
     else:
         if output and not killed and retcode == 0:
