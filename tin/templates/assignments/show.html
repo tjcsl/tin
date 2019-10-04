@@ -3,11 +3,17 @@
 
 {% block title %}Turn-In: {{ course.name }}: {{ assignment.name }}{% endblock %}
 
-{% if latest_submission %}
-  {% block head %}
+{% block head %}
+  <script src="{% static 'vendor/js.cookie-2.2.1.min.js' %}"></script>
+
+  {% if latest_submission %}
     <script src="{% static 'js/incomplete.js' %}"></script>
-  {% endblock %}
-{% endif %}
+  {% endif %}
+  <script src="{% static 'js/upload-dragdrop.js' %}"></script>
+  <script>
+   var assignment_submit_url = "{% url 'assignments:submit' assignment.id %}";
+  </script>
+{% endblock %}
 
 {% block main %}
 <div class="header">
