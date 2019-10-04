@@ -46,9 +46,7 @@ class FileSubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ["file"]
-        help_texts = {
-            "file": "You can also drag files onto this page to submit them.",
-        }
+        help_texts = {"file": "You can also drag files onto this page to submit them."}
 
 
 class TextSubmissionForm(forms.ModelForm):
