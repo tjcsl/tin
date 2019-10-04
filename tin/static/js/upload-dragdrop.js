@@ -1,6 +1,20 @@
 $(function() {
   if(assignment_submit_url) {
-    var upload_overlay = $("<div>").css({"display": "none", "position": "fixed", "top": 0, "left": 0, "width": "100vw", "height": "100vh", "background-color": "rgba(0, 0, 0, 0.2)", "z-index": 1000, "text-align": "center", "border": "10px dashed #000", "padding-top": 100, "font-size": "250%", "box-sizing": "border-box"}).text("Drop to submit").appendTo($("body"));
+    var upload_overlay = $("<div>").css({
+      "display": "none",
+      "position": "fixed",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 0,
+      "background-color": "rgba(0, 0, 0, 0.2)",
+      "z-index": 1000,
+      "text-align": "center",
+      "border": "10px dashed #000",
+      "padding": "100px 20px 0px 20px",
+      "font-size": "250%",
+      "box-sizing": "border-box",
+    }).text("Drop to submit").appendTo($("body"));
 
     $(window).on({
       "dragover": function(e) {
