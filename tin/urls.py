@@ -24,6 +24,7 @@ urlpatterns = [
     path("courses/", include("tin.apps.courses.urls", namespace="courses")),
     path("assignments/", include("tin.apps.assignments.urls", namespace="assignments")),
     path("submissions/", include("tin.apps.submissions.urls", namespace="submissions")),
+    path("venvs/", include("tin.apps.venvs.urls", namespace="venvs")),
     path("docs/", include("tin.apps.docs.urls", namespace="docs")),
     path("", include("tin.apps.auth.urls", namespace="auth")),
 ]
