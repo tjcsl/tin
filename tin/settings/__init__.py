@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "tin.apps.assignments",
     "tin.apps.submissions",
     "tin.apps.docs",
+    "tin.apps.venvs",
 ]
 
 MIDDLEWARE = [

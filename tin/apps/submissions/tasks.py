@@ -14,6 +14,7 @@ from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
 
+from ... import sandboxing
 from .models import Submission
 
 
@@ -44,6 +45,11 @@ def run_submission(submission_id):
                 1:-1
             ].format(
                 has_network_access=bool(submission.assignment.has_network_access),
+                venv_path=(
+                    submission.assignment.venv.get_full_path()
+                    if submission.assignment.venv_fully_created
+                    else None
+                ),
                 submission_path=submission_path,
             )
         else:
@@ -89,50 +95,22 @@ def run_submission(submission_id):
         ]
 
         if not settings.DEBUG or shutil.which("firejail") is not None:
-            firejail_args = [
-                "firejail",
-                "--quiet",
-                "--profile={}".format(
-                    os.path.join(settings.BASE_DIR, "sandboxing", "grader.profile")
-                ),
-                "--whitelist={}".format(os.path.dirname(grader_path)),
-                "--read-only={}".format(grader_path),
-                "--read-only={}".format(submission_path),
-                "--read-only={}".format(os.path.dirname(submission_wrapper_path)),
-            ]
+            whitelist = [os.path.dirname(grader_path)]
+            read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
+            if submission.assignment.venv_object_created:
+                read_only.append(submission.assignment.venv.get_full_path())
 
-            if submission.assignment.grader_has_network_access:
-                addrs = psutil.net_if_addrs()
-                interfaces = list(addrs.keys())
+            args = sandboxing.get_assignment_sandbox_args(
+                args,
+                network_access=submission.assignment.grader_has_network_access,
+                direct_network_access=False,
+                whitelist=whitelist,
+                read_only=read_only,
+            )
 
-                if "lo" in interfaces:
-                    interfaces.remove("lo")
-
-                def score_interface(name):
-                    if name.startswith(("lxc", "lxd")):
-                        return -2
-                    elif name.startswith("tap"):
-                        return -1
-                    elif name.startswith(("wlp", "wlo", "eth", "eno", "enp")):
-                        # Prefer Ethernet interfaces, but also prefer interfaces with IP addresses
-                        # with netmasks set
-                        return (
-                            1
-                            + name.startswith("e")
-                            + sum(addr.netmask is not None for addr in addrs[name])
-                        )
-                    else:
-                        return 0
-
-                if interfaces:
-                    firejail_args.append("--net={}".format(max(interfaces, key=score_interface)))
-                    firejail_args.append("--netfilter")
-                else:
-                    firejail_args.append("--net=none")
-            else:
-                firejail_args.append("--net=none")
-
-            args = [*firejail_args, *args]
+        env = dict(os.environ)
+        if submission.assignment.venv_fully_created:
+            env.update(submission.assignment.venv.get_activation_env())
 
         with subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
             args,
@@ -142,6 +120,7 @@ def run_submission(submission_id):
             universal_newlines=True,
             cwd=os.path.dirname(grader_path),
             preexec_fn=os.setpgrp,
+            env=env,
         ) as proc:
             start_time = time.time()
 
