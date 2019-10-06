@@ -24,7 +24,7 @@ class Assignment(models.Model):
     due = models.DateTimeField()
 
     grader_file = models.FileField(upload_to=upload_grader_file_path, null=True)
-    enable_grader_timeout = models.BooleanField(default=False)
+    enable_grader_timeout = models.BooleanField(default=True)
     grader_timeout = models.IntegerField(default=300, validators=[MinValueValidator(10)])
 
     grader_has_network_access = models.BooleanField(default=False)
