@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Turn-In: {{ assignment.name }}: Virtual environment{% endblock %}
+
+{% block main %}
+  <h2>Virtual environment for assignment '{{ assignment.name }}' in course '{{ assignment.course.name }}'</h2>
+
+  <h3>Installed packages</h3>
+  {% if venv.installing_packages %}
+    <p class="italic">This virtual environment is currently installing or upgrading packages. This list may be incomplete.</p>
+  {% endif %}
+
+  <table class="has-border">
+    <tr>
+      <th>Package</th>
+      <th>Version</th>
+    </tr>
+    {% with packages=venv.list_packages %}
+      {% if packages is not None %}
+        {% for pkgname, version in packages %}
+          <tr>
+            <td>{{ pkgname }}</td>
+            <td>{{ version }}</td>
+          </tr>
+        {% empty %}
+          <tr class="italic">
+            <td colspan="2">No installed packages</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr class="italic">
+          <td colspan="2">An error occurred while listing installed packages. Please try again.</td>
+        </tr>
+      {% endif %}
+    {% endwith %}
+  </table>
+
+  <h3>Install packages</h3>
+  <form action="{% url 'venvs:install-packages' venv.id %}" method="post">
+    {% csrf_token %}
+    <div class="tbl">
+      <div class="package-name-container"><input type="text" name="packages[]" placeholder="Package name"{% if venv.installing_packages %} disabled{% endif %}>
+      <input type="button" value="X" onclick="if($('.package-name-container').get().length > 1) { var cont = $(this).closest('.package-name-container'); cont.remove(); }"></div>
+    </div>
+    <input type="button" value="+" onclick="var last_cont = $('.package-name-container').last(); last_cont.clone().insertAfter(last_cont).find('input[type=text]').val('');">
+    <br>
+    <br>
+    <input type="submit" value="Install packages"{% if venv.installing_packages %} disabled{% endif %}>
+
+    {% if venv.installing_packages %}
+      <p class="italic">
+        You cannot install packages while the virtual environment is installing packages.
+      </p>
+    {% endif %}
+  </form>
+
+  {% if venv.package_installation_output and not venv.installing_packages %}
+    <h3>Last package installation output</h3>
+    <code><pre>{{ venv.package_installation_output }}</pre></code>
+  {% endif %}
+{% endblock %}

@@ -2,6 +2,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from ..submissions.models import Submission
+from ..venvs.models import Virtualenv
 
 
 def upload_grader_file_path(assignment, filename):  # pylint: disable=unused-argument
@@ -39,6 +40,20 @@ class Assignment(models.Model):
 
     def submissions_from_student(self, student):
         return Submission.objects.filter(assignment=self, student=student)
+
+    @property
+    def venv_object_created(self):
+        try:
+            return self.venv is not None  # pylint: disable=no-member
+        except Virtualenv.DoesNotExist:
+            return False
+
+    @property
+    def venv_fully_created(self):
+        try:
+            return self.venv.fully_created  # pylint: disable=no-member
+        except Virtualenv.DoesNotExist:
+            return False
 
     @property
     def grader_log_filename(self):

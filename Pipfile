@@ -17,3 +17,4 @@ django-celery-results = "~=1.1.2"
 psycopg2 = "~=2.8.3"
 sentry-sdk = "~=0.12.2"
 aiocontextvars = {version = "~=0.2.2",markers = "python_version < '3.7'"}
+virtualenv = "~=16.7.5"
