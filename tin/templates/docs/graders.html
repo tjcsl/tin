@@ -54,9 +54,10 @@
 
   <h2>Restrictions placed on student submissions</h2>
   <ul>
-    <li>Not able to access the Internet</li>
+    <li>By default, not able to access the Internet</li>
     <li>Only able to access the submission itself, not any other files</li>
     <li>Not able to change the submission file</li>
+    <li>Very restricted access to the rest of the filesystem</li>
   </ul>
 
   <p class="bold">Warning: Most of these restrictions can be bypassed if the grader script uses output from a student's submission in an unsafe way (such as <code>eval()</code>ing or <code>pickle.load()</code>ing it). <code>tin</code> runs the grader script in its own restricted environment, but all this can really do is prevent the submission from affecting code for other assignments. Please be careful.</p>
