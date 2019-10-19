@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = "~=2.2.5"
+django = "~=2.2.6"
 gevent = "~=1.4.0"
 gunicorn = "~=19.9.0"
 social-auth-app-django = "~=3.1.0"
@@ -15,6 +15,6 @@ psutil = "~=5.6.3"
 celery = "~=4.3.0"
 django-celery-results = "~=1.1.2"
 psycopg2 = "~=2.8.3"
-sentry-sdk = "~=0.12.2"
+sentry-sdk = "~=0.13.0"
 aiocontextvars = {version = "~=0.2.2",markers = "python_version < '3.7'"}
-virtualenv = "~=16.7.5"
+virtualenv = "~=16.7.6"
