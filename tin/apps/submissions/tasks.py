@@ -20,7 +20,7 @@ from .models import Submission
 
 def truncate_output(text, field_name):
     max_len = Submission._meta.get_field(field_name).max_length
-    return (text[-max_len + 5:] + "...") if len(text) > max_len else text
+    return ("..." + text[-max_len + 5:]) if len(text) > max_len else text
 
 
 @shared_task
