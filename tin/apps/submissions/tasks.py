@@ -117,7 +117,7 @@ def run_submission(submission_id):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
-            universal_newlines=True,
+            bufsize=0,
             cwd=os.path.dirname(grader_path),
             preexec_fn=os.setpgrp,
             env=env,
@@ -149,9 +149,10 @@ def run_submission(submission_id):
 
                 files_ready = select.select([proc.stdout, proc.stderr], [], [], timeout)[0]
                 if proc.stdout in files_ready:
-                    output += proc.stdout.readline()
+                    output += proc.stdout.read(8192).decode()
+
                 if proc.stderr in files_ready:
-                    errors += proc.stderr.readline()
+                    errors += proc.stderr.read(8192).decode()
 
                 submission.grader_output = truncate_output(
                     output.replace("\0", ""), "grader_output"
@@ -176,11 +177,8 @@ def run_submission(submission_id):
                     except psutil.NoSuchProcess:
                         pass
 
-            for line in proc.stdout:
-                output += line
-
-            for line in proc.stderr:
-                errors += line
+            output += proc.stdout.read().decode()
+            errors += proc.stderr.read().decode()
 
             if killed:
                 msg = "[Grader timed out]" if timed_out else "[Grader killed]"
