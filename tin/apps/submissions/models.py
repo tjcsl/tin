@@ -101,6 +101,11 @@ class Submission(models.Model):
         with open(backup_fpath, "w") as f_obj:
             f_obj.write(submission_text)
 
+    @property
+    def channel_group_name(self) -> str:
+        return "submission-{}".format(self.id)
+
+
     def __str__(self):
         return "{}{} [{}]: {} ({})".format(
             ("[INCOMPLETE] " if not self.complete else ""),
