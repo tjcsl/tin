@@ -72,7 +72,6 @@ def show_json_view(request, submission_id):
     ):
         data = {
             "grader_output": submission.grader_output,
-            "grader_errors": submission.grader_errors,
             "has_been_graded": submission.has_been_graded,
             "complete": submission.complete,
             "kill_requested": submission.kill_requested,
@@ -91,7 +90,7 @@ def show_json_view(request, submission_id):
                 else "Not graded"
             ),
         }
-        if not request.user.is_student:
+        if request.user.is_teacher or request.user.is_superuser:
             data["grader_errors"] = submission.grader_errors
         return http.JsonResponse(data)
 
