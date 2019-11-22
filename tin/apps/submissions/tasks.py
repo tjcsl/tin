@@ -9,7 +9,9 @@ import traceback
 from decimal import Decimal
 
 import psutil
+from asgiref.sync import async_to_sync
 from celery import shared_task
+from channels.layers import get_channel_layer
 
 from django.conf import settings
 from django.utils import timezone
@@ -75,6 +77,8 @@ def run_submission(submission_id):
         )
         submission.completed = True
         submission.save()
+
+        async_to_sync(get_channel_layer().group_send)(submission.channel_group_name, {"type": "submission.updated"})
         return
 
     try:
@@ -162,6 +166,8 @@ def run_submission(submission_id):
                 )
                 submission.save(update_fields=["grader_output", "grader_errors"])
 
+                async_to_sync(get_channel_layer().group_send)(submission.channel_group_name, {"type": "submission.updated"})
+
             if proc.poll() is None:
                 killed = True
 
@@ -227,6 +233,8 @@ def run_submission(submission_id):
         submission.complete = True
         submission.grader_pid = None
         submission.save()
+
+        async_to_sync(get_channel_layer().group_send)(submission.channel_group_name, {"type": "submission.updated"})
 
         if os.path.exists(submission_wrapper_path):
             os.remove(submission_wrapper_path)

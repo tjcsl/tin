@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from ..auth.decorators import login_required, superuser_required
 from .models import Submission
+from .utils import serialize_submission_info
 
 # Create your views here.
 
@@ -65,36 +66,11 @@ def show_json_view(request, submission_id):
     except Submission.DoesNotExist:
         return http.JsonResponse({"error": "Submission not found"})
 
-    if (
-        submission.assignment.course in request.user.courses.all()
-        or request.user == submission.assignment.course.teacher
-        or request.user.is_superuser
-    ):
-        data = {
-            "grader_output": submission.grader_output,
-            "has_been_graded": submission.has_been_graded,
-            "complete": submission.complete,
-            "kill_requested": submission.kill_requested,
-            "points_received": (
-                str(submission.points_received) if submission.points_received is not None else None
-            ),
-            "points_possible": (
-                str(submission.points_possible) if submission.points_possible is not None else None
-            ),
-            "grade_percent": submission.grade_percent,
-            "formatted_grade": (
-                "{}/{} ({})".format(
-                    submission.points_received, submission.points_possible, submission.grade_percent
-                )
-                if submission.has_been_graded
-                else "Not graded"
-            ),
-        }
-        if request.user.is_teacher or request.user.is_superuser:
-            data["grader_errors"] = submission.grader_errors
+    data = serialize_submission_info(submission, request.user)
+    if data is not None:
         return http.JsonResponse(data)
 
-    return http.Http404
+    return http.JsonResponse({"error": "Submission not found"})
 
 
 @login_required
