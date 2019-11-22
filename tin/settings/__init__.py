@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "channels",
     "social_django",
     "django_celery_results",
     "tin.apps",
@@ -93,7 +94,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "tin.wsgi.application"
+ASGI_APPLICATION = "tin.routing.application"
 
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        }
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
