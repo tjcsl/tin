@@ -13,6 +13,8 @@ pylint-django = "~=2.0.12"
 
 [packages]
 django = "~=2.2.7"
+channels = "~=2.3.1"
+daphne = "~=2.4.0"
 gevent = "~=1.4.0"
 gunicorn = "~=20.0.0"
 social-auth-app-django = "~=3.1.0"
@@ -24,6 +26,7 @@ psycopg2 = "~=2.8.4"
 sentry-sdk = "~=0.13.2"
 aiocontextvars = {version = "~=0.2.2",markers = "python_version < '3.7'"}
 virtualenv = "~=16.7.7"
+channels-redis = "*"
 
 [pipenv]
 allow_prereleases = true
