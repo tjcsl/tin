@@ -27,6 +27,8 @@ sentry-sdk = "~=0.13.2"
 aiocontextvars = {version = "~=0.2.2",markers = "python_version < '3.7'"}
 virtualenv = "~=16.7.7"
 channels-redis = "~=2.4.1"
+ipython = "~=7.9.0"
+django-extensions = "~=2.2.5"
 
 [pipenv]
 allow_prereleases = true
