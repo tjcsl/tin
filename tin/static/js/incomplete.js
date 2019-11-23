@@ -31,16 +31,23 @@ function update() {
   $(".incomplete").each(function(i, obj) {
     endpoint = $(obj).data("endpoint")
     if(!endpoints.has(endpoint)) {
-      if(websockets[endpoint] === undefined) {
-        // Just not created yet
-        create_websocket(endpoint);
-      }
-      else if(websockets[endpoint] == false) {
-        // Connection closed
+      if($(obj).data("no-websocket") == true) {
         $.get(endpoint, function(data) {
           handle_data(endpoint, data);
-          create_websocket(endpoint);
         });
+      }
+      else {
+        if(websockets[endpoint] === undefined) {
+          // Just not created yet
+          create_websocket(endpoint);
+        }
+        else if(websockets[endpoint] == false) {
+          // Connection closed
+          $.get(endpoint, function(data) {
+            handle_data(endpoint, data);
+            create_websocket(endpoint);
+          });
+        }
       }
       endpoints.add(endpoint);
     }

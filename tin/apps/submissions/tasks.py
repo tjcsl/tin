@@ -78,7 +78,9 @@ def run_submission(submission_id):
         submission.completed = True
         submission.save()
 
-        async_to_sync(get_channel_layer().group_send)(submission.channel_group_name, {"type": "submission.updated"})
+        async_to_sync(get_channel_layer().group_send)(
+            submission.channel_group_name, {"type": "submission.updated"}
+        )
         return
 
     try:
@@ -166,7 +168,9 @@ def run_submission(submission_id):
                 )
                 submission.save(update_fields=["grader_output", "grader_errors"])
 
-                async_to_sync(get_channel_layer().group_send)(submission.channel_group_name, {"type": "submission.updated"})
+                async_to_sync(get_channel_layer().group_send)(
+                    submission.channel_group_name, {"type": "submission.updated"}
+                )
 
             if proc.poll() is None:
                 killed = True
@@ -234,7 +238,9 @@ def run_submission(submission_id):
         submission.grader_pid = None
         submission.save()
 
-        async_to_sync(get_channel_layer().group_send)(submission.channel_group_name, {"type": "submission.updated"})
+        async_to_sync(get_channel_layer().group_send)(
+            submission.channel_group_name, {"type": "submission.updated"}
+        )
 
         if os.path.exists(submission_wrapper_path):
             os.remove(submission_wrapper_path)
