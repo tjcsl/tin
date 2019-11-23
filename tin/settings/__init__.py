@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "channels",
     "social_django",
+    "django_extensions",
     "django_celery_results",
     "tin.apps",
     "tin.apps.users",
