@@ -23,69 +23,62 @@ def show_view(request, assignment_id):
     :param request: The request
     :param assignment_id: The assignment id
     """
-    assignment = get_object_or_404(Assignment, id=assignment_id)
+    assignment = get_object_or_404(
+        Assignment.objects.filter_visible(request.user), id=assignment_id
+    )
 
     if request.user.is_student and not request.user.is_superuser:
-        if assignment.course in request.user.courses.all():
+        submissions = Submission.objects.filter(
+            student=request.user, assignment=assignment
+        ).order_by("-date_submitted")
+        latest_submission = submissions.first() if submissions else None
+
+        return render(
+            request,
+            "assignments/show.html",
+            {
+                "course": assignment.course,
+                "assignment": assignment,
+                "submissions": submissions,
+                "latest_submission": latest_submission,
+            },
+        )
+    else:
+        students_and_submissions = []
+        for student in assignment.course.students.all():
+            latest_submission = (
+                Submission.objects.filter(student=student, assignment=assignment)
+                .order_by("-date_submitted")
+                .first()
+            )
+            students_and_submissions.append((student, latest_submission))
+
+        context = {
+            "course": assignment.course,
+            "assignment": assignment,
+            "students_and_submissions": students_and_submissions,
+            "log_file_exists": (
+                assignment.grader_log_filename is not None
+                and os.path.exists(
+                    os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
+                )
+            ),
+        }
+
+        if request.user.is_student:
             submissions = Submission.objects.filter(
                 student=request.user, assignment=assignment
             ).order_by("-date_submitted")
             latest_submission = submissions.first() if submissions else None
+            context.update({"submissions": submissions, "latest_submission": latest_submission})
 
-            return render(
-                request,
-                "assignments/show.html",
-                {
-                    "course": assignment.course,
-                    "assignment": assignment,
-                    "submissions": submissions,
-                    "latest_submission": latest_submission,
-                },
-            )
-        else:
-            raise http.Http404
-    else:
-        if request.user.is_superuser or request.user == assignment.course.teacher:
-            students_and_submissions = []
-            for student in assignment.course.students.all():
-                latest_submission = (
-                    Submission.objects.filter(student=student, assignment=assignment)
-                    .order_by("-date_submitted")
-                    .first()
-                )
-                students_and_submissions.append((student, latest_submission))
-
-            context = {
-                "course": assignment.course,
-                "assignment": assignment,
-                "students_and_submissions": students_and_submissions,
-                "log_file_exists": (
-                    assignment.grader_log_filename is not None
-                    and os.path.exists(
-                        os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
-                    )
-                ),
-            }
-
-            if request.user.is_student:
-                submissions = Submission.objects.filter(
-                    student=request.user, assignment=assignment
-                ).order_by("-date_submitted")
-                latest_submission = submissions.first() if submissions else None
-                context.update({"submissions": submissions, "latest_submission": latest_submission})
-
-            return render(request, "assignments/show.html", context)
-        else:
-            raise http.Http404
+        return render(request, "assignments/show.html", context)
 
 
 @teacher_or_superuser_required
 def create_view(request, course_id):
     """ Creates an assignment """
-    course = get_object_or_404(Course, id=course_id)
-
-    if request.user != course.teacher and not request.user.is_superuser:
-        raise http.Http404
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
         assignment_form = AssignmentForm(request.POST)
@@ -111,10 +104,9 @@ def create_view(request, course_id):
 @teacher_or_superuser_required
 def edit_view(request, assignment_id):
     """ Edits an assignment """
-    assignment = get_object_or_404(Assignment, id=assignment_id)
-
-    if request.user != assignment.course.teacher and not request.user.is_superuser:
-        raise http.Http404
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
 
     assignment_form = AssignmentForm(instance=assignment)
     if request.method == "POST":
@@ -139,10 +131,9 @@ def edit_view(request, assignment_id):
 @teacher_or_superuser_required
 def upload_grader_view(request, assignment_id):
     """ Uploads a grader for an assignment """
-    assignment = get_object_or_404(Assignment, id=assignment_id)
-
-    if request.user != assignment.course.teacher and not request.user.is_superuser:
-        raise http.Http404
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
 
     grader_form = GraderFileSubmissionForm(instance=assignment)
 
@@ -192,11 +183,10 @@ def upload_grader_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def student_submission_view(request, assignment_id, student_id):
-    assignment = get_object_or_404(Assignment, id=assignment_id)
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
     student = get_object_or_404(User, id=student_id)
-
-    if request.user != assignment.course.teacher and not request.user.is_superuser:
-        raise http.Http404
 
     submissions = Submission.objects.filter(student=student, assignment=assignment).order_by(
         "-date_submitted"
@@ -223,10 +213,13 @@ def student_submission_view(request, assignment_id, student_id):
 
 @login_required
 def submit_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment, id=assignment_id)
+    assignment = get_object_or_404(
+        Assignment.objects.filter_visible(request.user), id=assignment_id
+    )
 
-    if request.user not in assignment.course.students.all():
+    if not request.user.is_student:
         raise http.Http404
+
     student = request.user
 
     file_form = FileSubmissionForm()
@@ -297,10 +290,9 @@ def submit_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def scores_csv_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment, id=assignment_id)
-
-    if request.user != assignment.course.teacher and not request.user.is_superuser:
-        raise http.Http404
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
 
     response = http.HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="scores.csv"'
@@ -334,10 +326,9 @@ def scores_csv_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def download_log_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment, id=assignment_id)
-
-    if assignment.grader_log_filename is None:
-        raise http.Http404
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
 
     log_file_name = os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
 

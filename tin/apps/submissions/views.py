@@ -2,7 +2,7 @@ import psutil
 
 from django import http
 from django.db.models import F
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from ..auth.decorators import login_required, superuser_required
@@ -14,10 +14,9 @@ from .utils import serialize_submission_info
 
 @login_required
 def show_view(request, submission_id):
-    try:
-        submission = Submission.objects.get(id=submission_id)
-    except Submission.DoesNotExist:
-        raise http.Http404
+    submission = get_object_or_404(
+        Submission.objects.filter_visible(request.user), id=submission_id
+    )
 
     before_submissions = Submission.objects.filter(
         student=submission.student, assignment=submission.assignment, id__lt=submission.id
@@ -26,65 +25,37 @@ def show_view(request, submission_id):
 
     submission_text = submission.file.read().decode()
 
-    if request.user.is_student:
-        if submission.assignment.course in request.user.courses.all():
-            return render(
-                request,
-                "submissions/show.html",
-                {
-                    "course": submission.assignment.course,
-                    "assignment": submission.assignment,
-                    "submission": submission,
-                    "submission_number": submission_number,
-                    "submission_text": submission_text,
-                },
-            )
-        else:
-            raise http.Http404
-    else:
-        if request.user == submission.assignment.course.teacher or request.user.is_superuser:
-            return render(
-                request,
-                "submissions/show.html",
-                {
-                    "course": submission.assignment.course,
-                    "assignment": submission.assignment,
-                    "submission": submission,
-                    "student": submission.student,
-                    "submission_number": submission_number,
-                    "submission_text": submission_text,
-                },
-            )
-        else:
-            raise http.Http404
+    context = {
+        "course": submission.assignment.course,
+        "assignment": submission.assignment,
+        "submission": submission,
+        "submission_number": submission_number,
+        "submission_text": submission_text,
+    }
+
+    if request.user.is_teacher:
+        context["student"] = submission.student
+
+    return render(request, "submissions/show.html", context)
 
 
 @login_required
 def show_json_view(request, submission_id):
     try:
-        submission = Submission.objects.get(id=submission_id)
+        submission = Submission.objects.filter_visible(request.user).get(id=submission_id)
     except Submission.DoesNotExist:
         return http.JsonResponse({"error": "Submission not found"})
 
-    data = serialize_submission_info(submission, request.user)
-    if data is not None:
-        return http.JsonResponse(data)
-
-    return http.JsonResponse({"error": "Submission not found"})
+    return http.JsonResponse(serialize_submission_info(submission, request.user))
 
 
 @login_required
 def kill_view(request, submission_id):
-    try:
-        submission = Submission.objects.get(id=submission_id)
-    except Submission.DoesNotExist:
-        raise http.Http404
+    submission = get_object_or_404(
+        Submission.objects.filter_editable(request.user), id=submission_id
+    )
 
-    if request.method == "POST" and (
-        (request.user.is_student and submission.assignment.course in request.user.courses.all())
-        or request.user == submission.assignment.course.teacher
-        or request.user.is_superuser
-    ):
+    if request.method == "POST":
         submission.kill_requested = True
         submission.save()
         if request.GET.get("next"):

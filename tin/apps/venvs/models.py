@@ -18,7 +18,27 @@ class VirtualenvExistsError(VirtualenvCreationError):
     pass
 
 
+class VenvQuerySet(models.query.QuerySet):
+    def filter_visible(self, user):
+        if user.is_superuser:
+            return self.all()
+        elif user.is_teacher:
+            return self.filter(assignment__course__teacher=user)
+        else:
+            return self.none()
+
+    def filter_editable(self, user):
+        if user.is_superuser:
+            return self.all()
+        elif user.is_teacher:
+            return self.filter(assignment__course__teacher=user)
+        else:
+            return self.none()
+
+
 class Virtualenv(models.Model):
+    objects = VenvQuerySet.as_manager()
+
     assignment = models.OneToOneField(
         "assignments.Assignment", on_delete=models.CASCADE, related_name="venv", null=False
     )
