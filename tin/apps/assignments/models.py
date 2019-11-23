@@ -64,7 +64,7 @@ class Assignment(models.Model):
     @property
     def venv_object_created(self):
         try:
-            return self.venv is not None  # pylint: disable=no-member
+            return Virtualenv.objects.filter(assignment=self).exists()
         except Virtualenv.DoesNotExist:
             return False
 
