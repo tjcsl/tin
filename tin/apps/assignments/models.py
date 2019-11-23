@@ -5,11 +5,31 @@ from ..submissions.models import Submission
 from ..venvs.models import Virtualenv
 
 
+class AssignmentQuerySet(models.query.QuerySet):
+    def filter_visible(self, user):
+        if user.is_superuser:
+            return self.all()
+        elif user.is_teacher:
+            return self.filter(course__teacher=user)
+        else:
+            return self.filter(course__students=user)
+
+    def filter_editable(self, user):
+        if user.is_superuser:
+            return self.all()
+        elif user.is_teacher:
+            return self.filter(course__teacher=user)
+        else:
+            return self.none()
+
+
 def upload_grader_file_path(assignment, filename):  # pylint: disable=unused-argument
     return "assignment-{}/grader.py".format(assignment.id)
 
 
 class Assignment(models.Model):
+    objects = AssignmentQuerySet.as_manager()
+
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=4096)
 

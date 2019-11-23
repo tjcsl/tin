@@ -2,7 +2,27 @@ from django.conf import settings
 from django.db import models
 
 
+class CourseQuerySet(models.query.QuerySet):
+    def filter_visible(self, user):
+        if user.is_superuser:
+            return self.all()
+        elif user.is_teacher:
+            return self.filter(teacher=user)
+        else:
+            return self.filter(students=user)
+
+    def filter_editable(self, user):
+        if user.is_superuser:
+            return self.all()
+        elif user.is_teacher:
+            return self.filter(teacher=user)
+        else:
+            return self.none()
+
+
 class Course(models.Model):
+    objects = CourseQuerySet.as_manager()
+
     name = models.CharField(max_length=50)
     teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,

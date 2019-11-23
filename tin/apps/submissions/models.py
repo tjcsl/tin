@@ -9,6 +9,24 @@ from django.utils.text import slugify
 # Create your models here.
 
 
+class SubmissionQuerySet(models.query.QuerySet):
+    def filter_visible(self, user):
+        if user.is_superuser:
+            return self.all()
+        elif user.is_teacher:
+            return self.filter(assignment__course__teacher=user)
+        else:
+            return self.filter(student=user)
+
+    def filter_editable(self, user):
+        if user.is_superuser:
+            return self.all()
+        elif user.is_teacher:
+            return self.filter(assignment__course__teacher=user)
+        else:
+            return self.filter(student=user)
+
+
 def upload_submission_file_path(submission, filename):  # pylint: disable=unused-argument
     return "assignment-{}/{}/submission_{}.py".format(
         submission.assignment.id,
@@ -18,6 +36,8 @@ def upload_submission_file_path(submission, filename):  # pylint: disable=unused
 
 
 class Submission(models.Model):
+    objects = SubmissionQuerySet.as_manager()
+
     assignment = models.ForeignKey(
         "assignments.Assignment", on_delete=models.CASCADE, related_name="submissions"
     )
