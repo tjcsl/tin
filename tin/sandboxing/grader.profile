@@ -4,7 +4,7 @@ noroot
 x11 none
 
 # Resource limits
-# 1G memory, 10M files, 500 open file descriptors, 500 processes
+# 1G memory, 10M files, 500 open file descriptors, 1000 processes
 rlimit-as 1000000000
 rlimit-fsize 10485760
 rlimit-nofile 500
