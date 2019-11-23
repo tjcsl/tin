@@ -12,14 +12,7 @@ from .models import Course, StudentImport
 @login_required
 def index_view(request):
     """ Lists all courses """
-    if request.user.is_superuser:
-        courses = Course.objects.all()
-    elif request.user.is_teacher:
-        courses = request.user.taught_courses.all()
-    else:
-        courses = request.user.courses.all()
-
-    courses = courses.order_by("-created")
+    courses = Course.objects.filter_visible(request.user).order_by("-created")
 
     context = {"courses": courses}
 
@@ -45,22 +38,14 @@ def index_view(request):
 @login_required
 def show_view(request, course_id):
     """ Lists information about a course """
-    course = get_object_or_404(Course, id=course_id)
-    if (
-        request.user.is_superuser
-        or course in request.user.courses.all()
-        or request.user == course.teacher
-    ):
-        assignments = course.assignments.order_by("-due")
-        context = {"course": course, "assignments": assignments}
-        if request.user.is_student:
-            context["unsubmitted_assignments"] = assignments.exclude(
-                submissions__student=request.user
-            )
+    course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
 
-        return render(request, "courses/show.html", context)
-    else:
-        raise http.Http404
+    assignments = course.assignments.order_by("-due")
+    context = {"course": course, "assignments": assignments}
+    if request.user.is_student:
+        context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
+
+    return render(request, "courses/show.html", context)
 
 
 @teacher_or_superuser_required
@@ -81,10 +66,7 @@ def create_view(request):
 @teacher_or_superuser_required
 def edit_view(request, course_id):
     """ Edits a course """
-    course = get_object_or_404(Course, id=course_id)
-
-    if request.user != course.teacher and not request.user.is_superuser:
-        raise http.Http404
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
         form = CourseForm(data=request.POST, instance=course)
@@ -101,10 +83,7 @@ def edit_view(request, course_id):
 
 @teacher_or_superuser_required
 def import_students_view(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-
-    if request.user != course.teacher and not request.user.is_superuser:
-        raise http.Http404
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     student_import = StudentImport.objects.get_or_create(course=course)[0]
 
@@ -128,10 +107,7 @@ def import_students_view(request, course_id):
 @teacher_or_superuser_required
 def students_view(request, course_id):
     """ View students enrolled in a course """
-    course = get_object_or_404(Course, id=course_id)
-
-    if request.user != course.teacher and not request.user.is_superuser:
-        raise http.Http404
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     students = course.students.all()
 
