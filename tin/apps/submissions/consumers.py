@@ -39,7 +39,9 @@ class SubmissionJsonConsumer(JsonWebsocketConsumer):
         self.connected = True
         self.accept()
 
-        async_to_sync(self.channel_layer.group_add)(self.submission.channel_group_name, self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(
+            self.submission.channel_group_name, self.channel_name
+        )
 
         self.send_submission_info()
 
@@ -57,7 +59,7 @@ class SubmissionJsonConsumer(JsonWebsocketConsumer):
             if msg_type == "request-info":
                 self.send_submission_info()
 
-    def submission_updated(self, e) -> None:
+    def submission_updated(self, event) -> None:  # pylint: disable=unused-argument
         self.send_submission_info()
 
     def send_submission_info(self):

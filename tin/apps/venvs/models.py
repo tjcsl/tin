@@ -53,6 +53,7 @@ class Virtualenv(models.Model):
 
             res = subprocess.run(
                 [sys.executable, "-m", "virtualenv", "--", venv.get_full_path()],
+                check=False,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -92,6 +93,7 @@ class Virtualenv(models.Model):
 
         res = subprocess.run(
             args,
+            check=False,
             env=env,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
@@ -124,6 +126,7 @@ class Virtualenv(models.Model):
 
             res = subprocess.run(
                 args,
+                check=False,
                 env=env,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,

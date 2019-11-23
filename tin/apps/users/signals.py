@@ -4,7 +4,7 @@ from ..courses.models import StudentImport, StudentImportUser
 from .models import User
 
 
-def enroll(sender, user, request, **kwargs):
+def enroll(sender, user, request, **kwargs):  # pylint: disable=unused-argument
     try:
         import_user_object = StudentImportUser.objects.get_or_create(user=user.username)[0]
     except StudentImportUser.DoesNotExist:
