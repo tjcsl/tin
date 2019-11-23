@@ -54,17 +54,18 @@
 
   <h2>Restrictions placed on student submissions</h2>
   <ul>
+    <li>1GB memory limit, and restrictions on the number of external programs that can be launched</li>
     <li>By default, not able to access the Internet</li>
     <li>Only able to access the submission itself, not any other files</li>
     <li>Not able to change the submission file</li>
     <li>Very restricted access to the rest of the filesystem</li>
   </ul>
 
-  <p class="bold">Warning: Most of these restrictions can be bypassed if the grader script uses output from a student's submission in an unsafe way (such as <code>eval()</code>ing or <code>pickle.load()</code>ing it). <code>tin</code> runs the grader script in its own restricted environment, but all this can really do is prevent the submission from affecting code for other assignments. Please be careful.</p>
+  <p class="bold">Warning: Many of these restrictions can be bypassed if the grader script uses output from a student's submission in an unsafe way (such as <code>eval()</code>ing or <code>pickle.load()</code>ing it). <code>tin</code> runs the grader script in its own restricted environment, but all this can really do is prevent the submission from affecting code for other assignments. Please be careful.</p>
 
   <p>The Internet access restriction can be lifted on a per-assignment basis by going to the assignment's "Edit" page and checking the box labeled "Give submissions internet access." However, this should be done with caution, as giving scripts Internet access makes it much easier for students to cheat.</p>
-  <p>The memory restriction is currently hardcoded in and cannot be changed. 500MB should be enough for many cases, but if it becomes an issue, please contact <a href="mailto:{{ DEVELOPER_EMAIL }}"><code>tin</code>'s developers</a> to increase the limit.</p>
-  <p>Submissions can be given access to files by passing additional arguments to the wrapper script as follows (these must precede any other arguments to be passed to the submission):</p>
+  <p>The memory restriction is currently hardcoded in and cannot be changed. 1GB should be enough for many cases, but if it becomes an issue, please contact <a href="mailto:{{ DEVELOPER_EMAIL }}"><code>tin</code>'s developers</a> to increase the limit.</p>
+  <p>Submissions can be given access to specific files by passing additional arguments to the wrapper script as follows (these must precede any other arguments to be passed to the submission):</p>
   <ul>
     <li><code>--write &lt;filename&gt;</code>: Give the submission read/write access to the specified file. The filename should be given as an absolute path.</li>
     <li><code>--read &lt;filename&gt;</code>: Give the submission read-only access to the specified file. The filename should be given as an absolute path.</li>
@@ -78,7 +79,7 @@
   <p>Additionally, since all of a student's submissions are placed in the same directory, files created in the submission directory (for example, filenames passed to the submission as output files) should be given random names to avoid conflicts in case the student uploads a second submission while their last submission has not yet been graded.</p>
 
   <h2>Examples</h3>
-  <p>All of these run the submission with read-only access to <code>input.txt</code> in the grader script directory, read-write access to <code>output.txt</code> (in practice, the name should be randomized) in the submission directory, and the command-line arguments <code>abc</code> and <code>123</code>.</p>
+  <p>All of these run the submission with read-only access to <code>input.txt</code> in the grader script directory, read-write access to <code>output.txt</code> (in practice, the names should be randomized and/or dependent on the student's username) in the submission directory, and the command-line arguments <code>abc</code> and <code>123</code>.</p>
   <p><pre><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "abc", "123"])</code></pre> (avoid this style; always pass <code>--</code> so it is clear where the wrapper script arguments end)</p>
   <p><pre><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--", "abc", "123"])</code></pre></p>
   <p><pre><code>subprocess.run([sys.argv[1], "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--", "abc", "123"])</code></pre></p>
