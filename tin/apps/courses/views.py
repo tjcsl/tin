@@ -1,4 +1,3 @@
-from django import http
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
