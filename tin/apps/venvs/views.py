@@ -28,7 +28,9 @@ def show_view(request, venv_id):
 @teacher_or_superuser_required
 def install_view(request, venv_id):
     if request.method == "POST":
-        venv = get_object_or_404(Virtualenv.objects.filter_editable(request.user), id=venv_id, installing_packages=False)
+        venv = get_object_or_404(
+            Virtualenv.objects.filter_editable(request.user), id=venv_id, installing_packages=False
+        )
 
         venv.installing_packages = True
         venv.save()
@@ -45,7 +47,9 @@ def install_view(request, venv_id):
 @teacher_or_superuser_required
 def create_for_assignment_view(request, assignment_id):
     if request.method == "POST":
-        assignment = get_object_or_404(Assignment.objects.filter_editable(request.user), id=assignment_id)
+        assignment = get_object_or_404(
+            Assignment.objects.filter_editable(request.user), id=assignment_id
+        )
         create_virtualenv.delay(assignment.id)
 
         return redirect("assignments:show", assignment.id)
