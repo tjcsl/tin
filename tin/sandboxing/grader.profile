@@ -1,8 +1,16 @@
 caps.drop all
 nonewprivs
-
+nogroups
 noroot
+
 x11 none
+nodvd
+nosound
+notv
+novideo
+no3d
+
+shell none
 
 # Resource limits
 # 1G memory, 10M files, 500 open file descriptors, 1000 processes
