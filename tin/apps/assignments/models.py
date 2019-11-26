@@ -63,17 +63,11 @@ class Assignment(models.Model):
 
     @property
     def venv_object_created(self):
-        try:
-            return Virtualenv.objects.filter(assignment=self).exists()
-        except Virtualenv.DoesNotExist:
-            return False
+        return Virtualenv.objects.filter(assignment=self).exists()
 
     @property
     def venv_fully_created(self):
-        try:
-            return self.venv.fully_created  # pylint: disable=no-member
-        except Virtualenv.DoesNotExist:
-            return False
+        return Virtualenv.objects.filter(assignment=self, fully_created=True).exists()
 
     @property
     def grader_log_filename(self):
