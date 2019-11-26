@@ -1,4 +1,5 @@
 caps.drop all
+nonewprivs
 
 noroot
 x11 none
