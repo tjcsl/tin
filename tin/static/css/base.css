@@ -53,6 +53,19 @@
   padding-right: 2px;
 }
 
+#nav h1 .logo {
+  background-image: url(/static/img/logos/logo-mark-white.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  display: block;
+  width: 25px;
+  height: 25px;
+  margin: 0 5px 0 0;
+  padding: 0;
+  float: left;
+  vertical-align: baseline;
+}
+
 .header {
   display: flex;
   clear: both;

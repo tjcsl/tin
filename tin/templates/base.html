@@ -21,7 +21,7 @@
 <body>
   <div id="nav">
     <ul>
-      <li><a href="{% url 'auth:index' %}"><h1>Turn-In</h1></a></li>
+      <li><a href="{% url 'auth:index' %}"><h1><span class="logo"></span>Turn-In</h1></a></li>
       {% if request.user.is_authenticated %}
         {% if course %}
           <li><i class="fa fa-chevron-right"></i></li>
