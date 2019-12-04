@@ -72,7 +72,15 @@ class Virtualenv(models.Model):
                 )
 
             res = subprocess.run(
-                [sys.executable, "-m", "virtualenv", "--", venv.get_full_path()],
+                [
+                    sys.executable,
+                    "-m",
+                    "virtualenv",
+                    "-p",
+                    settings.SUBMISSION_PYTHON,
+                    "--",
+                    venv.get_full_path(),
+                ],
                 check=False,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.PIPE,

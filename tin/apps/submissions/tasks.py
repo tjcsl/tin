@@ -40,6 +40,12 @@ def run_submission(submission_id):
 
         os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok=True)
 
+        python_exe = (
+            os.path.join(submission.assignment.venv.get_full_path(), "bin/python")
+            if submission.assignment.venv_fully_created
+            else settings.SUBMISSION_PYTHON
+        )
+
         if not settings.DEBUG or shutil.which("bwrap") is not None:
             wrapper_text = """
 <REMOVED>
@@ -53,6 +59,7 @@ def run_submission(submission_id):
                     else None
                 ),
                 submission_path=submission_path,
+                python=python_exe,
             )
         else:
             wrapper_text = """
@@ -60,7 +67,7 @@ def run_submission(submission_id):
 """[
                 1:-1
             ].format(
-                submission_path=submission_path
+                submission_path=submission_path, python=python_exe,
             )
 
         with open(submission_wrapper_path, "w") as f_obj:
@@ -91,7 +98,7 @@ def run_submission(submission_id):
         errors = ""
 
         args = [
-            "python3",
+            python_exe,
             "-u",
             grader_path,
             submission_wrapper_path,
