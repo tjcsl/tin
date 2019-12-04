@@ -2,6 +2,8 @@ import os
 
 import psutil
 
+from django.conf import settings
+
 
 def get_assignment_sandbox_args(
     command_args,
@@ -56,6 +58,8 @@ def get_assignment_sandbox_args(
             if interfaces:
                 firejail_args.append("--net={}".format(max(interfaces, key=score_interface)))
                 firejail_args.append("--netfilter")
+                for nameserver in settings.SUBMISSION_NAMESERVERS:
+                    firejail_args.append("--dns={}".format(nameserver))
             else:
                 firejail_args.append("--net=none")
     else:
