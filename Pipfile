@@ -12,7 +12,7 @@ autopep8 = "~=1.4.4"
 pylint-django = "~=2.0.13"
 
 [packages]
-django = "~=2.2.7"
+django = "~=2.2.8"
 channels = "~=2.3.1"
 daphne = "~=2.4.0"
 gevent = "~=1.4.0"
