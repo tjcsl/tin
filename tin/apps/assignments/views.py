@@ -231,47 +231,71 @@ def submit_view(request, assignment_id):
     if request.method == "POST":
         if assignment.grader_file is None:
             return redirect("assignments:show", assignment.id)
-        elif request.FILES.get("file"):
-            if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                file_form = FileSubmissionForm(request.POST, request.FILES)
-                if file_form.is_valid():
-                    try:
-                        submission_text = request.FILES["file"].read().decode()
-                    except UnicodeDecodeError:
-                        file_errors = "Please don't upload binary files."
-                    else:
-                        submission = file_form.save(commit=False)
+
+        if (
+            Submission.objects.filter(student=request.user, complete=False).count()
+            < settings.CONCURRENT_USER_SUBMISSION_LIMIT
+        ):
+            if request.FILES.get("file"):
+                if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                    file_form = FileSubmissionForm(request.POST, request.FILES)
+                    if file_form.is_valid():
+                        try:
+                            submission_text = request.FILES["file"].read().decode()
+                        except UnicodeDecodeError:
+                            file_errors = "Please don't upload binary files."
+                        else:
+                            submission = file_form.save(commit=False)
+                            submission.assignment = assignment
+                            submission.student = student
+                            submission.save()
+
+                            submission.create_backup_copy(submission_text)
+
+                            run_submission.delay(submission.id)
+                            return redirect("assignments:show", assignment.id)
+                else:
+                    file_errors = "That file's too large. Are you sure it's a Python program?"
+            else:
+                text_form = TextSubmissionForm(request.POST)
+                if text_form.is_valid():
+                    submission_text = text_form.cleaned_data["text"]
+                    if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
+                        submission = text_form.save(commit=False)
                         submission.assignment = assignment
                         submission.student = student
+                        submission.file.save(
+                            upload_submission_file_path(submission, ""),
+                            ContentFile(text_form.cleaned_data["text"]),
+                            save=False,
+                        )
                         submission.save()
 
                         submission.create_backup_copy(submission_text)
 
                         run_submission.delay(submission.id)
                         return redirect("assignments:show", assignment.id)
-            else:
-                file_errors = "That file's too large. Are you sure it's a Python program?"
+                    else:
+                        text_errors = "Submission too large"
         else:
-            text_form = TextSubmissionForm(request.POST)
-            if text_form.is_valid():
-                submission_text = text_form.cleaned_data["text"]
-                if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
-                    submission = text_form.save(commit=False)
-                    submission.assignment = assignment
-                    submission.student = student
-                    submission.file.save(
-                        upload_submission_file_path(submission, ""),
-                        ContentFile(text_form.cleaned_data["text"]),
-                        save=False,
+            if request.FILES.get("file"):
+                file_form = FileSubmissionForm(request.POST, request.FILES)
+                file_errors = (
+                    "You may only have a maximum of {} submission{} running at the same "
+                    "time".format(
+                        settings.CONCURRENT_USER_SUBMISSION_LIMIT,
+                        "" if settings.CONCURRENT_USER_SUBMISSION_LIMIT == 1 else "s",
                     )
-                    submission.save()
-
-                    submission.create_backup_copy(submission_text)
-
-                    run_submission.delay(submission.id)
-                    return redirect("assignments:show", assignment.id)
-                else:
-                    text_errors = "Submission too large"
+                )
+            else:
+                text_form = TextSubmissionForm(request.POST)
+                text_errors = (
+                    "You may only have a maximum of {} submission{} running at the same "
+                    "time".format(
+                        settings.CONCURRENT_USER_SUBMISSION_LIMIT,
+                        "" if settings.CONCURRENT_USER_SUBMISSION_LIMIT == 1 else "s",
+                    )
+                )
 
     return render(
         request,
