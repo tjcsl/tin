@@ -240,6 +240,9 @@ SUBMISSION_PYTHON = "python3"
 
 SUBMISSION_NAMESERVERS = ["198.38.16.40", "198.38.16.41"]
 
+# Users may only have this many submissions running
+CONCURRENT_USER_SUBMISSION_LIMIT = 2
+
 try:
     from .secret import *  # noqa
 except ImportError:
