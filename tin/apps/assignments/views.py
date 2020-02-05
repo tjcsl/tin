@@ -9,7 +9,7 @@ from django.utils.text import slugify
 
 from ..auth.decorators import login_required, teacher_or_superuser_required
 from ..courses.models import Course
-from ..submissions.models import Submission, upload_submission_file_path
+from ..submissions.models import Submission
 from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import AssignmentForm, FileSubmissionForm, GraderFileSubmissionForm, TextSubmissionForm
@@ -135,30 +135,23 @@ def upload_grader_view(request, assignment_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
 
-    grader_form = GraderFileSubmissionForm(instance=assignment)
+    grader_form = GraderFileSubmissionForm()
 
     grader_file_errors = ""
 
     if request.method == "POST":
         if request.FILES.get("grader_file"):
             if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                if assignment.grader_file.name:
-                    old_grader_file_path = assignment.grader_file.path  # LEAVE THIS HERE
-
                 grader_form = GraderFileSubmissionForm(
-                    request.POST, request.FILES, instance=assignment
+                    request.POST, request.FILES,
                 )
                 if grader_form.is_valid():
                     try:
-                        request.FILES["grader_file"].read().decode()
+                        grader_text = request.FILES["grader_file"].read().decode()
                     except UnicodeDecodeError:
                         grader_file_errors = "Please don't upload binary files."
                     else:
-                        if "old_grader_file_path" in locals():
-                            if os.path.exists(old_grader_file_path):
-                                os.remove(old_grader_file_path)
-
-                        grader_form.save()
+                        assignment.save_grader_file(grader_text)
 
                         return redirect("assignments:show", assignment.id)
                 else:
@@ -245,9 +238,10 @@ def submit_view(request, assignment_id):
                         except UnicodeDecodeError:
                             file_errors = "Please don't upload binary files."
                         else:
-                            submission = file_form.save(commit=False)
+                            submission = Submission()
                             submission.assignment = assignment
                             submission.student = student
+                            submission.save_file(submission_text)
                             submission.save()
 
                             submission.create_backup_copy(submission_text)
@@ -264,11 +258,7 @@ def submit_view(request, assignment_id):
                         submission = text_form.save(commit=False)
                         submission.assignment = assignment
                         submission.student = student
-                        submission.file.save(
-                            upload_submission_file_path(submission, ""),
-                            ContentFile(text_form.cleaned_data["text"]),
-                            save=False,
-                        )
+                        submission.save_file(submission_text)
                         submission.save()
 
                         submission.create_backup_copy(submission_text)
