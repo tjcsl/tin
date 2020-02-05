@@ -1,5 +1,6 @@
 import csv
 import os
+import subprocess
 
 from django import http
 from django.conf import settings
@@ -7,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 
+from ... import sandboxing
 from ..auth.decorators import login_required, teacher_or_superuser_required
 from ..courses.models import Course
 from ..submissions.models import Submission
@@ -188,7 +190,8 @@ def student_submission_view(request, assignment_id, student_id):
 
     latest_submission_text = None
     if latest_submission:
-        latest_submission_text = latest_submission.file.read().decode()
+        with open(latest_submission.backup_file_path) as f_obj:
+            latest_submission_text = f_obj.read()
 
     return render(
         request,
@@ -351,8 +354,25 @@ def download_log_view(request, assignment_id):
     ) or not os.path.exists(log_file_name):
         raise http.Http404
 
-    with open(log_file_name) as f_obj:
-        data = f_obj.read()
+    assigment_dir = os.path.dirname(log_file_name)
+
+    args = sandboxing.get_assignment_sandbox_args(
+        ["cat", "--", log_file_name],
+        network_access=False,
+        whitelist=[assigment_dir],
+        read_only=[assigment_dir],
+    )
+
+    res = subprocess.run(
+        args,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True,
+        check=True,
+    )
+
+    data = res.stdout
 
     response = http.HttpResponse(data, content_type="text/plain")
     response["Content-Disposition"] = 'attachment; filename="{}-grader.log"'.format(
