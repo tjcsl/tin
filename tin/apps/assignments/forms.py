@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 
 from ..submissions.models import Submission
 from .models import Assignment
@@ -36,17 +37,19 @@ class AssignmentForm(forms.ModelForm):
         widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
 
 
-class GraderFileSubmissionForm(forms.ModelForm):
-    class Meta:
-        model = Assignment
-        fields = ["grader_file"]
+class GraderFileSubmissionForm(forms.Form):
+    grader_file = forms.FileField(
+        max_length=settings.SUBMISSION_SIZE_LIMIT,
+        allow_empty_file=False,
+    )
 
 
-class FileSubmissionForm(forms.ModelForm):
-    class Meta:
-        model = Submission
-        fields = ["file"]
-        help_texts = {"file": "You can also drag files onto this page to submit them."}
+class FileSubmissionForm(forms.Form):
+    file = forms.FileField(
+        max_length=settings.SUBMISSION_SIZE_LIMIT,
+        allow_empty_file=False,
+        help_text="You can also drag files onto this page to submit them."
+    )
 
 
 class TextSubmissionForm(forms.ModelForm):

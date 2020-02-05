@@ -1,10 +1,13 @@
 import os
+import subprocess
 from typing import Optional
 
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+
+from ...sandboxing import get_assignment_sandbox_args
 
 # Create your models here.
 
@@ -109,6 +112,36 @@ class Submission(models.Model):
             return None
 
         return os.path.join(settings.MEDIA_ROOT, "submission-backups", self.file.name)
+
+    def save_file(self, submission_text: str) -> None:
+        # Writing to files in directories not controlled by us without some
+        # form of sandboxing is a security risk. Most notably, users can use symbolic
+        # links to trick you into writing to another file, outside the directory.
+        # they control.
+        # This solution is very hacky, but we don't have another good way of
+        # doing this.
+
+        fname = upload_submission_file_path(self, "")
+
+        self.file = fname
+        self.file.name = fname
+
+        fpath = self.file_path
+
+        args = get_assignment_sandbox_args(
+            ["sh", "-c", 'cat >"$1"', "sh", fpath],
+            network_access=False,
+            whitelist=[os.path.dirname(fpath)],
+        )
+
+        subprocess.run(
+            args,
+            input=submission_text,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            check=True,
+        )
 
     def create_backup_copy(self, submission_text: str) -> None:
         backup_fpath = self.backup_file_path
