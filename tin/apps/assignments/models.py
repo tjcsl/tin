@@ -1,6 +1,11 @@
+import os
+import subprocess
+
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from ...sandboxing import get_assignment_sandbox_args
 from ..submissions.models import Submission
 from ..venvs.models import Virtualenv
 
@@ -60,6 +65,36 @@ class Assignment(models.Model):
 
     def submissions_from_student(self, student):
         return Submission.objects.filter(assignment=self, student=student)
+
+    def save_grader_file(self, grader_text: str) -> None:
+        # Writing to files in directories not controlled by us without some
+        # form of sandboxing is a security risk. Most notably, users can use symbolic
+        # links to trick you into writing to another file, outside the directory.
+        # they control.
+        # This solution is very hacky, but we don't have another good way of
+        # doing this.
+
+        fname = upload_grader_file_path(self, "")
+
+        self.grader_file = fname
+        self.grader_file.name = fname
+
+        fpath = os.path.join(settings.MEDIA_ROOT, self.grader_file.name)
+
+        args = get_assignment_sandbox_args(
+            ["sh", "-c", 'cat >"$1"', "sh", fpath],
+            network_access=False,
+            whitelist=[os.path.dirname(fpath)],
+        )
+
+        subprocess.run(
+            args,
+            input=grader_text,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            check=True,
+        )
 
     @property
     def venv_object_created(self):
