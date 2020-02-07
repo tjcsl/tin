@@ -79,6 +79,8 @@ class Assignment(models.Model):
         self.grader_file = fname
         self.grader_file.name = fname
 
+        os.makedirs(os.path.dirname(fpath), exist_ok=True)
+
         fpath = os.path.join(settings.MEDIA_ROOT, self.grader_file.name)
 
         args = get_assignment_sandbox_args(

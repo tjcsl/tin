@@ -129,6 +129,21 @@ class Submission(models.Model):
         fpath = self.file_path
 
         args = get_assignment_sandbox_args(
+            ["mkdir", "-p", "--", os.path.dirname(fpath)],
+            network_access=False,
+            whitelist=[os.path.dirname(os.path.dirname(fpath))],
+        )
+
+        subprocess.run(
+            args,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            check=True,
+        )
+
+        args = get_assignment_sandbox_args(
             ["sh", "-c", 'cat >"$1"', "sh", fpath],
             network_access=False,
             whitelist=[os.path.dirname(fpath)],
