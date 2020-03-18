@@ -23,14 +23,15 @@ class CourseQuerySet(models.query.QuerySet):
 class Course(models.Model):
     objects = CourseQuerySet.as_manager()
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, blank=False)
     teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
+        blank=False,
         on_delete=models.SET_NULL,
         related_name="taught_courses",
     )
-    students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="courses")
+    students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="courses", blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
 
