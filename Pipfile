@@ -29,6 +29,7 @@ virtualenv = "~=20.0.16"
 channels-redis = "~=2.4.2"
 ipython = "~=7.13.0"
 django-extensions = "~=2.2.9"
+redis = "~=3.4.1"
 
 [pipenv]
 allow_prereleases = true

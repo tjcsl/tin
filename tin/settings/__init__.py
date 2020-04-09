@@ -224,6 +224,9 @@ LOGGING = {
 CELERY_RESULT_BACKEND = "django-db"
 
 
+CELERY_BROKER_URL = "redis://localhost:6379/1"
+
+
 # Sentry settings
 
 SENTRY_PUBLIC_DSN = None
