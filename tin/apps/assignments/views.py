@@ -1,10 +1,10 @@
 import csv
+import datetime
 import os
 import subprocess
 
 from django import http
 from django.conf import settings
-from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 
@@ -15,7 +15,7 @@ from ..submissions.models import Submission
 from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import AssignmentForm, FileSubmissionForm, GraderFileSubmissionForm, TextSubmissionForm
-from .models import Assignment
+from .models import Assignment, CooldownPeriod
 
 
 @login_required
@@ -144,9 +144,7 @@ def upload_grader_view(request, assignment_id):
     if request.method == "POST":
         if request.FILES.get("grader_file"):
             if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                grader_form = GraderFileSubmissionForm(
-                    request.POST, request.FILES,
-                )
+                grader_form = GraderFileSubmissionForm(request.POST, request.FILES,)
                 if grader_form.is_valid():
                     try:
                         grader_text = request.FILES["grader_file"].read().decode()
@@ -230,47 +228,8 @@ def submit_view(request, assignment_id):
 
         if (
             Submission.objects.filter(student=request.user, complete=False).count()
-            < settings.CONCURRENT_USER_SUBMISSION_LIMIT
+            >= settings.CONCURRENT_USER_SUBMISSION_LIMIT
         ):
-            if request.FILES.get("file"):
-                if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                    file_form = FileSubmissionForm(request.POST, request.FILES)
-                    if file_form.is_valid():
-                        try:
-                            submission_text = request.FILES["file"].read().decode()
-                        except UnicodeDecodeError:
-                            file_errors = "Please don't upload binary files."
-                        else:
-                            submission = Submission()
-                            submission.assignment = assignment
-                            submission.student = student
-                            submission.save_file(submission_text)
-                            submission.save()
-
-                            submission.create_backup_copy(submission_text)
-
-                            run_submission.delay(submission.id)
-                            return redirect("assignments:show", assignment.id)
-                else:
-                    file_errors = "That file's too large. Are you sure it's a Python program?"
-            else:
-                text_form = TextSubmissionForm(request.POST)
-                if text_form.is_valid():
-                    submission_text = text_form.cleaned_data["text"]
-                    if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
-                        submission = text_form.save(commit=False)
-                        submission.assignment = assignment
-                        submission.student = student
-                        submission.save_file(submission_text)
-                        submission.save()
-
-                        submission.create_backup_copy(submission_text)
-
-                        run_submission.delay(submission.id)
-                        return redirect("assignments:show", assignment.id)
-                    else:
-                        text_errors = "Submission too large"
-        else:
             if request.FILES.get("file"):
                 file_form = FileSubmissionForm(request.POST, request.FILES)
                 file_errors = (
@@ -289,6 +248,68 @@ def submit_view(request, assignment_id):
                         "" if settings.CONCURRENT_USER_SUBMISSION_LIMIT == 1 else "s",
                     )
                 )
+        elif CooldownPeriod.exists(assignment=assignment, student=student):
+            cooldown_period = CooldownPeriod.objects.get(assignment=assignment, student=student)
+
+            end_delta = cooldown_period.get_time_to_end()
+            # Throw out the microseconds
+            end_delta = datetime.timedelta(days=end_delta.days, seconds=end_delta.seconds)
+
+            if request.FILES.get("file"):
+                file_form = FileSubmissionForm(request.POST, request.FILES)
+                file_errors = (
+                    "You have made too many submissions too quickly. You will be able to re-submit"
+                    "in {}.".format(end_delta)
+                )
+            else:
+                text_form = TextSubmissionForm(request.POST)
+                text_errors = (
+                    "You have made too many submissions too quickly. You will be able to re-submit"
+                    "in {}.".format(end_delta)
+                )
+        else:
+            if request.FILES.get("file"):
+                if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                    file_form = FileSubmissionForm(request.POST, request.FILES)
+                    if file_form.is_valid():
+                        try:
+                            submission_text = request.FILES["file"].read().decode()
+                        except UnicodeDecodeError:
+                            file_errors = "Please don't upload binary files."
+                        else:
+                            submission = Submission()
+                            submission.assignment = assignment
+                            submission.student = student
+                            submission.save_file(submission_text)
+                            submission.save()
+
+                            assignment.check_rate_limit(student)
+
+                            submission.create_backup_copy(submission_text)
+
+                            run_submission.delay(submission.id)
+                            return redirect("assignments:show", assignment.id)
+                else:
+                    file_errors = "That file's too large. Are you sure it's a Python program?"
+            else:
+                text_form = TextSubmissionForm(request.POST)
+                if text_form.is_valid():
+                    submission_text = text_form.cleaned_data["text"]
+                    if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
+                        submission = text_form.save(commit=False)
+                        submission.assignment = assignment
+                        submission.student = student
+                        submission.save_file(submission_text)
+                        submission.save()
+
+                        assignment.check_rate_limit(student)
+
+                        submission.create_backup_copy(submission_text)
+
+                        run_submission.delay(submission.id)
+                        return redirect("assignments:show", assignment.id)
+                    else:
+                        text_errors = "Submission too large"
 
     return render(
         request,
