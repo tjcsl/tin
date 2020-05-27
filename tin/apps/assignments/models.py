@@ -1,9 +1,11 @@
+import datetime
 import os
 import subprocess
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from ...sandboxing import get_assignment_sandbox_args
 from ..submissions.models import Submission
@@ -57,6 +59,16 @@ class Assignment(models.Model):
 
     has_network_access = models.BooleanField(default=False)
 
+    submission_limit_count = models.PositiveIntegerField(
+        default=90, validators=[MinValueValidator(10)],
+    )
+    submission_limit_interval = models.PositiveIntegerField(
+        default=30, validators=[MinValueValidator(10)],
+    )
+    submission_limit_cooldown = models.PositiveIntegerField(
+        default=30, validators=[MinValueValidator(10)],
+    )
+
     def __str__(self):
         return "{} in {}".format(self.name, self.course)
 
@@ -98,6 +110,17 @@ class Assignment(models.Model):
             check=True,
         )
 
+    def check_rate_limit(self, student) -> None:
+        now = timezone.localtime()
+
+        if (
+            Submission.objects.filter(
+                date_submitted__gte=now - datetime.timedelta(minutes=self.submission_limit_interval)
+            ).count()
+            > self.submission_limit_count
+        ):
+            CooldownPeriod.objects.get_or_create(assignment=self, student=student)
+
     @property
     def venv_object_created(self):
         return Virtualenv.objects.filter(assignment=self).exists()
@@ -109,3 +132,42 @@ class Assignment(models.Model):
     @property
     def grader_log_filename(self):
         return self.grader_file.name[:-3] + ".log" if self.grader_file else None
+
+
+class CooldownPeriod(models.Model):
+    assignment = models.ForeignKey(
+        Assignment, on_delete=models.CASCADE, related_name="cooldown_periods",
+    )
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="cooldown_periods",
+    )
+
+    start_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name="unique_assignment_student", fields=["assignment", "student"],
+            ),
+        ]
+
+    @classmethod
+    def exists(cls, assignment: Assignment, student) -> bool:
+        try:
+            obj = cls.objects.get(assignment=assignment, student=student)
+        except cls.DoesNotExist:
+            return False
+        else:
+            if obj.get_time_to_end() < datetime.timedelta():
+                # Ended already
+                obj.delete()
+                return False
+            else:
+                return True
+
+    def get_time_to_end(self) -> datetime.timedelta:
+        return (
+            self.start_time
+            + datetime.timedelta(minutes=self.assignment.submission_limit_cooldown)
+            - timezone.localtime()
+        )
