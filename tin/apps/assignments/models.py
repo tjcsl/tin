@@ -90,6 +90,7 @@ class Assignment(models.Model):
 
         self.grader_file = fname
         self.grader_file.name = fname
+        self.save()
 
         fpath = os.path.join(settings.MEDIA_ROOT, self.grader_file.name)
 
