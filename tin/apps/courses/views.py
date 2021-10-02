@@ -3,8 +3,8 @@ from django.utils import timezone
 
 from ..assignments.models import Assignment
 from ..auth.decorators import login_required, teacher_or_superuser_required
-from .forms import CourseForm
-from .models import Course, StudentImport
+from .forms import CourseForm, PeriodForm
+from .models import Course, Period, StudentImport
 
 
 # Create your views here.
@@ -108,7 +108,7 @@ def students_view(request, course_id):
     """ View students enrolled in a course """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
-    students = course.students.all()
+    students = course.students.all().order_by("last_name")
 
     students_missing_assignments = [
         (
@@ -119,6 +119,7 @@ def students_view(request, course_id):
                     submissions__student=student
                 )
             ],
+            [p.name for p in student.periods.filter(course=course)],
         )
         for student in students
     ]
@@ -131,4 +132,40 @@ def students_view(request, course_id):
             "students_missing_assignments": students_missing_assignments,
             "nav_item": "Students",
         },
+    )
+
+
+@teacher_or_superuser_required
+def add_period_view(request, course_id):
+    """ Creates a period and associated it with a course """
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+
+    if request.method == "POST":
+        form = PeriodForm(course, request.POST)
+        if form.is_valid():
+            period = form.save(commit=True)
+            period.course = course
+            period.save()
+            return redirect("courses:students", course.id)
+    else:
+        form = PeriodForm(course)
+    return render(request, "courses/edit_create.html", {"form": form, "nav_item": "Create period"})
+
+
+@teacher_or_superuser_required
+def edit_period_view(request, course_id, period_id):
+    """ Edits a period """
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+    period = get_object_or_404(Period, id=period_id)
+
+    if request.method == "POST":
+        form = PeriodForm(course, data=request.POST, instance=period)
+        if form.is_valid():
+            period = form.save()
+            return redirect("courses:students", course.id)
+    else:
+        form = PeriodForm(course, instance=period)
+
+    return render(
+        request, "courses/edit_create.html", {"form": form, "course": period, "nav_item": "Edit Period"}
     )

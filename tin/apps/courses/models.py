@@ -42,6 +42,19 @@ class Course(models.Model):
         return "<{} (teacher: {})>".format(self.name, self.teacher)
 
 
+class Period(models.Model):
+    name = models.CharField(max_length=50, blank=False)
+    course = models.ForeignKey(Course, null=True, on_delete=models.CASCADE, related_name="period_set")
+
+    students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="periods", blank=True)
+
+    def __str__(self):
+        return "{} (course: {})".format(self.name, self.course)
+    
+    def __repr__(self):
+        return "{} (course: {})".format(self.name, self.course)
+
+
 class StudentImportUser(models.Model):
     user = models.CharField(max_length=15, unique=True)
 
