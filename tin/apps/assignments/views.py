@@ -7,6 +7,7 @@ from django import http
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
+from django.utils.timezone import now
 
 from ... import sandboxing
 from ..auth.decorators import login_required, teacher_or_superuser_required
@@ -47,13 +48,20 @@ def show_view(request, assignment_id):
         )
     else:
         students_and_submissions = []
+        new_since_last_login = None
+        new_in_last_24 = None
+        teacher_last_login = assignment.course.teacher.last_login if assignment.course.teacher else datetime.datetime(3000, 1, 1)
+        time_24_hours_ago = now() - datetime.timedelta(days=1)
         for student in assignment.course.students.all().order_by("last_name"):
             latest_submission = (
                 Submission.objects.filter(student=student, assignment=assignment)
                 .order_by("-date_submitted")
                 .first()
             )
-            students_and_submissions.append((student, latest_submission))
+            if latest_submission:
+                new_since_last_login = latest_submission.date_submitted > teacher_last_login
+                new_in_last_24 = latest_submission.date_submitted > time_24_hours_ago
+            students_and_submissions.append((student, latest_submission, new_since_last_login, new_in_last_24))
 
         context = {
             "course": assignment.course,
