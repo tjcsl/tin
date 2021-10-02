@@ -47,7 +47,7 @@ def show_view(request, assignment_id):
         )
     else:
         students_and_submissions = []
-        for student in assignment.course.students.all():
+        for student in assignment.course.students.all().order_by("last_name"):
             latest_submission = (
                 Submission.objects.filter(student=student, assignment=assignment)
                 .order_by("-date_submitted")
