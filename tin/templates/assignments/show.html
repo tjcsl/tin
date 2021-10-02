@@ -144,8 +144,10 @@
     <th style="min-width:65px;">On time?</th>
     <th style="min-width:80px;">Completed?</th>
     <th style="min-width:75px;">Grade</th>
+    <th style="min-width:130px;">New since last login?</th>
+    <th style="min-width:130px;">New in last 24 hours?</th>
   </tr>
-  {% for student, submission in students_and_submissions %}
+  {% for student, submission, new_login, new_24 in students_and_submissions %}
   <tr>
     <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }} ({{ student.username }})</a></td>
     {% if submission %}
@@ -159,15 +161,17 @@
         <span class="italic">Not graded</span>
         {% endif %}
       </td>
+      <td>{% if new_login %}Yes{% endif %}</td>
+      <td>{% if new_24 %}Yes{% endif %}</td>
     {% else %}
-      <td colspan="5" class="italic center">No submissions</td>
+      <td colspan="7" class="italic center">No submissions</td>
     {% endif %}
   </tr>
   {% endfor %}
 
   {% if not students_and_submissions %}
     <tr>
-      <td colspan="5" class="italic center">No students in class</td>
+      <td colspan="7" class="italic center">No students in class</td>
     </tr>
   {% endif %}
 </table>
