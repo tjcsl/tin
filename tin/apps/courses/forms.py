@@ -17,6 +17,7 @@ class CourseForm(forms.ModelForm):
         model = Course
         fields = ["name", "students"]
 
+
 class PeriodForm(forms.ModelForm):
     def __init__(self, course, *args, **kwargs):
         super(PeriodForm, self).__init__(*args, **kwargs)
