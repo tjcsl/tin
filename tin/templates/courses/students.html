@@ -7,6 +7,8 @@
 <h2>{{ course.name }}</h2>
 <h3>Students</h3>
 
+<a class="right tin-btn" href="{% url 'courses:add_period' course.id %}">New period</a>
+
 <p>
   Teacher: {{ course.teacher.full_name }}<br>
   {{ course.students.count }} student{{ course.students.count | pluralize }}
@@ -16,11 +18,13 @@
   <tr>
     <th style="min-width:150px">Name</th>
     <th>Missing assignments</th>
+    <th>Period</th>
   </tr>
-  {% for student, missing_assignments in students_missing_assignments %}
+  {% for student, missing_assignments, period in students_missing_assignments %}
     <tr>
       <td>{{ student.full_name }} ({{ student.username }})</td>
       <td>{{ missing_assignments | join:", " }}</td>
+      <td>{% if period %}{% for p in period %}{{ p }}<br>{% endfor %}{% endif %}</td>
     </tr>
   {% endfor %}
 </table>
