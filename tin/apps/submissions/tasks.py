@@ -67,7 +67,8 @@ def run_submission(submission_id):
 """[
                 1:-1
             ].format(
-                submission_path=submission_path, python=python_exe,
+                submission_path=submission_path,
+                python=python_exe,
             )
 
         with open(submission_wrapper_path, "w") as f_obj:

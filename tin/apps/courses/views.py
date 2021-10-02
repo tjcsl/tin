@@ -10,7 +10,7 @@ from .models import Course, Period, StudentImport
 # Create your views here.
 @login_required
 def index_view(request):
-    """ Lists all courses """
+    """Lists all courses"""
     courses = Course.objects.filter_visible(request.user).order_by("-created")
 
     context = {"courses": courses}
@@ -36,7 +36,7 @@ def index_view(request):
 
 @login_required
 def show_view(request, course_id):
-    """ Lists information about a course """
+    """Lists information about a course"""
     course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
 
     assignments = course.assignments.order_by("-due")
@@ -49,7 +49,7 @@ def show_view(request, course_id):
 
 @teacher_or_superuser_required
 def create_view(request):
-    """ Creates a course """
+    """Creates a course"""
     if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
@@ -64,7 +64,7 @@ def create_view(request):
 
 @teacher_or_superuser_required
 def edit_view(request, course_id):
-    """ Edits a course """
+    """Edits a course"""
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
@@ -105,7 +105,7 @@ def import_students_view(request, course_id):
 
 @teacher_or_superuser_required
 def students_view(request, course_id):
-    """ View students enrolled in a course """
+    """View students enrolled in a course"""
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     students = course.students.all().order_by("last_name")
@@ -137,7 +137,7 @@ def students_view(request, course_id):
 
 @teacher_or_superuser_required
 def add_period_view(request, course_id):
-    """ Creates a period and associated it with a course """
+    """Creates a period and associated it with a course"""
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
@@ -154,7 +154,7 @@ def add_period_view(request, course_id):
 
 @teacher_or_superuser_required
 def edit_period_view(request, course_id, period_id):
-    """ Edits a period """
+    """Edits a period"""
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
     period = get_object_or_404(Period, id=period_id)
 
@@ -167,5 +167,7 @@ def edit_period_view(request, course_id, period_id):
         form = PeriodForm(course, instance=period)
 
     return render(
-        request, "courses/edit_create.html", {"form": form, "course": period, "nav_item": "Edit Period"}
+        request,
+        "courses/edit_create.html",
+        {"form": form, "course": period, "nav_item": "Edit Period"},
     )

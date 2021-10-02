@@ -60,13 +60,16 @@ class Assignment(models.Model):
     has_network_access = models.BooleanField(default=False)
 
     submission_limit_count = models.PositiveIntegerField(
-        default=90, validators=[MinValueValidator(10)],
+        default=90,
+        validators=[MinValueValidator(10)],
     )
     submission_limit_interval = models.PositiveIntegerField(
-        default=30, validators=[MinValueValidator(10)],
+        default=30,
+        validators=[MinValueValidator(10)],
     )
     submission_limit_cooldown = models.PositiveIntegerField(
-        default=30, validators=[MinValueValidator(10)],
+        default=30,
+        validators=[MinValueValidator(10)],
     )
 
     def __str__(self):
@@ -137,10 +140,14 @@ class Assignment(models.Model):
 
 class CooldownPeriod(models.Model):
     assignment = models.ForeignKey(
-        Assignment, on_delete=models.CASCADE, related_name="cooldown_periods",
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="cooldown_periods",
     )
     student = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="cooldown_periods",
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="cooldown_periods",
     )
 
     start_time = models.DateTimeField(auto_now_add=True)
@@ -148,7 +155,8 @@ class CooldownPeriod(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                name="unique_assignment_student", fields=["assignment", "student"],
+                name="unique_assignment_student",
+                fields=["assignment", "student"],
             ),
         ]
 
