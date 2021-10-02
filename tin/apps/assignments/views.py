@@ -50,7 +50,11 @@ def show_view(request, assignment_id):
         students_and_submissions = []
         new_since_last_login = None
         new_in_last_24 = None
-        teacher_last_login = assignment.course.teacher.last_login if assignment.course.teacher else datetime.datetime(3000, 1, 1)
+        teacher_last_login = (
+            assignment.course.teacher.last_login
+            if assignment.course.teacher
+            else datetime.datetime(3000, 1, 1)
+        )
         time_24_hours_ago = now() - datetime.timedelta(days=1)
         for student in assignment.course.students.all().order_by("last_name"):
             latest_submission = (
@@ -61,7 +65,9 @@ def show_view(request, assignment_id):
             if latest_submission:
                 new_since_last_login = latest_submission.date_submitted > teacher_last_login
                 new_in_last_24 = latest_submission.date_submitted > time_24_hours_ago
-            students_and_submissions.append((student, latest_submission, new_since_last_login, new_in_last_24))
+            students_and_submissions.append(
+                (student, latest_submission, new_since_last_login, new_in_last_24)
+            )
 
         context = {
             "course": assignment.course,
@@ -87,7 +93,7 @@ def show_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def create_view(request, course_id):
-    """ Creates an assignment """
+    """Creates an assignment"""
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
@@ -113,7 +119,7 @@ def create_view(request, course_id):
 
 @teacher_or_superuser_required
 def edit_view(request, assignment_id):
-    """ Edits an assignment """
+    """Edits an assignment"""
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -140,7 +146,7 @@ def edit_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def upload_grader_view(request, assignment_id):
-    """ Uploads a grader for an assignment """
+    """Uploads a grader for an assignment"""
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -152,7 +158,10 @@ def upload_grader_view(request, assignment_id):
     if request.method == "POST":
         if request.FILES.get("grader_file"):
             if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                grader_form = GraderFileSubmissionForm(request.POST, request.FILES,)
+                grader_form = GraderFileSubmissionForm(
+                    request.POST,
+                    request.FILES,
+                )
                 if grader_form.is_valid():
                     try:
                         grader_text = request.FILES["grader_file"].read().decode()

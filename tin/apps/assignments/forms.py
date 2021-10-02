@@ -52,7 +52,8 @@ class AssignmentForm(forms.ModelForm):
 
 class GraderFileSubmissionForm(forms.Form):
     grader_file = forms.FileField(
-        max_length=settings.SUBMISSION_SIZE_LIMIT, allow_empty_file=False,
+        max_length=settings.SUBMISSION_SIZE_LIMIT,
+        allow_empty_file=False,
     )
 
 
