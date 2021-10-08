@@ -140,6 +140,7 @@
 <table id="submission-list" class="has-border">
   <tr>
     <th style="min-width:125px">Student</th>
+    <th style="min-width:65px;">Period</th>
     <th style="min-width:125px;">Last submission date</th>
     <th style="min-width:65px;">On time?</th>
     <th style="min-width:80px;">Completed?</th>
@@ -147,9 +148,10 @@
     <th style="min-width:130px;">New since last login?</th>
     <th style="min-width:130px;">New in last 24 hours?</th>
   </tr>
-  {% for student, submission, new_login, new_24 in students_and_submissions %}
+  {% for student, period, submission, new_login, new_24 in students_and_submissions %}
   <tr>
     <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }} ({{ student.username }})</a></td>
+    <td>{% if period %}{% for p in period %}<a href="{% url 'courses:edit_period' course.id p.id %}">{{ p.name }}</a><br>{% endfor %}{% endif %}</td>
     {% if submission %}
       <td>{{ submission.date_submitted }}</td>
       <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>

@@ -65,8 +65,9 @@ def show_view(request, assignment_id):
             if latest_submission:
                 new_since_last_login = latest_submission.date_submitted > teacher_last_login
                 new_in_last_24 = latest_submission.date_submitted > time_24_hours_ago
+            period = student.periods.filter(course=assignment.course)
             students_and_submissions.append(
-                (student, latest_submission, new_since_last_login, new_in_last_24)
+                (student, period, latest_submission, new_since_last_login, new_in_last_24)
             )
 
         context = {
@@ -353,12 +354,14 @@ def scores_csv_view(request, assignment_id):
     response["Content-Disposition"] = 'attachment; filename="scores.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(["Name", "Username", "Raw Score", "Formatted Grade"])
+    writer.writerow(["Name", "Username", "Period", "Raw Score", "Formatted Grade"])
 
     for student in assignment.course.students.all():
         row = []
         row.append(student.full_name)
         row.append(student.username)
+        periods = ", ".join([p.name for p in student.periods.filter(course=assignment.course)])
+        row.append(periods)
         latest_submission = (
             Submission.objects.filter(student=student, assignment=assignment)
             .order_by("-date_submitted")
