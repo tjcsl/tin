@@ -24,7 +24,7 @@
     <tr>
       <td>{{ student.full_name }} ({{ student.username }})</td>
       <td>{{ missing_assignments | join:", " }}</td>
-      <td>{% if period %}{% for p in period %}{{ p }}<br>{% endfor %}{% endif %}</td>
+      <td>{% if period %}{% for p in period %}<a href="{% url 'courses:edit_period' course.id p.id %}">{{ p.name }}</a><br>{% endfor %}{% endif %}</td>
     </tr>
   {% endfor %}
 </table>
