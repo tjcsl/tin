@@ -119,7 +119,7 @@ def students_view(request, course_id):
                     submissions__student=student
                 )
             ],
-            [p for p in student.periods.filter(course=course)],
+            student.periods.filter(course=course),
         )
         for student in students
     ]
