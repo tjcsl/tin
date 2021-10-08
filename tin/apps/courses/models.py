@@ -50,6 +50,8 @@ class Period(models.Model):
 
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="periods", blank=True)
 
+    created = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return "{} (course: {})".format(self.name, self.course)
 
