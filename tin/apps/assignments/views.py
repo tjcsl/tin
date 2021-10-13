@@ -2,6 +2,7 @@ import csv
 import datetime
 import os
 import subprocess
+import zipfile
 
 from django import http
 from django.conf import settings
@@ -379,6 +380,29 @@ def scores_csv_view(request, assignment_id):
             row.append("M")
         writer.writerow(row)
 
+    return response
+
+
+@teacher_or_superuser_required
+def download_submissions_view(request, assignment_id):
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
+    name = "assignment_{}_student_submissions".format(assignment.id)
+
+    with zipfile.ZipFile(name, 'w') as zipObj:
+        for student in assignment.course.students.all():
+            latest_submission = (
+                Submission.objects.filter(student=student, assignment=assignment)
+                .order_by("-date_submitted")
+                .first()
+            )
+            if latest_submission is not None:
+                zipObj.write(latest_submission.file.path, arcname="{}.py".format(student.username))
+
+    response = {}
+    response = http.HttpResponse(zipObj, content_type="application/zip")
+    response['Content-Disposition'] = 'attachment; filename={}'.format(name)
     return response
 
 
