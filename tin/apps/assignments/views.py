@@ -1,5 +1,6 @@
 import csv
 import datetime
+from io import BytesIO
 import os
 import subprocess
 import zipfile
@@ -388,22 +389,22 @@ def download_submissions_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
-    name = "assignment_{}_student_submissions".format(assignment.id)
+    name = "assignment_{}_student_submissions.zip".format(assignment.id)
 
-    with zipfile.ZipFile(name, 'w') as zipObj:
-        for student in assignment.course.students.all():
-            latest_submission = (
-                Submission.objects.filter(student=student, assignment=assignment)
-                .order_by("-date_submitted")
-                .first()
-            )
-            if latest_submission is not None:
-                zipObj.write(latest_submission.file.path, arcname="{}.py".format(student.username))
-
-    response = {}
-    response = http.HttpResponse(zipObj, content_type="application/zip")
-    response['Content-Disposition'] = 'attachment; filename={}'.format(name)
-    return response
+    s = BytesIO()
+    zf = zipfile.ZipFile(s, "w")
+    for student in assignment.course.students.all():
+        latest_submission = (
+            Submission.objects.filter(student=student, assignment=assignment)
+            .order_by("-date_submitted")
+            .first()
+        )
+        if latest_submission is not None:
+            zf.write(latest_submission.file.path, arcname="{}.py".format(student.username))
+    zf.close()
+    resp = http.HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
+    resp['Content-Disposition'] = 'attachment; filename={}'.format(name)
+    return resp
 
 
 @teacher_or_superuser_required
