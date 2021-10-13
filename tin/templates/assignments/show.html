@@ -182,6 +182,7 @@
 {% if request.user.is_teacher or request.user.is_superuser %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h3>
   <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Export Scores</a>
+  <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download Submissions</a>
 
   <br>
   <br>
