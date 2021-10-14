@@ -67,6 +67,23 @@
     </li>
   {% endfor %}
   </ul>
+  <h2>All assignments</h2>
+  <ul id="course-list">
+  {% for assignment in all_assignments %}
+    <li>
+      <div class="left">
+        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>
+      </div>
+      <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
+    </li>
+  {% empty %}
+    <li>
+      <div class="left">
+        No assignments.
+      </div>
+    </li>
+  {% endfor %}
+  </ul>
 {% else %}
   <h4><a href="{% url 'docs:index' %}" class="tin-btn fa fa-book"> Tin documentation</a></h4>
 {% endif %}

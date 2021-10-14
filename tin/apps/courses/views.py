@@ -31,6 +31,8 @@ def index_view(request):
             course__students=request.user, due__gte=now, due__lte=now + timezone.timedelta(weeks=1)
         )
 
+        context["all_assignments"] = Assignment.objects.filter(course__students=request.user)
+
     return render(request, "courses/home.html", context)
 
 
