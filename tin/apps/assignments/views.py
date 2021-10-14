@@ -58,7 +58,7 @@ def show_view(request, assignment_id):
             else datetime.datetime(3000, 1, 1)
         )
         time_24_hours_ago = now() - datetime.timedelta(days=1)
-        for student in assignment.course.students.all().order_by("last_name"):
+        for student in assignment.course.students.all().order_by("periods", "last_name"):
             latest_submission = (
                 Submission.objects.filter(student=student, assignment=assignment)
                 .order_by("-date_submitted")
@@ -358,7 +358,7 @@ def scores_csv_view(request, assignment_id):
     writer = csv.writer(response)
     writer.writerow(["Name", "Username", "Period", "Raw Score", "Formatted Grade"])
 
-    for student in assignment.course.students.all():
+    for student in assignment.course.students.all().order_by("periods", "last_name"):
         row = []
         row.append(student.full_name)
         row.append(student.username)

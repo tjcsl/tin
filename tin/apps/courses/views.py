@@ -108,7 +108,7 @@ def students_view(request, course_id):
     """View students enrolled in a course"""
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
-    students = course.students.all().order_by("last_name")
+    students = course.students.all().order_by("periods", "last_name")
 
     students_missing_assignments = [
         (
