@@ -8,6 +8,7 @@ import zipfile
 from django import http
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import now
 
@@ -145,6 +146,17 @@ def edit_view(request, assignment_id):
             "nav_item": "Edit",
         },
     )
+
+
+@teacher_or_superuser_required
+def delete_view(request, assignment_id):
+    """Edits an assignment"""
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
+    course = assignment.course
+    assignment.delete()
+    return redirect(reverse("courses:show", args=(course.id,)))
 
 
 @teacher_or_superuser_required
