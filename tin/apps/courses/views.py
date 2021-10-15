@@ -16,7 +16,7 @@ def index_view(request):
     context = {"courses": courses}
 
     if request.user.is_student:
-        unsubmitted_assignments = Assignment.objects.filter(
+        unsubmitted_assignments = Assignment.objects.filter_visible(request.user).filter(
             course__in=request.user.courses.all()
         ).exclude(submissions__student=request.user)
         courses_with_unsubmitted_assignments = set(
@@ -27,11 +27,11 @@ def index_view(request):
         context["unsubmitted_assignments"] = unsubmitted_assignments
 
         now = timezone.now()
-        context["due_soon_assignments"] = Assignment.objects.filter(
+        context["due_soon_assignments"] = Assignment.objects.filter_visible(request.user).filter(
             course__students=request.user, due__gte=now, due__lte=now + timezone.timedelta(weeks=1)
         )
 
-        context["all_assignments"] = Assignment.objects.filter(course__students=request.user)
+        context["all_assignments"] = Assignment.objects.filter_visible(request.user).filter(course__students=request.user)
 
     return render(request, "courses/home.html", context)
 
@@ -41,7 +41,7 @@ def show_view(request, course_id):
     """Lists information about a course"""
     course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
 
-    assignments = course.assignments.all()
+    assignments = course.assignments.filter_visible(request.user)
     if course.sort_assignments_by == "due_date":
         assignments = assignments.order_by("-due")
     elif course.sort_assignments_by == "name":
@@ -122,7 +122,7 @@ def students_view(request, course_id):
             student,
             [
                 assignment.name
-                for assignment in Assignment.objects.filter(course=course).exclude(
+                for assignment in Assignment.objects.filter_visible(request.user).filter(course=course).exclude(
                     submissions__student=student
                 )
             ],

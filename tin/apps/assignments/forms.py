@@ -18,6 +18,7 @@ class AssignmentForm(forms.ModelForm):
             "description",
             "points_possible",
             "due",
+            "hidden",
             "enable_grader_timeout",
             "grader_timeout",
             "grader_has_network_access",
@@ -27,6 +28,7 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown",
         ]
         labels = {
+            "hidden": "Hide assignment from students?",
             "enable_grader_timeout": "Set a timeout for the grader?",
             "grader_timeout": "Grader timeout (seconds):",
             "grader_has_network_access": "Give the grader internet access?",
