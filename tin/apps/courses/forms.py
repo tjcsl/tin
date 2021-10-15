@@ -15,7 +15,7 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ["name", "students"]
+        fields = ["name", "students", "sort_assignments_by"]
 
 
 class PeriodForm(forms.ModelForm):
