@@ -21,6 +21,8 @@ class CourseQuerySet(models.query.QuerySet):
 
 
 class Course(models.Model):
+    SORT_BY = (("due_date", "Due Date"), ("name", "Name"))
+
     objects = CourseQuerySet.as_manager()
 
     name = models.CharField(max_length=50, blank=False)
@@ -34,6 +36,8 @@ class Course(models.Model):
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="courses", blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
+
+    sort_assignments_by = models.CharField(max_length=30, choices=SORT_BY, default="due_date")
 
     def __str__(self):
         return "{} (teacher: {})".format(self.name, self.teacher)
