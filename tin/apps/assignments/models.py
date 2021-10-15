@@ -19,7 +19,7 @@ class AssignmentQuerySet(models.query.QuerySet):
         elif user.is_teacher:
             return self.filter(course__teacher=user)
         else:
-            return self.filter(course__students=user)
+            return self.filter(course__students=user, hidden=False)
 
     def filter_editable(self, user):
         if user.is_superuser:
@@ -50,6 +50,7 @@ class Assignment(models.Model):
 
     assigned = models.DateTimeField(auto_now_add=True)
     due = models.DateTimeField()
+    hidden = models.BooleanField(default=False)
 
     grader_file = models.FileField(upload_to=upload_grader_file_path, null=True)
     enable_grader_timeout = models.BooleanField(default=True)

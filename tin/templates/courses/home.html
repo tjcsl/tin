@@ -38,7 +38,7 @@
   {% for assignment in unsubmitted_assignments %}
     <li>
       <div class="left">
-        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>
+        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
       </div>
       <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
     </li>
@@ -55,7 +55,7 @@
   {% for assignment in due_soon_assignments %}
     <li>
       <div class="left">
-        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>
+        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
       </div>
       <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
     </li>
@@ -72,7 +72,7 @@
   {% for assignment in all_assignments %}
     <li>
       <div class="left">
-        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>
+        <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
       </div>
       <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
     </li>
