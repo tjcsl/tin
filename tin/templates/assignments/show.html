@@ -187,17 +187,21 @@
   <br>
   <br>
   <h3 style="margin-bottom: 0px">Virtual environment</h3>
-  {% if assignment.venv_fully_created %}
-    <p>A virtual environment has been created for this assignment. You can see details and manage it <a href="{% url 'venvs:show' assignment.venv.id %}">here</a>.</p>
-  {% elif assignment.venv_object_created %}
-    <p>A virtual environment is being created for this assignment. This may take a minute or two (you will have to refresh the page to see the updated status).</p>
-    <p>If this process takes more than a few minutes, please contact the Tin maintainers.</p>
+  {% if assignment.grader_file %}
+    {% if assignment.venv_fully_created %}
+      <p>A virtual environment has been created for this assignment. You can see details and manage it <a href="{% url 'venvs:show' assignment.venv.id %}">here</a>.</p>
+    {% elif assignment.venv_object_created %}
+      <p>A virtual environment is being created for this assignment. This may take a minute or two (you will have to refresh the page to see the updated status).</p>
+      <p>If this process takes more than a few minutes, please contact the Tin maintainers.</p>
+    {% else %}
+      <form method="post" action="{% url 'venvs:create-for-assignment' assignment.id %}">
+        {% csrf_token %}
+        <input type="submit" value="Create a virtual environment for this assignment">
+      </form>
+      <p>If you already clicked this button to create a virtual environment, but you are seeing this message anyway, try waiting a few seconds and refreshing the page. If you still see this message, please contact the Tin maintainers.</p>
+    {% endif %}
   {% else %}
-    <form method="post" action="{% url 'venvs:create-for-assignment' assignment.id %}">
-      {% csrf_token %}
-      <input type="submit" value="Create a virtual environment for this assignment">
-    </form>
-    <p>If you already clicked this button to create a virtual environment, but you are seeing this message anyway, try waiting a few seconds and refreshing the page. If you still see this message, please contact the Tin maintainers.</p>
+    <p>You must upload a grader script before you can create a virtual environment.</p>
   {% endif %}
 {% endif %}
 
