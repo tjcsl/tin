@@ -31,6 +31,7 @@ class AssignmentQuerySet(models.query.QuerySet):
 
 
 def upload_grader_file_path(assignment, filename):  # pylint: disable=unused-argument
+    assert assignment.id is not None
     return "assignment-{}/grader.py".format(assignment.id)
 
 
