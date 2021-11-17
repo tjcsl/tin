@@ -50,7 +50,9 @@ def create_for_assignment_view(request, assignment_id):
         assignment = get_object_or_404(
             Assignment.objects.filter_editable(request.user), id=assignment_id
         )
-        create_virtualenv.delay(assignment.id)
+
+        if assignment.grader_file:
+            create_virtualenv.delay(assignment.id)
 
         return redirect("assignments:show", assignment.id)
 
