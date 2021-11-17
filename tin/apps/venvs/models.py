@@ -52,6 +52,7 @@ class Virtualenv(models.Model):
     )
 
     def get_full_path(self):
+        assert self.assignment.grader_file.name
         return os.path.join(
             settings.MEDIA_ROOT, os.path.dirname(self.assignment.grader_file.name), "venv"
         )
