@@ -248,8 +248,17 @@ def submit_view(request, assignment_id):
 
     student = request.user
 
+    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by(
+        "-date_submitted"
+    )
+    latest_submission = submissions.first() if submissions else None
+    latest_submission_text = None
+    if latest_submission:
+        with open(latest_submission.backup_file_path) as f_obj:
+            latest_submission_text = f_obj.read()
+
     file_form = FileSubmissionForm()
-    text_form = TextSubmissionForm()
+    text_form = TextSubmissionForm(initial={"text": latest_submission_text})
 
     file_errors = ""
     text_errors = ""
