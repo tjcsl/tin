@@ -18,7 +18,7 @@ from ..courses.models import Course
 from ..submissions.models import Submission
 from ..submissions.tasks import run_submission
 from ..users.models import User
-from .forms import AssignmentForm, FileSubmissionForm, FolderForm, GraderFileSubmissionForm, TextSubmissionForm
+from .forms import AssignmentForm, FileSubmissionForm, FolderForm, GraderFileSubmissionForm, SuperuserFileSubmissionForm, TextSubmissionForm
 from .models import Assignment, CooldownPeriod
 
 
@@ -511,3 +511,64 @@ def show_folder_view(request, course_id, folder_id):
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
 
     return render(request, "assignments/show_folder.html", context=context)
+
+
+@teacher_or_superuser_required
+def upload(request):
+    if not request.user.is_superuser:
+        return redirect("courses:index")
+
+    form = SuperuserFileSubmissionForm()
+
+    file_errors = ""
+
+    if request.method == "POST":
+        if request.FILES.get("upload_file"):
+            if request.FILES["upload_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                form = SuperuserFileSubmissionForm(
+                    request.POST,
+                    request.FILES,
+                )
+                if form.is_valid():
+                    assignment = form.cleaned_data["assignment"]
+                    try:
+                        text = request.FILES["upload_file"].read().decode()
+                    except UnicodeDecodeError:
+                        file_errors = "Please don't upload binary files."
+                    else:
+                        fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(assignment.id), request.FILES["upload_file"].name)
+
+                        os.makedirs(os.path.dirname(fpath), exist_ok=True)
+
+                        args = sandboxing.get_assignment_sandbox_args(
+                            ["sh", "-c", 'cat >"$1"', "sh", fpath],
+                            network_access=False,
+                            whitelist=[os.path.dirname(fpath)],
+                        )
+
+                        subprocess.run(
+                            args,
+                            input=text,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE,
+                            universal_newlines=True,
+                            check=True,
+                        )
+
+                        return redirect("courses:index")
+                else:
+                    file_errors = form.errors
+            else:
+                file_errors = "That file's too large. Are you sure it's a Python program?"
+        else:
+            file_errors = "Please select a file."
+
+    return render(
+        request,
+        "assignments/upload.html",
+        {
+            "form": form,
+            "file_errors": file_errors,
+            "nav_item": "Upload file",
+        },
+    )
