@@ -2,20 +2,22 @@ from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
-from .models import Assignment
+from .models import Assignment, Folder
 
 
 class AssignmentForm(forms.ModelForm):
     due = forms.DateTimeInput()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, course, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
+        self.fields["folder"].queryset = Folder.objects.filter(course=course)
 
     class Meta:
         model = Assignment
         fields = [
             "name",
             "description",
+            "folder",
             "points_possible",
             "due",
             "hidden",
@@ -48,6 +50,7 @@ class AssignmentForm(forms.ModelForm):
             "submission.",
             "submission_limit_cooldown": 'This sets the length of the "cooldown" period after a '
             "student exceeds the rate limit for submissions.",
+            "folder": "If blank, assignment will show on the main classroom page."
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
 
@@ -73,3 +76,10 @@ class TextSubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = []
+
+class FolderForm(forms.ModelForm):
+    class Meta:
+        model = Folder
+        fields = [
+            "name",
+        ]
