@@ -18,7 +18,7 @@ from ..courses.models import Course
 from ..submissions.models import Submission
 from ..submissions.tasks import run_submission
 from ..users.models import User
-from .forms import AssignmentForm, FileSubmissionForm, GraderFileSubmissionForm, TextSubmissionForm
+from .forms import AssignmentForm, FileSubmissionForm, FolderForm, GraderFileSubmissionForm, TextSubmissionForm
 from .models import Assignment, CooldownPeriod
 
 
@@ -101,14 +101,14 @@ def create_view(request, course_id):
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
-        assignment_form = AssignmentForm(request.POST)
+        assignment_form = AssignmentForm(course, request.POST)
         if assignment_form.is_valid():
             assignment = assignment_form.save(commit=False)
             assignment.course = course
             assignment.save()
             return redirect("assignments:show", assignment.id)
     else:
-        assignment_form = AssignmentForm()
+        assignment_form = AssignmentForm(course)
     return render(
         request,
         "assignments/edit_create.html",
@@ -128,9 +128,10 @@ def edit_view(request, assignment_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
 
-    assignment_form = AssignmentForm(instance=assignment)
+    course = assignment.course
+    assignment_form = AssignmentForm(course, instance=assignment)
     if request.method == "POST":
-        assignment_form = AssignmentForm(data=request.POST, instance=assignment)
+        assignment_form = AssignmentForm(course, data=request.POST, instance=assignment)
         if assignment_form.is_valid():
             assignment_form.save()
             return redirect("assignments:show", assignment.id)
@@ -467,3 +468,46 @@ def download_log_view(request, assignment_id):
     )
 
     return response
+
+
+@teacher_or_superuser_required
+def create_folder_view(request, course_id):
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+
+    form = FolderForm()
+    if request.method == "POST":
+        form = FolderForm(request.POST)
+        if form.is_valid():
+            folder = form.save(commit=False)
+            folder.course = course
+            folder.save()
+            return redirect("courses:show", course.id)
+    
+    return render(request, "assignments/add_folder.html", context={"form": form})
+
+
+@teacher_or_superuser_required
+def remove_folder_view(request, course_id, folder_id):
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+    folder = get_object_or_404(course.folders.all(), id=folder_id)
+
+    folder.delete()
+    return redirect("courses:show", course.id)
+
+
+@login_required
+def show_folder_view(request, course_id, folder_id):
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+    folder = get_object_or_404(course.folders.all(), id=folder_id)
+
+    assignments = course.assignments.filter(folder=folder).filter_visible(request.user)
+    if course.sort_assignments_by == "due_date":
+        assignments = assignments.order_by("-due")
+    elif course.sort_assignments_by == "name":
+        assignments = assignments.order_by("name")
+    
+    context = {"course": course, "folder": folder, "assignments": assignments}
+    if request.user.is_student:
+        context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
+
+    return render(request, "assignments/show_folder.html", context=context)

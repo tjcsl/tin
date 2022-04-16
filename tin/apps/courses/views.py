@@ -41,13 +41,15 @@ def show_view(request, course_id):
     """Lists information about a course"""
     course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
 
-    assignments = course.assignments.filter_visible(request.user)
+    folders = course.folders.all()
+
+    assignments = course.assignments.filter(folder=None).filter_visible(request.user)
     if course.sort_assignments_by == "due_date":
         assignments = assignments.order_by("-due")
     elif course.sort_assignments_by == "name":
         assignments = assignments.order_by("name")
     
-    context = {"course": course, "assignments": assignments}
+    context = {"course": course, "folders": folders, "assignments": assignments}
     if request.user.is_student:
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
 

@@ -15,6 +15,16 @@ Teacher: <a href="mailto:{{ course.teacher.email }}">{{ course.teacher.full_name
 </p>
 
 <ul id="assignment-list">
+  {% for folder in folders %}
+    <li>
+      <div class="left">
+        <i class="fa fa-folder"></i>    <a href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
+
+<ul id="assignment-list">
 {% for assignment in assignments %}
   <li>
     <div class="left">
@@ -35,6 +45,7 @@ Teacher: <a href="mailto:{{ course.teacher.email }}">{{ course.teacher.full_name
 {% if request.user.is_teacher or request.user.is_superuser %}
   <div>
     <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
+    <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New Folder</a>
     <a class="right tin-btn" href="{% url 'courses:students' course.id %}">View Roster</a>
     <a class="right tin-btn" href="{% url 'courses:import' course.id %}">Import Students</a>
   </div>
