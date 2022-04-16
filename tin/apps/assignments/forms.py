@@ -62,6 +62,14 @@ class GraderFileSubmissionForm(forms.Form):
     )
 
 
+class SuperuserFileSubmissionForm(forms.Form):
+    assignment = forms.ModelChoiceField(queryset=Assignment.objects.all())
+    upload_file = forms.FileField(
+        max_length=settings.SUBMISSION_SIZE_LIMIT,
+        allow_empty_file=False,
+    )
+
+
 class FileSubmissionForm(forms.Form):
     file = forms.FileField(
         max_length=settings.SUBMISSION_SIZE_LIMIT,
