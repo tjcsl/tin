@@ -31,6 +31,10 @@
         {% if course %}
           <li><i class="fa fa-chevron-right"></i></li>
           <li><a href="{% url 'courses:show' course.id %}">{{ course.name }}</a></li>
+          {% if folder %}
+            <li><i class="fa fa-chevron-right"></i></li>
+            <li><a href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a></li>
+          {% endif %}
           {% if assignment %}
             <li><i class="fa fa-chevron-right"></i></li>
             <li><a href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a></li>

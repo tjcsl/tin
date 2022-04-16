@@ -158,7 +158,7 @@ def add_period_view(request, course_id):
             return redirect("courses:students", course.id)
     else:
         form = PeriodForm(course)
-    return render(request, "courses/edit_create.html", {"form": form, "nav_item": "Create period"})
+    return render(request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Create period"})
 
 
 @teacher_or_superuser_required
@@ -178,5 +178,5 @@ def edit_period_view(request, course_id, period_id):
     return render(
         request,
         "courses/edit_create.html",
-        {"form": form, "course": period, "nav_item": "Edit Period"},
+        {"form": form, "course": course, "nav_item": "Edit Period"},
     )

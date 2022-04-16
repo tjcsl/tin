@@ -44,6 +44,7 @@ def show_view(request, assignment_id):
             "assignments/show.html",
             {
                 "course": assignment.course,
+                "folder": assignment.folder,
                 "assignment": assignment,
                 "submissions": submissions,
                 "latest_submission": latest_submission,
@@ -75,6 +76,7 @@ def show_view(request, assignment_id):
 
         context = {
             "course": assignment.course,
+            "folder": assignment.folder,
             "assignment": assignment,
             "students_and_submissions": students_and_submissions,
             "log_file_exists": (
@@ -482,8 +484,14 @@ def create_folder_view(request, course_id):
             folder.course = course
             folder.save()
             return redirect("courses:show", course.id)
+
+    context = {
+        "form": form,
+        "nav_item": "Create folder",
+        "course": course,
+    }
     
-    return render(request, "assignments/add_folder.html", context={"form": form})
+    return render(request, "assignments/add_folder.html", context=context)
 
 
 @teacher_or_superuser_required
