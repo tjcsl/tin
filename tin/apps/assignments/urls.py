@@ -22,4 +22,5 @@ urlpatterns = [
     path("add/folder/<int:course_id>", views.create_folder_view, name="add_folder"),
     path("remove/folder/<int:course_id>/<int:folder_id>", views.remove_folder_view, name="remove_folder"),
     path("folder/<int:course_id>/<int:folder_id>", views.show_folder_view, name="show_folder"),
+    path("upload", views.upload, name="upload_file"),
 ]
