@@ -50,7 +50,7 @@ class AssignmentForm(forms.ModelForm):
             "submission.",
             "submission_limit_cooldown": 'This sets the length of the "cooldown" period after a '
             "student exceeds the rate limit for submissions.",
-            "folder": "If blank, assignment will show on the main classroom page."
+            "folder": "If blank, assignment will show on the main classroom page.",
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
 
@@ -84,6 +84,7 @@ class TextSubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = []
+
 
 class FolderForm(forms.ModelForm):
     class Meta:
