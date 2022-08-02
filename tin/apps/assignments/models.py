@@ -15,9 +15,7 @@ from ..venvs.models import Virtualenv
 class Folder(models.Model):
     name = models.CharField(max_length=50)
 
-    course = models.ForeignKey(
-        "courses.Course", on_delete=models.CASCADE, related_name="folders"
-    )
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="folders")
 
     def __str__(self):
         return self.name
@@ -50,7 +48,9 @@ class Assignment(models.Model):
     objects = AssignmentQuerySet.as_manager()
 
     name = models.CharField(max_length=50)
-    folder = models.ForeignKey(Folder, on_delete=models.SET_NULL, default=None, null=True, blank=True)
+    folder = models.ForeignKey(
+        Folder, on_delete=models.SET_NULL, default=None, null=True, blank=True
+    )
     description = models.CharField(max_length=4096)
 
     course = models.ForeignKey(

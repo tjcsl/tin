@@ -117,8 +117,8 @@ class Virtualenv(models.Model):
         env.update(self.get_activation_env())
 
         args = sandboxing.get_assignment_sandbox_args(
-            ["pip", "freeze"], 
-            network_access=False, 
+            ["pip", "freeze"],
+            network_access=False,
             read_only=[self.get_full_path()],
             extra_firejail_args=["--rlimit-fsize=209715200"],
         )

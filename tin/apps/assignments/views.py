@@ -1,9 +1,9 @@
 import csv
 import datetime
-from io import BytesIO
 import os
 import subprocess
 import zipfile
+from io import BytesIO
 
 from django import http
 from django.conf import settings
@@ -18,7 +18,14 @@ from ..courses.models import Course
 from ..submissions.models import Submission
 from ..submissions.tasks import run_submission
 from ..users.models import User
-from .forms import AssignmentForm, FileSubmissionForm, FolderForm, GraderFileSubmissionForm, SuperuserFileSubmissionForm, TextSubmissionForm
+from .forms import (
+    AssignmentForm,
+    FileSubmissionForm,
+    FolderForm,
+    GraderFileSubmissionForm,
+    SuperuserFileSubmissionForm,
+    TextSubmissionForm,
+)
 from .models import Assignment, CooldownPeriod
 
 
@@ -427,7 +434,7 @@ def download_submissions_view(request, assignment_id):
             zf.write(latest_submission.file.path, arcname="{}.py".format(student.username))
     zf.close()
     resp = http.HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
-    resp['Content-Disposition'] = 'attachment; filename={}'.format(name)
+    resp["Content-Disposition"] = "attachment; filename={}".format(name)
     return resp
 
 
@@ -490,7 +497,7 @@ def create_folder_view(request, course_id):
         "nav_item": "Create folder",
         "course": course,
     }
-    
+
     return render(request, "assignments/add_folder.html", context=context)
 
 
@@ -513,7 +520,7 @@ def show_folder_view(request, course_id, folder_id):
         assignments = assignments.order_by("-due")
     elif course.sort_assignments_by == "name":
         assignments = assignments.order_by("name")
-    
+
     context = {"course": course, "folder": folder, "assignments": assignments}
     if request.user.is_student:
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
@@ -544,7 +551,11 @@ def upload(request):
                     except UnicodeDecodeError:
                         file_errors = "Please don't upload binary files."
                     else:
-                        fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(assignment.id), request.FILES["upload_file"].name)
+                        fpath = os.path.join(
+                            settings.MEDIA_ROOT,
+                            "assignment-{}".format(assignment.id),
+                            request.FILES["upload_file"].name,
+                        )
 
                         os.makedirs(os.path.dirname(fpath), exist_ok=True)
 

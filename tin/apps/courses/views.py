@@ -16,9 +16,11 @@ def index_view(request):
     context = {"courses": courses}
 
     if request.user.is_student:
-        unsubmitted_assignments = Assignment.objects.filter_visible(request.user).filter(
-            course__in=request.user.courses.all()
-        ).exclude(submissions__student=request.user)
+        unsubmitted_assignments = (
+            Assignment.objects.filter_visible(request.user)
+            .filter(course__in=request.user.courses.all())
+            .exclude(submissions__student=request.user)
+        )
         courses_with_unsubmitted_assignments = set(
             assignment.course for assignment in unsubmitted_assignments
         )
@@ -31,7 +33,9 @@ def index_view(request):
             course__students=request.user, due__gte=now, due__lte=now + timezone.timedelta(weeks=1)
         )
 
-        context["all_assignments"] = Assignment.objects.filter_visible(request.user).filter(course__students=request.user)
+        context["all_assignments"] = Assignment.objects.filter_visible(request.user).filter(
+            course__students=request.user
+        )
 
     return render(request, "courses/home.html", context)
 
@@ -48,7 +52,7 @@ def show_view(request, course_id):
         assignments = assignments.order_by("-due")
     elif course.sort_assignments_by == "name":
         assignments = assignments.order_by("name")
-    
+
     context = {"course": course, "folders": folders, "assignments": assignments}
     if request.user.is_student:
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
@@ -124,9 +128,9 @@ def students_view(request, course_id):
             student,
             [
                 assignment.name
-                for assignment in Assignment.objects.filter_visible(request.user).filter(course=course).exclude(
-                    submissions__student=student
-                )
+                for assignment in Assignment.objects.filter_visible(request.user)
+                .filter(course=course)
+                .exclude(submissions__student=student)
             ],
             student.periods.filter(course=course),
         )
@@ -158,7 +162,11 @@ def add_period_view(request, course_id):
             return redirect("courses:students", course.id)
     else:
         form = PeriodForm(course)
-    return render(request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Create period"})
+    return render(
+        request,
+        "courses/edit_create.html",
+        {"form": form, "course": course, "nav_item": "Create period"},
+    )
 
 
 @teacher_or_superuser_required
