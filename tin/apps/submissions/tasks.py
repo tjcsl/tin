@@ -43,7 +43,7 @@ def run_submission(submission_id):
         python_exe = (
             os.path.join(submission.assignment.venv.get_full_path(), "bin/python")
             if submission.assignment.venv_fully_created
-            else settings.SUBMISSION_PYTHON
+            else "/usr/bin/python3.10"
         )
 
         if not settings.DEBUG or shutil.which("bwrap") is not None:
