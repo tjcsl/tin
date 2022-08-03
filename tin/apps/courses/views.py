@@ -53,7 +53,12 @@ def show_view(request, course_id):
     elif course.sort_assignments_by == "name":
         assignments = assignments.order_by("name")
 
-    context = {"course": course, "folders": folders, "assignments": assignments, "period": course.period_set.filter(students=request.user)}
+    context = {
+        "course": course,
+        "folders": folders,
+        "assignments": assignments,
+        "period": course.period_set.filter(students=request.user),
+    }
     if request.user.is_student:
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
 
@@ -130,7 +135,13 @@ def manage_students_view(request, course_id):
         form = StudentForm(instance=course)
 
     return render(
-        request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Edit",}
+        request,
+        "courses/edit_create.html",
+        {
+            "form": form,
+            "course": course,
+            "nav_item": "Edit",
+        },
     )
 
 
@@ -143,12 +154,29 @@ def students_view(request, course_id):
         periods = course.period_set.order_by("teacher")
     else:
         periods = course.period_set.filter(teacher=request.user)
-    
+
     students_by_period = [
-        [p, [[s, [assignment.name for assignment in Assignment.objects.filter_visible(request.user).filter(course=course).exclude(submissions__student=s)]] for s in p.students.all()]] for p in periods
+        [
+            p,
+            [
+                [
+                    s,
+                    [
+                        assignment.name
+                        for assignment in Assignment.objects.filter_visible(request.user)
+                        .filter(course=course)
+                        .exclude(submissions__student=s)
+                    ],
+                ]
+                for s in p.students.all()
+            ],
+        ]
+        for p in periods
     ]
 
-    students_with_period = [[s, course.period_set.filter(students=s)] for s in course.students.all()]
+    students_with_period = [
+        [s, course.period_set.filter(students=s)] for s in course.students.all()
+    ]
 
     return render(
         request,

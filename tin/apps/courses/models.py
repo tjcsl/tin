@@ -39,10 +39,14 @@ class Course(models.Model):
     sort_assignments_by = models.CharField(max_length=30, choices=SORT_BY, default="due_date")
 
     def __str__(self):
-        return "{} (teachers: {})".format(self.name, ", ".join((str(t) for t in self.teacher.all())))
+        return "{} (teachers: {})".format(
+            self.name, ", ".join((str(t) for t in self.teacher.all()))
+        )
 
     def __repr__(self):
-        return "<{} (teachers: {})>".format(self.name, ", ".join((str(t) for t in self.teacher.all())))
+        return "<{} (teachers: {})>".format(
+            self.name, ", ".join((str(t) for t in self.teacher.all()))
+        )
 
     def get_teacher_str(self):
         return ", ".join((t.last_name for t in self.teacher.all()))

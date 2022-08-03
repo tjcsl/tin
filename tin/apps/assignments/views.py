@@ -527,7 +527,12 @@ def show_folder_view(request, course_id, folder_id):
     elif course.sort_assignments_by == "name":
         assignments = assignments.order_by("name")
 
-    context = {"course": course, "folder": folder, "assignments": assignments, "period": course.period_set.filter(students=request.user)}
+    context = {
+        "course": course,
+        "folder": folder,
+        "assignments": assignments,
+        "period": course.period_set.filter(students=request.user),
+    }
     if request.user.is_student:
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
 
