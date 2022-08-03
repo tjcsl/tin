@@ -64,7 +64,7 @@ def show_view(request, assignment_id):
         teacher_last_login = request.user.last_login
         time_24_hours_ago = now() - datetime.timedelta(days=1)
 
-        if request.user in assignment.course.teacher.all():
+        if request.user not in assignment.course.teacher.all():
             periods_of_user = assignment.course.period_set.all()
         else:
             periods_of_user = assignment.course.period_set.filter(teacher=request.user)
