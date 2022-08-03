@@ -30,7 +30,7 @@ class SubmissionJsonConsumer(JsonWebsocketConsumer):
 
         if (
             self.submission.assignment.course not in self.user.courses.all()
-            and self.user != self.submission.assignment.course.teacher
+            and self.user not in self.submission.assignment.course.teacher.all()
             and not self.user.is_superuser
         ):
             self.close()
