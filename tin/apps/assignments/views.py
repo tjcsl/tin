@@ -61,13 +61,19 @@ def show_view(request, assignment_id):
         students_and_submissions = []
         new_since_last_login = None
         new_in_last_24 = None
-        teacher_last_login = (
-            assignment.course.teacher.last_login
-            if assignment.course.teacher
-            else datetime.datetime(3000, 1, 1)
-        )
+        teacher_last_login = request.user.last_login
         time_24_hours_ago = now() - datetime.timedelta(days=1)
-        for student in assignment.course.students.all().order_by("periods", "last_name"):
+
+        if request.user in assignment.course.teacher.all():
+            periods_of_user = assignment.course.period_set.all()
+        else:
+            periods_of_user = assignment.course.period_set.filter(teacher=request.user)
+        students_of_user = set()
+        for period in periods_of_user:
+            for student in period.students.all():
+                students_of_user.add(student)
+
+        for student in students_of_user:
             latest_submission = (
                 Submission.objects.filter(student=student, assignment=assignment)
                 .order_by("-date_submitted")
@@ -447,7 +453,7 @@ def download_log_view(request, assignment_id):
     log_file_name = os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
 
     if (
-        request.user != assignment.course.teacher and not request.user.is_superuser
+        request.user not in assignment.course.teacher.all() and not request.user.is_superuser
     ) or not os.path.exists(log_file_name):
         raise http.Http404
 
@@ -521,7 +527,7 @@ def show_folder_view(request, course_id, folder_id):
     elif course.sort_assignments_by == "name":
         assignments = assignments.order_by("name")
 
-    context = {"course": course, "folder": folder, "assignments": assignments}
+    context = {"course": course, "folder": folder, "assignments": assignments, "period": course.period_set.filter(students=request.user)}
     if request.user.is_student:
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
 

@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from ..assignments.models import Assignment
 from ..auth.decorators import login_required, teacher_or_superuser_required
-from .forms import CourseForm, PeriodForm
+from .forms import CourseForm, PeriodForm, StudentForm
 from .models import Course, Period, StudentImport
 
 
@@ -53,7 +53,7 @@ def show_view(request, course_id):
     elif course.sort_assignments_by == "name":
         assignments = assignments.order_by("name")
 
-    context = {"course": course, "folders": folders, "assignments": assignments}
+    context = {"course": course, "folders": folders, "assignments": assignments, "period": course.period_set.filter(students=request.user)}
     if request.user.is_student:
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
 
@@ -117,33 +117,48 @@ def import_students_view(request, course_id):
 
 
 @teacher_or_superuser_required
+def manage_students_view(request, course_id):
+    """Add/remove students from a coure"""
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+
+    if request.method == "POST":
+        form = StudentForm(data=request.POST, instance=course)
+        if form.is_valid():
+            course = form.save()
+            return redirect("courses:students", course.id)
+    else:
+        form = StudentForm(instance=course)
+
+    return render(
+        request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Edit",}
+    )
+
+
+@teacher_or_superuser_required
 def students_view(request, course_id):
     """View students enrolled in a course"""
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
-    students = course.students.all().order_by("periods", "last_name")
-
-    students_missing_assignments = [
-        (
-            student,
-            [
-                assignment.name
-                for assignment in Assignment.objects.filter_visible(request.user)
-                .filter(course=course)
-                .exclude(submissions__student=student)
-            ],
-            student.periods.filter(course=course),
-        )
-        for student in students
+    if request.user.is_superuser:
+        periods = course.period_set.order_by("teacher")
+    else:
+        periods = course.period_set.filter(teacher=request.user)
+    
+    students_by_period = [
+        [p, [[s, [assignment.name for assignment in Assignment.objects.filter_visible(request.user).filter(course=course).exclude(submissions__student=s)]] for s in p.students.all()]] for p in periods
     ]
+
+    students_with_period = [[s, course.period_set.filter(students=s)] for s in course.students.all()]
 
     return render(
         request,
         "courses/students.html",
         {
             "course": course,
-            "students_missing_assignments": students_missing_assignments,
+            "students": students_with_period,
+            "students_by_period": students_by_period,
             "nav_item": "Students",
+            "period": course.period_set.filter(students=request.user),
         },
     )
 

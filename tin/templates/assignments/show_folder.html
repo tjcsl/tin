@@ -10,6 +10,12 @@
   {% endif %}
 </div>
 
+<p>
+  Teachers: {{ course.get_teacher_str }}<br>
+  {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
+  {{ course.students.count }} student{{ course.students.count | pluralize }}
+</p>
+
 <ul id="assignment-list">
 {% if assignments %}
   {% for assignment in assignments %}
@@ -31,6 +37,14 @@
   <span class="italic">No assignments in this folder</span>
 {% endif %}
 </ul>
+
+{% if request.user.is_teacher or request.user.is_superuser %}
+  <div>
+    <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
+    <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New Folder</a>
+    <a class="right tin-btn" href="{% url 'courses:students' course.id %}">Manage Roster</a>
+  </div>
+{% endif %}
 
 {% endblock %}
 

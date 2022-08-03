@@ -6,28 +6,47 @@
 
 <h2>{{ course.name }}</h2>
 <h3>Students</h3>
-
-<a class="right tin-btn" href="{% url 'courses:add_period' course.id %}">New period</a>
-
 <p>
-  Teacher: {{ course.teacher.full_name }}<br>
+  Teachers: {{ course.get_teacher_str }}<br>
+  {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
   {{ course.students.count }} student{{ course.students.count | pluralize }}
 </p>
 
-<table id="student-list" class="has-border">
-  <tr>
-    <th style="min-width:150px">Name</th>
-    <th>Missing assignments</th>
-    <th>Period</th>
-  </tr>
-  {% for student, missing_assignments, period in students_missing_assignments %}
+<a class="right tin-btn" href="{% url 'courses:add_period' course.id %}">New period</a>
+<a class="right tin-btn" href="{% url 'courses:import' course.id %}">Import Students</a>
+<a class="right tin-btn" href="{% url 'courses:manage_students' course.id %}">Manage Students</a>
+<br><br>
+<hr>
+{% for period, student_list in students_by_period %}
+  <h4>Period: {{ period }}</h4>
+  <p><a class="right tin-btn" href="{% url 'courses:edit_period' course.id period.id %}">Edit period</a></p>
+  <table id="student-list" class="has-border">
     <tr>
-      <td>{{ student.full_name }} ({{ student.username }})</td>
-      <td>{{ missing_assignments | join:", " }}</td>
-      <td>{% if period %}{% for p in period %}<a href="{% url 'courses:edit_period' course.id p.id %}">{{ p.name }}</a><br>{% endfor %}{% endif %}</td>
+      <th style="min-width:150px">Name</th>
+      <th>Missing Assignments</th>
     </tr>
-  {% endfor %}
-</table>
+    {% for student, missing in student_list %}
+      <tr>
+        <td>{{ student.full_name }} ({{ student.username }})</td>
+        <td>{{ missing | join:", "}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <br>
+{% endfor %}
+<hr>
+  <h4>All Students in Course</h4>
+  <table id="student-list" class="has-border">
+    <tr>
+      <th style="min-width:150px">Name</th>
+      <th>Period</th>
+    </tr>
+    {% for student, period in students %}
+      <tr>
+        <td>{{ student.full_name }} ({{ student.username }})</td>
+        <td>{{ period | join:", " }}</td>
+      </tr>
+    {% endfor %}
+  </table>
 
 {% endblock %}
-

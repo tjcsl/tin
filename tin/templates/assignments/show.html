@@ -135,7 +135,7 @@
 </table>
 {% endif %}
 
-{% if not request.user.is_student or request.user.is_superuser %}
+{% if request.user.is_teacher or request.user.is_superuser %}
 <h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_student %}All submissions{% else %}Submissions{% endif %}</h3>
 <table id="submission-list" class="has-border">
   <tr>
@@ -151,7 +151,7 @@
   {% for student, period, submission, new_login, new_24 in students_and_submissions %}
   <tr>
     <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }} ({{ student.username }})</a></td>
-    <td>{% if period %}{% for p in period %}<a href="{% url 'courses:edit_period' course.id p.id %}">{{ p.name }}</a><br>{% endfor %}{% endif %}</td>
+    <td>{{ period | join:", "}}</td>
     {% if submission %}
       <td>{{ submission.date_submitted }}</td>
       <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
