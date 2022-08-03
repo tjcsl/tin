@@ -242,7 +242,7 @@ SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000  # 1 MB
 DEVELOPER_EMAIL = "tin@tjhsst.edu"
 
 # Spaces and special characters may not be handled correctly
-SUBMISSION_PYTHON = "python3"
+SUBMISSION_PYTHON = "python3.10"
 
 SUBMISSION_NAMESERVERS = ["198.38.16.40", "198.38.16.41"]
 
