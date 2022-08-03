@@ -16,16 +16,13 @@
 </p>
 
 <ul id="assignment-list">
-  {% for folder in folders %}
-    <li>
-      <div class="left">
-        <i class="fa fa-folder"></i>    <a href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a>
-      </div>
-    </li>
-  {% endfor %}
-</ul>
-
-<ul id="assignment-list">
+{% for folder in folders %}
+  <li>
+    <div class="left">
+      <i class="fa fa-folder"></i>    <a href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a>
+    </div>
+  </li>
+{% endfor %}
 {% for assignment in assignments %}
   <li>
     <div class="left">

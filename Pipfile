@@ -24,12 +24,16 @@ celery = "~=4.4.7"
 django-celery-results = "~=1.2.1"
 psycopg2 = "~=2.9.3"
 sentry-sdk = "~=1.9.0"
-aiocontextvars = {version = "~=0.2.2",markers = "python_version < '3.7'"}
 virtualenv = "~=20.16.2"
 channels-redis = "~=3.0.1"
 ipython = "~=7.17.0"
 django-extensions = "~=3.0.5"
 redis = "~=3.5.3"
+psycopg2-binary = "*"
 
 [pipenv]
 allow_prereleases = true
+
+[packages.aiocontextvars]
+version = "~=0.2.2"
+markers = "python_version < '3.7'"
