@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class VenvsConfig(AppConfig):
-    name = "venvs"
+    name = "tin.apps.venvs"

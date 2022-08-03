@@ -10,7 +10,8 @@
   {% endif %}
 </div>
 <p>
-Teacher: <a href="mailto:{{ course.teacher.email }}">{{ course.teacher.full_name }}</a><br>
+  Teachers: {{ course.get_teacher_str }}<br>
+  {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
   {{ course.students.count }} student{{ course.students.count | pluralize }}
 </p>
 
@@ -46,8 +47,7 @@ Teacher: <a href="mailto:{{ course.teacher.email }}">{{ course.teacher.full_name
   <div>
     <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
     <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New Folder</a>
-    <a class="right tin-btn" href="{% url 'courses:students' course.id %}">View Roster</a>
-    <a class="right tin-btn" href="{% url 'courses:import' course.id %}">Import Students</a>
+    <a class="right tin-btn" href="{% url 'courses:students' course.id %}">Manage Roster</a>
   </div>
 {% endif %}
 

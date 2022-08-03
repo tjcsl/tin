@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 
 
@@ -26,11 +27,9 @@ class Course(models.Model):
     objects = CourseQuerySet.as_manager()
 
     name = models.CharField(max_length=50, blank=False)
-    teacher = models.ForeignKey(
+    teacher = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        null=True,
         blank=False,
-        on_delete=models.SET_NULL,
         related_name="taught_courses",
     )
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="courses", blank=True)
@@ -40,10 +39,13 @@ class Course(models.Model):
     sort_assignments_by = models.CharField(max_length=30, choices=SORT_BY, default="due_date")
 
     def __str__(self):
-        return "{} (teacher: {})".format(self.name, self.teacher)
+        return "{} (teachers: {})".format(self.name, ", ".join((str(t) for t in self.teacher.all())))
 
     def __repr__(self):
-        return "<{} (teacher: {})>".format(self.name, self.teacher)
+        return "<{} (teachers: {})>".format(self.name, ", ".join((str(t) for t in self.teacher.all())))
+
+    def get_teacher_str(self):
+        return ", ".join((t.last_name for t in self.teacher.all()))
 
 
 class Period(models.Model):
@@ -52,15 +54,23 @@ class Period(models.Model):
         Course, null=True, on_delete=models.CASCADE, related_name="period_set"
     )
 
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="taught_periods",
+    )
+
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="periods", blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return "{} (course: {})".format(self.name, self.course)
+        return "{} ({})".format(self.name, self.teacher.last_name)
 
     def __repr__(self):
-        return "{} (course: {})".format(self.name, self.course)
+        return "{} (course: {}, teacher: {})".format(self.name, self.course, self.teacher)
 
 
 class StudentImportUser(models.Model):

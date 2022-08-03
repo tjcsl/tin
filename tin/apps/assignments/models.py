@@ -5,6 +5,7 @@ import subprocess
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from ...sandboxing import get_assignment_sandbox_args
@@ -26,7 +27,7 @@ class AssignmentQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         elif user.is_teacher:
-            return self.filter(course__teacher=user)
+            return self.filter(Q(course__teacher=user) | Q(course__students=user))
         else:
             return self.filter(course__students=user, hidden=False)
 

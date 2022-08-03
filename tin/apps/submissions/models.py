@@ -4,6 +4,7 @@ from typing import Optional
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.text import slugify
 
@@ -17,7 +18,7 @@ class SubmissionQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         elif user.is_teacher:
-            return self.filter(assignment__course__teacher=user)
+            return self.filter(Q(assignment__course__teacher=user) | Q(assignment__course__students=user))
         else:
             return self.filter(student=user)
 
