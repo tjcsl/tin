@@ -18,7 +18,9 @@ class SubmissionQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         elif user.is_teacher:
-            return self.filter(Q(assignment__course__teacher=user) | Q(assignment__course__students=user))
+            return self.filter(
+                Q(assignment__course__teacher=user) | Q(assignment__course__students=user)
+            )
         else:
             return self.filter(student=user)
 
