@@ -16,27 +16,23 @@
 <a class="right tin-btn" href="{% url 'courses:import' course.id %}">Import Students</a>
 <a class="right tin-btn" href="{% url 'courses:manage_students' course.id %}">Manage Students</a>
 <br><br><hr><br>
-<a class="right tin-btn" href="{% url 'courses:students' course.id %}">All</a>
+<a class="right tin-btn" style="color:#4fab4f !important" href="{% url 'courses:students' course.id %}">All</a>
 {% for period in period_set %}
-    <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %} href="{% url 'courses:students' course.id %}?period={{ period.id }}">{{ period }}</a>
+    <a class="right tin-btn" href="{% url 'courses:students' course.id %}?period={{ period.id }}">{{ period }}</a>
 {% endfor %}
 <br><br>
-<h4>Period: {{ active_period }}</h4>
-<p><a class="right tin-btn" href="{% url 'courses:edit_period' course.id active_period.id %}">Edit period</a></p>
+<h4>All Students in Course</h4>
 <table id="student-list" class="has-border">
   <tr>
     <th style="min-width:150px">Name</th>
-    <th>Missing Assignments</th>
+    <th>Period</th>
   </tr>
-  {% for student, missing in students %}
+  {% for student, period in students.items %}
     <tr>
       <td>{{ student.full_name }} ({{ student.username }})</td>
-      <td>{{ missing | join:", "}}</td>
+      <td>{{ period | join:", " }}</td>
     </tr>
   {% endfor %}
-  {% if not students %}
-    <td colspan="2" class="italic center">No students</td>
-  {% endif %}
 </table>
 
 {% endblock %}

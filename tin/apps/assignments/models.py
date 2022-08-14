@@ -26,18 +26,14 @@ class AssignmentQuerySet(models.query.QuerySet):
     def filter_visible(self, user):
         if user.is_superuser:
             return self.all()
-        elif user.is_teacher:
-            return self.filter(Q(course__teacher=user) | Q(course__students=user))
         else:
-            return self.filter(course__students=user, hidden=False)
+            return self.filter(Q(course__teacher=user) | Q(course__students=user, hidden=False))
 
     def filter_editable(self, user):
         if user.is_superuser:
             return self.all()
-        elif user.is_teacher:
-            return self.filter(course__teacher=user)
         else:
-            return self.none()
+            return self.filter(course__teacher=user)
 
 
 def upload_grader_file_path(assignment, filename):  # pylint: disable=unused-argument

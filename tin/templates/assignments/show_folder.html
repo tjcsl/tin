@@ -5,14 +5,14 @@
 {% block main %}
 <div class="header">
   <h2 class="left">{{ course.name }}: {{ folder.name }}</h2>
-  {% if request.user.is_teacher or request.user.is_superuser %}
+  {% if is_teacher or request.user.is_superuser %}
     <a class="right tin-btn" href="{% url 'assignments:remove_folder' course.id folder.id %}">Remove Folder</a>
   {% endif %}
 </div>
 
 <p>
   Teachers: {{ course.get_teacher_str }}<br>
-  {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
+  {% if period and is_student %}Your Period: {{ period | join:", " }}{% endif %}<br>
   {{ course.students.count }} student{{ course.students.count | pluralize }}
 </p>
 
@@ -38,7 +38,7 @@
 {% endif %}
 </ul>
 
-{% if request.user.is_teacher or request.user.is_superuser %}
+{% if is_teacher or request.user.is_superuser %}
   <div>
     <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
     <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New Folder</a>

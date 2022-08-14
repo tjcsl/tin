@@ -18,16 +18,14 @@
 {% block main %}
 <div class="header">
   <h2 class="left">{{ assignment.name }}</h2>
-  {% if request.user.is_teacher or request.user.is_superuser %}
+  {% if is_teacher or request.user.is_superuser %}
     <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
     <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"{% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload grader</a>
     {% if log_file_exists %}
       <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
     {% endif %}
   {% endif %}
-  {% if request.user.is_student %}
-    <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
-  {% endif %}
+  <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
 </div>
 {{ assignment.description|linebreaks }}
 
@@ -40,7 +38,7 @@
     <th>Due:</th>
     <td>{{ assignment.due }}</td>
   </tr>
-  {% if request.user.is_student %}
+  {% if is_student %}
     <tr>
       <th>Grade:</th>
       {% if latest_submission %}
@@ -58,51 +56,48 @@
   {% endif %}
 </table>
 
-{% if request.user.is_student %}
-  {% if latest_submission %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
-    <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
-      <div class="result">
-        <code><pre>{{ latest_submission.grader_output }}</pre></code>
-     </div>
-     {% if not latest_submission.complete %}
-       <div class="continuous-progress"></div>
-     {% endif %}
+{% if latest_submission %}
+  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
+  <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
+    <div class="result">
+      <code><pre>{{ latest_submission.grader_output }}</pre></code>
     </div>
-    {% if request.user.is_superuser %}
-      <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
-      <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
-        <div class="result">
-          <code><pre>{{ latest_submission.grader_errors }}</pre></code>
-       </div>
-       {% if not latest_submission.complete %}
-         <div class="continuous-progress"></div>
-       {% endif %}
-      </div>
-    {% endif %}
-
     {% if not latest_submission.complete %}
-      <div class="conditional-result incomplete italic" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"{% if not latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
-        <br>
-        This submission is in the process of being killed. This should complete within 15 seconds. If it does not, please email the tin administrators.
+      <div class="continuous-progress"></div>
+    {% endif %}
+  </div>
+  {% if request.user.is_superuser or is_teacher %}
+    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
+    <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
+      <div class="result">
+        <code><pre>{{ latest_submission.grader_errors }}</pre></code>
       </div>
-
-      {% if not latest_submission.kill_requested %}
-        <div class="conditional-result incomplete" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested" data-result-negate="true"{% if latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
-          <br>
-          {% csrf_token %}
-          <form method="post" action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path|urlencode }}">
-            {% csrf_token %}
-            <input type="submit" value="Kill submission">
-          </form>
-        </div>
+      {% if not latest_submission.complete %}
+        <div class="continuous-progress"></div>
       {% endif %}
+    </div>
+  {% endif %}
+
+  {% if not latest_submission.complete %}
+    <div class="conditional-result incomplete italic" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"{% if not latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
+      <br>
+      This submission is in the process of being killed. This should complete within 15 seconds. If it does not, please email the tin administrators.
+    </div>
+
+    {% if not latest_submission.kill_requested %}
+      <div class="conditional-result incomplete" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested" data-result-negate="true"{% if latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
+        <br>
+        {% csrf_token %}
+        <form method="post" action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path|urlencode }}">
+          {% csrf_token %}
+          <input type="submit" value="Kill submission">
+        </form>
+      </div>
     {% endif %}
   {% endif %}
 {% endif %}
 
-{% if request.user.is_student %}
-<h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser %}Your submissions{% else %}Submissions{% endif %}</h3>
+<h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}Your submissions{% else %}Submissions{% endif %}</h3>
 <table id="submission-list" class="has-border">
   <tr>
     <th style="min-width:125px;">Date submitted</th>
@@ -133,10 +128,14 @@
     </tr>
   {% endif %}
 </table>
-{% endif %}
 
-{% if request.user.is_teacher or request.user.is_superuser %}
-<h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_student %}All submissions{% else %}Submissions{% endif %}</h3>
+{% if is_teacher or request.user.is_superuser %}
+<h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}All submissions{% else %}Submissions{% endif %}</h3>
+<a class="right tin-btn" {% if active_period == "all" %}style="color:#4fab4f !important"{% endif %} href="{% url 'assignments:show' assignment.id %}?period=all">All</a>
+{% for period in period_set %}
+    <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %} href="{% url 'assignments:show' assignment.id %}?period={{ period.id }}">{{ period }}</a>
+{% endfor %}
+<br><br>
 <table id="submission-list" class="has-border">
   <tr>
     <th style="min-width:125px">Student</th>
@@ -145,7 +144,7 @@
     <th style="min-width:65px;">On time?</th>
     <th style="min-width:80px;">Completed?</th>
     <th style="min-width:75px;">Grade</th>
-    <th style="min-width:130px;">New since last login?</th>
+    <th style="min-width:130px;">New since your last login?</th>
     <th style="min-width:130px;">New in last 24 hours?</th>
   </tr>
   {% for student, period, submission, new_login, new_24 in students_and_submissions %}
@@ -173,16 +172,16 @@
 
   {% if not students_and_submissions %}
     <tr>
-      <td colspan="7" class="italic center">No students in class</td>
+      <td colspan="8" class="italic center">No students in class</td>
     </tr>
   {% endif %}
 </table>
 {% endif %}
 
-{% if request.user.is_teacher or request.user.is_superuser %}
+{% if is_teacher or request.user.is_superuser %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h3>
-  <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Export Scores</a>
-  <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download Submissions</a>
+  <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Export Scores for All</a>
+  <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download Submissions for All</a>
 
   <br>
   <br>

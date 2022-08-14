@@ -58,8 +58,10 @@ def show_view(request, course_id):
         "folders": folders,
         "assignments": assignments,
         "period": course.period_set.filter(students=request.user),
+        "is_student": course.is_student_in_course(request.user),
+        "is_teacher": request.user in course.teacher.all(),
     }
-    if request.user.is_student:
+    if course.is_student_in_course(request.user):
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
 
     return render(request, "courses/show.html", context)
@@ -127,6 +129,13 @@ def manage_students_view(request, course_id):
     if request.method == "POST":
         form = StudentForm(data=request.POST, instance=course)
         if form.is_valid():
+            current_students = course.students.all()
+            new_students = set(form.cleaned_data["students"])
+
+            for student in (s for s in current_students if s not in new_students):
+                for period in student.periods.filter(course=course):
+                    period.students.remove(student)
+
             course = form.save()
             return redirect("courses:students", course.id)
     else:
@@ -148,45 +157,51 @@ def students_view(request, course_id):
     """View students enrolled in a course"""
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
-    if request.user.is_superuser:
-        periods = course.period_set.order_by("teacher")
+    period = request.GET.get("period", "all")
+    period_set = course.period_set.order_by("teacher", "name")
+
+    if period == "all":
+        students = {s: course.period_set.filter(students=s) for s in course.students.all()}
+
+        return render(
+            request,
+            "courses/students-all.html",
+            {
+                "nav_item": "Students",
+                "course": course,
+                "period": course.period_set.filter(students=request.user),
+                "students": students,
+                "period_set": period_set,
+            }
+        )
     else:
-        periods = course.period_set.filter(teacher=request.user)
+        active_period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
 
-    students_by_period = [
-        [
-            p,
+        students = [
             [
+                s,
                 [
-                    s,
-                    [
-                        assignment.name
-                        for assignment in Assignment.objects.filter_visible(request.user)
-                        .filter(course=course)
-                        .exclude(submissions__student=s)
-                    ],
-                ]
-                for s in p.students.all()
-            ],
+                    assignment.name
+                    for assignment in Assignment.objects.filter_visible(request.user)
+                    .filter(course=course)
+                    .exclude(submissions__student=s)
+                ],
+            ]
+            for s in active_period.students.all()
         ]
-        for p in periods
-    ]
 
-    students_with_period = [
-        [s, course.period_set.filter(students=s)] for s in course.students.all()
-    ]
-
-    return render(
-        request,
-        "courses/students.html",
-        {
-            "course": course,
-            "students": students_with_period,
-            "students_by_period": students_by_period,
-            "nav_item": "Students",
-            "period": course.period_set.filter(students=request.user),
-        },
-    )
+        return render(
+            request,
+            "courses/students.html",
+            {
+                "nav_item": "Students",
+                "course": course,
+                "period": course.period_set.filter(students=request.user),
+                "students": students,
+                "period_set": period_set,
+                "active_period": active_period,
+            },
+        )
 
 
 @teacher_or_superuser_required
