@@ -14,7 +14,7 @@ from django.utils.timezone import now
 
 from ... import sandboxing
 from ..auth.decorators import login_required, teacher_or_superuser_required
-from ..courses.models import Course
+from ..courses.models import Course, Period
 from ..submissions.models import Submission
 from ..submissions.tasks import run_submission
 from ..users.models import User
@@ -39,8 +39,9 @@ def show_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_visible(request.user), id=assignment_id
     )
+    course = assignment.course
 
-    if request.user.is_student and not request.user.is_superuser:
+    if course.is_only_student_in_course(request.user):
         submissions = Submission.objects.filter(
             student=request.user, assignment=assignment
         ).order_by("-date_submitted")
@@ -55,6 +56,8 @@ def show_view(request, assignment_id):
                 "assignment": assignment,
                 "submissions": submissions,
                 "latest_submission": latest_submission,
+                "is_student": course.is_student_in_course(request.user),
+                "is_teacher": request.user in course.teacher.all(),
             },
         )
     else:
@@ -64,16 +67,20 @@ def show_view(request, assignment_id):
         teacher_last_login = request.user.last_login
         time_24_hours_ago = now() - datetime.timedelta(days=1)
 
-        if request.user not in assignment.course.teacher.all():
-            periods_of_user = assignment.course.period_set.all()
-        else:
-            periods_of_user = assignment.course.period_set.filter(teacher=request.user)
-        students_of_user = set()
-        for period in periods_of_user:
-            for student in period.students.all():
-                students_of_user.add(student)
+        period = request.GET.get("period", "")
+        period_set = course.period_set.order_by("teacher", "name")
 
-        for student in students_of_user:
+        if period == "" and request.user in assignment.course.teacher.all():
+            period = assignment.course.period_set.filter(teacher=request.user).order_by("name")[0].id
+        
+        if period == "all":
+            active_period = "all"
+            student_list = course.students.all()
+        else:
+            active_period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
+            student_list = active_period.students.all()
+        
+        for student in student_list:
             latest_submission = (
                 Submission.objects.filter(student=student, assignment=assignment)
                 .order_by("-date_submitted")
@@ -88,7 +95,7 @@ def show_view(request, assignment_id):
             )
 
         context = {
-            "course": assignment.course,
+            "course": course,
             "folder": assignment.folder,
             "assignment": assignment,
             "students_and_submissions": students_and_submissions,
@@ -98,14 +105,17 @@ def show_view(request, assignment_id):
                     os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
                 )
             ),
+            "is_student": course.is_student_in_course(request.user),
+            "is_teacher": request.user in course.teacher.all(),
+            "period_set": period_set,
+            "active_period": active_period,
         }
 
-        if request.user.is_student:
-            submissions = Submission.objects.filter(
-                student=request.user, assignment=assignment
-            ).order_by("-date_submitted")
-            latest_submission = submissions.first() if submissions else None
-            context.update({"submissions": submissions, "latest_submission": latest_submission})
+        submissions = Submission.objects.filter(
+            student=request.user, assignment=assignment
+        ).order_by("-date_submitted")
+        latest_submission = submissions.first() if submissions else None
+        context.update({"submissions": submissions, "latest_submission": latest_submission})
 
         return render(request, "assignments/show.html", context)
 
@@ -258,9 +268,6 @@ def submit_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_visible(request.user), id=assignment_id
     )
-
-    if not request.user.is_student:
-        raise http.Http404
 
     student = request.user
 
@@ -532,8 +539,10 @@ def show_folder_view(request, course_id, folder_id):
         "folder": folder,
         "assignments": assignments,
         "period": course.period_set.filter(students=request.user),
+        "is_student": course.is_student_in_course(request.user),
+        "is_teacher": request.user in course.teacher.all(),
     }
-    if request.user.is_student:
+    if course.is_student_in_course(request.user):
         context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
 
     return render(request, "assignments/show_folder.html", context=context)
