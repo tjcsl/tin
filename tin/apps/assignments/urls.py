@@ -16,6 +16,10 @@ urlpatterns = [
     path("<int:assignment_id>/delete", views.delete_view, name="delete"),
     path("<int:assignment_id>/grader/upload", views.upload_grader_view, name="upload_grader"),
     path("<int:assignment_id>/submit", views.submit_view, name="submit"),
+    path("<int:assignment_id>/quiz", views.quiz_view, name="quiz"),
+    path("<int:assignment_id>/end", views.quiz_end_view, name="quiz_end"),
+    path("<int:assignment_id>/clear/<int:user_id>", views.clear_view, name="clear"),
+    path("<int:assignment_id>/report", views.report_view, name="report"),
     path("<int:assignment_id>/scores_csv", views.scores_csv_view, name="scores_csv"),
     path(
         "<int:assignment_id>/download_submissions",

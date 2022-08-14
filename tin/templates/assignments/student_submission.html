@@ -118,5 +118,31 @@
   {% endif %}
 </table>
 
+{% if assignment.is_quiz %}
+  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Quiz Log Messages</h3>
+  <a class="right tin-btn" href="{% url 'assignments:clear' assignment.id request.user.id %}">Reset Quiz</a>
+  <br><br>
+  <table id="submission-list" class="has-border">
+    <tr>
+      <th style="min-width:125px;">Date</th>
+      <th style="min-width:200px;">Content</th>
+      <th style="min-width:80px;">Severity</th>
+    </tr>
+    {% for message in log_messages %}
+      <tr>
+        <td>{{ message.date }}</td>
+        <td>{{ message.content }}</td>
+        <td>{{ message.severity }}</td>
+      </tr>
+    {% endfor %}
+
+    {% if not log_messages %}
+      <tr>
+        <td colspan="4" class="italic center">No log messages</td>
+      </tr>
+    {% endif %}
+  </table>
+{% endif %}
+
 {% endblock %}
 

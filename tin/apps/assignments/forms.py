@@ -1,3 +1,4 @@
+from email.policy import default
 from django import forms
 from django.conf import settings
 
@@ -6,7 +7,10 @@ from .models import Assignment, Folder
 
 
 class AssignmentForm(forms.ModelForm):
+    QUIZ_ACTIONS = (("-1", "No"), ("0", "Log only"), ("1", "Color Change"), ("2", "Lock"))
+
     due = forms.DateTimeInput()
+    is_quiz = forms.ChoiceField(choices=QUIZ_ACTIONS)
 
     def __init__(self, course, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
@@ -38,6 +42,7 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_count": "Rate limit count",
             "submission_limit_interval": "Rate limit interval (minutes)",
             "submission_limit_cooldown": "Rate limit cooldown period (minutes)",
+            "is_quiz": "Is this a quiz?"
         }
         help_texts = {
             "grader_has_network_access": 'If unset, this effectively disables "Give submissions'
@@ -51,6 +56,7 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown": 'This sets the length of the "cooldown" period after a '
             "student exceeds the rate limit for submissions.",
             "folder": "If blank, assignment will show on the main classroom page.",
+            "is_quiz": "If set, Tin will take the selected action if a student clicks off of the submission page."
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
 

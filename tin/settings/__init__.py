@@ -251,6 +251,9 @@ SUBMISSION_NAMESERVERS = ["198.38.16.40", "198.38.16.41"]
 # Users may only have this many submissions running
 CONCURRENT_USER_SUBMISSION_LIMIT = 2
 
+# Threshold for locking quizzes
+QUIZ_LOCK_THRESHOLD = 5
+
 try:
     from .secret import *  # noqa
 except ImportError:

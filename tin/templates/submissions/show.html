@@ -13,7 +13,7 @@ Submission #{{ submission_number }}
 {% endblock %}
 
 {% block main %}
-{% is_student %}
+{% if is_student %}
 <h2>{{ assignment.name }}: Submission #{{ submission_number }}</h2>
 {{ assignment.description|linebreaks }}
 

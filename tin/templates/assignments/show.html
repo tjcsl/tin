@@ -17,7 +17,7 @@
 
 {% block main %}
 <div class="header">
-  <h2 class="left">{{ assignment.name }}</h2>
+  <h2 class="left">{% if assignment.is_quiz %}QUIZ: {% endif %}{{ assignment.name }}</h2>
   {% if is_teacher or request.user.is_superuser %}
     <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
     <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"{% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload grader</a>
@@ -25,7 +25,13 @@
       <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
     {% endif %}
   {% endif %}
-  <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
+  {% if assignment.is_quiz %}
+    {% if not quiz_locked %}
+      <a class="right tin-btn" onclick="return confirm('You are about to begin an assessment. All activity on your device will be monitored. If you open any other tabs or attempt to use any other applications, your quiz might be stopped and your teacher will be notified.')" href="{% url 'assignments:quiz' assignment.id %}">Begin Quiz</a>
+    {% endif %}
+  {% else %}
+    <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
+  {% endif %}
 </div>
 {{ assignment.description|linebreaks }}
 
@@ -136,24 +142,23 @@
     <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %} href="{% url 'assignments:show' assignment.id %}?period={{ period.id }}">{{ period }}</a>
 {% endfor %}
 <br><br>
+{% if assignment.is_quiz %}
 <table id="submission-list" class="has-border">
   <tr>
     <th style="min-width:125px">Student</th>
     <th style="min-width:65px;">Period</th>
     <th style="min-width:125px;">Last submission date</th>
-    <th style="min-width:65px;">On time?</th>
     <th style="min-width:80px;">Completed?</th>
     <th style="min-width:75px;">Grade</th>
-    <th style="min-width:130px;">New since your last login?</th>
-    <th style="min-width:130px;">New in last 24 hours?</th>
+    <th style="min-width:80px;">Quiz ended by user?</th>
+    <th style="min-width:80px;">Quiz issues?</th>
   </tr>
-  {% for student, period, submission, new_login, new_24 in students_and_submissions %}
+  {% for student, period, submission, ended, quiz_issues in students_and_submissions %}
   <tr>
     <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }} ({{ student.username }})</a></td>
     <td>{{ period | join:", "}}</td>
     {% if submission %}
       <td>{{ submission.date_submitted }}</td>
-      <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
       <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
       <td>
         {% if submission.has_been_graded %}
@@ -162,20 +167,62 @@
         <span class="italic">Not graded</span>
         {% endif %}
       </td>
-      <td>{% if new_login %}Yes{% endif %}</td>
-      <td>{% if new_24 %}Yes{% endif %}</td>
     {% else %}
-      <td colspan="7" class="italic center">No submissions</td>
+      <td colspan="3" class="italic center">No submissions</td>
     {% endif %}
+    <td>{% if ended %}Yes{% else %}No{% endif %}</td>
+    <td>{% if quiz_issues %}Yes{% else %}No{% endif %}</td>
   </tr>
   {% endfor %}
 
   {% if not students_and_submissions %}
     <tr>
-      <td colspan="8" class="italic center">No students in class</td>
+      <td colspan="7" class="italic center">No students in class</td>
     </tr>
   {% endif %}
-</table>
+</table>  
+{% else %}
+  <table id="submission-list" class="has-border">
+    <tr>
+      <th style="min-width:125px">Student</th>
+      <th style="min-width:65px;">Period</th>
+      <th style="min-width:125px;">Last submission date</th>
+      <th style="min-width:65px;">On time?</th>
+      <th style="min-width:80px;">Completed?</th>
+      <th style="min-width:75px;">Grade</th>
+      <th style="min-width:130px;">New since your last login?</th>
+      <th style="min-width:130px;">New in last 24 hours?</th>
+    </tr>
+    {% for student, period, submission, new_login, new_24 in students_and_submissions %}
+    <tr>
+      <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }} ({{ student.username }})</a></td>
+      <td>{{ period | join:", "}}</td>
+      {% if submission %}
+        <td>{{ submission.date_submitted }}</td>
+        <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+        <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+        <td>
+          {% if submission.has_been_graded %}
+          {{ submission.formatted_grade }}
+          {% else %}
+          <span class="italic">Not graded</span>
+          {% endif %}
+        </td>
+        <td>{% if new_login %}Yes{% endif %}</td>
+        <td>{% if new_24 %}Yes{% endif %}</td>
+      {% else %}
+        <td colspan="7" class="italic center">No submissions</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+
+    {% if not students_and_submissions %}
+      <tr>
+        <td colspan="8" class="italic center">No students in class</td>
+      </tr>
+    {% endif %}
+  </table>
+{% endif %}
 {% endif %}
 
 {% if is_teacher or request.user.is_superuser %}
