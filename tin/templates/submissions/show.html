@@ -4,7 +4,7 @@
 
 {% block title %}
 Turn-In: {{ course.name }}: {{ assignment.name }}:
-{% if not request.user.is_student %}{{ student.username }}:{% endif %}
+{% if is_teacher or request.user.is_superuser %}{{ student.username }}:{% endif %}
 Submission #{{ submission_number }}
 {% endblock %}
 
@@ -13,7 +13,7 @@ Submission #{{ submission_number }}
 {% endblock %}
 
 {% block main %}
-{% if request.user.is_student %}
+{% is_student %}
 <h2>{{ assignment.name }}: Submission #{{ submission_number }}</h2>
 {{ assignment.description|linebreaks }}
 
@@ -97,7 +97,7 @@ Submission #{{ submission_number }}
   {% endif %}
 </div>
 
-{% if not request.user.is_student or request.user.is_superuser %}
+{% if is_teacher or request.user.is_superuser %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
   <div id="grader-errors" class="code-result{% if not submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="grader_errors">
     <div class="result">

@@ -24,7 +24,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=70)
     email = models.CharField(max_length=50)
     is_staff = models.BooleanField(default=False)
-    is_sysadmin = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)

@@ -22,7 +22,7 @@ class StudentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(StudentForm, self).__init__(*args, **kwargs)
         self.fields["students"] = UserMultipleChoiceField(
-            queryset=User.objects.filter(is_student=True).order_by("last_name", "first_name"),
+            queryset=User.objects.order_by("last_name", "first_name"),
             required=True,
         )
 

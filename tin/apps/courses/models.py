@@ -1,23 +1,20 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 
 class CourseQuerySet(models.query.QuerySet):
     def filter_visible(self, user):
         if user.is_superuser:
             return self.all()
-        elif user.is_teacher:
-            return self.filter(teacher=user)
         else:
-            return self.filter(students=user)
+            return self.filter(Q(teacher=user) | Q(students=user))
 
     def filter_editable(self, user):
         if user.is_superuser:
             return self.all()
-        elif user.is_teacher:
-            return self.filter(teacher=user)
         else:
-            return self.none()
+            return self.filter(teacher=user)
 
 
 class Course(models.Model):
@@ -49,6 +46,14 @@ class Course(models.Model):
 
     def get_teacher_str(self):
         return ", ".join((t.last_name for t in self.teacher.all()))
+
+
+    def is_student_in_course(self, user):
+        return user in self.students.all()
+
+
+    def is_only_student_in_course(self, user):
+        return not user.is_superuser and user in self.students.all()
 
 
 class Period(models.Model):
