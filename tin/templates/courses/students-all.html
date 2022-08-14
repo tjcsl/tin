@@ -33,6 +33,9 @@
       <td>{{ period | join:", " }}</td>
     </tr>
   {% endfor %}
+  {% if not students %}
+    <td colspan="2" class="italic center">No students</td>
+  {% endif %}
 </table>
 
 {% endblock %}

@@ -70,16 +70,20 @@ def show_view(request, assignment_id):
         period = request.GET.get("period", "")
         period_set = course.period_set.order_by("teacher", "name")
 
-        if period == "" and request.user in assignment.course.teacher.all():
-            period = assignment.course.period_set.filter(teacher=request.user).order_by("name")[0].id
-        
-        if period == "all":
-            active_period = "all"
-            student_list = course.students.all()
+        if course.period_set.exists():
+            if period == "" and request.user in course.teacher.all():
+                period = course.period_set.filter(teacher=request.user).order_by("name")[0].id
+            
+            if period == "all":
+                active_period = "all"
+                student_list = course.students.all()
+            else:
+                active_period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
+                student_list = active_period.students.all()
         else:
-            active_period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
-            student_list = active_period.students.all()
-        
+            student_list = course.students.all()
+            active_period = "all"
+
         for student in student_list:
             latest_submission = (
                 Submission.objects.filter(student=student, assignment=assignment)
