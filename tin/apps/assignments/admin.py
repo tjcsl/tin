@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Assignment
+from .models import Assignment, LogMessage, Quiz
 
 
 class AssignmentAdmin(admin.ModelAdmin):
@@ -8,3 +8,5 @@ class AssignmentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Assignment, AssignmentAdmin)
+admin.site.register(LogMessage)
+admin.site.register(Quiz)

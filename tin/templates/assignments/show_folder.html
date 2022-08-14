@@ -21,7 +21,7 @@
   {% for assignment in assignments %}
     <li>
       <div class="left">
-        <a href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
+        <a href="{% url 'assignments:show' assignment.id %}">{% if assignment.is_quiz %}QUIZ: {% endif %}{{ assignment.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
         {% if assignment in unsubmitted_assignments %}
           <br>
           <span class="italic">Not submitted</span>

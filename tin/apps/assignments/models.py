@@ -3,6 +3,7 @@ import os
 import subprocess
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
@@ -148,6 +149,13 @@ class Assignment(models.Model):
     def grader_log_filename(self):
         return self.grader_file.name[:-3] + ".log" if self.grader_file else None
 
+    @property
+    def is_quiz(self):
+        try:
+            return self.quiz
+        except:
+            return False
+
 
 class CooldownPeriod(models.Model):
     assignment = models.ForeignKey(
@@ -191,3 +199,42 @@ class CooldownPeriod(models.Model):
             + datetime.timedelta(minutes=self.assignment.submission_limit_cooldown)
             - timezone.localtime()
         )
+
+
+class Quiz(models.Model):
+    QUIZ_ACTIONS = (("0", "Log only"), ("1", "Color Change"), ("2", "Lock"))
+
+    assignment = models.OneToOneField(
+        Assignment,
+        on_delete=models.CASCADE,
+    )
+    action = models.CharField(max_length=1, choices=QUIZ_ACTIONS)
+
+    def __str__(self):
+        return f"Quiz for {self.assignment}"
+
+    def locked_for_student(self, student):
+        return sum(lm.severity for lm in self.log_messages.filter(student=student)) >= settings.QUIZ_LOCK_THRESHOLD
+
+    def ended_for_student(self, student):
+        return self.log_messages.filter(student=student, content="Ended quiz").exists()
+
+
+class LogMessage(models.Model):
+    quiz = models.ForeignKey(
+        Quiz,
+        on_delete=models.CASCADE,
+        related_name="log_messages"
+    )
+    student = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name="log_messages"
+    )
+
+    date = models.DateTimeField(auto_now_add=True)
+    content = models.CharField(max_length=100)
+    severity = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.content} for {self.quiz}"

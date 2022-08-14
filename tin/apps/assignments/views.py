@@ -1,5 +1,6 @@
 import csv
 import datetime
+import json
 import os
 import subprocess
 import zipfile
@@ -7,6 +8,7 @@ from io import BytesIO
 
 from django import http
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.text import slugify
@@ -26,7 +28,7 @@ from .forms import (
     SuperuserFileSubmissionForm,
     TextSubmissionForm,
 )
-from .models import Assignment, CooldownPeriod
+from .models import Assignment, CooldownPeriod, LogMessage, Quiz
 
 
 @login_required
@@ -40,6 +42,7 @@ def show_view(request, assignment_id):
         Assignment.objects.filter_visible(request.user), id=assignment_id
     )
     course = assignment.course
+    quiz_locked = assignment.is_quiz and (assignment.quiz.locked_for_student(request.user) or assignment.quiz.ended_for_student(request.user))
 
     if course.is_only_student_in_course(request.user):
         submissions = Submission.objects.filter(
@@ -58,6 +61,7 @@ def show_view(request, assignment_id):
                 "latest_submission": latest_submission,
                 "is_student": course.is_student_in_course(request.user),
                 "is_teacher": request.user in course.teacher.all(),
+                "quiz_locked": quiz_locked,
             },
         )
     else:
@@ -85,18 +89,24 @@ def show_view(request, assignment_id):
             active_period = "all"
 
         for student in student_list:
+            period = student.periods.filter(course=assignment.course)
             latest_submission = (
                 Submission.objects.filter(student=student, assignment=assignment)
                 .order_by("-date_submitted")
                 .first()
             )
-            if latest_submission:
-                new_since_last_login = latest_submission.date_submitted > teacher_last_login
-                new_in_last_24 = latest_submission.date_submitted > time_24_hours_ago
-            period = student.periods.filter(course=assignment.course)
-            students_and_submissions.append(
-                (student, period, latest_submission, new_since_last_login, new_in_last_24)
-            )
+
+            if not assignment.is_quiz:
+                if latest_submission:
+                    new_since_last_login = latest_submission.date_submitted > teacher_last_login
+                    new_in_last_24 = latest_submission.date_submitted > time_24_hours_ago
+                students_and_submissions.append(
+                    (student, period, latest_submission, new_since_last_login, new_in_last_24)
+                )
+            else:
+                students_and_submissions.append(
+                    (student, period, latest_submission, assignment.quiz.ended_for_student(student), assignment.quiz.locked_for_student(student))
+                )
 
         context = {
             "course": course,
@@ -113,6 +123,7 @@ def show_view(request, assignment_id):
             "is_teacher": request.user in course.teacher.all(),
             "period_set": period_set,
             "active_period": active_period,
+            "quiz_locked": quiz_locked,
         }
 
         submissions = Submission.objects.filter(
@@ -135,6 +146,14 @@ def create_view(request, course_id):
             assignment = assignment_form.save(commit=False)
             assignment.course = course
             assignment.save()
+
+            quiz_type = assignment_form.cleaned_data["is_quiz"]
+            if quiz_type != "-1":
+                Quiz.objects.create(
+                    assignment = assignment,
+                    action = quiz_type
+                )
+            
             return redirect("assignments:show", assignment.id)
     else:
         assignment_form = AssignmentForm(course)
@@ -158,11 +177,33 @@ def edit_view(request, assignment_id):
     )
 
     course = assignment.course
-    assignment_form = AssignmentForm(course, instance=assignment)
+    initial_is_quiz = -1
+    try:
+        initial_is_quiz = assignment.quiz.action
+    except:
+        pass
+    assignment_form = AssignmentForm(course, instance=assignment, initial={"is_quiz": initial_is_quiz})
     if request.method == "POST":
         assignment_form = AssignmentForm(course, data=request.POST, instance=assignment)
         if assignment_form.is_valid():
             assignment_form.save()
+
+            quiz_type = assignment_form.cleaned_data["is_quiz"]
+            if quiz_type == "-1":
+                try:
+                    assignment.quiz.delete()
+                except:
+                    pass
+            else:
+                try:
+                    assignment.quiz.action = quiz_type
+                    assignment.save()
+                except:
+                    Quiz.objects.create(
+                        assignment = assignment,
+                        action = quiz_type
+                    )
+
             return redirect("assignments:show", assignment.id)
 
     return render(
@@ -180,7 +221,7 @@ def edit_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def delete_view(request, assignment_id):
-    """Edits an assignment"""
+    """Deletes an assignment"""
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -248,6 +289,8 @@ def student_submission_view(request, assignment_id, student_id):
     )
     latest_submission = submissions.first() if submissions else None
 
+    log_messages = assignment.quiz.log_messages.filter(student=request.user).order_by("date") if assignment.is_quiz else None
+
     latest_submission_text = None
     if latest_submission:
         with open(latest_submission.backup_file_path) as f_obj:
@@ -263,6 +306,7 @@ def student_submission_view(request, assignment_id, student_id):
             "submissions": submissions,
             "latest_submission": latest_submission,
             "latest_submission_text": latest_submission_text,
+            "log_messages": log_messages,
         },
     )
 
@@ -272,6 +316,9 @@ def submit_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_visible(request.user), id=assignment_id
     )
+
+    if assignment.is_quiz:
+        raise http.Http404
 
     student = request.user
 
@@ -615,3 +662,134 @@ def upload(request):
             "nav_item": "Upload file",
         },
     )
+
+
+@login_required
+def quiz_view(request, assignment_id):
+    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+
+    if not assignment.is_quiz or assignment.quiz.locked_for_student(request.user) or assignment.quiz.ended_for_student(request.user):
+        raise http.Http404
+
+    student = request.user
+
+    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by("-date_submitted")
+    latest_submission = submissions.first() if submissions else None
+
+    latest_submission_text = None
+    if latest_submission:
+        with open(latest_submission.backup_file_path) as f_obj:
+            latest_submission_text = f_obj.read()
+
+    text_form = TextSubmissionForm(initial={"text": latest_submission_text})
+    text_errors = ""
+
+    if request.method == "POST":
+        if assignment.grader_file is None:
+            return redirect("assignments:show", assignment.id)
+
+        if (Submission.objects.filter(student=request.user, complete=False).count() >= settings.CONCURRENT_USER_SUBMISSION_LIMIT):
+            text_form = TextSubmissionForm(request.POST)
+            text_errors = (
+                "You may only have a maximum of {} submission{} running at the same "
+                "time".format(
+                    settings.CONCURRENT_USER_SUBMISSION_LIMIT,
+                    "" if settings.CONCURRENT_USER_SUBMISSION_LIMIT == 1 else "s",
+                )
+            )
+        elif CooldownPeriod.exists(assignment=assignment, student=student):
+            cooldown_period = CooldownPeriod.objects.get(assignment=assignment, student=student)
+
+            end_delta = cooldown_period.get_time_to_end()
+            # Throw out the microseconds
+            end_delta = datetime.timedelta(days=end_delta.days, seconds=end_delta.seconds)
+
+            text_form = TextSubmissionForm(request.POST)
+            text_errors = (
+                "You have made too many submissions too quickly. You will be able to re-submit"
+                "in {}.".format(end_delta)
+            )
+        else:
+            text_form = TextSubmissionForm(request.POST)
+            if text_form.is_valid():
+                submission_text = text_form.cleaned_data["text"]
+                if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
+                    submission = text_form.save(commit=False)
+                    submission.assignment = assignment
+                    submission.student = student
+                    submission.save_file(submission_text)
+                    submission.save()
+
+                    assignment.check_rate_limit(student)
+
+                    submission.create_backup_copy(submission_text)
+
+                    run_submission.delay(submission.id)
+                    return redirect("assignments:quiz", assignment.id)
+                else:
+                    text_errors = "Submission too large"
+
+    return render(
+        request,
+        "assignments/quiz.html",
+        {
+            "nav_item": "Take Quiz",
+            "course": assignment.course,
+            "assignment": assignment,
+            "latest_submission": latest_submission,
+            "text_form": text_form,
+            "text_errors": text_errors,
+        },
+    )
+
+
+@login_required
+def report_view(request, assignment_id):
+    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+
+    content = request.GET.get("content", "")
+    severity = int(request.GET.get("severity", 0))
+
+    LogMessage.objects.create(
+        quiz=assignment.quiz,
+        student=request.user,
+        content=content,
+        severity=severity
+    )
+
+    if assignment.quiz.locked_for_student(request.user):
+        if assignment.quiz.action == "0":
+            resp = "no action"
+        elif assignment.quiz.action == "1":
+            resp = "color"
+        else:
+            resp = "lock"
+    else:
+        resp = "no action"
+
+    json_data = json.dumps(resp)
+    return http.HttpResponse(json_data, content_type="application/json")
+
+
+@login_required
+def quiz_end_view(request, assignment_id):
+    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+
+    LogMessage.objects.create(
+        quiz=assignment.quiz,
+        student=request.user,
+        content="Ended quiz",
+        severity=0
+    )
+
+    return redirect("assignments:show", assignment.id)
+
+
+@teacher_or_superuser_required
+def clear_view(request, assignment_id, user_id):
+    assignment = get_object_or_404(Assignment.objects.filter_editable(request.user), id=assignment_id)
+    user = get_object_or_404(get_user_model(), id=user_id)
+
+    assignment.quiz.log_messages.filter(student=user).delete()
+
+    return redirect("assignments:student_submission", assignment.id, user.id)
