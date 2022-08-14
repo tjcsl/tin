@@ -33,7 +33,7 @@ def show_view(request, submission_id):
         "submission_number": submission_number,
         "submission_text": submission_text,
         "is_student": submission.assignment.course.is_student_in_course(request.user),
-        "is_teacher": request.user in submission.assignmentcourse.teacher.all(),
+        "is_teacher": request.user in submission.assignment.course.teacher.all(),
     }
 
     if request.user.is_teacher:

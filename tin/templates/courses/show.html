@@ -18,7 +18,7 @@
 <ul id="assignment-list">
 {% for folder in folders %}
   <li>
-    <div class="left">
+    <div class="left" style="min-height: 30px;">
       <i class="fa fa-folder"></i>    <a href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a>
     </div>
   </li>
@@ -26,7 +26,7 @@
 {% for assignment in assignments %}
   <li>
     <div class="left">
-      <a href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
+      <a href="{% url 'assignments:show' assignment.id %}">{% if assignment.is_quiz %}QUIZ: {% endif %}{{ assignment.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
       {% if assignment in unsubmitted_assignments %}
         <br>
         <span class="italic">Not submitted</span>
