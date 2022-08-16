@@ -53,7 +53,7 @@ class Course(models.Model):
 
 
     def is_only_student_in_course(self, user):
-        return not user.is_superuser and user in self.students.all()
+        return user in self.students.all() and not (user.is_superuser or user in self.teacher.all())
 
 
 class Period(models.Model):
