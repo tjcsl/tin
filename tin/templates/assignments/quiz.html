@@ -4,7 +4,9 @@
 {% block head %}
   <script src="{% static 'vendor/ace/ace.js' %}"></script>
   <script src="{% static 'vendor/js.cookie-2.2.1.min.js' %}"></script>
-  <script src="{% static 'js/upload-dragdrop.js' %}"></script>
+  {% if latest_submission %}
+    <script src="{% static 'js/incomplete.js' %}"></script>
+  {% endif %}
   <script>
     $(function() {
       var textarea = $("#id_text");
