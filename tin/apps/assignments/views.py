@@ -77,7 +77,10 @@ def show_view(request, assignment_id):
         if course.period_set.exists():
             if period == "":
                 if request.user in course.teacher.all():
-                    period = course.period_set.filter(teacher=request.user).order_by("name")[0].id
+                    try:
+                        period = course.period_set.filter(teacher=request.user).order_by("name")[0].id
+                    except:
+                        period = "all"
                 else:
                     period = "all"
             
