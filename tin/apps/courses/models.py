@@ -8,13 +8,13 @@ class CourseQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(Q(teacher=user) | Q(students=user))
+            return self.filter(Q(teacher=user) | Q(students=user)).distinct()
 
     def filter_editable(self, user):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(teacher=user)
+            return self.filter(teacher=user).distinct()
 
 
 class Course(models.Model):

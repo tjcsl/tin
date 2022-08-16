@@ -23,13 +23,13 @@ class VenvQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(assignment__course__teacher=user)
+            return self.filter(assignment__course__teacher=user).distinct()
 
     def filter_editable(self, user):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(assignment__course__teacher=user)
+            return self.filter(assignment__course__teacher=user).distinct()
 
 
 class Virtualenv(models.Model):
