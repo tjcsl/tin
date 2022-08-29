@@ -582,7 +582,7 @@ def remove_folder_view(request, course_id, folder_id):
 
 @login_required
 def show_folder_view(request, course_id, folder_id):
-    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+    course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
     folder = get_object_or_404(course.folders.all(), id=folder_id)
 
     assignments = course.assignments.filter(folder=folder).filter_visible(request.user)
