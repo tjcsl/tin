@@ -131,7 +131,8 @@ class Assignment(models.Model):
 
         if (
             Submission.objects.filter(
-                date_submitted__gte=now - datetime.timedelta(minutes=self.submission_limit_interval)
+                date_submitted__gte=now - datetime.timedelta(minutes=self.submission_limit_interval),
+                student=student
             ).count()
             > self.submission_limit_count
         ):
