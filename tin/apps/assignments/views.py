@@ -86,12 +86,12 @@ def show_view(request, assignment_id):
             
             if period == "all":
                 active_period = "all"
-                student_list = course.students.all()
+                student_list = course.students.all().order_by("periods", "last_name")
             else:
                 active_period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
-                student_list = active_period.students.all()
+                student_list = active_period.students.all().order_by("last_name")
         else:
-            student_list = course.students.all()
+            student_list = course.students.all().order_by("periods", "last_name")
             active_period = "all"
 
         for student in student_list:
