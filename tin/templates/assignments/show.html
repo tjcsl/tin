@@ -64,7 +64,7 @@
 
 {% if latest_submission %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
-  {% if assignment.is_quiz and not (is_teacher or request.user.is_superuser) %}
+  {% if assignment.is_quiz and not is_teacher and not request.user.is_superuser %}
     <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
       <div class="result">
         <code><pre>{{ latest_submission.grader_output }}</pre></code>
@@ -115,7 +115,7 @@
   </tr>
   {% for submission in submissions %}
     <tr>
-      {% if assignment.is_quiz and not (is_teacher or request.user.is_superuser) %}<td><a href="#">{{ submission.date_submitted }}</a></td>{% else %}<td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>{% endif %}
+      {% if assignment.is_quiz and not is_teacher and not request.user.is_superuser %}<td><a href="#">{{ submission.date_submitted }}</a></td>{% else %}<td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>{% endif %}
       <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
       <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
         {% if submission.complete %}Yes{% else %}No{% endif %}
