@@ -63,8 +63,8 @@
 </table>
 
 {% if latest_submission %}
-  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
   {% if not assignment.is_quiz or is_teacher or request.user.is_superuser %}
+    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
     <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
       <div class="result">
         <code><pre>{{ latest_submission.grader_output }}</pre></code>
