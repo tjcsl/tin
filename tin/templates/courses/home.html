@@ -92,11 +92,6 @@
   <h2>Administration</h2>
   <p><a href="/admin">Django Administrative Interface</a></p>
 
-  <form method="post" action="{% url 'assignments:upload_file' %}">
-    {% csrf_token %}
-    <input type="submit" value="Upload file to assignment">
-  </form>
-
   <form method="post" action="{% url 'submissions:set_aborted_complete' %}">
     {% csrf_token %}
     <input type="submit" value="Mark all aborted submissions as complete">

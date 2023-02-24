@@ -606,9 +606,10 @@ def show_folder_view(request, course_id, folder_id):
 
 
 @teacher_or_superuser_required
-def upload(request):
-    if not request.user.is_superuser:
-        return redirect("courses:index")
+def upload_file_view(request, assignment_id):
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
 
     form = SuperuserFileSubmissionForm()
 
@@ -622,40 +623,18 @@ def upload(request):
                     request.FILES,
                 )
                 if form.is_valid():
-                    assignment = form.cleaned_data["assignment"]
                     try:
                         text = request.FILES["upload_file"].read().decode()
                     except UnicodeDecodeError:
                         file_errors = "Please don't upload binary files."
                     else:
-                        fpath = os.path.join(
-                            settings.MEDIA_ROOT,
-                            "assignment-{}".format(assignment.id),
-                            request.FILES["upload_file"].name,
-                        )
-
-                        os.makedirs(os.path.dirname(fpath), exist_ok=True)
-
-                        args = sandboxing.get_assignment_sandbox_args(
-                            ["sh", "-c", 'cat >"$1"', "sh", fpath],
-                            network_access=False,
-                            whitelist=[os.path.dirname(fpath)],
-                        )
-
-                        subprocess.run(
-                            args,
-                            input=text,
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.PIPE,
-                            universal_newlines=True,
-                            check=True,
-                        )
+                        assignment.save_file(text, request.FILES["upload_file"].name)
 
                         return redirect("courses:index")
                 else:
                     file_errors = form.errors
             else:
-                file_errors = "That file's too large. Are you sure it's a Python program?"
+                file_errors = "That file's too large."
         else:
             file_errors = "Please select a file."
 
@@ -665,6 +644,8 @@ def upload(request):
         {
             "form": form,
             "file_errors": file_errors,
+            "course": assignment.course,
+            "assignment": assignment,
             "nav_item": "Upload file",
         },
     )
