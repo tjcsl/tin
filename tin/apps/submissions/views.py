@@ -28,6 +28,7 @@ def show_view(request, submission_id):
 
     context = {
         "course": submission.assignment.course,
+        "folder": submission.assignment.folder,
         "assignment": submission.assignment,
         "submission": submission,
         "submission_number": submission_number,
