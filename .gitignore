@@ -8,3 +8,5 @@ media/
 
 tin/settings/secret.py
 tin/serve
+
+.idea/
