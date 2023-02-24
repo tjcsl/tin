@@ -126,6 +126,30 @@ class Assignment(models.Model):
             check=True,
         )
 
+    def save_file(self, file_text: str, file_name: str) -> None:
+        fpath = os.path.join(
+            settings.MEDIA_ROOT,
+            "assignment-{}".format(self.id),
+            file_name
+        )
+
+        os.makedirs(os.path.dirname(fpath), exist_ok=True)
+
+        args = get_assignment_sandbox_args(
+            ["sh", "-c", 'cat >"$1"', "sh", fpath],
+            network_access=False,
+            whitelist=[os.path.dirname(fpath)],
+        )
+
+        subprocess.run(
+            args,
+            input=file_text,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            check=True,
+        )
+
     def check_rate_limit(self, student) -> None:
         now = timezone.localtime()
 

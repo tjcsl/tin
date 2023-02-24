@@ -21,6 +21,7 @@
   {% if is_teacher or request.user.is_superuser %}
     <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
     <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"{% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload grader</a>
+    <a class="right tin-btn" href="{% url 'assignments:upload_file' assignment.id %}">Upload file</a>
     {% if log_file_exists %}
       <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
     {% endif %}
