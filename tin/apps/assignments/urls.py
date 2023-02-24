@@ -15,6 +15,7 @@ urlpatterns = [
     path("<int:assignment_id>/edit", views.edit_view, name="edit"),
     path("<int:assignment_id>/delete", views.delete_view, name="delete"),
     path("<int:assignment_id>/grader/upload", views.upload_grader_view, name="upload_grader"),
+    path("<int:assignment_id>/file/upload", views.upload_file_view, name="upload_file"),
     path("<int:assignment_id>/submit", views.submit_view, name="submit"),
     path("<int:assignment_id>/quiz", views.quiz_view, name="quiz"),
     path("<int:assignment_id>/end", views.quiz_end_view, name="quiz_end"),
@@ -34,5 +35,4 @@ urlpatterns = [
         name="remove_folder",
     ),
     path("folder/<int:course_id>/<int:folder_id>", views.show_folder_view, name="show_folder"),
-    path("upload", views.upload, name="upload_file"),
 ]

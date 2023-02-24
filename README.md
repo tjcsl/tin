@@ -3,8 +3,7 @@
 The ultimate grader solution for TJHSST Aritifical Intelligence classes.
 
 ## History
-
-Previously, teachers in TJHSST AI classes had to manually run
+Previously, teachers in TJHSST AI classes had to manually run student code.
 
 ## Architecture
 Tin is a Django application backed by PostgreSQL and SQLite. We use Celery (with a RabbitMQ broker) to process tasks.
