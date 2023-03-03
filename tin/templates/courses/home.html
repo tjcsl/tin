@@ -40,7 +40,10 @@
       <div class="left">
         <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
       </div>
-      <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
+      <div class="right">
+        <span class="italic">Due {{ assignment.due }}</span>
+        <a href="{% url "assignments:submit" assignment.id %}" class="tin-btn">Submit</a>
+      </div>
     </li>
   {% empty %}
     <li>
@@ -57,7 +60,10 @@
       <div class="left">
         <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
       </div>
-      <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
+      <div class="right">
+        <span class="italic">Due {{ assignment.due }}</span>
+        <a href="{% url "assignments:submit" assignment.id %}" class="tin-btn">Submit</a>
+      </div>
     </li>
   {% empty %}
     <li>
@@ -74,7 +80,10 @@
       <div class="left">
         <a href="{% url "assignments:show" assignment.id %}">{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
       </div>
-      <a href="{% url "assignments:submit" assignment.id %}" class="right tin-btn">Submit</a>
+      <div class="right">
+        <span class="italic">Due {{ assignment.due }}&ensp;</span>
+        <a href="{% url "assignments:submit" assignment.id %}" class="tin-btn">Submit</a>
+      </div>
     </li>
   {% empty %}
     <li>
@@ -85,7 +94,7 @@
   {% endfor %}
   </ul>
 {% else %}
-  <h4><a href="{% url 'docs:index' %}" class="tin-btn fa fa-book"> Tin documentation</a></h4>
+    <h4><a href="{% url 'docs:index' %}" class="tin-btn"><i class="fa fa-book"></i> Tin documentation</a></h4>
 {% endif %}
 
 {% if request.user.is_superuser %}
