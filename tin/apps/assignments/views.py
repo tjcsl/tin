@@ -218,6 +218,7 @@ def edit_view(request, assignment_id):
         {
             "assignment_form": assignment_form,
             "course": assignment.course,
+            "folder": assignment.folder,
             "assignment": assignment,
             "action": "edit",
             "nav_item": "Edit",
@@ -277,6 +278,7 @@ def upload_grader_view(request, assignment_id):
             "grader_form": grader_form,
             "grader_file_errors": grader_file_errors,
             "course": assignment.course,
+            "folder": assignment.folder,
             "assignment": assignment,
             "nav_item": "Upload grader",
         },
@@ -307,6 +309,7 @@ def student_submission_view(request, assignment_id, student_id):
         "assignments/student_submission.html",
         {
             "course": assignment.course,
+            "folder": assignment.folder,
             "assignment": assignment,
             "student": student,
             "submissions": submissions,
@@ -441,6 +444,7 @@ def submit_view(request, assignment_id):
             "file_errors": file_errors,
             "text_errors": text_errors,
             "course": assignment.course,
+            "folder": assignment.folder,
             "assignment": assignment,
             "nav_item": "Submit",
         },
@@ -645,6 +649,7 @@ def upload_file_view(request, assignment_id):
             "form": form,
             "file_errors": file_errors,
             "course": assignment.course,
+            "folder": assignment.folder,
             "assignment": assignment,
             "nav_item": "Upload file",
         },
@@ -722,6 +727,7 @@ def quiz_view(request, assignment_id):
         {
             "nav_item": "Take Quiz",
             "course": assignment.course,
+            "folder": assignment.folder,
             "assignment": assignment,
             "latest_submission": latest_submission,
             "text_form": text_form,
