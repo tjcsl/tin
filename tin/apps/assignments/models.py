@@ -122,6 +122,7 @@ class Assignment(models.Model):
             input=grader_text,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
+            encoding="utf-8",
             universal_newlines=True,
             check=True,
         )
@@ -146,6 +147,7 @@ class Assignment(models.Model):
             input=file_text,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
+            encoding="utf-8",
             universal_newlines=True,
             check=True,
         )
