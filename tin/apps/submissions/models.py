@@ -156,6 +156,7 @@ class Submission(models.Model):
             input=submission_text,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
+            encoding="utf-8",
             universal_newlines=True,
             check=True,
         )
