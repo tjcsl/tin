@@ -23,7 +23,7 @@ def show_view(request, submission_id):
     )
     submission_number = before_submissions.count() + 1
 
-    with open(submission.backup_file_path) as f_obj:
+    with open(submission.backup_file_path, "r", encoding="utf-8") as f_obj:
         submission_text = f_obj.read()
 
     context = {

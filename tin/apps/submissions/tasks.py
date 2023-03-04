@@ -71,7 +71,7 @@ def run_submission(submission_id):
                 python=python_exe,
             )
 
-        with open(submission_wrapper_path, "w") as f_obj:
+        with open(submission_wrapper_path, "w", encoding="utf-8") as f_obj:
             f_obj.write(wrapper_text)
 
         os.chmod(submission_wrapper_path, 0o700)
