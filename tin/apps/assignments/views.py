@@ -301,7 +301,7 @@ def student_submission_view(request, assignment_id, student_id):
 
     latest_submission_text = None
     if latest_submission:
-        with open(latest_submission.backup_file_path) as f_obj:
+        with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
             latest_submission_text = f_obj.read()
 
     return render(
@@ -337,7 +337,7 @@ def submit_view(request, assignment_id):
     latest_submission = submissions.first() if submissions else None
     latest_submission_text = None
     if latest_submission:
-        with open(latest_submission.backup_file_path) as f_obj:
+        with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
             latest_submission_text = f_obj.read()
 
     file_form = FileSubmissionForm()
@@ -670,7 +670,7 @@ def quiz_view(request, assignment_id):
 
     latest_submission_text = None
     if latest_submission:
-        with open(latest_submission.backup_file_path) as f_obj:
+        with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
             latest_submission_text = f_obj.read()
 
     text_form = TextSubmissionForm(initial={"text": latest_submission_text})
