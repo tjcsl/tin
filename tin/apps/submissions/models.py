@@ -169,7 +169,7 @@ class Submission(models.Model):
 
         os.makedirs(os.path.dirname(backup_fpath), mode=0o755, exist_ok=True)
 
-        with open(backup_fpath, "w") as f_obj:
+        with open(backup_fpath, "w", encoding="utf-8") as f_obj:
             f_obj.write(submission_text)
 
     @property
