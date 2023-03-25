@@ -33,10 +33,11 @@ class SubmissionQuerySet(models.query.QuerySet):
 
 def upload_submission_file_path(submission, filename):  # pylint: disable=unused-argument
     assert submission.assignment.id is not None
-    return "assignment-{}/{}/submission_{}.py".format(
+    return "assignment-{}/{}/submission_{}.{}".format(
         submission.assignment.id,
         slugify(submission.student.username),
         timezone.now().strftime("%Y%m%d_%H%M%S"),
+        "py" if submission.assignment.language == "P" else "java",
     )
 
 

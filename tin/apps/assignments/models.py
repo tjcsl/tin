@@ -51,6 +51,12 @@ class Assignment(models.Model):
     )
     description = models.CharField(max_length=4096)
 
+    LANGUAGES = (
+        ('P', 'Python 3'),
+        ('J', 'Java'),
+    )
+    language = models.CharField(max_length=1, choices=LANGUAGES, default='P')
+
     course = models.ForeignKey(
         "courses.Course", on_delete=models.CASCADE, related_name="assignments"
     )
