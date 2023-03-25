@@ -56,7 +56,7 @@
     <div>Note: You can upload a grader script with the "Upload grader" button on the assignment page.</div>
   {% endif %}
   <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
-  {% if action == 'edit' %}
+  {% if action == "edit" %}
     &emsp;<a style="color:red" href="{% url 'assignments:delete' assignment.id %}">Delete Assignment</a>
   {% endif %}
 </form>

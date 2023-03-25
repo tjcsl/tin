@@ -22,6 +22,7 @@ class AssignmentForm(forms.ModelForm):
             "name",
             "description",
             "folder",
+            "language",
             "points_possible",
             "due",
             "hidden",
