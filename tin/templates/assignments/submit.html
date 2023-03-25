@@ -13,7 +13,12 @@
 
       var editor = ace.edit("editor");
       editor.setTheme("ace/theme/tomorrow");
-      editor.session.setMode("ace/mode/python");
+
+      {% if assignment.language == "P" %}
+        editor.session.setMode("ace/mode/python");
+      {% elif assignment.language == "J" %}
+        editor.session.setMode("ace/mode/java");
+      {% endif %}
 
       editor.getSession().setValue(textarea.val());
       editor.getSession().on("change", function() {
