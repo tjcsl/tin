@@ -241,7 +241,9 @@ class Quiz(models.Model):
         return f"Quiz for {self.assignment}"
 
     def locked_for_student(self, student):
-        return sum(lm.severity for lm in self.log_messages.filter(student=student)) >= settings.QUIZ_LOCK_THRESHOLD
+        if self.action == "2":
+            return sum(lm.severity for lm in self.log_messages.filter(student=student)) >= settings.QUIZ_LOCK_THRESHOLD
+        return False
 
     def ended_for_student(self, student):
         return self.log_messages.filter(student=student, content="Ended quiz").exists()

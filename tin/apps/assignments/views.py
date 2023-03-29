@@ -204,6 +204,7 @@ def edit_view(request, assignment_id):
                 try:
                     assignment.quiz.action = quiz_type
                     assignment.save()
+                    assignment.quiz.save()
                 except:
                     Quiz.objects.create(
                         assignment = assignment,
@@ -750,15 +751,12 @@ def report_view(request, assignment_id):
         severity=severity
     )
 
-    if assignment.quiz.locked_for_student(request.user):
-        if assignment.quiz.action == "0":
-            resp = "no action"
-        elif assignment.quiz.action == "1":
-            resp = "color"
-        else:
-            resp = "lock"
-    else:
+    if assignment.quiz.action == "0":
         resp = "no action"
+    elif assignment.quiz.action == "1":
+        resp = "color"
+    else:
+        resp = "lock" if assignment.quiz.locked_for_student(request.user) else "no action"
 
     json_data = json.dumps(resp)
     return http.HttpResponse(json_data, content_type="application/json")
