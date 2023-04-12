@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 from typing import Optional
@@ -10,7 +11,7 @@ from django.utils.text import slugify
 
 from ...sandboxing import get_assignment_sandbox_args
 
-# Create your models here.
+logger = logging.getLogger(__name__)
 
 
 class SubmissionQuerySet(models.query.QuerySet):
@@ -137,14 +138,18 @@ class Submission(models.Model):
             whitelist=[os.path.dirname(os.path.dirname(fpath))],
         )
 
-        subprocess.run(
-            args,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-            check=True,
-        )
+        try:
+            subprocess.run(
+                args,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                check=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
 
         args = get_assignment_sandbox_args(
             ["sh", "-c", 'cat >"$1"', "sh", fpath],
@@ -152,15 +157,19 @@ class Submission(models.Model):
             whitelist=[os.path.dirname(fpath)],
         )
 
-        subprocess.run(
-            args,
-            input=submission_text,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            encoding="utf-8",
-            universal_newlines=True,
-            check=True,
-        )
+        try:
+            subprocess.run(
+                args,
+                input=submission_text,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
+                universal_newlines=True,
+                check=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
 
     def create_backup_copy(self, submission_text: str) -> None:
         backup_fpath = self.backup_file_path
