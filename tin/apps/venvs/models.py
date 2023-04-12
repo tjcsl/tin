@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 import sys
@@ -7,7 +8,7 @@ from django.db import IntegrityError, models
 
 from ... import sandboxing
 
-# Create your models here.
+logger = logging.getLogger(__name__)
 
 
 class VirtualenvCreationError(Exception):
@@ -68,21 +69,25 @@ class Virtualenv(models.Model):
                     "Virtualenv directory for assignment #{} exists".format(assignment.id)
                 )
 
-            res = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "virtualenv",
-                    "-p",
-                    settings.SUBMISSION_PYTHON,
-                    "--",
-                    venv.get_full_path(),
-                ],
-                check=False,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
+            try:
+                res = subprocess.run(
+                    [
+                        sys.executable,
+                        "-m",
+                        "virtualenv",
+                        "-p",
+                        settings.SUBMISSION_PYTHON,
+                        "--",
+                        venv.get_full_path(),
+                    ],
+                    check=False,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                )
+            except FileNotFoundError as e:
+                logger.error("Cannot run processes: %s", e)
+                raise FileNotFoundError from e
 
             if res.returncode != 0:
                 raise VirtualenvCreationError(
@@ -119,15 +124,19 @@ class Virtualenv(models.Model):
             extra_firejail_args=["--rlimit-fsize=209715200"],
         )
 
-        res = subprocess.run(
-            args,
-            check=False,
-            env=env,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-        )
+        try:
+            res = subprocess.run(
+                args,
+                check=False,
+                env=env,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
 
         if res.returncode != 0 or res.stderr:
             return None
@@ -153,14 +162,18 @@ class Virtualenv(models.Model):
                 extra_firejail_args=["--rlimit-fsize=209715200"],
             )
 
-            res = subprocess.run(
-                args,
-                check=False,
-                env=env,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
+            try:
+                res = subprocess.run(
+                    args,
+                    check=False,
+                    env=env,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                )
+            except FileNotFoundError as e:
+                logger.error("Cannot run processes: %s", e)
+                raise FileNotFoundError from e
 
             try:
                 self.package_installation_output = res.stdout.decode()[-16 * 1024:]

@@ -1,6 +1,7 @@
 import csv
 import datetime
 import json
+import logging
 import os
 import subprocess
 import zipfile
@@ -29,6 +30,8 @@ from .forms import (
     TextSubmissionForm,
 )
 from .models import Assignment, CooldownPeriod, LogMessage, Quiz
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -538,14 +541,18 @@ def download_log_view(request, assignment_id):
         read_only=[assigment_dir],
     )
 
-    res = subprocess.run(
-        args,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True,
-        check=True,
-    )
+    try:
+        res = subprocess.run(
+            args,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            check=True,
+        )
+    except FileNotFoundError as e:
+        logger.error("Cannot run processes: %s", e)
+        raise FileNotFoundError from e
 
     data = res.stdout
 
