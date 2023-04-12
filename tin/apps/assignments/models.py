@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import subprocess
 
@@ -12,6 +13,8 @@ from django.utils import timezone
 from ...sandboxing import get_assignment_sandbox_args
 from ..submissions.models import Submission
 from ..venvs.models import Virtualenv
+
+logger = logging.getLogger(__name__)
 
 
 class Folder(models.Model):
@@ -123,15 +126,19 @@ class Assignment(models.Model):
             whitelist=[os.path.dirname(fpath)],
         )
 
-        subprocess.run(
-            args,
-            input=grader_text,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            encoding="utf-8",
-            universal_newlines=True,
-            check=True,
-        )
+        try:
+            subprocess.run(
+                args,
+                input=grader_text,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
+                universal_newlines=True,
+                check=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
 
     def save_file(self, file_text: str, file_name: str) -> None:
         fpath = os.path.join(
@@ -148,15 +155,19 @@ class Assignment(models.Model):
             whitelist=[os.path.dirname(fpath)],
         )
 
-        subprocess.run(
-            args,
-            input=file_text,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            encoding="utf-8",
-            universal_newlines=True,
-            check=True,
-        )
+        try:
+            subprocess.run(
+                args,
+                input=file_text,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
+                universal_newlines=True,
+                check=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
 
     def check_rate_limit(self, student) -> None:
         now = timezone.localtime()
