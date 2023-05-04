@@ -55,10 +55,13 @@
     $(document).ready(function() {
       send_report("Page loaded", 0);
       $("#submit-btn").show();
-      window.history.pushState(null, "", window.location.href);        
-        window.onpopstate = function() {
-            window.history.pushState(null, "", window.location.href);
-        };
+      {% if quiz_color %}
+        document.body.style.backgroundColor = "#F72F35";
+      {% endif %}
+      window.history.pushState(null, "", window.location.href);
+      window.onpopstate = function() {
+        window.history.pushState(null, "", window.location.href);
+      };
     });
 
     $(window).blur(function() {

@@ -722,6 +722,8 @@ def quiz_view(request, assignment_id):
                 else:
                     text_errors = "Submission too large"
 
+    quiz_color = assignment.quiz.issues_for_student(request.user) and assignment.quiz.action == "1"
+
     return render(
         request,
         "assignments/quiz.html",
@@ -733,6 +735,7 @@ def quiz_view(request, assignment_id):
             "latest_submission": latest_submission,
             "text_form": text_form,
             "text_errors": text_errors,
+            "quiz_color": quiz_color,
         },
     )
 
