@@ -240,10 +240,14 @@ class Quiz(models.Model):
     def __str__(self):
         return f"Quiz for {self.assignment}"
 
+    def issues_for_student(self, student):
+        return sum(lm.severity for lm in self.log_messages.filter(student=student)) >= settings.QUIZ_ISSUE_THRESHOLD
+
+    def open_for_student(self, student):
+        return not (self.locked_for_student(student) or self.ended_for_student(student))
+
     def locked_for_student(self, student):
-        if self.action == "2":
-            return sum(lm.severity for lm in self.log_messages.filter(student=student)) >= settings.QUIZ_LOCK_THRESHOLD
-        return False
+        return self.issues_for_student(student) and self.action == "2"
 
     def ended_for_student(self, student):
         return self.log_messages.filter(student=student, content="Ended quiz").exists()
