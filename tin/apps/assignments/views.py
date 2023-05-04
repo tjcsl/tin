@@ -42,7 +42,7 @@ def show_view(request, assignment_id):
         Assignment.objects.filter_visible(request.user), id=assignment_id
     )
     course = assignment.course
-    quiz_locked = assignment.is_quiz and (assignment.quiz.locked_for_student(request.user) or assignment.quiz.ended_for_student(request.user))
+    quiz_accessible = assignment.is_quiz and assignment.quiz.open_for_student(request.user)
 
     if course.is_only_student_in_course(request.user):
         submissions = Submission.objects.filter(
@@ -61,7 +61,7 @@ def show_view(request, assignment_id):
                 "latest_submission": latest_submission,
                 "is_student": course.is_student_in_course(request.user),
                 "is_teacher": request.user in course.teacher.all(),
-                "quiz_locked": quiz_locked,
+                "quiz_accessible": quiz_accessible,
             },
         )
     else:
@@ -129,7 +129,7 @@ def show_view(request, assignment_id):
             "is_teacher": request.user in course.teacher.all(),
             "period_set": period_set,
             "active_period": active_period,
-            "quiz_locked": quiz_locked,
+            "quiz_accessible": quiz_accessible,
         }
 
         submissions = Submission.objects.filter(
@@ -744,21 +744,24 @@ def report_view(request, assignment_id):
     content = request.GET.get("content", "")
     severity = int(request.GET.get("severity", 0))
 
-    LogMessage.objects.create(
-        quiz=assignment.quiz,
-        student=request.user,
-        content=content,
-        severity=severity
-    )
-
-    if assignment.quiz.action == "0":
-        resp = "no action"
-    elif assignment.quiz.action == "1":
-        resp = "color"
+    if assignment.quiz.ended_for_student(request.user):
+        json_data = json.dumps("no action")
     else:
-        resp = "lock" if assignment.quiz.locked_for_student(request.user) else "no action"
+        LogMessage.objects.create(
+            quiz=assignment.quiz,
+            student=request.user,
+            content=content,
+            severity=severity
+        )
 
-    json_data = json.dumps(resp)
+        resp = "no action"
+        if severity >= settings.QUIZ_ISSUE_THRESHOLD:
+            if assignment.quiz.action == "1":
+                resp = "color"
+            elif assignment.quiz.action == "2":
+                resp = "lock"
+
+        json_data = json.dumps(resp)
     return http.HttpResponse(json_data, content_type="application/json")
 
 
