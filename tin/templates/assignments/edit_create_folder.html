@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Turn-In: Create folder{% endblock %}
+{% block title %}Turn-In: {{ course.name }}: {% if action == "add" %}Create folder{% else %}{{ folder.name }}{% endif %}{% endblock %}
 
 {% block main %}
-<h2>Create folder</h2>
+<h2>{{ course.name }}: {% if action == "add" %}Create folder{% else %}{{ folder.name }}{% endif %}</h2>
 {% if form.errors %}
   <h3 class="errors">Please correct the errors below.</h3>
   <ul class="errors">
@@ -28,7 +28,10 @@
       </div>
     {% endfor %}
   </div>
-  <input type="submit" value="Create">
+  <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
+  {% if action == "edit" %}
+    &emsp;<a style="color:red" href="{% url 'assignments:delete_folder' course.id folder.id %}">Delete Folder</a>
+  {% endif %}
 </form>
 
 {% endblock %}

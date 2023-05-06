@@ -6,7 +6,7 @@
 <div class="header">
   <h2 class="left">{{ course.name }}: {{ folder.name }}</h2>
   {% if is_teacher or request.user.is_superuser %}
-    <a class="right tin-btn" href="{% url 'assignments:remove_folder' course.id folder.id %}">Remove Folder</a>
+    <a class="right tin-btn" href="{% url 'assignments:edit_folder' course.id folder.id %}">Edit Folder</a>
   {% endif %}
 </div>
 
