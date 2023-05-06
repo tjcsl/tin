@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Turn-In: {{ assignment.name }}: Virtual environment{% endblock %}
+{% block title %}Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment{% endblock %}
 
 {% block main %}
-  <h2>Virtual environment for assignment '{{ assignment.name }}' in course '{{ assignment.course.name }}'</h2>
+  <h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment</h2>
 
   <h3>Installed packages</h3>
   {% if venv.installing_packages %}

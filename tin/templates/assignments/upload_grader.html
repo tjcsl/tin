@@ -6,7 +6,7 @@
   <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
 {% endblock %}
 
-{% block title %}Turn-In: {{ course.name }}: {{ assignment.name }}: Grader {% endblock %}
+{% block title %}Turn-In: {{ course.name }}: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Grader {% endblock %}
 
 {% block main %}
 <h3>Grader File Upload</h3>

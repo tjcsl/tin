@@ -37,7 +37,7 @@
           {% endif %}
           {% if assignment %}
             <li><i class="fa fa-chevron-right"></i></li>
-            <li><a href="{% url 'assignments:show' assignment.id %}">{{ assignment.name }}</a></li>
+            <li><a href="{% url 'assignments:show' assignment.id %}">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}</a></li>
             {% if student %}
               <li><i class="fa fa-chevron-right"></i></li>
               <li><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}</a></li>

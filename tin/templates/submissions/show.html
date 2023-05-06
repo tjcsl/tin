@@ -3,7 +3,7 @@
 
 
 {% block title %}
-Turn-In: {{ course.name }}: {{ assignment.name }}:
+Turn-In: {{ course.name }}: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}:
 {% if is_teacher or request.user.is_superuser %}{{ student.username }}:{% endif %}
 Submission #{{ submission_number }}
 {% endblock %}
@@ -14,7 +14,7 @@ Submission #{{ submission_number }}
 
 {% block main %}
 {% if is_student %}
-<h2>{{ assignment.name }}: Submission #{{ submission_number }}</h2>
+<h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Submission #{{ submission_number }}</h2>
 {{ assignment.description|linebreaks }}
 
 <table id="submission-info">
@@ -50,7 +50,7 @@ Submission #{{ submission_number }}
   </tr>
 </table>
 {% else %}
-<h2>{{ assignment.name }}: {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}</h2>
+<h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}</h2>
 {{ assignment.description|linebreaks }}
 
 <table id="submission-info">
