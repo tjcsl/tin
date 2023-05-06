@@ -234,7 +234,10 @@ def delete_view(request, assignment_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
     course = assignment.course
+    folder = assignment.folder
     assignment.delete()
+    if folder:
+        return redirect(reverse("assignments:show_folder", args=(course.id, folder.id)))
     return redirect(reverse("courses:show", args=(course.id,)))
 
 
@@ -287,7 +290,7 @@ def upload_grader_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
-def student_submission_view(request, assignment_id, student_id):
+def student_submissions_view(request, assignment_id, student_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -307,7 +310,7 @@ def student_submission_view(request, assignment_id, student_id):
 
     return render(
         request,
-        "assignments/student_submission.html",
+        "assignments/student_submissions.html",
         {
             "course": assignment.course,
             "folder": assignment.folder,
@@ -571,13 +574,37 @@ def create_folder_view(request, course_id):
         "form": form,
         "nav_item": "Create folder",
         "course": course,
+        "action": "add",
     }
 
-    return render(request, "assignments/add_folder.html", context=context)
+    return render(request, "assignments/edit_create_folder.html", context=context)
 
 
 @teacher_or_superuser_required
-def remove_folder_view(request, course_id, folder_id):
+def edit_folder_view(request, course_id, folder_id):
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+    folder = get_object_or_404(course.folders.all(), id=folder_id)
+
+    form = FolderForm(instance=folder)
+    if request.method == "POST":
+        form = FolderForm(request.POST, instance=folder)
+        if form.is_valid():
+            form.save()
+            return redirect("assignments:show_folder", course.id, folder.id)
+
+    context = {
+        "form": form,
+        "nav_item": "Edit",
+        "course": course,
+        "folder": folder,
+        "action": "edit",
+    }
+
+    return render(request, "assignments/edit_create_folder.html", context=context)
+
+
+@teacher_or_superuser_required
+def delete_folder_view(request, course_id, folder_id):
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
     folder = get_object_or_404(course.folders.all(), id=folder_id)
 
@@ -645,7 +672,7 @@ def upload_file_view(request, assignment_id):
 
     return render(
         request,
-        "assignments/upload.html",
+        "assignments/upload_file.html",
         {
             "form": form,
             "file_errors": file_errors,
