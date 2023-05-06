@@ -37,7 +37,7 @@ def show_view(request, submission_id):
         "is_teacher": request.user in submission.assignment.course.teacher.all(),
     }
 
-    if request.user.is_teacher:
+    if request.user.is_teacher or request.user.is_superuser:
         context["student"] = submission.student
 
     return render(request, "submissions/show.html", context)
