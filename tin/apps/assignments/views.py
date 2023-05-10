@@ -25,8 +25,8 @@ from .forms import (
     AssignmentForm,
     FileSubmissionForm,
     FolderForm,
-    GraderFileSubmissionForm,
-    SuperuserFileSubmissionForm,
+    GraderScriptUploadForm,
+    FileUploadForm,
     TextSubmissionForm,
 )
 from .models import Assignment, CooldownPeriod, LogMessage, Quiz
@@ -251,14 +251,14 @@ def upload_grader_view(request, assignment_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
 
-    grader_form = GraderFileSubmissionForm()
+    grader_form = GraderScriptUploadForm()
 
     grader_file_errors = ""
 
     if request.method == "POST":
         if request.FILES.get("grader_file"):
             if request.FILES["grader_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                grader_form = GraderFileSubmissionForm(
+                grader_form = GraderScriptUploadForm(
                     request.POST,
                     request.FILES,
                 )
@@ -650,14 +650,14 @@ def upload_file_view(request, assignment_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
 
-    form = SuperuserFileSubmissionForm()
+    form = FileUploadForm()
 
     file_errors = ""
 
     if request.method == "POST":
         if request.FILES.get("upload_file"):
             if request.FILES["upload_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                form = SuperuserFileSubmissionForm(
+                form = FileUploadForm(
                     request.POST,
                     request.FILES,
                 )
@@ -715,7 +715,7 @@ def quiz_view(request, assignment_id):
         if assignment.grader_file is None:
             return redirect("assignments:show", assignment.id)
 
-        if (Submission.objects.filter(student=request.user, complete=False).count() >= settings.CONCURRENT_USER_SUBMISSION_LIMIT):
+        if Submission.objects.filter(student=request.user, complete=False).count() >= settings.CONCURRENT_USER_SUBMISSION_LIMIT:
             text_form = TextSubmissionForm(request.POST)
             text_errors = (
                 "You may only have a maximum of {} submission{} running at the same "

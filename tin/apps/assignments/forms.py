@@ -62,14 +62,14 @@ class AssignmentForm(forms.ModelForm):
         widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
 
 
-class GraderFileSubmissionForm(forms.Form):
+class GraderScriptUploadForm(forms.Form):
     grader_file = forms.FileField(
         max_length=settings.SUBMISSION_SIZE_LIMIT,
         allow_empty_file=False,
     )
 
 
-class SuperuserFileSubmissionForm(forms.Form):
+class FileUploadForm(forms.Form):
     upload_file = forms.FileField(
         max_length=settings.SUBMISSION_SIZE_LIMIT,
         allow_empty_file=False,

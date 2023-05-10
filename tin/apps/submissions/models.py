@@ -34,12 +34,20 @@ class SubmissionQuerySet(models.query.QuerySet):
 
 def upload_submission_file_path(submission, filename):  # pylint: disable=unused-argument
     assert submission.assignment.id is not None
-    return "assignment-{}/{}/submission_{}.{}".format(
-        submission.assignment.id,
-        slugify(submission.student.username),
-        timezone.now().strftime("%Y%m%d_%H%M%S"),
-        "py" if submission.assignment.language == "P" else "java",
-    )
+    if submission.assignment.language == "P":
+        return "assignment-{}/{}/submission_{}.{}".format(
+            submission.assignment.id,
+            slugify(submission.student.username),
+            timezone.now().strftime("%Y%m%d_%H%M%S"),
+            "py" if submission.assignment.language == "P" else "java",
+        )
+    else:
+        return "assignment-{}/{}/submission_{}/submission_{}.{}".format(
+            submission.assignment.id,
+            slugify(submission.student.username),
+            timezone.now().strftime("%Y%m%d_%H%M%S"),
+            "py" if submission.assignment.language == "P" else "java",
+        )
 
 
 class Submission(models.Model):
@@ -116,6 +124,26 @@ class Submission(models.Model):
             return None
 
         return os.path.join(settings.MEDIA_ROOT, "submission-backups", self.file.name)
+
+    def add_java_dirs(self):
+        args = get_assignment_sandbox_args(
+            ["mkdir", "-p", "--", os.path.dirname(fpath)],
+            network_access=False,
+            whitelist=[os.path.dirname(os.path.dirname(fpath))],
+        )
+
+        try:
+            subprocess.run(
+                args,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                check=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
 
     def save_file(self, submission_text: str) -> None:
         # Writing to files in directories not controlled by us without some
