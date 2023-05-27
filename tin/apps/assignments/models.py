@@ -60,6 +60,8 @@ class Assignment(models.Model):
     )
     language = models.CharField(max_length=1, choices=LANGUAGES, default='P')
 
+    filename = models.CharField(max_length=50, default="main.py")
+
     course = models.ForeignKey(
         "courses.Course", on_delete=models.CASCADE, related_name="assignments"
     )

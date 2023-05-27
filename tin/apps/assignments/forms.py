@@ -23,6 +23,7 @@ class AssignmentForm(forms.ModelForm):
             "description",
             "folder",
             "language",
+            "filename",
             "points_possible",
             "due",
             "hidden",
@@ -46,18 +47,24 @@ class AssignmentForm(forms.ModelForm):
             "is_quiz": "Is this a quiz?"
         }
         help_texts = {
-            "grader_has_network_access": 'If unset, this effectively disables "Give submissions'
-            ' internet access" below. If set, it increases the amount of time it takes to start up'
-            " the grader (to about 1.5 seconds). This is not recommended unless necessary.",
+            "filename": "Clarify which file students need to upload (including the file "
+                        "extension). For Java assignments, this also sets the name of the "
+                        "saved submission file.",
+            "grader_has_network_access": 'If unset, this effectively disables "Give submissions '
+                                         'internet access" below. If set, it increases the amount '
+                                         'of time it takes to start up the grader (to about 1.5 '
+                                         'seconds). This is not recommended unless necessary.',
             "submission_limit_count": "",
             "submission_limit_interval": "Tin sets rate limits on submissions. If a student tries "
-            "to submit too many submissions in a given interval, Tin will block further "
-            "submissions until a cooldown period has elapsed since the time of the last "
-            "submission.",
+                                         "to submit too many submissions in a given interval, "
+                                         "Tin will block further submissions until a cooldown "
+                                         "period has elapsed since the time of the last "
+                                         "submission.",
             "submission_limit_cooldown": 'This sets the length of the "cooldown" period after a '
-            "student exceeds the rate limit for submissions.",
+                                         'student exceeds the rate limit for submissions.',
             "folder": "If blank, assignment will show on the main classroom page.",
-            "is_quiz": "If set, Tin will take the selected action if a student clicks off of the submission page."
+            "is_quiz": "If set, Tin will take the selected action if a student clicks off of the "
+                       "submission page."
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
 
