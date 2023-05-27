@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import logout
 from django.shortcuts import redirect, render
 
@@ -13,7 +14,7 @@ def index_view(request):
 def login_view(request):
     if request.user.is_authenticated:
         return course_index_view(request)
-    return render(request, "login.html")
+    return render(request, "login.html", {"debug": settings.DEBUG})
 
 
 def logout_view(request):
