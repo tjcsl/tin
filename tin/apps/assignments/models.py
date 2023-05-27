@@ -120,7 +120,24 @@ class Assignment(models.Model):
 
         fpath = os.path.join(settings.MEDIA_ROOT, self.grader_file.name)
 
-        os.makedirs(os.path.dirname(fpath), exist_ok=True)
+        args = get_assignment_sandbox_args(
+            ["mkdir", "-p", "--", os.path.dirname(fpath)],
+            network_access=False,
+            whitelist=[os.path.dirname(os.path.dirname(fpath))],
+        )
+
+        try:
+            subprocess.run(
+                args,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                check=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
 
         args = get_assignment_sandbox_args(
             ["sh", "-c", 'cat >"$1"', "sh", fpath],
