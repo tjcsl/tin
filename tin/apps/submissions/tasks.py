@@ -67,31 +67,48 @@ def run_submission(submission_id):
             else "/usr/bin/python3.10"
         )
 
-        if not settings.DEBUG or shutil.which("bwrap") is not None:
-            wrapper_text = """
+        if submission.assignment.language == "P":
+            if not settings.DEBUG or shutil.which("bwrap") is not None:
+                wrapper_text = """
 <REMOVED>
-"""[
-                1:-1
-            ].format(
-                has_network_access=bool(submission.assignment.has_network_access),
-                venv_path=(
-                    submission.assignment.venv.get_full_path()
-                    if submission.assignment.venv_fully_created
-                    else None
-                ),
-                submission_path=submission_path,
-                python=python_exe,
-            )
+                """.strip(" \n").format(
+                    has_network_access=bool(submission.assignment.has_network_access),
+                    venv_path=(
+                        submission.assignment.venv.get_full_path()
+                        if submission.assignment.venv_fully_created
+                        else None
+                    ),
+                    submission_path=submission_path,
+                    python=python_exe,
+                )
+            else:
+                wrapper_text = """
+<REMOVED>
+                """.strip(" \n").format(
+                    submission_path=submission_path,
+                    python=python_exe,
+                )
         else:
-            wrapper_text = """
+            if not settings.DEBUG or shutil.which("bwrap") is not None:
+                wrapper_text = """
 <REMOVED>
-"""[
-                1:-1
-            ].format(
-                submission_path=submission_path,
-                python=python_exe,
-            )
-
+                """.strip(" \n").format(
+                    has_network_access=bool(submission.assignment.has_network_access),
+                    venv_path=(
+                        submission.assignment.venv.get_full_path()
+                        if submission.assignment.venv_fully_created
+                        else None
+                    ),
+                    submission_path=submission_path,
+                    python=python_exe,
+                )
+            else:
+                wrapper_text = """
+<REMOVED>
+                """.strip(" \n").format(
+                    submission_path=submission_path,
+                    python=python_exe,
+                )
         with open(submission_wrapper_path, "w", encoding="utf-8") as f_obj:
             f_obj.write(wrapper_text)
 
@@ -119,16 +136,6 @@ def run_submission(submission_id):
         output = ""
         errors = ""
 
-        args = [
-            python_exe,
-            "-u",
-            grader_path,
-            submission_wrapper_path,
-            submission_path,
-            submission.student.username,
-            grader_log_path,
-        ]
-
         if not settings.DEBUG or shutil.which("firejail") is not None:
             whitelist = [os.path.dirname(grader_path)]
             read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
@@ -142,6 +149,16 @@ def run_submission(submission_id):
                 whitelist=whitelist,
                 read_only=read_only,
             )
+        else:
+            args = [
+                python_exe,
+                "-u",
+                grader_path,
+                submission_wrapper_path,
+                submission_path,
+                submission.student.username,
+                grader_log_path,
+            ]
 
         env = dict(os.environ)
         if submission.assignment.venv_fully_created:
@@ -252,7 +269,7 @@ def run_submission(submission_id):
     else:
         if output and not killed and retcode == 0:
             last_line = output.splitlines()[-1]
-            match = re.search(r"^Score: ([\d\.]+%?)$", last_line)
+            match = re.search(r"^Score: ([\d.]+%?)$", last_line)
             if match is not None:
                 score = match.group(1)
                 if score.endswith("%"):
