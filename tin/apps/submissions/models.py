@@ -32,7 +32,7 @@ class SubmissionQuerySet(models.query.QuerySet):
             ).distinct()
 
 
-def upload_submission_file_path(submission):  # pylint: disable=unused-argument
+def upload_submission_file_path(submission, _):  # pylint: disable=unused-argument
     assert submission.assignment.id is not None
     if submission.assignment.language == "P":
         return "assignment-{}/{}/submission_{}.py".format(
@@ -132,9 +132,10 @@ class Submission(models.Model):
         # This solution is very hacky, but we don't have another good way of
         # doing this.
 
-        fname = upload_submission_file_path(self)
+        fname = upload_submission_file_path(self, "")
 
         self.file.name = fname
+        self.save()
 
         fpath = self.file_path
 
