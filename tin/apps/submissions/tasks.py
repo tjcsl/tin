@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import select
@@ -18,6 +19,9 @@ from django.utils import timezone
 
 from ... import sandboxing
 from .models import Submission
+from ...sandboxing import get_assignment_sandbox_args
+
+logger = logging.getLogger(__name__)
 
 
 def truncate_output(text, field_name):
@@ -38,7 +42,24 @@ def run_submission(submission_id):
 
         submission_wrapper_path = submission.wrapper_file_path
 
-        os.makedirs(os.path.dirname(submission_wrapper_path), exist_ok=True)
+        args = get_assignment_sandbox_args(
+            ["mkdir", "-p", "--", os.path.dirname(submission_wrapper_path)],
+            network_access=False,
+            whitelist=[os.path.dirname(os.path.dirname(submission_wrapper_path))],
+        )
+
+        try:
+            subprocess.run(
+                args,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                check=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
 
         python_exe = (
             os.path.join(submission.assignment.venv.get_full_path(), "bin/python")
