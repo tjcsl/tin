@@ -136,6 +136,16 @@ def run_submission(submission_id):
         output = ""
         errors = ""
 
+        args = [
+            python_exe,
+            "-u",
+            grader_path,
+            submission_wrapper_path,
+            submission_path,
+            submission.student.username,
+            grader_log_path,
+        ]
+
         if not settings.DEBUG or shutil.which("firejail") is not None:
             whitelist = [os.path.dirname(grader_path)]
             read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
@@ -149,16 +159,6 @@ def run_submission(submission_id):
                 whitelist=whitelist,
                 read_only=read_only,
             )
-        else:
-            args = [
-                python_exe,
-                "-u",
-                grader_path,
-                submission_wrapper_path,
-                submission_path,
-                submission.student.username,
-                grader_log_path,
-            ]
 
         env = dict(os.environ)
         if submission.assignment.venv_fully_created:
