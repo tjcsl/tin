@@ -1,0 +1,17 @@
+#!/usr/bin/env {python}
+import os, sys
+i = 1
+while i < len(sys.argv):
+    if sys.argv[i] in ("--", "--write", "--read"):
+        if sys.argv[i] in ("--write", "--read"):
+            # We don't need to whitelist files if we're executing it directly; just increment i to
+            # skip over the next argument
+            i += 1
+        else:
+            i += 1
+            break
+    else:
+        break
+    i += 1
+os.chdir(os.path.dirname({submission_path!r}))
+os.execlp({python!r}, {python!r}, "-u", {submission_path!r}, *sys.argv[1:])
