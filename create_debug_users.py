@@ -14,6 +14,7 @@ users = [
     #[username, id, full_name, first_name, last_name, email, is_teacher, is_student, is_staff, is_superuser]
     ["2020jbeutner", 33538, "John Beutner", "John", "Beutner", "2020jbeutner@tjhsst.edu", False, True, False, False],
     ["2020fouzhins", 33797, "Theo Ouzhinski", "Theo", "Ouzhinski", "2020fouzhins@tjhsst.edu", False, True, False, False],
+    ["2024kshankar", 1000891, "Krishnan Shankar", "Krishnan", "Shankar", "2024kshankar@tjhsst.edu", False, True, False, False],
     ["pcgabor", None, "Peter Gabor", "Peter", "Gabor", "pcgabor@fcps.edu", True, False, False, False],
     ["admin", None, "Admin", "Admin", "Admin", "admin@example.com", False, False, True, True],
 ]
