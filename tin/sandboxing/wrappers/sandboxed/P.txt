@@ -1,0 +1,34 @@
+#!/usr/bin/env {python}
+import os, sys, subprocess
+i = 1
+bind_paths = [os.path.dirname({submission_path!r})]
+ro_bind_paths = ["/usr", "/sbin", "/opt", "/bin", "/lib", "/lib64", "/etc", {submission_path!r}]
+if {venv_path!r} is not None:
+    ro_bind_paths.append({venv_path!r})
+tmpfs_paths = ["/run", "/tmp", "/var"]
+while i < len(sys.argv):
+    if sys.argv[i] in ("--", "--write", "--read"):
+        if sys.argv[i] == "--write":
+            bind_paths.append(sys.argv[i + 1])
+            i += 1
+        elif sys.argv[i] == "--read":
+            ro_bind_paths.append(sys.argv[i + 1])
+            i += 1
+        else:
+            i += 1
+            break
+    else:
+        break
+    i += 1
+argv = ["bwrap", "--unshare-pid", "--dev", "/dev"]
+for path in bind_paths:
+    argv.extend(["--bind", path, path])
+for path in ro_bind_paths:
+    argv.extend(["--ro-bind", path, path])
+for path in tmpfs_paths:
+    argv.extend(["--tmpfs", path])
+if not ({has_network_access}):
+    argv.append("--unshare-net")
+argv.extend([{python!r}, "-u", {submission_path!r}, *sys.argv[i:]])
+
+os.execvp(argv[0], argv)
