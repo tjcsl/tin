@@ -67,48 +67,23 @@ def run_submission(submission_id):
             else "/usr/bin/python3.10"
         )
 
-        if submission.assignment.language == "P":
-            if not settings.DEBUG or shutil.which("bwrap") is not None:
-                wrapper_text = """
-<REMOVED>
-                """.strip(" \n").format(
-                    has_network_access=bool(submission.assignment.has_network_access),
-                    venv_path=(
-                        submission.assignment.venv.get_full_path()
-                        if submission.assignment.venv_fully_created
-                        else None
-                    ),
-                    submission_path=submission_path,
-                    python=python_exe,
-                )
-            else:
-                wrapper_text = """
-<REMOVED>
-                """.strip(" \n").format(
-                    submission_path=submission_path,
-                    python=python_exe,
-                )
+        if not settings.DEBUG or shutil.which("bwrap") is not None:
+            folder_name = "sandboxed"
         else:
-            if not settings.DEBUG or shutil.which("bwrap") is not None:
-                wrapper_text = """
-<REMOVED>
-                """.strip(" \n").format(
-                    has_network_access=bool(submission.assignment.has_network_access),
-                    venv_path=(
-                        submission.assignment.venv.get_full_path()
-                        if submission.assignment.venv_fully_created
-                        else None
-                    ),
-                    submission_path=submission_path,
-                    python=python_exe,
-                )
-            else:
-                wrapper_text = """
-<REMOVED>
-                """.strip(" \n").format(
-                    submission_path=submission_path,
-                    python=python_exe,
-                )
+            folder_name = "testing"
+
+        with open(os.path.join(settings.BASE_DIR, "sandboxing", "wrappers", folder_name, f"{submission.assignment.language}.txt")) as wrapper_file:
+            wrapper_text = wrapper_file.read().format(
+                has_network_access=bool(submission.assignment.has_network_access),
+                venv_path=(
+                    submission.assignment.venv.get_full_path()
+                    if submission.assignment.venv_fully_created
+                    else None
+                ),
+                submission_path=submission_path,
+                python=python_exe,
+            )
+
         with open(submission_wrapper_path, "w", encoding="utf-8") as f_obj:
             f_obj.write(wrapper_text)
 
