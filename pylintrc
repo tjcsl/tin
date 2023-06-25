@@ -2,6 +2,7 @@
 init-hook=import sys; sys.path.insert(0, 'tin/apps')
 
 load-plugins=pylint_django
+django-settings-module=tin.settings
 
 [MAIN]
 disable=consider-using-with,missing-docstring,no-else-return,no-else-raise,bad-continuation,duplicate-code,too-many-branches,too-many-nested-blocks,too-many-locals,too-many-statements,too-many-public-methods,too-few-public-methods,super-with-arguments,no-member,arguments-differ,consider-using-f-string,invalid-str-returned,invalid-name,unspecified-encoding,protected-access,arguments-renamed,bad-plugin-value,useless-option-value,raise-missing-from
