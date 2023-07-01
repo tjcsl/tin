@@ -1,4 +1,3 @@
-from email.policy import default
 from django import forms
 from django.conf import settings
 
@@ -44,27 +43,27 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_count": "Rate limit count",
             "submission_limit_interval": "Rate limit interval (minutes)",
             "submission_limit_cooldown": "Rate limit cooldown period (minutes)",
-            "is_quiz": "Is this a quiz?"
+            "is_quiz": "Is this a quiz?",
         }
         help_texts = {
             "filename": "Clarify which file students need to upload (including the file "
-                        "extension). For Java assignments, this also sets the name of the "
-                        "saved submission file.",
+            "extension). For Java assignments, this also sets the name of the "
+            "saved submission file.",
             "grader_has_network_access": 'If unset, this effectively disables "Give submissions '
-                                         'internet access" below. If set, it increases the amount '
-                                         'of time it takes to start up the grader (to about 1.5 '
-                                         'seconds). This is not recommended unless necessary.',
+            'internet access" below. If set, it increases the amount '
+            "of time it takes to start up the grader (to about 1.5 "
+            "seconds). This is not recommended unless necessary.",
             "submission_limit_count": "",
             "submission_limit_interval": "Tin sets rate limits on submissions. If a student tries "
-                                         "to submit too many submissions in a given interval, "
-                                         "Tin will block further submissions until a cooldown "
-                                         "period has elapsed since the time of the last "
-                                         "submission.",
+            "to submit too many submissions in a given interval, "
+            "Tin will block further submissions until a cooldown "
+            "period has elapsed since the time of the last "
+            "submission.",
             "submission_limit_cooldown": 'This sets the length of the "cooldown" period after a '
-                                         'student exceeds the rate limit for submissions.',
+            "student exceeds the rate limit for submissions.",
             "folder": "If blank, assignment will show on the main classroom page.",
             "is_quiz": "If set, Tin will take the selected action if a student clicks off of the "
-                       "submission page."
+            "submission page.",
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
 
