@@ -1,0 +1,1 @@
+Class-Path: /usr/share/java/junit.jar /usr/share/java/hamcrest.jar .
