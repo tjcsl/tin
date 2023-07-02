@@ -3,6 +3,7 @@
 
 {% block head %}
   <script src="{% static 'vendor/ace/ace.js' %}"></script>
+<script src="{% static 'vendor/ace/ext-modelist.js' %}"></script>
   <script src="{% static 'vendor/js.cookie-2.2.1.min.js' %}"></script>
   <script src="{% static 'js/upload-dragdrop.js' %}"></script>
   <script>
@@ -14,11 +15,10 @@
       var editor = ace.edit("editor");
       editor.setTheme("ace/theme/tomorrow");
 
-      {% if assignment.language == "P" %}
-        editor.session.setMode("ace/mode/python");
-      {% elif assignment.language == "J" %}
-        editor.session.setMode("ace/mode/java");
-      {% endif %}
+      var modelist = ace.require("ace/ext/modelist");
+      var filename = "{{ assignment.filename }}";
+      var mode = modelist.getModeForPath(filename).mode;
+      editor.session.setMode(mode);
 
       editor.getSession().setValue(textarea.val());
       editor.getSession().on("change", function() {
