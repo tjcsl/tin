@@ -47,10 +47,8 @@ class Course(models.Model):
     def get_teacher_str(self):
         return ", ".join((t.last_name for t in self.teacher.all()))
 
-
     def is_student_in_course(self, user):
         return user in self.students.all()
-
 
     def is_only_student_in_course(self, user):
         return user in self.students.all() and not (user.is_superuser or user in self.teacher.all())

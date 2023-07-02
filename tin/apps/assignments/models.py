@@ -31,7 +31,9 @@ class AssignmentQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(Q(course__teacher=user) | Q(course__students=user, hidden=False)).distinct()
+            return self.filter(
+                Q(course__teacher=user) | Q(course__students=user, hidden=False)
+            ).distinct()
 
     def filter_editable(self, user):
         if user.is_superuser:
@@ -58,10 +60,10 @@ class Assignment(models.Model):
     description = models.CharField(max_length=4096)
 
     LANGUAGES = (
-        ('P', 'Python 3'),
-        ('J', 'Java'),
+        ("P", "Python 3"),
+        ("J", "Java"),
     )
-    language = models.CharField(max_length=1, choices=LANGUAGES, default='P')
+    language = models.CharField(max_length=1, choices=LANGUAGES, default="P")
 
     filename = models.CharField(max_length=50, default="main.py")
 
@@ -145,11 +147,7 @@ class Assignment(models.Model):
             raise FileNotFoundError from e
 
     def save_file(self, file_text: str, file_name: str) -> None:
-        fpath = os.path.join(
-            settings.MEDIA_ROOT,
-            "assignment-{}".format(self.id),
-            file_name
-        )
+        fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(self.id), file_name)
 
         os.makedirs(os.path.dirname(fpath), exist_ok=True)
 
@@ -178,8 +176,9 @@ class Assignment(models.Model):
 
         if (
             Submission.objects.filter(
-                date_submitted__gte=now - datetime.timedelta(minutes=self.submission_limit_interval),
-                student=student
+                date_submitted__gte=now
+                - datetime.timedelta(minutes=self.submission_limit_interval),
+                student=student,
             ).count()
             > self.submission_limit_count
         ):
@@ -262,7 +261,10 @@ class Quiz(models.Model):
         return f"Quiz for {self.assignment}"
 
     def issues_for_student(self, student):
-        return sum(lm.severity for lm in self.log_messages.filter(student=student)) >= settings.QUIZ_ISSUE_THRESHOLD
+        return (
+            sum(lm.severity for lm in self.log_messages.filter(student=student))
+            >= settings.QUIZ_ISSUE_THRESHOLD
+        )
 
     def open_for_student(self, student):
         return not (self.locked_for_student(student) or self.ended_for_student(student))
@@ -275,15 +277,9 @@ class Quiz(models.Model):
 
 
 class LogMessage(models.Model):
-    quiz = models.ForeignKey(
-        Quiz,
-        on_delete=models.CASCADE,
-        related_name="log_messages"
-    )
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="log_messages")
     student = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.CASCADE,
-        related_name="log_messages"
+        get_user_model(), on_delete=models.CASCADE, related_name="log_messages"
     )
 
     date = models.DateTimeField(auto_now_add=True)

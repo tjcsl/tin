@@ -12,7 +12,7 @@ def get_assignment_sandbox_args(
     direct_network_access: bool = False,
     whitelist=None,
     read_only=None,
-    extra_firejail_args=None
+    extra_firejail_args=None,
 ):
     firejail_args = [
         "firejail",

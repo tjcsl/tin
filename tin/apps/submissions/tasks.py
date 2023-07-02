@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 def truncate_output(text, field_name):
     max_len = Submission._meta.get_field(field_name).max_length
-    return ("..." + text[-max_len + 5:]) if len(text) > max_len else text
+    return ("..." + text[-max_len + 5 :]) if len(text) > max_len else text
 
 
 @shared_task
@@ -72,7 +72,15 @@ def run_submission(submission_id):
         else:
             folder_name = "testing"
 
-        with open(os.path.join(settings.BASE_DIR, "sandboxing", "wrappers", folder_name, f"{submission.assignment.language}.txt")) as wrapper_file:
+        with open(
+            os.path.join(
+                settings.BASE_DIR,
+                "sandboxing",
+                "wrappers",
+                folder_name,
+                f"{submission.assignment.language}.txt",
+            )
+        ) as wrapper_file:
             wrapper_text = wrapper_file.read().format(
                 has_network_access=bool(submission.assignment.has_network_access),
                 venv_path=(
