@@ -176,9 +176,9 @@ class Virtualenv(models.Model):
                 raise FileNotFoundError from e
 
             try:
-                self.package_installation_output = res.stdout.decode()[-16 * 1024:]
+                self.package_installation_output = res.stdout.decode()[-16 * 1024 :]
             except UnicodeDecodeError:
-                self.package_installation_output = str(res.stdout)[-16 * 1024:]
+                self.package_installation_output = str(res.stdout)[-16 * 1024 :]
         finally:
             self.installing_packages = False
             self.save()

@@ -2,14 +2,24 @@
 import os
 import sys
 import subprocess
+
 if not __file__.endswith("shell.py"):
-    subprocess.call([sys.executable, os.path.join(os.path.dirname(__file__), "manage.py"), "shell", "-c", open(__file__).read()])
+    subprocess.call(
+        [
+            sys.executable,
+            os.path.join(os.path.dirname(__file__), "manage.py"),
+            "shell",
+            "-c",
+            open(__file__).read(),
+        ]
+    )
     exit()
 
 from tin.apps.users.models import User
 
 password = input("Enter password for all users: ")
 
+# fmt: off
 users = [
     #[username, id, full_name, first_name, last_name, email, is_teacher, is_student, is_staff, is_superuser]
     ["2020jbeutner", 33538, "John Beutner", "John", "Beutner", "2020jbeutner@tjhsst.edu", False, True, False, False],
@@ -18,12 +28,14 @@ users = [
     ["pcgabor", None, "Peter Gabor", "Peter", "Gabor", "pcgabor@fcps.edu", True, False, False, False],
     ["admin", None, "Admin", "Admin", "Admin", "admin@example.com", False, False, True, True],
 ]
+# fmt: on
+
 for user_info in users:
     print("Creating user {}".format(user_info[0]))
     if user_info[1] is None:
-        user = User.objects.get_or_create(username = user_info[0])[0]
+        user = User.objects.get_or_create(username=user_info[0])[0]
     else:
-        user = User.objects.get_or_create(id = user_info[1])[0]
+        user = User.objects.get_or_create(id=user_info[1])[0]
         user.username = user_info[0]
 
     user.full_name = user_info[2]
@@ -36,4 +48,3 @@ for user_info in users:
     user.is_superuser = user_info[9]
     user.set_password(password)
     user.save()
-
