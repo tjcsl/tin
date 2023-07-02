@@ -86,7 +86,7 @@ def show_view(request, assignment_id):
                         period = "all"
                 else:
                     period = "all"
-            
+
             if period == "all":
                 active_period = "all"
                 student_list = course.students.all().order_by("periods", "last_name")
@@ -162,7 +162,7 @@ def create_view(request, course_id):
                     assignment = assignment,
                     action = quiz_type
                 )
-            
+
             return redirect("assignments:show", assignment.id)
     else:
         assignment_form = AssignmentForm(course)
@@ -288,6 +288,53 @@ def upload_grader_view(request, assignment_id):
             "folder": assignment.folder,
             "assignment": assignment,
             "nav_item": "Upload grader",
+        },
+    )
+
+
+@teacher_or_superuser_required
+def upload_file_view(request, assignment_id):
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
+
+    form = FileUploadForm()
+
+    file_errors = ""
+
+    if request.method == "POST":
+        if request.FILES.get("upload_file"):
+            if request.FILES["upload_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                form = FileUploadForm(
+                    request.POST,
+                    request.FILES,
+                )
+                if form.is_valid():
+                    try:
+                        text = request.FILES["upload_file"].read().decode()
+                    except UnicodeDecodeError:
+                        file_errors = "Please don't upload binary files."
+                    else:
+                        assignment.save_file(text, request.FILES["upload_file"].name)
+
+                        return redirect("courses:index")
+                else:
+                    file_errors = form.errors
+            else:
+                file_errors = "That file's too large."
+        else:
+            file_errors = "Please select a file."
+
+    return render(
+        request,
+        "assignments/upload_file.html",
+        {
+            "form": form,
+            "file_errors": file_errors,
+            "course": assignment.course,
+            "folder": assignment.folder,
+            "assignment": assignment,
+            "nav_item": "Upload file",
         },
     )
 
@@ -458,6 +505,141 @@ def submit_view(request, assignment_id):
     )
 
 
+@login_required
+def quiz_view(request, assignment_id):
+    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+
+    if not assignment.is_quiz or assignment.quiz.locked_for_student(request.user) or assignment.quiz.ended_for_student(request.user):
+        raise http.Http404
+
+    student = request.user
+
+    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by("-date_submitted")
+    latest_submission = submissions.first() if submissions else None
+
+    latest_submission_text = None
+    if latest_submission:
+        with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
+            latest_submission_text = f_obj.read()
+
+    text_form = TextSubmissionForm(initial={"text": latest_submission_text})
+    text_errors = ""
+
+    if request.method == "POST":
+        if assignment.grader_file is None:
+            return redirect("assignments:show", assignment.id)
+
+        if Submission.objects.filter(student=request.user, complete=False).count() >= settings.CONCURRENT_USER_SUBMISSION_LIMIT:
+            text_form = TextSubmissionForm(request.POST)
+            text_errors = (
+                "You may only have a maximum of {} submission{} running at the same "
+                "time".format(
+                    settings.CONCURRENT_USER_SUBMISSION_LIMIT,
+                    "" if settings.CONCURRENT_USER_SUBMISSION_LIMIT == 1 else "s",
+                )
+            )
+        elif CooldownPeriod.exists(assignment=assignment, student=student):
+            cooldown_period = CooldownPeriod.objects.get(assignment=assignment, student=student)
+
+            end_delta = cooldown_period.get_time_to_end()
+            # Throw out the microseconds
+            end_delta = datetime.timedelta(days=end_delta.days, seconds=end_delta.seconds)
+
+            text_form = TextSubmissionForm(request.POST)
+            text_errors = (
+                "You have made too many submissions too quickly. You will be able to re-submit"
+                "in {}.".format(end_delta)
+            )
+        else:
+            text_form = TextSubmissionForm(request.POST)
+            if text_form.is_valid():
+                submission_text = text_form.cleaned_data["text"]
+                if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
+                    submission = text_form.save(commit=False)
+                    submission.assignment = assignment
+                    submission.student = student
+                    submission.save_file(submission_text)
+                    submission.save()
+
+                    assignment.check_rate_limit(student)
+
+                    submission.create_backup_copy(submission_text)
+
+                    run_submission.delay(submission.id)
+                    return redirect("assignments:quiz", assignment.id)
+                else:
+                    text_errors = "Submission too large"
+
+    quiz_color = assignment.quiz.issues_for_student(request.user) and assignment.quiz.action == "1"
+
+    return render(
+        request,
+        "assignments/quiz.html",
+        {
+            "nav_item": "Take Quiz",
+            "course": assignment.course,
+            "folder": assignment.folder,
+            "assignment": assignment,
+            "latest_submission": latest_submission,
+            "text_form": text_form,
+            "text_errors": text_errors,
+            "quiz_color": quiz_color,
+        },
+    )
+
+
+@login_required
+def quiz_report_view(request, assignment_id):
+    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+
+    content = request.GET.get("content", "")
+    severity = int(request.GET.get("severity", 0))
+
+    if assignment.quiz.ended_for_student(request.user):
+        json_data = json.dumps("no action")
+    else:
+        LogMessage.objects.create(
+            quiz=assignment.quiz,
+            student=request.user,
+            content=content,
+            severity=severity
+        )
+
+        resp = "no action"
+        if severity >= settings.QUIZ_ISSUE_THRESHOLD:
+            if assignment.quiz.action == "1":
+                resp = "color"
+            elif assignment.quiz.action == "2":
+                resp = "lock"
+
+        json_data = json.dumps(resp)
+    return http.HttpResponse(json_data, content_type="application/json")
+
+
+@login_required
+def quiz_end_view(request, assignment_id):
+    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+
+    LogMessage.objects.create(
+        quiz=assignment.quiz,
+        student=request.user,
+        content="Ended quiz",
+        severity=0
+    )
+
+    return redirect("assignments:show", assignment.id)
+
+
+@teacher_or_superuser_required
+def quiz_clear_view(request, assignment_id, user_id):
+    assignment = get_object_or_404(Assignment.objects.filter_editable(request.user), id=assignment_id)
+    user = get_object_or_404(get_user_model(), id=user_id)
+
+    assignment.quiz.log_messages.filter(student=user).delete()
+
+    return redirect("assignments:student_submission", assignment.id, user.id)
+
+
 @teacher_or_superuser_required
 def scores_csv_view(request, assignment_id):
     assignment = get_object_or_404(
@@ -564,6 +746,31 @@ def download_log_view(request, assignment_id):
     return response
 
 
+@login_required
+def show_folder_view(request, course_id, folder_id):
+    course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
+    folder = get_object_or_404(course.folders.all(), id=folder_id)
+
+    assignments = course.assignments.filter(folder=folder).filter_visible(request.user)
+    if course.sort_assignments_by == "due_date":
+        assignments = assignments.order_by("-due")
+    elif course.sort_assignments_by == "name":
+        assignments = assignments.order_by("name")
+
+    context = {
+        "course": course,
+        "folder": folder,
+        "assignments": assignments,
+        "period": course.period_set.filter(students=request.user),
+        "is_student": course.is_student_in_course(request.user),
+        "is_teacher": request.user in course.teacher.all(),
+    }
+    if course.is_student_in_course(request.user):
+        context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
+
+    return render(request, "assignments/show_folder.html", context=context)
+
+
 @teacher_or_superuser_required
 def create_folder_view(request, course_id):
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
@@ -617,210 +824,3 @@ def delete_folder_view(request, course_id, folder_id):
 
     folder.delete()
     return redirect("courses:show", course.id)
-
-
-@login_required
-def show_folder_view(request, course_id, folder_id):
-    course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
-    folder = get_object_or_404(course.folders.all(), id=folder_id)
-
-    assignments = course.assignments.filter(folder=folder).filter_visible(request.user)
-    if course.sort_assignments_by == "due_date":
-        assignments = assignments.order_by("-due")
-    elif course.sort_assignments_by == "name":
-        assignments = assignments.order_by("name")
-
-    context = {
-        "course": course,
-        "folder": folder,
-        "assignments": assignments,
-        "period": course.period_set.filter(students=request.user),
-        "is_student": course.is_student_in_course(request.user),
-        "is_teacher": request.user in course.teacher.all(),
-    }
-    if course.is_student_in_course(request.user):
-        context["unsubmitted_assignments"] = assignments.exclude(submissions__student=request.user)
-
-    return render(request, "assignments/show_folder.html", context=context)
-
-
-@teacher_or_superuser_required
-def upload_file_view(request, assignment_id):
-    assignment = get_object_or_404(
-        Assignment.objects.filter_editable(request.user), id=assignment_id
-    )
-
-    form = FileUploadForm()
-
-    file_errors = ""
-
-    if request.method == "POST":
-        if request.FILES.get("upload_file"):
-            if request.FILES["upload_file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                form = FileUploadForm(
-                    request.POST,
-                    request.FILES,
-                )
-                if form.is_valid():
-                    try:
-                        text = request.FILES["upload_file"].read().decode()
-                    except UnicodeDecodeError:
-                        file_errors = "Please don't upload binary files."
-                    else:
-                        assignment.save_file(text, request.FILES["upload_file"].name)
-
-                        return redirect("courses:index")
-                else:
-                    file_errors = form.errors
-            else:
-                file_errors = "That file's too large."
-        else:
-            file_errors = "Please select a file."
-
-    return render(
-        request,
-        "assignments/upload_file.html",
-        {
-            "form": form,
-            "file_errors": file_errors,
-            "course": assignment.course,
-            "folder": assignment.folder,
-            "assignment": assignment,
-            "nav_item": "Upload file",
-        },
-    )
-
-
-@login_required
-def quiz_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
-
-    if not assignment.is_quiz or assignment.quiz.locked_for_student(request.user) or assignment.quiz.ended_for_student(request.user):
-        raise http.Http404
-
-    student = request.user
-
-    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by("-date_submitted")
-    latest_submission = submissions.first() if submissions else None
-
-    latest_submission_text = None
-    if latest_submission:
-        with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
-            latest_submission_text = f_obj.read()
-
-    text_form = TextSubmissionForm(initial={"text": latest_submission_text})
-    text_errors = ""
-
-    if request.method == "POST":
-        if assignment.grader_file is None:
-            return redirect("assignments:show", assignment.id)
-
-        if Submission.objects.filter(student=request.user, complete=False).count() >= settings.CONCURRENT_USER_SUBMISSION_LIMIT:
-            text_form = TextSubmissionForm(request.POST)
-            text_errors = (
-                "You may only have a maximum of {} submission{} running at the same "
-                "time".format(
-                    settings.CONCURRENT_USER_SUBMISSION_LIMIT,
-                    "" if settings.CONCURRENT_USER_SUBMISSION_LIMIT == 1 else "s",
-                )
-            )
-        elif CooldownPeriod.exists(assignment=assignment, student=student):
-            cooldown_period = CooldownPeriod.objects.get(assignment=assignment, student=student)
-
-            end_delta = cooldown_period.get_time_to_end()
-            # Throw out the microseconds
-            end_delta = datetime.timedelta(days=end_delta.days, seconds=end_delta.seconds)
-
-            text_form = TextSubmissionForm(request.POST)
-            text_errors = (
-                "You have made too many submissions too quickly. You will be able to re-submit"
-                "in {}.".format(end_delta)
-            )
-        else:
-            text_form = TextSubmissionForm(request.POST)
-            if text_form.is_valid():
-                submission_text = text_form.cleaned_data["text"]
-                if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
-                    submission = text_form.save(commit=False)
-                    submission.assignment = assignment
-                    submission.student = student
-                    submission.save_file(submission_text)
-                    submission.save()
-
-                    assignment.check_rate_limit(student)
-
-                    submission.create_backup_copy(submission_text)
-
-                    run_submission.delay(submission.id)
-                    return redirect("assignments:quiz", assignment.id)
-                else:
-                    text_errors = "Submission too large"
-
-    quiz_color = assignment.quiz.issues_for_student(request.user) and assignment.quiz.action == "1"
-
-    return render(
-        request,
-        "assignments/quiz.html",
-        {
-            "nav_item": "Take Quiz",
-            "course": assignment.course,
-            "folder": assignment.folder,
-            "assignment": assignment,
-            "latest_submission": latest_submission,
-            "text_form": text_form,
-            "text_errors": text_errors,
-            "quiz_color": quiz_color,
-        },
-    )
-
-
-@login_required
-def report_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
-
-    content = request.GET.get("content", "")
-    severity = int(request.GET.get("severity", 0))
-
-    if assignment.quiz.ended_for_student(request.user):
-        json_data = json.dumps("no action")
-    else:
-        LogMessage.objects.create(
-            quiz=assignment.quiz,
-            student=request.user,
-            content=content,
-            severity=severity
-        )
-
-        resp = "no action"
-        if severity >= settings.QUIZ_ISSUE_THRESHOLD:
-            if assignment.quiz.action == "1":
-                resp = "color"
-            elif assignment.quiz.action == "2":
-                resp = "lock"
-
-        json_data = json.dumps(resp)
-    return http.HttpResponse(json_data, content_type="application/json")
-
-
-@login_required
-def quiz_end_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
-
-    LogMessage.objects.create(
-        quiz=assignment.quiz,
-        student=request.user,
-        content="Ended quiz",
-        severity=0
-    )
-
-    return redirect("assignments:show", assignment.id)
-
-
-@teacher_or_superuser_required
-def clear_view(request, assignment_id, user_id):
-    assignment = get_object_or_404(Assignment.objects.filter_editable(request.user), id=assignment_id)
-    user = get_object_or_404(get_user_model(), id=user_id)
-
-    assignment.quiz.log_messages.filter(student=user).delete()
-
-    return redirect("assignments:student_submission", assignment.id, user.id)
