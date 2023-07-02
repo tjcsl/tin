@@ -436,14 +436,14 @@ def submit_view(request, assignment_id):
             if request.FILES.get("file"):
                 file_form = FileSubmissionForm(request.POST, request.FILES)
                 file_errors = (
-                    "You have made too many submissions too quickly. You will be able to re-submit"
-                    "in {}.".format(end_delta)
+                    "You have made too many submissions too quickly. You will be able to "
+                    "re-submit in {}.".format(end_delta)
                 )
             else:
                 text_form = TextSubmissionForm(request.POST)
                 text_errors = (
-                    "You have made too many submissions too quickly. You will be able to re-submit"
-                    "in {}.".format(end_delta)
+                    "You have made too many submissions too quickly. You will be able to "
+                    "re-submit in {}.".format(end_delta)
                 )
         else:
             if request.FILES.get("file"):

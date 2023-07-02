@@ -92,6 +92,7 @@ class FileUploadForm(forms.Form):
 
 class FileSubmissionForm(forms.Form):
     file = forms.FileField(
+        label="",
         max_length=settings.SUBMISSION_SIZE_LIMIT,
         allow_empty_file=False,
         help_text="You can also drag files onto this page to submit them.",
@@ -99,7 +100,7 @@ class FileSubmissionForm(forms.Form):
 
 
 class TextSubmissionForm(forms.ModelForm):
-    text = forms.CharField(widget=forms.Textarea(attrs={"cols": 130, "rows": 20}))
+    text = forms.CharField(label="", widget=forms.Textarea(attrs={"cols": 130, "rows": 20}))
 
     class Meta:
         model = Submission
