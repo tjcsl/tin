@@ -81,7 +81,9 @@ def show_view(request, assignment_id):
             if period == "":
                 if request.user in course.teacher.all():
                     try:
-                        period = course.period_set.filter(teacher=request.user).order_by("name")[0].id
+                        period = (
+                            course.period_set.filter(teacher=request.user).order_by("name")[0].id
+                        )
                     except:
                         period = "all"
                 else:
@@ -91,7 +93,9 @@ def show_view(request, assignment_id):
                 active_period = "all"
                 student_list = course.students.all().order_by("periods", "last_name")
             else:
-                active_period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
+                active_period = get_object_or_404(
+                    Period.objects.filter(course=course), id=int(period)
+                )
                 student_list = active_period.students.all().order_by("last_name")
         else:
             active_period = "all"
@@ -114,7 +118,13 @@ def show_view(request, assignment_id):
                 )
             else:
                 students_and_submissions.append(
-                    (student, period, latest_submission, assignment.quiz.ended_for_student(student), assignment.quiz.locked_for_student(student))
+                    (
+                        student,
+                        period,
+                        latest_submission,
+                        assignment.quiz.ended_for_student(student),
+                        assignment.quiz.locked_for_student(student),
+                    )
                 )
 
         context = {
@@ -158,10 +168,7 @@ def create_view(request, course_id):
 
             quiz_type = assignment_form.cleaned_data["is_quiz"]
             if quiz_type != "-1":
-                Quiz.objects.create(
-                    assignment = assignment,
-                    action = quiz_type
-                )
+                Quiz.objects.create(assignment=assignment, action=quiz_type)
 
             return redirect("assignments:show", assignment.id)
     else:
@@ -191,7 +198,9 @@ def edit_view(request, assignment_id):
         initial_is_quiz = assignment.quiz.action
     except:
         pass
-    assignment_form = AssignmentForm(course, instance=assignment, initial={"is_quiz": initial_is_quiz})
+    assignment_form = AssignmentForm(
+        course, instance=assignment, initial={"is_quiz": initial_is_quiz}
+    )
     if request.method == "POST":
         assignment_form = AssignmentForm(course, data=request.POST, instance=assignment)
         if assignment_form.is_valid():
@@ -209,10 +218,7 @@ def edit_view(request, assignment_id):
                     assignment.save()
                     assignment.quiz.save()
                 except:
-                    Quiz.objects.create(
-                        assignment = assignment,
-                        action = quiz_type
-                    )
+                    Quiz.objects.create(assignment=assignment, action=quiz_type)
 
             return redirect("assignments:show", assignment.id)
 
@@ -351,7 +357,11 @@ def student_submissions_view(request, assignment_id, student_id):
     )
     latest_submission = submissions.first() if submissions else None
 
-    log_messages = assignment.quiz.log_messages.filter(student=request.user).order_by("date") if assignment.is_quiz else None
+    log_messages = (
+        assignment.quiz.log_messages.filter(student=request.user).order_by("date")
+        if assignment.is_quiz
+        else None
+    )
 
     latest_submission_text = None
     if latest_submission:
@@ -507,14 +517,22 @@ def submit_view(request, assignment_id):
 
 @login_required
 def quiz_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+    assignment = get_object_or_404(
+        Assignment.objects.filter_visible(request.user), id=assignment_id
+    )
 
-    if not assignment.is_quiz or assignment.quiz.locked_for_student(request.user) or assignment.quiz.ended_for_student(request.user):
+    if (
+        not assignment.is_quiz
+        or assignment.quiz.locked_for_student(request.user)
+        or assignment.quiz.ended_for_student(request.user)
+    ):
         raise http.Http404
 
     student = request.user
 
-    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by("-date_submitted")
+    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by(
+        "-date_submitted"
+    )
     latest_submission = submissions.first() if submissions else None
 
     latest_submission_text = None
@@ -529,7 +547,10 @@ def quiz_view(request, assignment_id):
         if assignment.grader_file is None:
             return redirect("assignments:show", assignment.id)
 
-        if Submission.objects.filter(student=request.user, complete=False).count() >= settings.CONCURRENT_USER_SUBMISSION_LIMIT:
+        if (
+            Submission.objects.filter(student=request.user, complete=False).count()
+            >= settings.CONCURRENT_USER_SUBMISSION_LIMIT
+        ):
             text_form = TextSubmissionForm(request.POST)
             text_errors = (
                 "You may only have a maximum of {} submission{} running at the same "
@@ -590,7 +611,9 @@ def quiz_view(request, assignment_id):
 
 @login_required
 def quiz_report_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+    assignment = get_object_or_404(
+        Assignment.objects.filter_visible(request.user), id=assignment_id
+    )
 
     content = request.GET.get("content", "")
     severity = int(request.GET.get("severity", 0))
@@ -599,10 +622,7 @@ def quiz_report_view(request, assignment_id):
         json_data = json.dumps("no action")
     else:
         LogMessage.objects.create(
-            quiz=assignment.quiz,
-            student=request.user,
-            content=content,
-            severity=severity
+            quiz=assignment.quiz, student=request.user, content=content, severity=severity
         )
 
         resp = "no action"
@@ -618,13 +638,12 @@ def quiz_report_view(request, assignment_id):
 
 @login_required
 def quiz_end_view(request, assignment_id):
-    assignment = get_object_or_404(Assignment.objects.filter_visible(request.user), id=assignment_id)
+    assignment = get_object_or_404(
+        Assignment.objects.filter_visible(request.user), id=assignment_id
+    )
 
     LogMessage.objects.create(
-        quiz=assignment.quiz,
-        student=request.user,
-        content="Ended quiz",
-        severity=0
+        quiz=assignment.quiz, student=request.user, content="Ended quiz", severity=0
     )
 
     return redirect("assignments:show", assignment.id)
@@ -632,7 +651,9 @@ def quiz_end_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def quiz_clear_view(request, assignment_id, user_id):
-    assignment = get_object_or_404(Assignment.objects.filter_editable(request.user), id=assignment_id)
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
     user = get_object_or_404(get_user_model(), id=user_id)
 
     assignment.quiz.log_messages.filter(student=user).delete()
