@@ -99,6 +99,58 @@ def edit_view(request, course_id):
 
 
 @teacher_or_superuser_required
+def students_view(request, course_id):
+    """View students enrolled in a course"""
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+
+    period = request.GET.get("period", "all")
+    period_set = course.period_set.order_by("teacher", "name")
+
+    if period == "all":
+        students = {s: course.period_set.filter(students=s) for s in course.students.all()}
+
+        return render(
+            request,
+            "courses/students-all.html",
+            {
+                "nav_item": "Students",
+                "course": course,
+                "period": course.period_set.filter(students=request.user),
+                "students": students,
+                "period_set": period_set,
+            },
+        )
+    else:
+        active_period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
+
+        students = [
+            [
+                s,
+                [
+                    assignment.name
+                    for assignment in Assignment.objects.filter_visible(request.user)
+                    .filter(course=course)
+                    .exclude(submissions__student=s)
+                ],
+            ]
+            for s in active_period.students.all()
+        ]
+
+        return render(
+            request,
+            "courses/students.html",
+            {
+                "nav_item": "Students",
+                "course": course,
+                "period": course.period_set.filter(students=request.user),
+                "students": students,
+                "period_set": period_set,
+                "active_period": active_period,
+            },
+        )
+
+
+@teacher_or_superuser_required
 def import_students_view(request, course_id):
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
@@ -150,58 +202,6 @@ def manage_students_view(request, course_id):
             "nav_item": "Edit",
         },
     )
-
-
-@teacher_or_superuser_required
-def students_view(request, course_id):
-    """View students enrolled in a course"""
-    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
-
-    period = request.GET.get("period", "all")
-    period_set = course.period_set.order_by("teacher", "name")
-
-    if period == "all":
-        students = {s: course.period_set.filter(students=s) for s in course.students.all()}
-
-        return render(
-            request,
-            "courses/students-all.html",
-            {
-                "nav_item": "Students",
-                "course": course,
-                "period": course.period_set.filter(students=request.user),
-                "students": students,
-                "period_set": period_set,
-            }
-        )
-    else:
-        active_period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
-
-        students = [
-            [
-                s,
-                [
-                    assignment.name
-                    for assignment in Assignment.objects.filter_visible(request.user)
-                    .filter(course=course)
-                    .exclude(submissions__student=s)
-                ],
-            ]
-            for s in active_period.students.all()
-        ]
-
-        return render(
-            request,
-            "courses/students.html",
-            {
-                "nav_item": "Students",
-                "course": course,
-                "period": course.period_set.filter(students=request.user),
-                "students": students,
-                "period_set": period_set,
-                "active_period": active_period,
-            },
-        )
 
 
 @teacher_or_superuser_required
