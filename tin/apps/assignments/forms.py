@@ -15,6 +15,14 @@ class AssignmentForm(forms.ModelForm):
         super(AssignmentForm, self).__init__(*args, **kwargs)
         self.fields["folder"].queryset = Folder.objects.filter(course=course)
 
+        # Prevent changing the language of an assignment after it has been created
+        instance = getattr(self, "instance", None)
+        if instance and instance.pk:
+            self.fields["language"].help_text = (
+                "Changing this after uploading a grader script is not recommended and will cause "
+                "issues."
+            )
+
     class Meta:
         model = Assignment
         fields = [
@@ -65,7 +73,7 @@ class AssignmentForm(forms.ModelForm):
             "is_quiz": "If set, Tin will take the selected action if a student clicks off of the "
             "submission page.",
         }
-        widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 12})}
+        widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 8})}
 
 
 class GraderScriptUploadForm(forms.Form):
