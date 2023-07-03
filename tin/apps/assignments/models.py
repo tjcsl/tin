@@ -64,7 +64,12 @@ class Assignment(models.Model):
 
     name = models.CharField(max_length=50)
     folder = models.ForeignKey(
-        Folder, on_delete=models.SET_NULL, default=None, null=True, blank=True
+        Folder,
+        on_delete=models.SET_NULL,
+        default=None,
+        null=True,
+        blank=True,
+        related_name="assignments",
     )
     description = models.CharField(max_length=4096)
 

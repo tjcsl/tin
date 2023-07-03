@@ -3,7 +3,13 @@ from django.utils import timezone
 
 from ..assignments.models import Assignment
 from ..auth.decorators import login_required, teacher_or_superuser_required
-from .forms import CourseForm, PeriodForm, StudentForm
+from .forms import (
+    CourseForm,
+    PeriodForm,
+    StudentForm,
+    SelectCourseToImportFromForm,
+    ImportFromSelectedCourseForm,
+)
 from .models import Course, Period, StudentImport
 
 
@@ -95,6 +101,72 @@ def edit_view(request, course_id):
 
     return render(
         request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Edit"}
+    )
+
+
+@teacher_or_superuser_required
+def import_select_course_view(request, course_id):
+    """Select another course to import assignments or folders from"""
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+
+    courses = Course.objects.filter_editable(request.user).exclude(id=course_id)
+
+    if request.method == "POST":
+        form = SelectCourseToImportFromForm(data=request.POST, courses=courses)
+        if form.is_valid():
+            other_course = form.cleaned_data["course"]
+            return redirect("courses:import_from_selected_course", course.id, other_course.id)
+    else:
+        form = SelectCourseToImportFromForm(courses=courses)
+
+    return render(
+        request,
+        "courses/import_select_course.html",
+        {"form": form, "course": course, "nav_item": "Import"},
+    )
+
+
+@teacher_or_superuser_required
+def import_from_selected_course(request, course_id, other_course_id):
+    """Select folders and assignments to import from another course"""
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+    other_course = get_object_or_404(
+        Course.objects.filter_editable(request.user), id=other_course_id
+    )
+
+    if request.method == "POST":
+        form = ImportFromSelectedCourseForm(data=request.POST, course=other_course)
+        if form.is_valid():
+            # Import folders
+            if form.cleaned_data["folders"]:
+                for folder in form.cleaned_data["folders"]:
+                    assignments = list(folder.assignments.all())
+                    folder.pk = None
+                    folder.course = course
+                    folder.save()
+                    for assignment in assignments:
+                        assignment.pk = None
+                        assignment.course = course
+                        assignment.folder = folder
+                        assignment.grader_file = None
+                        assignment.save()
+
+            # Import assignments
+            if form.cleaned_data["assignments"]:
+                for assignment in form.cleaned_data["assignments"]:
+                    assignment.pk = None
+                    assignment.course = course
+                    assignment.grader_file = None
+                    assignment.save()
+
+            return redirect("courses:show", course.id)
+    else:
+        form = ImportFromSelectedCourseForm(course=other_course)
+
+    return render(
+        request,
+        "courses/import_from_selected_course.html",
+        {"form": form, "course": course, "nav_item": "Import"},
     )
 
 
