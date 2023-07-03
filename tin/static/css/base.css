@@ -130,13 +130,16 @@ body {
   text-align: right;
 }
 
+ul {
+  list-style-type: none;
+}
+
 ul#course-list, ul#assignment-list {
   padding-left: 0px;
   margin-left: 0px;
 }
 ul#course-list li, ul#assignment-list li {
   display: flex;
-  list-style-type: none;
   padding: 10px 0px;
   border-top: 1px solid lightgray;
 }
