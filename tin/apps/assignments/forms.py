@@ -80,6 +80,7 @@ class GraderScriptUploadForm(forms.Form):
     grader_file = forms.FileField(
         max_length=settings.SUBMISSION_SIZE_LIMIT,
         allow_empty_file=False,
+        help_text="Size limit is 1MB.",
     )
 
 
@@ -87,6 +88,7 @@ class FileUploadForm(forms.Form):
     upload_file = forms.FileField(
         max_length=settings.SUBMISSION_SIZE_LIMIT,
         allow_empty_file=False,
+        help_text="Size limit is 1MB.",
     )
 
 
@@ -95,7 +97,7 @@ class FileSubmissionForm(forms.Form):
         label="",
         max_length=settings.SUBMISSION_SIZE_LIMIT,
         allow_empty_file=False,
-        help_text="You can also drag files onto this page to submit them.",
+        help_text="You can also drag files onto this page to submit them. Size limit is 1MB.",
     )
 
 

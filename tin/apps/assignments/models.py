@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import subprocess
+from typing import List, Tuple
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -15,6 +16,14 @@ from ..submissions.models import Submission
 from ..venvs.models import Virtualenv
 
 logger = logging.getLogger(__name__)
+
+
+def sizeof_fmt(num):
+    for unit in ("", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"):
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}B"
+        num /= 1024.0
+    return f"{num:.1f}YiB"
 
 
 class Folder(models.Model):
@@ -146,6 +155,28 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
+    def list_files(self) -> List[Tuple[int, str, str, datetime.datetime]]:
+        assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
+
+        files = []
+        grader_file = upload_grader_file_path(self, "")
+        grader_log_file = self.grader_log_filename
+
+        for i, item in enumerate(os.scandir(assignment_path)):
+            if item.is_file():
+                stat = item.stat(follow_symlinks=False)
+                item_details = (
+                    i,
+                    item.name,
+                    item.path,
+                    sizeof_fmt(stat.st_size),
+                    datetime.datetime.fromtimestamp(stat.st_mtime),
+                )
+                if not grader_file.endswith(item.name) and not grader_log_file.endswith(item.name):
+                    files.append(item_details)
+
+        return files
+
     def save_file(self, file_text: str, file_name: str) -> None:
         fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(self.id), file_name)
 
@@ -171,6 +202,14 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
+    def delete_file(self, file_id: int) -> None:
+        for i, item in enumerate(
+            os.scandir(os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}"))
+        ):
+            if i == file_id and os.path.exists(item.path) and item.is_file():
+                os.remove(item.path)
+                return
+
     def check_rate_limit(self, student) -> None:
         now = timezone.localtime()
 
@@ -194,7 +233,11 @@ class Assignment(models.Model):
 
     @property
     def grader_log_filename(self):
-        return self.grader_file.name.rsplit(".", 1)[0] + ".log" if self.grader_file else None
+        return (
+            upload_grader_file_path(self, "").rsplit(".", 1)[0] + ".log"
+            if self.grader_file
+            else None
+        )
 
     @property
     def is_quiz(self):
