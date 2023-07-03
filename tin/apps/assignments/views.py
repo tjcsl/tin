@@ -29,7 +29,7 @@ from .forms import (
     FileUploadForm,
     TextSubmissionForm,
 )
-from .models import Assignment, CooldownPeriod, LogMessage, Quiz
+from .models import Assignment, CooldownPeriod, LogMessage, Quiz, upload_grader_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -299,7 +299,7 @@ def upload_grader_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
-def upload_file_view(request, assignment_id):
+def manage_files_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -323,7 +323,7 @@ def upload_file_view(request, assignment_id):
                     else:
                         assignment.save_file(text, request.FILES["upload_file"].name)
 
-                        return redirect("courses:index")
+                        return redirect("assignments:manage_files", assignment.id)
                 else:
                     file_errors = form.errors
             else:
@@ -331,18 +331,32 @@ def upload_file_view(request, assignment_id):
         else:
             file_errors = "Please select a file."
 
+    files = assignment.list_files()
+
     return render(
         request,
-        "assignments/upload_file.html",
+        "assignments/manage_files.html",
         {
+            "files": files,
             "form": form,
             "file_errors": file_errors,
             "course": assignment.course,
             "folder": assignment.folder,
             "assignment": assignment,
-            "nav_item": "Upload file",
+            "nav_item": "Manage files",
         },
     )
+
+
+@teacher_or_superuser_required
+def delete_file_view(request, assignment_id, file_id):
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
+
+    assignment.delete_file(file_id)
+
+    return redirect("assignments:manage_files", assignment.id)
 
 
 @teacher_or_superuser_required
