@@ -166,6 +166,8 @@ def create_view(request, course_id):
             assignment.course = course
             assignment.save()
 
+            assignment.make_assignment_dir()
+
             quiz_type = assignment_form.cleaned_data["is_quiz"]
             if quiz_type != "-1":
                 Quiz.objects.create(assignment=assignment, action=quiz_type)

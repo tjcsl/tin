@@ -133,6 +133,10 @@ class Assignment(models.Model):
     def submissions_from_student(self, student):
         return Submission.objects.filter(assignment=self, student=student)
 
+    def make_assignment_dir(self) -> None:
+        assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
+        os.makedirs(assignment_path, exist_ok=True)
+
     def save_grader_file(self, grader_text: str) -> None:
         # Writing to files in directories not controlled by us without some
         # form of sandboxing is a security risk. Most notably, users can use symbolic
@@ -170,7 +174,9 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
-    def list_files(self) -> List[Tuple[int, str, str, datetime.datetime]]:
+    def list_files(self) -> List[Tuple[int, str, str, str, datetime.datetime]]:
+        self.make_assignment_dir()
+
         assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
 
         files = []
@@ -193,6 +199,8 @@ class Assignment(models.Model):
         return files
 
     def save_file(self, file_text: str, file_name: str) -> None:
+        self.make_assignment_dir()
+
         fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(self.id), file_name)
 
         os.makedirs(os.path.dirname(fpath), exist_ok=True)
@@ -218,6 +226,8 @@ class Assignment(models.Model):
             raise FileNotFoundError from e
 
     def delete_file(self, file_id: int) -> None:
+        self.make_assignment_dir()
+
         for i, item in enumerate(
             os.scandir(os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}"))
         ):
