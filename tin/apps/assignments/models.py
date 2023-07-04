@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 from django.utils import timezone
 
 from ...sandboxing import get_assignment_sandbox_args
@@ -30,6 +31,9 @@ class Folder(models.Model):
     name = models.CharField(max_length=50)
 
     course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="folders")
+
+    def get_absolute_url(self):
+        return reverse("assignments:show_folder", args=[self.course.id, self.id])
 
     def __str__(self):
         return self.name
@@ -113,6 +117,9 @@ class Assignment(models.Model):
         default=30,
         validators=[MinValueValidator(10)],
     )
+
+    def get_absolute_url(self):
+        return reverse("assignments:show", args=(self.id,))
 
     def __str__(self):
         return "{} in {}".format(self.name, self.course)
@@ -305,6 +312,9 @@ class Quiz(models.Model):
     )
     action = models.CharField(max_length=1, choices=QUIZ_ACTIONS)
 
+    def get_absolute_url(self):
+        return reverse("assignments:show", args=(self.assignment.id,))
+
     def __str__(self):
         return f"Quiz for {self.assignment}"
 
@@ -323,6 +333,9 @@ class Quiz(models.Model):
     def ended_for_student(self, student):
         return self.log_messages.filter(student=student, content="Ended quiz").exists()
 
+    class Meta:
+        verbose_name_plural = "quizzes"
+
 
 class LogMessage(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="log_messages")
@@ -333,6 +346,11 @@ class LogMessage(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=100)
     severity = models.IntegerField()
+
+    def get_absolute_url(self):
+        return reverse(
+            "assignments:student_submission", args=(self.quiz.assignment.id, self.student.id)
+        )
 
     def __str__(self):
         return f"{self.content} for {self.quiz}"
