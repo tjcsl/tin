@@ -9,12 +9,12 @@
   <p class="bold">Warning: It isn't as simple as it sounds. Certain restrictions put in place by the system create traps that are very easy to fall into, and  you should read this entire page before writing a grader script.</p>
 
   <p>When a submission is uploaded, the grader script is passed the following arguments:</p>
-  <ul>
+  <ul class="standard">
     <li>The full path to a Python program that, when run, will run the student's submission. This separate script is required for reasons that will be explained later.</li>
     <li>The full path to the student's actual submission file, in case parsing of it is required for some purpose. Do not run this directly.</li>
     <li>
       The submitting student's username.
-      <ul>
+      <ul class="standard">
         <li>Do not parse the submission filename to extract this information (or any other information) as the format for submission filenames may change without warning.</li>
       </ul>
     </li>
@@ -33,16 +33,16 @@
 
   <p>This structure assumes a single submission from <code>2020awilliam</code> on 01/01/2019 at 12:34 AM.</p>
 
-  <ul>
+  <ul class="standard">
     <li><code>grader.py</code> &ndash; The grader script</li>
     <li><code>grader.log</code> &ndash; The grader's logfile (not automatically created, but recognized specially by <code>tin</code>)</li>
     <li>
       <code>2020awilliam/</code> &ndash; A directory containing everything related to a particular student's submissions
-      <ul>
+      <ul class="standard">
         <li><code>submission_20190101_001234.py</code> &ndash; The actual submission (do not run directly)</li>
         <li>
           <code>wrappers/</code> &ndash; The directory containing the submission wrappers
-          <ul>
+          <ul class="standard">
             <li><code>submission_20190101_001234.py</code> &ndash; The submission wrapper</li>
           </ul>
         </li>
@@ -53,7 +53,7 @@
   <p class="bold">Note: This is subject to change at any time, and the only lasting guarantee made about this structure is that all of a particular student's submissions will be in the same directory. This structure is solely provided as a visual aid.</p>
 
   <h2>Restrictions placed on student submissions</h2>
-  <ul>
+  <ul class="standard">
     <li>1GB memory limit, and restrictions on the number of external programs that can be launched</li>
     <li>By default, not able to access the Internet</li>
     <li>Only able to access the submission itself, not any other files</li>
@@ -66,7 +66,7 @@
   <p>The Internet access restriction can be lifted on a per-assignment basis by going to the assignment's "Edit" page and checking the box labeled "Give submissions internet access." However, this should be done with caution, as giving scripts Internet access makes it much easier for students to cheat.</p>
   <p>The memory restriction is currently hardcoded in and cannot be changed. 1GB should be enough for many cases, but if it becomes an issue, please contact <a href="mailto:{{ DEVELOPER_EMAIL }}"><code>tin</code>'s developers</a> to increase the limit.</p>
   <p>Submissions can be given access to specific files by passing additional arguments to the wrapper script as follows (these must precede any other arguments to be passed to the submission):</p>
-  <ul>
+  <ul class="standard">
     <li><code>--write &lt;filename&gt;</code>: Give the submission read/write access to the specified file. The filename should be given as an absolute path.</li>
     <li><code>--read &lt;filename&gt;</code>: Give the submission read-only access to the specified file. The filename should be given as an absolute path.</li>
   </ul>

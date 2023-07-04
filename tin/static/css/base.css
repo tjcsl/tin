@@ -130,8 +130,9 @@ body {
   text-align: right;
 }
 
-ul {
+ul:not(.standard) {
   list-style-type: none;
+  padding-left: 0px;
 }
 
 ul#course-list, ul#assignment-list {
