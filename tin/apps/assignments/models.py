@@ -38,6 +38,9 @@ class Folder(models.Model):
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return self.name
+
 
 class AssignmentQuerySet(models.query.QuerySet):
     def filter_visible(self, user):
@@ -122,10 +125,10 @@ class Assignment(models.Model):
         return reverse("assignments:show", args=(self.id,))
 
     def __str__(self):
-        return "{} in {}".format(self.name, self.course)
+        return self.name
 
     def __repr__(self):
-        return "<{} in {}>".format(self.name, self.course)
+        return self.name
 
     def submissions_from_student(self, student):
         return Submission.objects.filter(assignment=self, student=student)
