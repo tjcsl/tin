@@ -7,7 +7,7 @@
   <h2 class="left">{{ course.name }}</h2>
   {% if is_teacher or request.user.is_superuser %}
     <a class="right tin-btn" href="{% url 'courses:edit' course.id %}">Edit</a>
-    <a class="right tin-btn" href="{% url 'courses:import' course.id %}">Import</a>
+    <a class="right tin-btn" href="{% url 'courses:import_select_course' course.id %}">Import Assignments</a>
   {% endif %}
 </div>
 <p>

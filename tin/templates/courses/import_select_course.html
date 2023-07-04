@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Turn-In: {{ course.name }}: Import{% endblock %}
+{% block title %}Turn-In: {{ course.name }}: Import Assignments{% endblock %}
 
 {% block main %}
-<h2>{{ course.name }}: Import</h2>
+<h2>{{ course.name }}: Import Assignments</h2>
 {% if form.errors %}
   <h3 class="errors">Please correct the errors below.</h3>
   <ul class="errors">
@@ -28,7 +28,7 @@
       </div>
     {% endfor %}
   </div>
-  <input type="submit" value="Import">
+  <input type="submit" value="Continue">
 </form>
 
 {% endblock %}
