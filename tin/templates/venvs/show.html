@@ -4,7 +4,10 @@
 {% block title %}Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment{% endblock %}
 
 {% block main %}
-  <h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment</h2>
+  <div class="header">
+    <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment</h2>
+    <a class="right tin-btn" href="{% url 'assignments:show' assignment.id %}">View Assignment</a>
+  </div>
 
   <h3>Installed packages</h3>
   {% if venv.installing_packages %}
