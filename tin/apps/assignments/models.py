@@ -32,14 +32,14 @@ class Folder(models.Model):
 
     course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="folders")
 
-    def get_absolute_url(self):
-        return reverse("assignments:show_folder", args=[self.course.id, self.id])
-
     def __str__(self):
         return self.name
 
     def __repr__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("assignments:show_folder", args=[self.course.id, self.id])
 
 
 class AssignmentQuerySet(models.query.QuerySet):
@@ -121,14 +121,14 @@ class Assignment(models.Model):
         validators=[MinValueValidator(10)],
     )
 
-    def get_absolute_url(self):
-        return reverse("assignments:show", args=(self.id,))
-
     def __str__(self):
         return self.name
 
     def __repr__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("assignments:show", args=(self.id,))
 
     def submissions_from_student(self, student):
         return Submission.objects.filter(assignment=self, student=student)
@@ -284,6 +284,12 @@ class CooldownPeriod(models.Model):
             ),
         ]
 
+    def __str__(self):
+        return f"{self.student} cooldown on {self.assignment}"
+
+    def __repr__(self):
+        return f"{self.student} cooldown on {self.assignment}"
+
     @classmethod
     def exists(cls, assignment: Assignment, student) -> bool:
         try:
@@ -315,11 +321,17 @@ class Quiz(models.Model):
     )
     action = models.CharField(max_length=1, choices=QUIZ_ACTIONS)
 
-    def get_absolute_url(self):
-        return reverse("assignments:show", args=(self.assignment.id,))
+    class Meta:
+        verbose_name_plural = "quizzes"
 
     def __str__(self):
         return f"Quiz for {self.assignment}"
+
+    def __repr__(self):
+        return f"Quiz for {self.assignment}"
+
+    def get_absolute_url(self):
+        return reverse("assignments:show", args=(self.assignment.id,))
 
     def issues_for_student(self, student):
         return (
@@ -336,9 +348,6 @@ class Quiz(models.Model):
     def ended_for_student(self, student):
         return self.log_messages.filter(student=student, content="Ended quiz").exists()
 
-    class Meta:
-        verbose_name_plural = "quizzes"
-
 
 class LogMessage(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="log_messages")
@@ -350,10 +359,13 @@ class LogMessage(models.Model):
     content = models.CharField(max_length=100)
     severity = models.IntegerField()
 
+    def __str__(self):
+        return f"{self.content} for {self.quiz}"
+
+    def __repr__(self):
+        return f"{self.content} for {self.quiz}"
+
     def get_absolute_url(self):
         return reverse(
             "assignments:student_submission", args=(self.quiz.assignment.id, self.student.id)
         )
-
-    def __str__(self):
-        return f"{self.content} for {self.quiz}"

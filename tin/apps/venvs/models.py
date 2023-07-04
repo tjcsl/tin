@@ -5,6 +5,7 @@ import sys
 
 from django.conf import settings
 from django.db import IntegrityError, models
+from django.urls import reverse
 
 from ... import sandboxing
 
@@ -47,6 +48,15 @@ class Virtualenv(models.Model):
     package_installation_output = models.CharField(
         max_length=16 * 1024, default="", null=False, blank=True
     )
+
+    def __str__(self):
+        return f"Virtualenv for {self.assignment}"
+
+    def __repr__(self):
+        return f"Virtualenv for {self.assignment}"
+
+    def get_absolute_url(self):
+        return reverse("venvs:show", args=[self.id])
 
     def get_full_path(self):
         assert self.assignment.grader_file.name
