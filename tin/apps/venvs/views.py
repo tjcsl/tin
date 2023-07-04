@@ -18,6 +18,7 @@ def show_view(request, venv_id):
         "venvs/show.html",
         {
             "course": venv.assignment.course,
+            "folder": venv.assignment.folder,
             "assignment": venv.assignment,
             "nav_item": "Virtual environment",
             "venv": venv,
