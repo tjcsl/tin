@@ -227,8 +227,10 @@ input[type=submit], input[type=button] {
   #file-upload, #text-upload {
     display: table-cell;
   }
+  #file-upload {
+    padding-right: 40px;
+  }
   #text-upload {
-    padding-left: 40px;
     width: 100%;
   }
 }
