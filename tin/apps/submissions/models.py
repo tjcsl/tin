@@ -6,6 +6,7 @@ from typing import Optional
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
@@ -71,6 +72,27 @@ class Submission(models.Model):
 
     grader_output = models.CharField(max_length=10 * 1024, blank=True)
     grader_errors = models.CharField(max_length=4 * 1024, blank=True)
+
+    def __str__(self):
+        return "{}{} [{}]: {} ({})".format(
+            ("[INCOMPLETE] " if not self.complete else ""),
+            self.student.username,
+            self.date_submitted.strftime("%Y-%m-%d %H:%M:%S"),
+            self.assignment.name,
+            (self.grade_percent if self.has_been_graded else "not graded"),
+        )
+
+    def __repr__(self):
+        return "{}{} [{}]: {} ({})".format(
+            ("[INCOMPLETE] " if not self.complete else ""),
+            self.student.username,
+            self.date_submitted.strftime("%Y-%m-%d %H:%M:%S"),
+            self.assignment.name,
+            (self.grade_percent if self.has_been_graded else "not graded"),
+        )
+
+    def get_absolute_url(self):
+        return reverse("submissions:show", args=[self.id])
 
     @property
     def is_on_time(self):
@@ -171,15 +193,3 @@ class Submission(models.Model):
     @property
     def channel_group_name(self) -> str:
         return "submission-{}".format(self.id)
-
-    def __str__(self):
-        return "{}{} [{}]: {} ({})".format(
-            ("[INCOMPLETE] " if not self.complete else ""),
-            self.student.username,
-            self.date_submitted.strftime("%Y-%m-%d %H:%M:%S"),
-            self.assignment.name,
-            (self.grade_percent if self.has_been_graded else "not graded"),
-        )
-
-    def __repr__(self):
-        return "<{}>".format(self)
