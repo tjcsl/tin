@@ -35,14 +35,10 @@ class Course(models.Model):
     sort_assignments_by = models.CharField(max_length=30, choices=SORT_BY, default="due_date")
 
     def __str__(self):
-        return "{} (teachers: {})".format(
-            self.name, ", ".join((str(t) for t in self.teacher.all()))
-        )
+        return self.name
 
     def __repr__(self):
-        return "<{} (teachers: {})>".format(
-            self.name, ", ".join((str(t) for t in self.teacher.all()))
-        )
+        return self.name
 
     def get_teacher_str(self):
         return ", ".join((t.last_name for t in self.teacher.all()))
@@ -73,10 +69,10 @@ class Period(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return "{} ({})".format(self.name, self.teacher.last_name)
+        return self.name
 
     def __repr__(self):
-        return "{} (course: {}, teacher: {})".format(self.name, self.course, self.teacher)
+        return self.name
 
 
 class StudentImportUser(models.Model):
@@ -85,13 +81,19 @@ class StudentImportUser(models.Model):
     def __str__(self):
         return self.user
 
+    def __repr__(self):
+        return self.user
+
 
 class StudentImport(models.Model):
     students = models.ManyToManyField(StudentImportUser, related_name="users")
     course = models.OneToOneField(Course, unique=True, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} student(s) unimported ({})".format(self.students.count(), self.course.name)
+        return f"Import into {self.course.name}"
+
+    def __repr__(self):
+        return f"Import into {self.course.name}"
 
     def queue_users(self, usernames):
         for username in usernames:
