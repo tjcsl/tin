@@ -84,6 +84,9 @@ class StudentImportUser(models.Model):
     def __repr__(self):
         return self.user
 
+    class Meta:
+        verbose_name = "Imported Student"
+
 
 class StudentImport(models.Model):
     students = models.ManyToManyField(StudentImportUser, related_name="users")
@@ -100,3 +103,6 @@ class StudentImport(models.Model):
             import_user_object = StudentImportUser.objects.get_or_create(user=username)[0]
             self.students.add(import_user_object)
         self.save()
+
+    class Meta:
+        verbose_name = "Student Import"
