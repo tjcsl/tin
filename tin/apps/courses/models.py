@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 
 
 class CourseQuerySet(models.query.QuerySet):
@@ -40,6 +41,9 @@ class Course(models.Model):
     def __repr__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("courses:show", args=[self.id])
+
     def get_teacher_str(self):
         return ", ".join((t.last_name for t in self.teacher.all()))
 
@@ -74,35 +78,41 @@ class Period(models.Model):
     def __repr__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("courses:students", args=[self.course.id]) + f"?period={self.id}"
+
 
 class StudentImportUser(models.Model):
     user = models.CharField(max_length=15, unique=True)
+
+    class Meta:
+        verbose_name = "Imported Student"
 
     def __str__(self):
         return self.user
 
     def __repr__(self):
         return self.user
-
-    class Meta:
-        verbose_name = "Imported Student"
 
 
 class StudentImport(models.Model):
     students = models.ManyToManyField(StudentImportUser, related_name="users")
     course = models.OneToOneField(Course, unique=True, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = "Student Import"
+
     def __str__(self):
         return f"Import into {self.course.name}"
 
     def __repr__(self):
         return f"Import into {self.course.name}"
 
+    def get_absolute_url(self):
+        return reverse("courses:import_students", args=[self.course.id])
+
     def queue_users(self, usernames):
         for username in usernames:
             import_user_object = StudentImportUser.objects.get_or_create(user=username)[0]
             self.students.add(import_user_object)
         self.save()
-
-    class Meta:
-        verbose_name = "Student Import"
