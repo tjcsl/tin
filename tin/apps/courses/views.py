@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -137,6 +139,8 @@ def import_from_selected_course(request, course_id, other_course_id):
     if request.method == "POST":
         form = ImportFromSelectedCourseForm(data=request.POST, course=other_course)
         if form.is_valid():
+            assignments_to_process = []
+
             # Import folders
             if form.cleaned_data["folders"]:
                 for folder in form.cleaned_data["folders"]:
@@ -145,19 +149,52 @@ def import_from_selected_course(request, course_id, other_course_id):
                     folder.course = course
                     folder.save()
                     for assignment in assignments:
-                        assignment.pk = None
-                        assignment.course = course
-                        assignment.folder = folder
-                        assignment.grader_file = None
-                        assignment.save()
+                        assignments_to_process.append((assignment, course, folder))
 
             # Import assignments
             if form.cleaned_data["assignments"]:
                 for assignment in form.cleaned_data["assignments"]:
-                    assignment.pk = None
-                    assignment.course = course
-                    assignment.grader_file = None
-                    assignment.save()
+                    assignments_to_process.append((assignment, course, None))
+
+            for assignment, course, folder in assignments_to_process:
+                old_id = assignment.id
+
+                # Save as new
+                assignment.pk = None
+
+                # Update course, folder, assigned date, and grader file
+                assignment.course = course
+                if folder:
+                    assignment.folder = folder
+                assignment.assigned = timezone.now()
+                assignment.grader_file = None
+
+                # Some user options need to be applied before saving
+                if form.cleaned_data["hide"]:
+                    assignment.hidden = True
+                if form.cleaned_data["shift_due_dates"]:
+                    due = assignment.due
+                    try:
+                        assignment.due = due.replace(year=assignment.due.year + 1)
+                    except ValueError:  # February 29 -> February 28
+                        assignment.due = due + date(due.year + 1, 3, 1) - date(due.year, 3, 1)
+
+                assignment.save()
+
+                # Make directory with new ID
+                assignment.make_assignment_dir()
+
+                # Access the old assignment
+                old_assignment = Assignment.objects.get(id=old_id)
+
+                if form.cleaned_data["copy_graders"] and old_assignment.grader_file:
+                    with open(old_assignment.grader_file.path, "r") as f:
+                        assignment.save_grader_file(f.read())  # Save to new directory
+
+                if form.cleaned_data["copy_files"]:
+                    for _, filename, path, _, _ in old_assignment.list_files():
+                        with open(path, "r") as f:
+                            assignment.save_file(f.read(), filename)
 
             return redirect("courses:show", course.id)
     else:

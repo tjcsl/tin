@@ -30,16 +30,36 @@ class ImportFromSelectedCourseForm(forms.Form):
     def __init__(self, course, *args, **kwargs):
         super(ImportFromSelectedCourseForm, self).__init__(*args, **kwargs)
         self.fields["folders"] = forms.ModelMultipleChoiceField(
-            label="Folders",
+            label="Select Folders",
             widget=forms.CheckboxSelectMultiple,
             queryset=course.folders.order_by("name"),
             required=False,
         )
         self.fields["assignments"] = forms.ModelMultipleChoiceField(
-            label="Other Assignments",
+            label="Select Other Assignments",
             widget=forms.CheckboxSelectMultiple,
             queryset=course.assignments.filter(folder=None).order_by("name"),
             required=False,
+        )
+        self.fields["hide"] = forms.BooleanField(
+            label="Hide?",
+            required=False,
+            help_text="Sets all imported assignments as hidden from students.",
+        )
+        self.fields["shift_due_dates"] = forms.BooleanField(
+            label="Shift due date?",
+            required=False,
+            help_text="Shifts imported assignment due dates by one year.",
+        )
+        self.fields["copy_graders"] = forms.BooleanField(
+            label="Copy graders?",
+            required=False,
+            help_text="Also imports any assignment grader scripts.",
+        )
+        self.fields["copy_files"] = forms.BooleanField(
+            label="Copy files?",
+            required=False,
+            help_text="Also imports any uploaded files.",
         )
 
 
