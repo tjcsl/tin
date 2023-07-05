@@ -19,12 +19,13 @@
 <div class="header">
   <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}</h2>
   {% if is_teacher or request.user.is_superuser %}
-    <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
-    <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"{% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload grader</a>
-    <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage files</a>
-    {% if log_file_exists %}
-      <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
+    <a class="right tin-btn" href="{% url 'admin:assignments_assignment_change' assignment.id %}">Admin</a>
+    {% if assignment.is_quiz %}
+      <a class="right tin-btn" href="{% url 'admin:assignments_quiz_change' assignment.quiz.id %}">Admin (Quiz)</a>
     {% endif %}
+    <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
+    <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"{% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload Grader</a>
+    <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage Files</a>
   {% endif %}
   {% if assignment.is_quiz %}
     {% if quiz_accessible %}
@@ -226,12 +227,12 @@
     {% endif %}
   </table>
 {% endif %}
-{% endif %}
-
-{% if is_teacher or request.user.is_superuser %}
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h3>
-  <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Export Scores for All</a>
-  <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download Submissions for All</a>
+  <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download All Scores</a>
+  <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download All Latest Submissions</a>
+  {% if log_file_exists %}
+    <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download Log</a>
+  {% endif %}
 
   <br>
   <br>

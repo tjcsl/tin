@@ -22,7 +22,10 @@
 {% endfor %}
 <br><br>
 <h4>Period: {{ active_period }}</h4>
-<p><a class="right tin-btn" href="{% url 'courses:edit_period' course.id active_period.id %}">Edit period</a></p>
+<p>
+  <a class="tin-btn" href="{% url 'admin:courses_period_change' active_period.id %}">Admin</a>
+  <a class="tin-btn" href="{% url 'courses:edit_period' course.id active_period.id %}">Edit</a>
+</p>
 <table id="student-list" class="has-border">
   <tr>
     <th style="min-width:150px">Name</th>
