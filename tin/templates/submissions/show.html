@@ -13,13 +13,19 @@ Submission #{{ submission_number }}
 {% endblock %}
 
 {% block main %}
-{% if is_student %}
-<h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Submission #{{ submission_number }}</h2>
-{{ assignment.description|linebreaks }}
-{% else %}
-<h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}</h2>
-{{ assignment.description|linebreaks }}
-{% endif %}
+<div class="header">
+  <h2 class="left">
+    {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}:
+    {% if is_student %}
+      Submission #{{ submission_number }}
+    {% else %}
+      {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}
+    {% endif %}
+  </h2>
+  {% if is_teacher or request.user.is_superuser %}
+    <a class="right tin-btn" href="{% url 'admin:submissions_submission_change' submission.id %}">Admin</a>
+  {% endif %}
+</div>
 
 <table id="submission-info">
   <tr>

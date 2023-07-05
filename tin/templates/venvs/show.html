@@ -6,6 +6,7 @@
 {% block main %}
   <div class="header">
     <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment</h2>
+    <a class="right tin-btn" href="{% url 'admin:venvs_virtualenv_change' venv.id %}">Admin</a>
     <a class="right tin-btn" href="{% url 'assignments:show' assignment.id %}">View Assignment</a>
   </div>
 
