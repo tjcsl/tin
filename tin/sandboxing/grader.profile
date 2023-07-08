@@ -10,8 +10,6 @@ notv
 novideo
 no3d
 
-shell none
-
 # Resource limits
 # 4G memory, 10M files, 500 open file descriptors, 1000 processes
 rlimit-as 4000000000
