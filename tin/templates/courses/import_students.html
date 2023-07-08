@@ -1,28 +1,28 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block head %}
+{% block title %}
+  Turn-In: {{ course.name }}: Import students
 {% endblock %}
-
-{% block title %}Turn-In: {{ course.name }}: Import students{% endblock %}
 
 {% block main %}
 
-<h2>{{ course.name }}</h2>
-<form action="" method="post">
-  {% csrf_token %}
-  <p>This form puts all students with the inputted usernames in a queue.  When they login for the first time, they will be enrolled in this course.</p>
-  <textarea class="tbl-cell" id="students" name="students" rows="30" cols="15"></textarea>
-  <br>
-  <input class="tin-btn" type="submit" value="{% if course %}Save{% else %}Create{% endif %}">
-</form>
+  <h2>{{ course.name }}</h2>
 
-{% if unimported_users %}
-  <h3>Queued students</h3>
-  {% for user in unimported_users %}
-    {{ user }}<br>
-  {% endfor %}
-{% endif %}
+  <form action="" method="post">
+    {% csrf_token %}
+    <p>This form puts all students with the inputted usernames in a queue. When they login for the first time, they will
+      be enrolled in this course.</p>
+    <textarea class="tbl-cell" id="students" name="students" rows="30" cols="15"></textarea>
+    <br>
+    <input class="tin-btn" type="submit" value="{% if course %}Save{% else %}Create{% endif %}">
+  </form>
+
+  {% if unimported_users %}
+    <h3>Queued students</h3>
+    {% for user in unimported_users %}
+      {{ user }}<br>
+    {% endfor %}
+  {% endif %}
 
 {% endblock %}
-

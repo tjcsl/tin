@@ -1,38 +1,43 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Turn-In: {{ course.name }}: {% if action == "add" %}Create folder{% else %}{{ folder.name }}{% endif %}{% endblock %}
-
-{% block main %}
-<h2>{{ course.name }}: {% if action == "add" %}Create folder{% else %}{{ folder.name }}{% endif %}</h2>
-{% if form.errors %}
-  <h3 class="errors">Please correct the errors below.</h3>
-  <ul class="errors">
-      {% for field in form %}
-          {% for error in field.errors %}
-          <li>{{ field.label }}: {{ error }}</li>
-          {% endfor %}
-      {% endfor %}
-      {% for error in form.non_field_errors %}
-          <li>{{ error }}</li>
-      {% endfor %}
-  </ul>
-{% endif %}
-<form action="" method="post">
-  {% csrf_token %}
-  <div class="tbl">
-    {% for field in form %}
-      <div class="tbl-row">
-        <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
-        <span class="tbl-cell"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}{% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
-      </div>
-    {% endfor %}
-  </div>
-  <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
-  {% if action == "edit" %}
-    &emsp;<a style="color:red" href="{% url 'assignments:delete_folder' course.id folder.id %}">Delete Folder</a>
-  {% endif %}
-</form>
-
+{% block title %}
+  Turn-In: {{ course.name }}: {% if action == "add" %}Create folder{% else %}{{ folder.name }}{% endif %}
 {% endblock %}
 
+{% block main %}
+
+  <h2>{{ course.name }}: {% if action == "add" %}Create folder{% else %}{{ folder.name }}{% endif %}</h2>
+
+  {% if form.errors %}
+    <h3 class="errors">Please correct the errors below.</h3>
+    <ul class="errors">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="tbl">
+      {% for field in form %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}
+            {% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
+    {% if action == "edit" %}
+      &emsp;<a style="color:red" href="{% url 'assignments:delete_folder' course.id folder.id %}">Delete Folder</a>
+    {% endif %}
+  </form>
+
+{% endblock %}

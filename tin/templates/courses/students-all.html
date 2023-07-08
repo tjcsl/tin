@@ -1,41 +1,48 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Turn-In: {{ course.name }}{% endblock %}
+{% block title %}
+  Turn-In: {{ course.name }}
+{% endblock %}
 
 {% block main %}
 
-<h2>{{ course.name }}</h2>
-<h3>Students</h3>
-<p>
-  Teachers: {{ course.get_teacher_str }}<br>
-  {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
-  {{ course.students.count }} student{{ course.students.count | pluralize }}
-</p>
+  <h2>{{ course.name }}</h2>
 
-<a class="right tin-btn" href="{% url 'courses:add_period' course.id %}">New period</a>
-<a class="right tin-btn" href="{% url 'courses:import_students' course.id %}">Import Students</a>
-<a class="right tin-btn" href="{% url 'courses:manage_students' course.id %}">Manage Students</a>
-<br><br><hr><br>
-<a class="right tin-btn" style="color:#4fab4f !important" href="{% url 'courses:students' course.id %}">All</a>
-{% for period in period_set %}
+  <h3>Students</h3>
+  <p>
+    Teachers: {{ course.get_teacher_str }}<br>
+    {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
+    {{ course.students.count }} student{{ course.students.count | pluralize }}
+  </p>
+
+  <a class="right tin-btn" href="{% url 'courses:add_period' course.id %}">New period</a>
+  <a class="right tin-btn" href="{% url 'courses:import_students' course.id %}">Import Students</a>
+  <a class="right tin-btn" href="{% url 'courses:manage_students' course.id %}">Manage Students</a>
+  <br><br>
+
+  <hr><br>
+  <a class="right tin-btn" style="color:#4fab4f !important" href="{% url 'courses:students' course.id %}">All</a>
+  {% for period in period_set %}
     <a class="right tin-btn" href="{% url 'courses:students' course.id %}?period={{ period.id }}">{{ period }}</a>
-{% endfor %}
-<br><br>
-<h4>All Students in Course</h4>
-<table id="student-list" class="has-border">
-  <tr>
-    <th style="min-width:150px">Name</th>
-    <th>Period</th>
-  </tr>
-  {% for student, period in students.items %}
-    <tr>
-      <td>{{ student.full_name }} ({{ student.username }})</td>
-      <td>{{ period | join:", " }}</td>
-    </tr>
   {% endfor %}
-  {% if not students %}
-    <td colspan="2" class="italic center">No students</td>
-  {% endif %}
-</table>
+  <br><br>
+
+  <h4>All Students in Course</h4>
+  <table id="student-list" class="has-border">
+    <tr>
+      <th style="min-width:150px">Name</th>
+      <th>Period</th>
+    </tr>
+    {% for student, period in students.items %}
+      <tr>
+        <td>{{ student.full_name }} ({{ student.username }})</td>
+        <td>{{ period | join:", " }}</td>
+      </tr>
+    {% endfor %}
+    {% if not students %}
+      <td colspan="2" class="italic center">No students</td>
+    {% endif %}
+  </table>
 
 {% endblock %}

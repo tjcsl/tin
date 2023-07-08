@@ -1,54 +1,60 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Turn-In: {{ course.name }}{% endblock %}
-
-{% block main %}
-<div class="header">
-  <h2 class="left">{{ course.name }}</h2>
-  {% if is_teacher or request.user.is_superuser %}
-    <a class="right tin-btn" href="{% url 'admin:courses_course_change' course.id %}">Admin</a>
-    <a class="right tin-btn" href="{% url 'courses:edit' course.id %}">Edit</a>
-  {% endif %}
-</div>
-<p>
-  Teachers: {{ course.get_teacher_str }}<br>
-  {% if period and is_student %}Your Period: {{ period | join:", " }}{% endif %}<br>
-  {{ course.students.count }} student{{ course.students.count | pluralize }}
-</p>
-
-<ul id="assignment-list">
-{% for folder in folders %}
-  <li>
-    <div class="left" style="min-height: 30px;">
-      <i class="fa fa-folder"></i>    <a href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a>
-    </div>
-  </li>
-{% endfor %}
-{% for assignment in assignments %}
-  <li>
-    <div class="left">
-      <a href="{% url 'assignments:show' assignment.id %}">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
-      {% if assignment in unsubmitted_assignments %}
-        <br>
-        <span class="italic">Not submitted</span>
-      {% endif %}
-    </div>
-    <div class="right">
-      Due: {{ assignment.due }}<br>
-      Points possible: {{ assignment.points_possible }}
-    </div>
-  </li>
-{% endfor %}
-</ul>
-
-{% if is_teacher or request.user.is_superuser %}
-  <div>
-    <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New Folder</a>
-    <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
-    <a class="tin-btn" href="{% url 'courses:import_select_course' course.id %}">Import Assignments</a>
-    <a class="tin-btn" href="{% url 'courses:students' course.id %}">Manage Students</a>
-  </div>
-{% endif %}
-
+{% block title %}
+  Turn-In: {{ course.name }}
 {% endblock %}
 
+{% block main %}
+
+  <div class="header">
+    <h2 class="left">{{ course.name }}</h2>
+    {% if is_teacher or request.user.is_superuser %}
+      <a class="right tin-btn" href="{% url 'admin:courses_course_change' course.id %}">Admin</a>
+      <a class="right tin-btn" href="{% url 'courses:edit' course.id %}">Edit</a>
+    {% endif %}
+  </div>
+
+  <p>
+    Teachers: {{ course.get_teacher_str }}<br>
+    {% if period and is_student %}Your Period: {{ period | join:", " }}{% endif %}<br>
+    {{ course.students.count }} student{{ course.students.count | pluralize }}
+  </p>
+
+  <ul id="assignment-list">
+    {% for folder in folders %}
+      <li>
+        <div class="left" style="min-height: 30px;">
+          <i class="fa fa-folder"></i> <a
+          href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a>
+        </div>
+      </li>
+    {% endfor %}
+    {% for assignment in assignments %}
+      <li>
+        <div class="left">
+          <a href="{% url 'assignments:show' assignment.id %}">{% if assignment.is_quiz %}
+            [QUIZ] {% endif %}{{ assignment.name }}</a>{% if assignment.hidden %}<i> (Hidden)</i>{% endif %}
+          {% if assignment in unsubmitted_assignments %}
+            <br>
+            <span class="italic">Not submitted</span>
+          {% endif %}
+        </div>
+        <div class="right">
+          Due: {{ assignment.due }}<br>
+          Points possible: {{ assignment.points_possible }}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if is_teacher or request.user.is_superuser %}
+    <div>
+      <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New Folder</a>
+      <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
+      <a class="tin-btn" href="{% url 'courses:import_select_course' course.id %}">Import Assignments</a>
+      <a class="tin-btn" href="{% url 'courses:students' course.id %}">Manage Students</a>
+    </div>
+  {% endif %}
+
+{% endblock %}
