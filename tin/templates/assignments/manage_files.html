@@ -17,7 +17,7 @@
     {% for id, filename, path, size, modified in files %}
       <tr>
         <td>{{ filename }}</td>
-        <td>{{ size }}</td>
+        <td>{{ size|filesizeformat }}</td>
         <td>{{ modified }}</td>
         <td><a style="color:red;" href="{% url 'assignments:delete_file' assignment.id id %}">Delete</a></td>
       </tr>

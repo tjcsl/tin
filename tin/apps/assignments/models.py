@@ -19,14 +19,6 @@ from ..venvs.models import Virtualenv
 logger = logging.getLogger(__name__)
 
 
-def sizeof_fmt(num):
-    for unit in ("", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"):
-        if abs(num) < 1024.0:
-            return f"{num:3.1f}{unit}B"
-        num /= 1024.0
-    return f"{num:.1f}YiB"
-
-
 class Folder(models.Model):
     name = models.CharField(max_length=50)
 
@@ -174,7 +166,7 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
-    def list_files(self) -> List[Tuple[int, str, str, str, datetime.datetime]]:
+    def list_files(self) -> List[Tuple[int, str, str, int, datetime.datetime]]:
         self.make_assignment_dir()
 
         assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
@@ -190,7 +182,7 @@ class Assignment(models.Model):
                     i,
                     item.name,
                     item.path,
-                    sizeof_fmt(stat.st_size),
+                    stat.st_size,
                     datetime.datetime.fromtimestamp(stat.st_mtime),
                 )
                 if not grader_file.endswith(item.name) and not grader_log_file.endswith(item.name):
