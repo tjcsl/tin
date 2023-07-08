@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment{% endblock %}
+{% block title %}
+  Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment
+{% endblock %}
 
 {% block main %}
+
   <div class="header">
     <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment</h2>
     <a class="right tin-btn" href="{% url 'admin:venvs_virtualenv_change' venv.id %}">Admin</a>
@@ -11,10 +14,11 @@
   </div>
 
   <h3>Installed packages</h3>
-  {% if venv.installing_packages %}
-    <p class="italic">This virtual environment is currently installing or upgrading packages. This list may be incomplete.</p>
-  {% endif %}
 
+  {% if venv.installing_packages %}
+    <p class="italic">This virtual environment is currently installing or upgrading packages. This list may be
+      incomplete.</p>
+  {% endif %}
   <table class="has-border">
     <tr>
       <th>Package</th>
@@ -44,10 +48,14 @@
   <form action="{% url 'venvs:install-packages' venv.id %}" method="post">
     {% csrf_token %}
     <div class="tbl">
-      <div class="package-name-container"><input type="text" name="packages[]" placeholder="Package name"{% if venv.installing_packages %} disabled{% endif %}>
-      <input type="button" value="X" onclick="if($('.package-name-container').get().length > 1) { var cont = $(this).closest('.package-name-container'); cont.remove(); }"></div>
+      <div class="package-name-container"><input type="text" name="packages[]" placeholder="Package name"
+        {% if venv.installing_packages %} disabled{% endif %}>
+        <input type="button" value="X"
+               onclick="if($('.package-name-container').get().length > 1) { var cont = $(this).closest('.package-name-container'); cont.remove(); }">
+      </div>
     </div>
-    <input type="button" value="+" onclick="var last_cont = $('.package-name-container').last(); last_cont.clone().insertAfter(last_cont).find('input[type=text]').val('');">
+    <input type="button" value="+"
+           onclick="var last_cont = $('.package-name-container').last(); last_cont.clone().insertAfter(last_cont).find('input[type=text]').val('');">
     <br>
     <br>
     <input type="submit" value="Install packages"{% if venv.installing_packages %} disabled{% endif %}>
@@ -61,6 +69,7 @@
 
   {% if venv.package_installation_output and not venv.installing_packages %}
     <h3>Last package installation output</h3>
-    <code><pre>{{ venv.package_installation_output }}</pre></code>
+    <pre><code>{{ venv.package_installation_output }}</code></pre>
   {% endif %}
+
 {% endblock %}

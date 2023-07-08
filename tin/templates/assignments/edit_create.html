@@ -1,65 +1,73 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}
+  Turn-In: {{ course.name }}: {% if action == "add" %}Create assignment
+  {% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}{% endif %}
+{% endblock %}
+
 {% block head %}
-  <link rel="stylesheet" type="text/css" href="{% static 'vendor/datetimepicker/jquery.datetimepicker.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/datetimepicker/jquery.datetimepicker.css' %}"/>
   <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
   <script type="text/javascript">
-    $(document).ready(function() {
-      $("#id_due").datetimepicker({
-        lazyInit: true,
-        timepicker: true,
-        format: "Y-m-d H:i:s",
+      $(document).ready(function () {
+          $("#id_due").datetimepicker({
+              lazyInit: true,
+              timepicker: true,
+              format: "Y-m-d H:i:s",
+          });
       });
-    });
   </script>
   <style>
-    #id_description {
-      font-family: inherit;
-    }
-    input[type="checkbox"] {
-      margin-left: 0px;
-    }
+      #id_description {
+          font-family: inherit;
+      }
+
+      input[type="checkbox"] {
+          margin-left: 0px;
+      }
   </style>
 {% endblock %}
 
-{% block title %}Turn-In: {{ course.name }}: {% if action == "add" %}Create assignment{% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}{% endif %}{% endblock %}
-
 {% block main %}
-<h2>{{ course.name }}: {% if action == "add" %}Create assignment{% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}{% endif %}</h2>
-{% if assignment_form.errors %}
-  <h3 class="errors">Please correct the errors below.</h3>
-  <ul class="errors">
+
+  <h2>{{ course.name }}: {% if action == "add" %}Create assignment
+    {% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}{% endif %}</h2>
+
+  {% if assignment_form.errors %}
+    <h3 class="errors">Please correct the errors below.</h3>
+    <ul class="errors">
       {% for field in assignment_form %}
-          {% for error in field.errors %}
+        {% for error in field.errors %}
           <li>{{ field.label }}: {{ error }}</li>
-          {% endfor %}
+        {% endfor %}
       {% endfor %}
       {% for error in assignment_form.non_field_errors %}
-          <li>{{ error }}</li>
+        <li>{{ error }}</li>
       {% endfor %}
-  </ul>
-{% endif %}
-<form action="" method="post">
-  {% csrf_token %}
-  <div class="tbl">
-    {% for field in assignment_form %}
-      <div class="tbl-row">
-        <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
-        <span class="tbl-cell"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}{% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
-      </div>
-    {% endfor %}
-  </div>
-  {% if action == "add" %}
-    <div>Note: You'll be able to upload a grader script after you create the assignment.</div>
-  {% else %}
-    <div>Note: You can upload a grader script with the "Upload grader" button on the assignment page.</div>
+    </ul>
   {% endif %}
-  <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
-  {% if action == "edit" %}
-    &emsp;<a style="color:red" href="{% url 'assignments:delete' assignment.id %}">Delete Assignment</a>
-  {% endif %}
-</form>
+
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="tbl">
+      {% for field in assignment_form %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}
+            {% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
+        </div>
+      {% endfor %}
+    </div>
+    {% if action == "add" %}
+      <div>Note: You'll be able to upload a grader script after you create the assignment.</div>
+    {% else %}
+      <div>Note: You can upload a grader script with the "Upload grader" button on the assignment page.</div>
+    {% endif %}
+    <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
+    {% if action == "edit" %}
+      &emsp;<a style="color:red" href="{% url 'assignments:delete' assignment.id %}">Delete Assignment</a>
+    {% endif %}
+  </form>
 
 {% endblock %}
-

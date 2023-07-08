@@ -1,6 +1,7 @@
 {% load static %}
 <!doctype html>
-<html>
+<html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>{% block title %}Turn-In{% endblock %}</title>
@@ -10,68 +11,81 @@
   <link rel="icon" href="{% static 'img/logos/logo-mark-black-50.ico' %}" type="image/x-icon" sizes="50x50">
   <link rel="icon" href="{% static 'img/logos/logo-mark-black-25.ico' %}" type="image/x-icon" sizes="25x25">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:100italic,400italic,700italic,100,400,700" />
-  <link rel="stylesheet" href="{% static 'vendor/jquery-ui/jquery-ui-1.12.1.min.css' %}" />
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" type="text/css"
+        href="https://fonts.googleapis.com/css?family=Open+Sans:100italic,400italic,700italic,100,400,700"/>
+  <link rel="stylesheet" href="{% static 'vendor/jquery-ui/jquery-ui-1.12.1.min.css' %}"/>
   <script src="{% static 'js/vendor/jquery-3.3.1.min.js' %}"></script>
   <script src="{% static 'vendor/jquery-ui/jquery-ui-1.12.1.min.js' %}"></script>
-  <link rel="stylesheet" type="text/css" href="{% static 'vendor/selectize/selectize.default.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/selectize/selectize.default.css' %}"/>
   <link rel="stylesheet" href="{% static 'vendor/highlight/styles/default.css' %}">
   <script src="{% static 'vendor/highlight/highlight.pack.js' %}"></script>
   <script>hljs.initHighlightingOnLoad();</script>
   <script type="text/javascript" src="{% static 'vendor/selectize/selectize.min.js' %}"></script>
-  <script>$(function(){$(".continuous-progress").css({height: "15px"}).progressbar({value: false})});</script>
+  <script>$(function () {
+      $(".continuous-progress").css({height: "15px"}).progressbar({value: false})
+  });</script>
   {% block head %}{% endblock %}
 </head>
+
 <body>
-  <div id="nav">
-    <ul>
-      <li><a href="{% url 'auth:index' %}"><h1><span class="logo"></span>Turn-In</h1></a></li>
-      {% if request.user.is_authenticated %}
-        {% if course %}
+
+<div id="nav">
+  <ul>
+    <li><a href="{% url 'auth:index' %}"><h1><span class="logo"></span>Turn-In</h1></a></li>
+    {% if request.user.is_authenticated %}
+      {% if course %}
+        <li><i class="fa fa-chevron-right"></i></li>
+        <li><a href="{% url 'courses:show' course.id %}">{{ course.name }}</a></li>
+        {% if folder %}
           <li><i class="fa fa-chevron-right"></i></li>
-          <li><a href="{% url 'courses:show' course.id %}">{{ course.name }}</a></li>
-          {% if folder %}
+          <li><a href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a></li>
+        {% endif %}
+        {% if assignment %}
+          <li><i class="fa fa-chevron-right"></i></li>
+          <li><a href="{% url 'assignments:show' assignment.id %}">{% if assignment.is_quiz %}
+            [QUIZ] {% endif %}{{ assignment.name }}</a></li>
+          {% if student %}
             <li><i class="fa fa-chevron-right"></i></li>
-            <li><a href="{% url 'assignments:show_folder' course.id folder.id %}">{{ folder.name }}</a></li>
+            <li><a
+              href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}</a>
+            </li>
           {% endif %}
-          {% if assignment %}
+          {% if submission %}
             <li><i class="fa fa-chevron-right"></i></li>
-            <li><a href="{% url 'assignments:show' assignment.id %}">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}</a></li>
-            {% if student %}
-              <li><i class="fa fa-chevron-right"></i></li>
-              <li><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}</a></li>
-            {% endif %}
-            {% if submission %}
-              <li><i class="fa fa-chevron-right"></i></li>
-              <li><a href="{% url 'submissions:show' submission.id %}">Submission #{{ submission_number }}</a></li>
-            {% endif %}
+            <li><a href="{% url 'submissions:show' submission.id %}">Submission #{{ submission_number }}</a></li>
           {% endif %}
         {% endif %}
-        {% if docs_app %}
-          <li><i class="fa fa-chevron-right"></i></li>
-          <li><a href="{% url 'docs:index' %}">Docs</a></li>
-        {% endif %}
-        {% if nav_item %}
-          <li><i class="fa fa-chevron-right"></i></li>
-          <li><a href="">{{ nav_item }}</a></li>
-        {% endif %}
-        <li class="right"><i class="fa fa-sign-out"></i><a href="{% url 'auth:logout' %}">Logout ({{ request.user.username }})</a></li>
       {% endif %}
-    </ul>
+      {% if docs_app %}
+        <li><i class="fa fa-chevron-right"></i></li>
+        <li><a href="{% url 'docs:index' %}">Docs</a></li>
+      {% endif %}
+      {% if nav_item %}
+        <li><i class="fa fa-chevron-right"></i></li>
+        <li><a href="">{{ nav_item }}</a></li>
+      {% endif %}
+      <li class="right"><i class="fa fa-sign-out"></i><a href="{% url 'auth:logout' %}">Logout
+        ({{ request.user.username }})</a></li>
+    {% endif %}
+  </ul>
+</div>
+
+<div id="content">
+  <div id="main">
+    {% block main %}
+    {% endblock %}
   </div>
-  <div id="content">
-    <div id="main">
-      {% block main %}
+  <div id="footer">
+    <footer>
+      {% block footer %}
+        Developed by John Beutner and Theo Ouzhinski. Questions? Email
+        <a href="mailto:{{ DEVELOPER_EMAIL }}">{{ DEVELOPER_EMAIL }}</a>
       {% endblock %}
-    </div>
-    <div id="footer">
-      <footer>
-        {% block footer %}
-          Developed by John Beutner and Theo Ouzhinski. Questions? Email <a href="mailto:{{ DEVELOPER_EMAIL }}">{{ DEVELOPER_EMAIL }}</a>
-        {% endblock %}
-      </footer>
-    </div>
+    </footer>
   </div>
+</div>
+
 </body>
+
 </html>

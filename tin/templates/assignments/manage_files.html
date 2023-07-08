@@ -1,49 +1,53 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Manage files{% endblock %}
-
-{% block main %}
-<h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Manage files</h2>
-
-<table class="has-border">
-  <tr>
-    <th>Filename</th>
-    <th>Size</th>
-    <th>Last Modified</th>
-    <th>Delete</th>
-  </tr>
-  {% if files is not None %}
-    {% for id, filename, path, size, modified in files %}
-      <tr>
-        <td>{{ filename }}</td>
-        <td>{{ size | filesizeformat }}</td>
-        <td>{{ modified }}</td>
-        <td><a style="color:red;" href="{% url 'assignments:delete_file' assignment.id id %}">Delete</a></td>
-      </tr>
-    {% empty %}
-      <tr class="italic">
-        <td colspan="4">No uploaded files</td>
-      </tr>
-    {% endfor %}
-  {% else %}
-    <tr class="italic">
-      <td colspan="4">An error occurred while listing uploaded files. Please try again.</td>
-    </tr>
-  {% endif %}
-</table>
-<h4 style="color:red;">{{ file_errors }}</h4>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div class="tbl">
-    {% for field in form %}
-    <div class="tbl-row">
-        <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
-        <span class="tbl-cell">{{ field }}</span>
-    </div>
-    {% endfor %}
-  </div>
-  <input type="submit" value="Upload">
-</form>
+{% block title %}
+  Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Manage files
 {% endblock %}
 
+{% block main %}
+
+  <h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Manage files</h2>
+
+  <table class="has-border">
+    <tr>
+      <th>Filename</th>
+      <th>Size</th>
+      <th>Last Modified</th>
+      <th>Delete</th>
+    </tr>
+    {% if files is not None %}
+      {% for id, filename, path, size, modified in files %}
+        <tr>
+          <td>{{ filename }}</td>
+          <td>{{ size | filesizeformat }}</td>
+          <td>{{ modified }}</td>
+          <td><a style="color:red;" href="{% url 'assignments:delete_file' assignment.id id %}">Delete</a></td>
+        </tr>
+      {% empty %}
+        <tr class="italic">
+          <td colspan="4">No uploaded files</td>
+        </tr>
+      {% endfor %}
+    {% else %}
+      <tr class="italic">
+        <td colspan="4">An error occurred while listing uploaded files. Please try again.</td>
+      </tr>
+    {% endif %}
+  </table>
+
+  <h4 style="color:red;">{{ file_errors }}</h4>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="tbl">
+      {% for field in form %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell">{{ field }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <input type="submit" value="Upload">
+  </form>
+
+{% endblock %}

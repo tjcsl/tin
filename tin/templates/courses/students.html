@@ -1,45 +1,54 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Turn-In: {{ course.name }}{% endblock %}
+{% block title %}
+  Turn-In: {{ course.name }}
+{% endblock %}
 
 {% block main %}
 
-<h2>{{ course.name }}</h2>
-<h3>Students</h3>
-<p>
-  Teachers: {{ course.get_teacher_str }}<br>
-  {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
-  {{ course.students.count }} student{{ course.students.count | pluralize }}
-</p>
+  <h2>{{ course.name }}</h2>
 
-<a class="right tin-btn" href="{% url 'courses:add_period' course.id %}">New period</a>
-<a class="right tin-btn" href="{% url 'courses:import_students' course.id %}">Import Students</a>
-<a class="right tin-btn" href="{% url 'courses:manage_students' course.id %}">Manage Students</a>
-<br><br><hr><br>
-<a class="right tin-btn" href="{% url 'courses:students' course.id %}">All</a>
-{% for period in period_set %}
-    <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %} href="{% url 'courses:students' course.id %}?period={{ period.id }}">{{ period }}</a>
-{% endfor %}
-<br><br>
-<h4>Period: {{ active_period }}</h4>
-<p>
-  <a class="tin-btn" href="{% url 'admin:courses_period_change' active_period.id %}">Admin</a>
-  <a class="tin-btn" href="{% url 'courses:edit_period' course.id active_period.id %}">Edit</a>
-</p>
-<table id="student-list" class="has-border">
-  <tr>
-    <th style="min-width:150px">Name</th>
-    <th>Missing Assignments</th>
-  </tr>
-  {% for student, missing in students %}
-    <tr>
-      <td>{{ student.full_name }} ({{ student.username }})</td>
-      <td>{{ missing | join:", "}}</td>
-    </tr>
+  <h3>Students</h3>
+  <p>
+    Teachers: {{ course.get_teacher_str }}<br>
+    {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
+    {{ course.students.count }} student{{ course.students.count | pluralize }}
+  </p>
+
+  <a class="right tin-btn" href="{% url 'courses:add_period' course.id %}">New period</a>
+  <a class="right tin-btn" href="{% url 'courses:import_students' course.id %}">Import Students</a>
+  <a class="right tin-btn" href="{% url 'courses:manage_students' course.id %}">Manage Students</a>
+  <br><br>
+
+  <hr><br>
+  <a class="right tin-btn" href="{% url 'courses:students' course.id %}">All</a>
+  {% for period in period_set %}
+    <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %}
+       href="{% url 'courses:students' course.id %}?period={{ period.id }}">{{ period }}</a>
   {% endfor %}
-  {% if not students %}
-    <td colspan="2" class="italic center">No students</td>
-  {% endif %}
-</table>
+  <br><br>
+
+  <h4>Period: {{ active_period }}</h4>
+  <p>
+    <a class="tin-btn" href="{% url 'admin:courses_period_change' active_period.id %}">Admin</a>
+    <a class="tin-btn" href="{% url 'courses:edit_period' course.id active_period.id %}">Edit</a>
+  </p>
+
+  <table id="student-list" class="has-border">
+    <tr>
+      <th style="min-width:150px">Name</th>
+      <th>Missing Assignments</th>
+    </tr>
+    {% for student, missing in students %}
+      <tr>
+        <td>{{ student.full_name }} ({{ student.username }})</td>
+        <td>{{ missing | join:", " }}</td>
+      </tr>
+    {% endfor %}
+    {% if not students %}
+      <td colspan="2" class="italic center">No students</td>
+    {% endif %}
+  </table>
 
 {% endblock %}

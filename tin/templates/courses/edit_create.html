@@ -1,31 +1,34 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}
+  Turn-In: {% if course %}{{ course.name }}: Edit{% else %}Create course{% endif %}
+{% endblock %}
+
 {% block head %}
   <script type="text/javascript">
-    $(document).ready(function() {
-      $("#id_students").selectize();
-      $("#id_teacher").selectize();
-    });
+      $(document).ready(function () {
+          $("#id_students").selectize();
+          $("#id_teacher").selectize();
+      });
   </script>
 {% endblock %}
 
-{% block title %}Turn-In: {% if course %}{{ course.name }}: Edit{% else %}Create course{% endif %}{% endblock %}
-
 {% block main %}
-<h2>{% if course %}{{ course.name }}{% else %}Create course{% endif %}</h2>
-<form action="" method="post">
-  {% csrf_token %}
-  <div class="tbl">
-    {% for field in form %}
-      <div class="tbl-row">
-        <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
-        <span class="tbl-cell">{{ field }}</span>
-      </div>
-    {% endfor %}
-  </div>
-  <input class="tin-btn" type="submit" value="{% if course %}Save{% else %}Create{% endif %}">
-</form>
+
+  <h2>{% if course %}{{ course.name }}{% else %}Create course{% endif %}</h2>
+
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="tbl">
+      {% for field in form %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell">{{ field }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <input class="tin-btn" type="submit" value="{% if course %}Save{% else %}Create{% endif %}">
+  </form>
 
 {% endblock %}
-

@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Turn-In: {{ course.name }}: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}{% endblock %}
+{% block title %}
+  Turn-In: {{ course.name }}: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}
+{% endblock %}
 
 {% block head %}
   <script src="{% static 'vendor/js.cookie-2.2.1.min.js' %}"></script>
@@ -11,249 +13,279 @@
   {% endif %}
   <script src="{% static 'js/upload-dragdrop.js' %}"></script>
   <script>
-   var assignment_submit_url = "{% url 'assignments:submit' assignment.id %}";
+      var assignment_submit_url = "{% url 'assignments:submit' assignment.id %}";
   </script>
 {% endblock %}
 
 {% block main %}
-<div class="header">
-  <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}</h2>
-  {% if is_teacher or request.user.is_superuser %}
-    <a class="right tin-btn" href="{% url 'admin:assignments_assignment_change' assignment.id %}">Admin</a>
+
+  <div class="header">
+    <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}</h2>
+    {% if is_teacher or request.user.is_superuser %}
+      <a class="right tin-btn" href="{% url 'admin:assignments_assignment_change' assignment.id %}">Admin</a>
+      {% if assignment.is_quiz %}
+        <a class="right tin-btn" href="{% url 'admin:assignments_quiz_change' assignment.quiz.id %}">Admin (Quiz)</a>
+      {% endif %}
+      <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
+      <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"
+        {% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload Grader</a>
+      <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage Files</a>
+    {% endif %}
     {% if assignment.is_quiz %}
-      <a class="right tin-btn" href="{% url 'admin:assignments_quiz_change' assignment.quiz.id %}">Admin (Quiz)</a>
-    {% endif %}
-    <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
-    <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"{% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload Grader</a>
-    <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage Files</a>
-  {% endif %}
-  {% if assignment.is_quiz %}
-    {% if quiz_accessible %}
-      <a class="right tin-btn" onclick="return confirm('You are about to begin an assessment. All activity on your device will be monitored. If you open any other tabs or attempt to use any other applications, your quiz might be stopped and your teacher will be notified.')" href="{% url 'assignments:quiz' assignment.id %}">Begin Quiz</a>
-    {% endif %}
-  {% else %}
-    <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
-  {% endif %}
-</div>
-{{ assignment.description | linebreaks }}
-
-<table id="assignment-info">
-  <tr>
-    <th>Points possible:</th>
-    <td>{{ assignment.points_possible }}</td>
-  </tr>
-  <tr>
-    <th>Due:</th>
-    <td>{{ assignment.due }}</td>
-  </tr>
-  {% if is_student %}
-    <tr>
-      <th>Grade:</th>
-      {% if latest_submission %}
-        <td id="grade" class="{% if not latest_submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="formatted_grade">
-          {% if not latest_submission.has_been_graded %}
-            <span class="result-not-graded italic">Not graded</span>
-          {% else %}
-            {{ latest_submission.formatted_grade }}
-          {% endif %}
-        </td>
-      {% else %}
-        <td class="italic">Not submitted</td>
+      {% if quiz_accessible %}
+        <a class="right tin-btn"
+           onclick="return confirm('You are about to begin an assessment. All activity on your device will be monitored. If you open any other tabs or attempt to use any other applications, your quiz might be stopped and your teacher will be notified.')"
+           href="{% url 'assignments:quiz' assignment.id %}">Begin Quiz</a>
       {% endif %}
-    </tr>
-  {% endif %}
-</table>
-
-{% if latest_submission %}
-  {% if not assignment.is_quiz or is_teacher or request.user.is_superuser %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
-    <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
-      <div class="result">
-        <code><pre>{{ latest_submission.grader_output }}</pre></code>
-      </div>
-      {% if not latest_submission.complete %}
-        <div class="continuous-progress"></div>
-      {% endif %}
-    </div>
-  {% endif %}
-  {% if request.user.is_superuser or is_teacher %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
-    <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
-      <div class="result">
-        <code><pre>{{ latest_submission.grader_errors }}</pre></code>
-      </div>
-      {% if not latest_submission.complete %}
-        <div class="continuous-progress"></div>
-      {% endif %}
-    </div>
-  {% endif %}
-
-  {% if not latest_submission.complete %}
-    <div class="conditional-result incomplete italic" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"{% if not latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
-      <br>
-      This submission is in the process of being killed. This should complete within 15 seconds. If it does not, please email the tin administrators.
-    </div>
-
-    {% if not latest_submission.kill_requested %}
-      <div class="conditional-result incomplete" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested" data-result-negate="true"{% if latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
-        <br>
-        {% csrf_token %}
-        <form method="post" action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path | urlencode }}">
-          {% csrf_token %}
-          <input type="submit" value="Kill submission">
-        </form>
-      </div>
-    {% endif %}
-  {% endif %}
-{% endif %}
-
-<h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}Your submissions{% else %}Submissions{% endif %}</h3>
-<table id="submission-list" class="has-border">
-  <tr>
-    <th style="min-width:125px;">Date submitted</th>
-    <th style="min-width:65px;">On time?</th>
-    <th style="min-width:80px;">Completed?</th>
-    <th style="min-width:90px;">Grade</th>
-  </tr>
-  {% for submission in submissions %}
-    <tr>
-      {% if assignment.is_quiz and not is_teacher and not request.user.is_superuser %}<td><a href="#">{{ submission.date_submitted }}</a></td>{% else %}<td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>{% endif %}
-      <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-      <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
-        {% if submission.complete %}Yes{% else %}No{% endif %}
-      </td>
-      <td id="grade" class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
-        {% if not submission.has_been_graded %}
-          <span class="result-not-graded italic">Not graded</span>
-        {% else %}
-          {{ submission.formatted_grade }}
-        {% endif %}
-      </td>
-    </tr>
-  {% endfor %}
-
-  {% if not submissions %}
-    <tr>
-      <td colspan="4" class="italic center">No submissions</td>
-    </tr>
-  {% endif %}
-</table>
-
-{% if is_teacher or request.user.is_superuser %}
-<h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}All submissions{% else %}Submissions{% endif %}</h3>
-<a class="right tin-btn" {% if active_period == "all" %}style="color:#4fab4f !important"{% endif %} href="{% url 'assignments:show' assignment.id %}?period=all">All</a>
-{% for period in period_set %}
-    <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %} href="{% url 'assignments:show' assignment.id %}?period={{ period.id }}">{{ period }}</a>
-{% endfor %}
-<br><br>
-{% if assignment.is_quiz %}
-<table id="submission-list" class="has-border">
-  <tr>
-    <th style="min-width:125px">Student</th>
-    <th style="min-width:65px;">Period</th>
-    <th style="min-width:125px;">Last submission date</th>
-    <th style="min-width:80px;">Completed?</th>
-    <th style="min-width:75px;">Grade</th>
-    <th style="min-width:80px;">Quiz ended by user?</th>
-    <th style="min-width:80px;">Quiz issues?</th>
-  </tr>
-  {% for student, period, submission, ended, quiz_issues in students_and_submissions %}
-  <tr>
-    <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }} ({{ student.username }})</a></td>
-    <td>{{ period | join:", "}}</td>
-    {% if submission %}
-      <td>{{ submission.date_submitted }}</td>
-      <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
-      <td>
-        {% if submission.has_been_graded %}
-        {{ submission.formatted_grade }}
-        {% else %}
-        <span class="italic">Not graded</span>
-        {% endif %}
-      </td>
     {% else %}
-      <td colspan="3" class="italic center">No submissions</td>
+      <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
     {% endif %}
-    <td>{% if ended %}Yes{% else %}No{% endif %}</td>
-    <td>{% if quiz_issues %}Yes{% else %}No{% endif %}</td>
-  </tr>
-  {% endfor %}
+  </div>
+  {{ assignment.description | linebreaks }}
 
-  {% if not students_and_submissions %}
+  <table id="assignment-info">
     <tr>
-      <td colspan="7" class="italic center">No students in class</td>
+      <th>Points possible:</th>
+      <td>{{ assignment.points_possible }}</td>
     </tr>
-  {% endif %}
-</table>
-{% else %}
-  <table id="submission-list" class="has-border">
     <tr>
-      <th style="min-width:125px">Student</th>
-      <th style="min-width:65px;">Period</th>
-      <th style="min-width:125px;">Last submission date</th>
-      <th style="min-width:65px;">On time?</th>
-      <th style="min-width:80px;">Completed?</th>
-      <th style="min-width:75px;">Grade</th>
-      <th style="min-width:130px;">New since your last login?</th>
-      <th style="min-width:130px;">New in last 24 hours?</th>
+      <th>Due:</th>
+      <td>{{ assignment.due }}</td>
     </tr>
-    {% for student, period, submission, new_login, new_24 in students_and_submissions %}
-    <tr>
-      <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }} ({{ student.username }})</a></td>
-      <td>{{ period | join:", "}}</td>
-      {% if submission %}
-        <td>{{ submission.date_submitted }}</td>
-        <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-        <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
-        <td>
-          {% if submission.has_been_graded %}
-          {{ submission.formatted_grade }}
-          {% else %}
-          <span class="italic">Not graded</span>
-          {% endif %}
-        </td>
-        <td>{% if new_login %}Yes{% endif %}</td>
-        <td>{% if new_24 %}Yes{% endif %}</td>
-      {% else %}
-        <td colspan="7" class="italic center">No submissions</td>
-      {% endif %}
-    </tr>
-    {% endfor %}
-
-    {% if not students_and_submissions %}
+    {% if is_student %}
       <tr>
-        <td colspan="8" class="italic center">No students in class</td>
+        <th>Grade:</th>
+        {% if latest_submission %}
+          <td id="grade" class="{% if not latest_submission.complete %}incomplete{% endif %}"
+              data-endpoint="{% url 'submissions:show_json' latest_submission.id %}"
+              data-endpoint-key="formatted_grade">
+            {% if not latest_submission.has_been_graded %}
+              <span class="result-not-graded italic">Not graded</span>
+            {% else %}
+              {{ latest_submission.formatted_grade }}
+            {% endif %}
+          </td>
+        {% else %}
+          <td class="italic">Not submitted</td>
+        {% endif %}
       </tr>
     {% endif %}
   </table>
-{% endif %}
-  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h3>
-  <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download All Scores</a>
-  <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download All Latest Submissions</a>
-  {% if log_file_exists %}
-    <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download Log</a>
+
+  {% if latest_submission %}
+    {% if not assignment.is_quiz or is_teacher or request.user.is_superuser %}
+      <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
+      <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}"
+           data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
+        <div class="result">
+          <pre><code>{{ latest_submission.grader_output }}</code></pre>
+        </div>
+        {% if not latest_submission.complete %}
+          <div class="continuous-progress"></div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if request.user.is_superuser or is_teacher %}
+      <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
+      <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}"
+           data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
+        <div class="result">
+          <pre><code>{{ latest_submission.grader_errors }}</code></pre>
+        </div>
+        {% if not latest_submission.complete %}
+          <div class="continuous-progress"></div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if not latest_submission.complete %}
+      <div class="conditional-result incomplete italic"
+           data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"
+        {% if not latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
+        <br>
+        This submission is in the process of being killed. This should complete within 15 seconds. If it does not,
+        please email the tin administrators.
+      </div>
+
+      {% if not latest_submission.kill_requested %}
+        <div class="conditional-result incomplete"
+             data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"
+             data-result-negate="true"{% if latest_submission.kill_requested %} style="display: none"{% endif %}
+             data-hide-when-complete="true">
+          <br>
+          {% csrf_token %}
+          <form method="post"
+                action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path | urlencode }}">
+            {% csrf_token %}
+            <input type="submit" value="Kill submission">
+          </form>
+        </div>
+      {% endif %}
+    {% endif %}
   {% endif %}
 
-  <br>
-  <br>
-  <h3 style="margin-bottom: 0px">Virtual environment</h3>
-  {% if assignment.grader_file %}
-    {% if assignment.venv_fully_created %}
-      <p>A virtual environment has been created for this assignment. You can see details and manage it <a href="{% url 'venvs:show' assignment.venv.id %}">here</a>.</p>
-    {% elif assignment.venv_object_created %}
-      <p>A virtual environment is being created for this assignment. This may take a minute or two (you will have to refresh the page to see the updated status).</p>
-      <p>If this process takes more than a few minutes, please contact the Tin maintainers.</p>
-    {% else %}
-      <form method="post" action="{% url 'venvs:create-for-assignment' assignment.id %}">
-        {% csrf_token %}
-        <input type="submit" value="Create a virtual environment for this assignment">
-      </form>
-      <p>If you already clicked this button to create a virtual environment, but you are seeing this message anyway, try waiting a few seconds and refreshing the page. If you still see this message, please contact the Tin maintainers.</p>
+  <h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}Your
+    submissions{% else %}Submissions{% endif %}</h3>
+  <table id="submission-list" class="has-border">
+    <tr>
+      <th style="min-width:125px;">Date submitted</th>
+      <th style="min-width:65px;">On time?</th>
+      <th style="min-width:80px;">Completed?</th>
+      <th style="min-width:90px;">Grade</th>
+    </tr>
+    {% for submission in submissions %}
+      <tr>
+        {% if assignment.is_quiz and not is_teacher and not request.user.is_superuser %}
+          <td><a href="#">{{ submission.date_submitted }}</a></td>{% else %}
+          <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>{% endif %}
+        <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+        <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}"
+            data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
+          {% if submission.complete %}Yes{% else %}No{% endif %}
+        </td>
+        <td id="grade" class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}"
+            data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
+          {% if not submission.has_been_graded %}
+            <span class="result-not-graded italic">Not graded</span>
+          {% else %}
+            {{ submission.formatted_grade }}
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+
+    {% if not submissions %}
+      <tr>
+        <td colspan="4" class="italic center">No submissions</td>
+      </tr>
     {% endif %}
-  {% else %}
-    <p>You must upload a grader script before you can create a virtual environment.</p>
+  </table>
+
+  {% if is_teacher or request.user.is_superuser %}
+    <h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}All
+      submissions{% else %}Submissions{% endif %}</h3>
+    <a class="right tin-btn" {% if active_period == "all" %}style="color:#4fab4f !important"{% endif %}
+       href="{% url 'assignments:show' assignment.id %}?period=all">All</a>
+    {% for period in period_set %}
+      <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %}
+         href="{% url 'assignments:show' assignment.id %}?period={{ period.id }}">{{ period }}</a>
+    {% endfor %}
+    <br><br>
+    {% if assignment.is_quiz %}
+      <table id="submission-list" class="has-border">
+        <tr>
+          <th style="min-width:125px">Student</th>
+          <th style="min-width:65px;">Period</th>
+          <th style="min-width:125px;">Last submission date</th>
+          <th style="min-width:80px;">Completed?</th>
+          <th style="min-width:75px;">Grade</th>
+          <th style="min-width:80px;">Quiz ended by user?</th>
+          <th style="min-width:80px;">Quiz issues?</th>
+        </tr>
+        {% for student, period, submission, ended, quiz_issues in students_and_submissions %}
+          <tr>
+            <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
+              ({{ student.username }})</a></td>
+            <td>{{ period | join:", " }}</td>
+            {% if submission %}
+              <td>{{ submission.date_submitted }}</td>
+              <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+              <td>
+                {% if submission.has_been_graded %}
+                  {{ submission.formatted_grade }}
+                {% else %}
+                  <span class="italic">Not graded</span>
+                {% endif %}
+              </td>
+            {% else %}
+              <td colspan="3" class="italic center">No submissions</td>
+            {% endif %}
+            <td>{% if ended %}Yes{% else %}No{% endif %}</td>
+            <td>{% if quiz_issues %}Yes{% else %}No{% endif %}</td>
+          </tr>
+        {% endfor %}
+
+        {% if not students_and_submissions %}
+          <tr>
+            <td colspan="7" class="italic center">No students in class</td>
+          </tr>
+        {% endif %}
+      </table>
+    {% else %}
+      <table id="submission-list" class="has-border">
+        <tr>
+          <th style="min-width:125px">Student</th>
+          <th style="min-width:65px;">Period</th>
+          <th style="min-width:125px;">Last submission date</th>
+          <th style="min-width:65px;">On time?</th>
+          <th style="min-width:80px;">Completed?</th>
+          <th style="min-width:75px;">Grade</th>
+          <th style="min-width:130px;">New since your last login?</th>
+          <th style="min-width:130px;">New in last 24 hours?</th>
+        </tr>
+        {% for student, period, submission, new_login, new_24 in students_and_submissions %}
+          <tr>
+            <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
+              ({{ student.username }})</a></td>
+            <td>{{ period | join:", " }}</td>
+            {% if submission %}
+              <td>{{ submission.date_submitted }}</td>
+              <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+              <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+              <td>
+                {% if submission.has_been_graded %}
+                  {{ submission.formatted_grade }}
+                {% else %}
+                  <span class="italic">Not graded</span>
+                {% endif %}
+              </td>
+              <td>{% if new_login %}Yes{% endif %}</td>
+              <td>{% if new_24 %}Yes{% endif %}</td>
+            {% else %}
+              <td colspan="7" class="italic center">No submissions</td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+
+        {% if not students_and_submissions %}
+          <tr>
+            <td colspan="8" class="italic center">No students in class</td>
+          </tr>
+        {% endif %}
+      </table>
+    {% endif %}
+    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h3>
+    <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download All Scores</a>
+    <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download All Latest
+      Submissions</a>
+    {% if log_file_exists %}
+      <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download Log</a>
+    {% endif %}
+
+    <br>
+    <br>
+    <h3 style="margin-bottom: 0px">Virtual environment</h3>
+    {% if assignment.grader_file %}
+      {% if assignment.venv_fully_created %}
+        <p>A virtual environment has been created for this assignment. You can see details and manage it <a
+          href="{% url 'venvs:show' assignment.venv.id %}">here</a>.</p>
+      {% elif assignment.venv_object_created %}
+        <p>A virtual environment is being created for this assignment. This may take a minute or two (you will have to
+          refresh the page to see the updated status).</p>
+        <p>If this process takes more than a few minutes, please contact the Tin maintainers.</p>
+      {% else %}
+        <form method="post" action="{% url 'venvs:create-for-assignment' assignment.id %}">
+          {% csrf_token %}
+          <input type="submit" value="Create a virtual environment for this assignment">
+        </form>
+        <p>If you already clicked this button to create a virtual environment, but you are seeing this message anyway,
+          try waiting a few seconds and refreshing the page. If you still see this message, please contact the Tin
+          maintainers.</p>
+      {% endif %}
+    {% else %}
+      <p>You must upload a grader script before you can create a virtual environment.</p>
+    {% endif %}
   {% endif %}
-{% endif %}
 
 {% endblock %}
-

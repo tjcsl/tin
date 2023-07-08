@@ -1,6 +1,10 @@
 {% extends "base_wo_head.html" %}
 {% load static %}
 
+{% block title %}
+  Turn-In: {{ assignment.name }}: Take Quiz
+{% endblock %}
+
 {% block head %}
   <script src="{% static 'vendor/ace/ace.js' %}"></script>
   <script src="{% static 'vendor/js.cookie-2.2.1.min.js' %}"></script>
@@ -8,115 +12,125 @@
     <script src="{% static 'js/incomplete.js' %}"></script>
   {% endif %}
   <script>
-    $(function() {
-      var textarea = $("#id_text");
-      textarea.css("display", "none");
-      textarea.prev().attr("id", "editor");
+      $(function () {
+          var textarea = $("#id_text");
+          textarea.css("display", "none");
+          textarea.prev().attr("id", "editor");
 
-      var editor = ace.edit("editor");
-      editor.setTheme("ace/theme/tomorrow");
-      editor.session.setMode("ace/mode/python");
+          var editor = ace.edit("editor");
+          editor.setTheme("ace/theme/tomorrow");
+          editor.session.setMode("ace/mode/python");
 
-      editor.getSession().setValue(textarea.val());
-      editor.getSession().on("change", function() {
-        textarea.val(editor.getSession().getValue());
+          editor.getSession().setValue(textarea.val());
+          editor.getSession().on("change", function () {
+              textarea.val(editor.getSession().getValue());
+          });
+
+          editor.container.addEventListener("keydown", function (e) {
+              if (e.ctrlKey && e.keyCode == 13) {  // Ctrl+Enter
+                  $("#text-upload form").submit();
+              }
+          });
       });
 
-      editor.container.addEventListener("keydown", function(e) {
-        if(e.ctrlKey && e.keyCode == 13) {  // Ctrl+Enter
-          $("#text-upload form").submit();
-        }
-      });
-    });
-
-    var assignment_submit_url = "{% url 'assignments:quiz' assignment.id %}";
+      var assignment_submit_url = "{% url 'assignments:quiz' assignment.id %}";
   </script>
   <script>
-    function send_report(content, severity) {
-      $.ajax({
-        type: "GET",
-        url: "{% url 'assignments:report' assignment.id %}",
-        data: {
-          "content": content,
-          "severity": severity,
-        },
-        success: function (data) {
-          console.log(data);
-          if (data == "color") {
-            document.body.style.backgroundColor = "#F72F35";
-          }
-          if (data == "lock") {
-            document.location = "{% url 'assignments:show' assignment.id %}";
-          }
-        },
-      });
-    }
-    
-    $(document).ready(function() {
-      send_report("Page loaded", 0);
-      $("#submit-btn").show();
-      {% if quiz_color %}
-        document.body.style.backgroundColor = "#F72F35";
-      {% endif %}
-      window.history.pushState(null, "", window.location.href);
-      window.onpopstate = function() {
-        window.history.pushState(null, "", window.location.href);
-      };
-    });
+      function send_report(content, severity) {
+          $.ajax({
+              type: "GET",
+              url: "{% url 'assignments:report' assignment.id %}",
+              data: {
+                  "content": content,
+                  "severity": severity,
+              },
+              success: function (data) {
+                  console.log(data);
+                  if (data == "color") {
+                      document.body.style.backgroundColor = "#F72F35";
+                  }
+                  if (data == "lock") {
+                      document.location = "{% url 'assignments:show' assignment.id %}";
+                  }
+              },
+          });
+      }
 
-    $(window).blur(function() {
-      send_report("Clicked off browser", 5)   
-    });
+      $(document).ready(function () {
+          send_report("Page loaded", 0);
+          $("#submit-btn").show();
+          {% if quiz_color %}
+              document.body.style.backgroundColor = "#F72F35";
+          {% endif %}
+          window.history.pushState(null, "", window.location.href);
+          window.onpopstate = function () {
+              window.history.pushState(null, "", window.location.href);
+          };
+      });
+
+      $(window).blur(function () {
+          send_report("Clicked off browser", 5)
+      });
   </script>
 {% endblock %}
 
 {% block main %}
 
-<h2>{{ assignment.name }}: Take Quiz</h2>
+  <h2>{{ assignment.name }}: Take Quiz</h2>
 
-{% if assignment.grader_file %}
-  {% if latest_submission %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
-    <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
-      <div class="result">
-        <code><pre>{{ latest_submission.grader_output }}</pre></code>
-      </div>
-      {% if not latest_submission.complete %}
-        <div class="continuous-progress"></div>
-      {% endif %}
-    </div>
-    {% if request.user.is_superuser or is_teacher %}
-      <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
-      <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
+  {% if assignment.grader_file %}
+
+    {% if latest_submission %}
+      <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
+      <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}"
+           data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
         <div class="result">
-          <code><pre>{{ latest_submission.grader_errors }}</pre></code>
+          <pre><code>{{ latest_submission.grader_output }}</code></pre>
         </div>
         {% if not latest_submission.complete %}
           <div class="continuous-progress"></div>
         {% endif %}
       </div>
-    {% endif %}
 
-    {% if not latest_submission.complete %}
-      <div class="conditional-result incomplete italic" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"{% if not latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
-        <br>
-        This submission is in the process of being killed. This should complete within 15 seconds. If it does not, please email the tin administrators.
-      </div>
-
-      {% if not latest_submission.kill_requested %}
-        <div class="conditional-result incomplete" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested" data-result-negate="true"{% if latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
-          <br>
-          {% csrf_token %}
-          <form method="post" action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path | urlencode }}">
-            {% csrf_token %}
-            <input type="submit" value="Kill submission">
-          </form>
+      {% if request.user.is_superuser or is_teacher %}
+        <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
+        <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}"
+             data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
+          <div class="result">
+            <pre><code>{{ latest_submission.grader_errors }}</code></pre>
+          </div>
+          {% if not latest_submission.complete %}
+            <div class="continuous-progress"></div>
+          {% endif %}
         </div>
       {% endif %}
-    {% endif %}
-  {% endif %}
 
-  <div id="upload-container">
+      {% if not latest_submission.complete %}
+        <div class="conditional-result incomplete italic"
+             data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"
+          {% if not latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
+          <br>
+          This submission is in the process of being killed. This should complete within 15 seconds. If it does not,
+          please email the tin administrators.
+        </div>
+        {% if not latest_submission.kill_requested %}
+          <div class="conditional-result incomplete"
+               data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested"
+               data-result-negate="true"{% if latest_submission.kill_requested %} style="display: none"{% endif %}
+               data-hide-when-complete="true">
+            <br>
+            {% csrf_token %}
+            <form method="post"
+                  action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path | urlencode }}">
+              {% csrf_token %}
+              <input type="submit" value="Kill submission">
+            </form>
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+
+    <div id="upload-container">
       <div id="text-upload">
         <h4 style="color:red;">{{ text_errors }}</h4>
         <form method="POST">
@@ -125,18 +139,21 @@
             {% for field in text_form %}
               <div class="tbl-row">
                 <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
-                <div class="tbl-cell"><div></div>{{ field }}</div>
+                <div class="tbl-cell">
+                  <div></div>
+                  {{ field }}</div>
               </div>
             {% endfor %}
           </div>
           <input type="submit" hidden=true onclick="send_report('Submitted code', 0)" id="submit-btn" value="Submit">
         </form>
       </div>
-  </div>
-  <br>
-  <a class="tin-btn" href="{% url 'assignments:quiz_end' assignment.id %}">End Quiz</a>
-{% else %}
-  Your teacher has not uploaded a grader script yet.
-{% endif %}
+    </div>
+    <br>
+    <a class="tin-btn" href="{% url 'assignments:quiz_end' assignment.id %}">End Quiz</a>
+
+  {% else %}
+    Your teacher has not uploaded a grader script yet.
+  {% endif %}
 
 {% endblock %}

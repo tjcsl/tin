@@ -5,7 +5,8 @@
 {% endblock %}
 
 {% block main %}
-  <p>This page lists a few sample graders. These should be read in conjunction with the <a href="{% url 'docs:graders' %}">documentation on writing graders</a>.</p>
+  <p>This page lists a few sample graders. These should be read in conjunction with the <a
+    href="{% url 'docs:graders' %}">documentation on writing graders</a>.</p>
 
   <h2>A grader for a program that outputs the nth Fibonacci number</h2>
   <pre><code>import sys, subprocess
@@ -47,4 +48,3 @@ with open(sys.argv[4], "a") as logfile:
     logfile.write("User: {}; Score: {}/{}; Failing test cases: {}\n".format(sys.argv[3], score, N, ", ".join(map(str, failing_cases))))</code></pre>
 
 {% endblock %}
-

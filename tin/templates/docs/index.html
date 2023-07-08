@@ -1,15 +1,17 @@
 {% extends "base.html" %}
 
 {% block title %}
-Turn-In: Documentation
+  Turn-In: Documentation
 {% endblock %}
 
 {% block main %}
+
   <h2>Tin Documentation</h2>
+
   <ul class="standard">
     {% for url, text in pages.items %}
       <li><a href="{{ url }}">{{ text }}</a></li>
     {% endfor %}
   </ul>
-{% endblock %}
 
+{% endblock %}
