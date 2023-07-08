@@ -35,7 +35,7 @@
     <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
   {% endif %}
 </div>
-{{ assignment.description|linebreaks }}
+{{ assignment.description | linebreaks }}
 
 <table id="assignment-info">
   <tr>
@@ -98,7 +98,7 @@
       <div class="conditional-result incomplete" data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="kill_requested" data-result-negate="true"{% if latest_submission.kill_requested %} style="display: none"{% endif %} data-hide-when-complete="true">
         <br>
         {% csrf_token %}
-        <form method="post" action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path|urlencode }}">
+        <form method="post" action="{% url 'submissions:kill' latest_submission.id %}?next={{ request.get_full_path | urlencode }}">
           {% csrf_token %}
           <input type="submit" value="Kill submission">
         </form>
@@ -184,7 +184,7 @@
       <td colspan="7" class="italic center">No students in class</td>
     </tr>
   {% endif %}
-</table>  
+</table>
 {% else %}
   <table id="submission-list" class="has-border">
     <tr>

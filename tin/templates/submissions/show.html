@@ -92,7 +92,7 @@ Submission #{{ submission_number }}
     <div class="conditional-result incomplete" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="kill_requested" data-result-negate="true" data-hide-when-complete="true">
       <br>
       {% csrf_token %}
-      <form method="post" action="{% url 'submissions:kill' submission.id %}?next={{ request.get_full_path|urlencode }}">
+      <form method="post" action="{% url 'submissions:kill' submission.id %}?next={{ request.get_full_path | urlencode }}">
         {% csrf_token %}
         <input type="submit" value="Kill submission">
       </form>
