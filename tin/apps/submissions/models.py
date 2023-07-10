@@ -4,6 +4,7 @@ import subprocess
 from typing import Optional
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -102,17 +103,24 @@ class Submission(models.Model):
     def points_possible(self):
         return self.assignment.points_possible
 
+    def point_override(self):
+        return sum(c.point_override for c in self.comments.all())
+
     @property
     def grade_percent(self):
         if self.points_received is None:
             return None
-        return "{:.2%}".format(self.points_received / self.points_possible)
+        return "{:.2%}".format(
+            (self.points_received + self.point_override()) / self.points_possible
+        )
 
     @property
     def formatted_grade(self):
         if self.has_been_graded:
             return "{}/{} ({})".format(
-                self.points_received, self.points_possible, self.grade_percent
+                self.points_received + self.point_override(),
+                self.points_possible,
+                self.grade_percent,
             )
         return "Not graded"
 
@@ -193,3 +201,12 @@ class Submission(models.Model):
     @property
     def channel_group_name(self) -> str:
         return "submission-{}".format(self.id)
+
+
+class Comment(models.Model):
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="comments")
+
+    date = models.DateTimeField(auto_now_add=True)
+    text = models.CharField(max_length=1024)
+    point_override = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True)
