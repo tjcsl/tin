@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}
+  Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}:
+  {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}: Comment
+{% endblock %}
+
+{% block main %}
+
+  <div class="header">
+    <h2 class="left">
+      {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}:
+      {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}:
+      Comment
+    </h2>
+    <a class="right tin-btn" href="{% url 'submissions:show' submission.id %}">View Submission</a>
+  </div>
+
+  <table id="submission-info">
+    <tr>
+      <th>Due:</th>
+      <td>{{ assignment.due }}</td>
+    </tr>
+    <tr>
+      <th>Submitted:</th>
+      <td>{{ submission.date_submitted }}</td>
+    </tr>
+    <tr>
+      <th>On time?</th>
+      <td>
+        {% if submission.is_on_time %}Yes{% else %}No{% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>Completed?</th>
+      <td class="{% if not submission.complete %}incomplete{% endif %}"
+          data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
+        {% if submission.complete %}Yes{% else %}No{% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>Grade:</th>
+      <td id="grade" class="{% if not submission.complete %}incomplete{% endif %}"
+          data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
+        {% if not submission.has_been_graded %}
+          <span class="result-not-graded italic">Not graded</span>
+        {% else %}
+          {{ submission.formatted_grade }}
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h3>
+  <pre><code>{{ submission_text }}</code></pre>
+
+{% endblock %}
