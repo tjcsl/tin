@@ -58,7 +58,7 @@
 
           const commentPopup = document.getElementById("comment-popup");
           Object.assign(commentPopup.style, {
-              display: `flex`,
+              display: `none`,  // change this to `flex` to enable
               left: `${event.clientX + window.scrollX - 16}px`,
               top: `${event.clientY + window.scrollY - 45}px`,
           });
