@@ -298,3 +298,9 @@ h3.errors {
 ul.errors {
     margin-top: 0.5em;
 }
+
+#comment-popup {
+    position: absolute;
+    z-index: 999;
+    display: none;
+}
