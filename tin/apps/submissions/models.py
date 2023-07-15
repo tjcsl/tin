@@ -5,6 +5,7 @@ from typing import Optional
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -206,6 +207,10 @@ class Submission(models.Model):
 class Comment(models.Model):
     submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="comments")
+
+    # Follows python slice syntax (0-indexed, inclusive:exclusive)
+    start_char = models.IntegerField(validators=[MinValueValidator(0)])
+    end_char = models.IntegerField(validators=[MinValueValidator(1)])
 
     date = models.DateTimeField(auto_now_add=True)
     text = models.CharField(max_length=1024)
