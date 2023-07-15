@@ -9,19 +9,8 @@
 
 {% block head %}
   <script type="text/javascript">
-      // https://stackoverflow.com/a/2956231/11317931
-      /* function getSelectionRange() {
-          let sel;
-          if (window.getSelection()) {
-              sel = window.getSelection();
-              if (sel.rangeCount) {
-                  return sel.getRangeAt(0);
-              }
-          } else if (document.selection && document.selection.createRange) {
-              return document.selection.createRange();
-          }
-          return null;
-      } */
+      let start;
+      let end;
 
       // https://stackoverflow.com/a/4812022/11317931
       function getSelectionCharacterOffsetWithin(element) {
@@ -53,19 +42,39 @@
           return {start: start, end: end};
       }
 
-      let start;
-      let end;
+      function resetSelection() {
+          start = -1;
+          end = -1;
 
-      function selectHandler() {
+          let commentPopup = document.getElementById("comment-popup");
+
+          Object.assign(commentPopup.style, {
+              display: `none`,
+          });
+      }
+
+      function handleSelection(event) {
+          start = newStart;
+          end = newEnd;
+
+          let commentPopup = document.getElementById("comment-popup");
+
+          Object.assign(commentPopup.style, {
+              display: `flex`,
+              left: `${event.clientX + window.scrollX - 16}px`,
+              top: `${event.clientY + window.scrollY - 45}px`,
+          });
+      }
+
+      function selectHandler(event) {
           let selectionOffsets = getSelectionCharacterOffsetWithin(document.getElementById("submission"));
           newStart = selectionOffsets.start;
           newEnd = selectionOffsets.end;
-          if (newStart === newEnd) {
-              return;
+          if (newStart === newEnd || newStart === start && newEnd === end) {
+              resetSelection();
+          } else {
+              handleSelection(event);
           }
-          start = newStart;
-          end = newEnd;
-          console.log("start: " + start + ", end: " + end);
       }
 
       window.onload = function () {
@@ -118,6 +127,8 @@
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h3>
   <pre id="submission-pre"><code id="submission">{{ submission_text }}</code></pre>
 
-  <div id="comment-popup"></div>
+  <div id="comment-popup">
+    <i class="fa fa-pencil-square-o"></i>
+  </div>
 
 {% endblock %}
