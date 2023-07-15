@@ -300,7 +300,22 @@ ul.errors {
 }
 
 #comment-popup {
+    display: none;  /* or flex */
+    align-items: center;
+    justify-content: center;
+
     position: absolute;
+    width: 30px;
+    height: 30px;
+
+    border: 1px solid #cfcfcf;
+    border-radius: 4px;
+
+    background: linear-gradient(to bottom, #dfdfdf 0%, #cfcfcf 100%);
+
     z-index: 999;
-    display: none;
+}
+
+#comment-popup .fa-pencil-square-o {
+    font-size: 1.4em;
 }
