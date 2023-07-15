@@ -7,6 +7,75 @@
   {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}: Comment
 {% endblock %}
 
+{% block head %}
+  <script type="text/javascript">
+      // https://stackoverflow.com/a/2956231/11317931
+      /* function getSelectionRange() {
+          let sel;
+          if (window.getSelection()) {
+              sel = window.getSelection();
+              if (sel.rangeCount) {
+                  return sel.getRangeAt(0);
+              }
+          } else if (document.selection && document.selection.createRange) {
+              return document.selection.createRange();
+          }
+          return null;
+      } */
+
+      // https://stackoverflow.com/a/4812022/11317931
+      function getSelectionCharacterOffsetWithin(element) {
+          var start = 0;
+          var end = 0;
+          var doc = element.ownerDocument || element.document;
+          var win = doc.defaultView || doc.parentWindow;
+          var sel;
+          if (typeof win.getSelection != "undefined") {
+              sel = win.getSelection();
+              if (sel.rangeCount > 0) {
+                  var range = win.getSelection().getRangeAt(0);
+                  var preCaretRange = range.cloneRange();
+                  preCaretRange.selectNodeContents(element);
+                  preCaretRange.setEnd(range.startContainer, range.startOffset);
+                  start = preCaretRange.toString().length;
+                  preCaretRange.setEnd(range.endContainer, range.endOffset);
+                  end = preCaretRange.toString().length;
+              }
+          } else if ((sel = doc.selection) && sel.type != "Control") {
+              var textRange = sel.createRange();
+              var preCaretTextRange = doc.body.createTextRange();
+              preCaretTextRange.moveToElementText(element);
+              preCaretTextRange.setEndPoint("EndToStart", textRange);
+              start = preCaretTextRange.text.length;
+              preCaretTextRange.setEndPoint("EndToEnd", textRange);
+              end = preCaretTextRange.text.length;
+          }
+          return {start: start, end: end};
+      }
+
+      let start;
+      let end;
+
+      function selectHandler() {
+          let selectionOffsets = getSelectionCharacterOffsetWithin(document.getElementById("submission"));
+          newStart = selectionOffsets.start;
+          newEnd = selectionOffsets.end;
+          if (newStart === newEnd) {
+              return;
+          }
+          start = newStart;
+          end = newEnd;
+          console.log("start: " + start + ", end: " + end);
+      }
+
+      window.onload = function () {
+          document.getElementById("submission").addEventListener("selectionchange", selectHandler, false);
+          document.getElementById("submission").addEventListener("mouseup", selectHandler, false);
+          document.getElementById("submission").addEventListener("keyup", selectHandler, false);
+      };
+  </script>
+{% endblock %}
+
 {% block main %}
 
   <div class="header">
@@ -34,13 +103,6 @@
       </td>
     </tr>
     <tr>
-      <th>Completed?</th>
-      <td class="{% if not submission.complete %}incomplete{% endif %}"
-          data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
-        {% if submission.complete %}Yes{% else %}No{% endif %}
-      </td>
-    </tr>
-    <tr>
       <th>Grade:</th>
       <td id="grade" class="{% if not submission.complete %}incomplete{% endif %}"
           data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
@@ -54,6 +116,8 @@
   </table>
 
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h3>
-  <pre><code>{{ submission_text }}</code></pre>
+  <pre id="submission-pre"><code id="submission">{{ submission_text }}</code></pre>
+
+  <div id="comment-popup"></div>
 
 {% endblock %}
