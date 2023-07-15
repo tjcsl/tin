@@ -47,18 +47,16 @@
           end = -1;
 
           const commentPopup = document.getElementById("comment-popup");
-
           Object.assign(commentPopup.style, {
               display: `none`,
           });
       }
 
-      function handleSelection(event) {
+      function handleSelection(event, newStart, newEnd) {
           start = newStart;
           end = newEnd;
 
           const commentPopup = document.getElementById("comment-popup");
-
           Object.assign(commentPopup.style, {
               display: `flex`,
               left: `${event.clientX + window.scrollX - 16}px`,
@@ -68,12 +66,13 @@
 
       function selectHandler(event) {
           const selectionOffsets = getSelectionCharacterOffsetWithin(document.getElementById("submission"));
-          newStart = selectionOffsets.start;
-          newEnd = selectionOffsets.end;
+          const newStart = selectionOffsets.start;
+          const newEnd = selectionOffsets.end;
+
           if (newStart === newEnd || newStart === start && newEnd === end) {
               resetSelection();
           } else {
-              handleSelection(event);
+              handleSelection(event, newStart, newEnd);
           }
       }
 
