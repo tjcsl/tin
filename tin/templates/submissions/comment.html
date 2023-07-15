@@ -14,16 +14,16 @@
 
       // https://stackoverflow.com/a/4812022/11317931
       function getSelectionCharacterOffsetWithin(element) {
-          var start = 0;
-          var end = 0;
-          var doc = element.ownerDocument || element.document;
-          var win = doc.defaultView || doc.parentWindow;
-          var sel;
+          let start = 0;
+          let end = 0;
+          const doc = element.ownerDocument || element.document;
+          const win = doc.defaultView || doc.parentWindow;
+          let sel;
           if (typeof win.getSelection != "undefined") {
               sel = win.getSelection();
               if (sel.rangeCount > 0) {
-                  var range = win.getSelection().getRangeAt(0);
-                  var preCaretRange = range.cloneRange();
+                  const range = win.getSelection().getRangeAt(0);
+                  const preCaretRange = range.cloneRange();
                   preCaretRange.selectNodeContents(element);
                   preCaretRange.setEnd(range.startContainer, range.startOffset);
                   start = preCaretRange.toString().length;
@@ -31,8 +31,8 @@
                   end = preCaretRange.toString().length;
               }
           } else if ((sel = doc.selection) && sel.type != "Control") {
-              var textRange = sel.createRange();
-              var preCaretTextRange = doc.body.createTextRange();
+              const textRange = sel.createRange();
+              const preCaretTextRange = doc.body.createTextRange();
               preCaretTextRange.moveToElementText(element);
               preCaretTextRange.setEndPoint("EndToStart", textRange);
               start = preCaretTextRange.text.length;
@@ -46,7 +46,7 @@
           start = -1;
           end = -1;
 
-          let commentPopup = document.getElementById("comment-popup");
+          const commentPopup = document.getElementById("comment-popup");
 
           Object.assign(commentPopup.style, {
               display: `none`,
@@ -57,7 +57,7 @@
           start = newStart;
           end = newEnd;
 
-          let commentPopup = document.getElementById("comment-popup");
+          const commentPopup = document.getElementById("comment-popup");
 
           Object.assign(commentPopup.style, {
               display: `flex`,
@@ -67,7 +67,7 @@
       }
 
       function selectHandler(event) {
-          let selectionOffsets = getSelectionCharacterOffsetWithin(document.getElementById("submission"));
+          const selectionOffsets = getSelectionCharacterOffsetWithin(document.getElementById("submission"));
           newStart = selectionOffsets.start;
           newEnd = selectionOffsets.end;
           if (newStart === newEnd || newStart === start && newEnd === end) {
