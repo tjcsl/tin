@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from ..auth.decorators import login_required, superuser_required, teacher_or_superuser_required
-from .models import Submission
+from .models import Submission, Comment
 from .utils import serialize_submission_info
 
 # Create your views here.
@@ -89,6 +89,17 @@ def comment_view(request, submission_id):
         submission_text = f_obj.read()
 
     if request.method == "POST":
+        comment = request.POST.get("comment", "")
+        point_override = request.POST.get("point_override", "")
+        comment = Comment(
+            submission=submission,
+            author=request.user,
+            start_char=0,
+            end_char=len(submission_text),
+            text=comment,
+            point_override=point_override,
+        )
+        comment.save()
         return redirect("submissions:show", submission.id)
 
     context = {
