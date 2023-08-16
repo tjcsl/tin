@@ -137,8 +137,10 @@
     {% for submission in submissions %}
       <tr>
         {% if assignment.is_quiz and not is_teacher and not request.user.is_superuser %}
-          <td><a href="#">{{ submission.date_submitted }}</a></td>{% else %}
-          <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>{% endif %}
+          <td><a href="#">{{ submission.date_submitted }}</a></td>
+        {% else %}
+          <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+        {% endif %}
         <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
         <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}"
             data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
