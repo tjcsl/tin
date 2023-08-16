@@ -136,6 +136,19 @@
     </tr>
   </table>
 
+  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Add Comment</h3>
+  <form action="{% url 'submissions:comment' submission.id %}" method="post">
+    {% csrf_token %}
+    <textarea name="comment" placeholder="Comment" rows="5" cols="120"></textarea>
+    <br>
+    <br>
+    <label for="point_override">Point Override:</label>
+    <input type="number" name="point_override" value="0" min="-999" max="999" step="1">
+    <br>
+    <br>
+    <input type="submit" value="Add Comment">
+  </form>
+
   <h3 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h3>
   <pre id="submission-pre"><code id="submission">{{ submission_text }}</code></pre>
 

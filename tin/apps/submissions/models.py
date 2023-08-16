@@ -108,18 +108,20 @@ class Submission(models.Model):
         return sum(c.point_override for c in self.comments.all())
 
     @property
+    def points(self):
+        return self.points_received + self.point_override()
+
+    @property
     def grade_percent(self):
         if self.points_received is None:
             return None
-        return "{:.2%}".format(
-            (self.points_received + self.point_override()) / self.points_possible
-        )
+        return "{:.2%}".format(self.points / self.points_possible)
 
     @property
     def formatted_grade(self):
         if self.has_been_graded:
             return "{}/{} ({})".format(
-                self.points_received + self.point_override(),
+                self.points,
                 self.points_possible,
                 self.grade_percent,
             )
