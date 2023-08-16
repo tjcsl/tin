@@ -10,7 +10,11 @@ def serialize_submission_info(submission, user) -> Dict[str, Union[None, int, fl
         "points_received": (
             float(submission.points_received) if submission.points_received is not None else None
         ),
-        "points": (float(submission.points) if submission.points is not None else None),
+        "points": (
+            float(submission.points)
+            if submission.points_received is not None and submission.points is not None
+            else None
+        ),
         "points_possible": (
             float(submission.points_possible) if submission.points_possible is not None else None
         ),

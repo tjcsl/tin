@@ -60,7 +60,7 @@
         {% if not submission.has_been_graded %}
           <span class="result-not-graded italic">Not graded</span>
         {% else %}
-          {{ submission.formatted_grade }}
+          {{ submission.html_formatted_grade | safe }}
         {% endif %}
       </td>
     </tr>

@@ -62,7 +62,7 @@
             {% if not latest_submission.has_been_graded %}
               <span class="result-not-graded italic">Not graded</span>
             {% else %}
-              {{ latest_submission.formatted_grade }}
+              {{ latest_submission.html_formatted_grade | safe }}
             {% endif %}
           </td>
         {% else %}
@@ -151,7 +151,7 @@
           {% if not submission.has_been_graded %}
             <span class="result-not-graded italic">Not graded</span>
           {% else %}
-            {{ submission.formatted_grade }}
+            {{ submission.html_formatted_grade | safe }}
           {% endif %}
         </td>
       </tr>
@@ -195,7 +195,7 @@
               <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
               <td>
                 {% if submission.has_been_graded %}
-                  {{ submission.formatted_grade }}
+                  {{ submission.html_formatted_grade | safe }}
                 {% else %}
                   <span class="italic">Not graded</span>
                 {% endif %}
@@ -237,7 +237,7 @@
               <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
               <td>
                 {% if submission.has_been_graded %}
-                  {{ submission.formatted_grade }}
+                  {{ submission.html_formatted_grade | safe }}
                 {% else %}
                   <span class="italic">Not graded</span>
                 {% endif %}
