@@ -104,12 +104,13 @@ class Submission(models.Model):
     def points_possible(self):
         return self.assignment.points_possible
 
+    @property
     def point_override(self):
         return sum(c.point_override for c in self.comments.all())
 
     @property
     def points(self):
-        return self.points_received + self.point_override()
+        return self.points_received + self.point_override
 
     @property
     def grade_percent(self):
@@ -124,6 +125,21 @@ class Submission(models.Model):
                 self.points,
                 self.points_possible,
                 self.grade_percent,
+            )
+        return "Not graded"
+
+    @property
+    def html_formatted_grade(self):
+        if self.has_been_graded:
+            if self.point_override == 0:
+                return self.formatted_grade
+            return '{} / {} ({})&emsp;<span class="italic" style="color: {};">{}{}</span>&ensp;'.format(
+                self.points,
+                self.points_possible,
+                self.grade_percent,
+                "green" if self.point_override > 0 else "red",
+                "+" if self.point_override > 0 else "",
+                self.point_override,
             )
         return "Not graded"
 
