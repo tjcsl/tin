@@ -90,6 +90,26 @@
     </div>
   {% endif %}
 
+  {% if submission_comments %}
+    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Comments</h3>
+    <table id="comment-list" class="has-border">
+      <tr>
+        <th style="min-width:125px;">Date added</th>
+        <th style="min-width:65px;">Author</th>
+        <th style="min-width:80px;">Text</th>
+        <th style="min-width:90px;">Point Override</th>
+      </tr>
+      {% for comment in submission_comments %}
+        <tr>
+          <td><span>{{ comment.date }}</span></td>
+          <td><span>{{ comment.author.full_name }} ({{ comment.author.username }})</span></td>
+          <td><span>{{ comment.text }}</span></td>
+          <td><span>{{ comment.point_override }}</span></td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
   {% if not submission.complete %}
     <div class="conditional-result incomplete italic" data-endpoint="{% url 'submissions:show_json' submission.id %}"
          data-endpoint-key="kill_requested" {% if not submission.kill_requested %}style="display: none"{% endif %}
