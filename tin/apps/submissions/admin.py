@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Submission
+from .models import Submission, Comment
 
 # Register your models here.
 
@@ -30,3 +30,26 @@ class SubmissionAdmin(admin.ModelAdmin):
     @admin.display(description="Student")
     def student_name(self, obj):
         return obj.student.username
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    date_hierarchy = "date"
+    list_display = (
+        "submission",
+        "author",
+        "date",
+        "point_override",
+    )
+    list_filter = ("submission__assignment__course", "submission__assignment__due")
+    ordering = ("-date",)
+    save_as = True
+    search_fields = ("submission__assignment__name", "submission__student__username")
+
+    @admin.display(description="Submission")
+    def submission(self, obj):
+        return obj.submission.id
+
+    @admin.display(description="Author")
+    def author(self, obj):
+        return obj.author.username
