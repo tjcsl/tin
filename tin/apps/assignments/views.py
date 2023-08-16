@@ -687,7 +687,7 @@ def scores_csv_view(request, assignment_id):
     response["Content-Disposition"] = 'attachment; filename="scores.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(["Name", "Username", "Period", "Raw Score", "Formatted Grade"])
+    writer.writerow(["Name", "Username", "Period", "Raw Score", "Final Score", "Formatted Grade"])
 
     for student in assignment.course.students.all().order_by("periods", "last_name"):
         row = []
@@ -703,11 +703,14 @@ def scores_csv_view(request, assignment_id):
         if latest_submission is not None:
             if latest_submission.points_received:
                 row.append(latest_submission.points_received)
+                row.append(latest_submission.points)
                 row.append(latest_submission.formatted_grade)
             else:
                 row.append("NG")
                 row.append("NG")
+                row.append("NG")
         else:
+            row.append("M")
             row.append("M")
             row.append("M")
         writer.writerow(row)
