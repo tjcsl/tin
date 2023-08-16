@@ -81,6 +81,19 @@
           document.getElementById("submission").addEventListener("mouseup", selectHandler, false);
           document.getElementById("submission").addEventListener("keyup", selectHandler, false);
       };
+
+      // Use this when comments aren't form-dependent anymore
+      function addComment(comment, point_override) {
+          $.ajax({
+              type: "POST",
+              url: "{% url 'submissions:comment' submission.id %}",
+              data: {
+                  "comment": comment,
+                  "point_override": point_override,
+                  "csrfmiddlewaretoken": "{{ csrf_token }}",
+              },
+          });
+      }
   </script>
 {% endblock %}
 
