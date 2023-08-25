@@ -228,9 +228,11 @@ class Assignment(models.Model):
                 return
 
     def compile_java_files(self) -> None:
-        self.make_assignment_dir()
+        fpaths = []
 
-        fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(self.id), "*.java")
+        for file in self.list_files():
+            if file[1].endswith(".java"):
+                fpaths.append(file[2])
 
         try:
             subprocess.run(
@@ -238,7 +240,7 @@ class Assignment(models.Model):
                     "javac",
                     "-classpath",
                     "/usr/share/java/junit.jar:/usr/share/java/hamcrest.jar:.",
-                    fpath,
+                    *fpaths,
                 ],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
