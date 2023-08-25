@@ -232,20 +232,14 @@ class Assignment(models.Model):
 
         fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(self.id), "*.java")
 
-        args = get_assignment_sandbox_args(
-            [
-                "javac",
-                "-classpath",
-                "/usr/share/java/junit.jar:/usr/share/java/hamcrest.jar:.",
-                fpath,
-            ],
-            network_access=False,
-            whitelist=[os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")],
-        )
-
         try:
             subprocess.run(
-                args,
+                [
+                    "javac",
+                    "-classpath",
+                    "/usr/share/java/junit.jar:/usr/share/java/hamcrest.jar:.",
+                    fpath,
+                ],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 encoding="utf-8",
