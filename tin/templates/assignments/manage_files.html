@@ -36,6 +36,15 @@
     {% endif %}
   </table>
 
+  {% if is_teacher or request.user.is_superuser %}
+    {% if has_java_files %}
+      <form method="post" action="{% url 'assignments:compile_java_files' assignment.id %}">
+        {% csrf_token %}
+        <input type="submit" value="Compile all uploaded .java files">
+      </form>
+    {% endif %}
+  {% endif %}
+
   <h4 style="color:red;">{{ file_errors }}</h4>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}

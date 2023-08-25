@@ -227,6 +227,35 @@ class Assignment(models.Model):
                 os.remove(item.path)
                 return
 
+    def compile_java_files(self) -> None:
+        self.make_assignment_dir()
+
+        fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(self.id), "*.java")
+
+        args = get_assignment_sandbox_args(
+            [
+                "javac",
+                "-classpath",
+                "/usr/share/java/junit.jar:/usr/share/java/hamcrest.jar:.",
+                fpath,
+            ],
+            network_access=False,
+            whitelist=[os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")],
+        )
+
+        try:
+            subprocess.run(
+                args,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
+                universal_newlines=True,
+                check=True,
+            )
+        except FileNotFoundError as e:
+            logger.error("Cannot run processes: %s", e)
+            raise FileNotFoundError from e
+
     def check_rate_limit(self, student) -> None:
         now = timezone.localtime()
 
