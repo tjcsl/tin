@@ -543,6 +543,22 @@ def submit_view(request, assignment_id):
     )
 
 
+def rerun_all_view(request, assignment_id):
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
+
+    for user in assignment.course.students.all():
+        submissions = Submission.objects.filter(student=user, assignment=assignment).order_by(
+            "-date_submitted"
+        )
+        latest_submission = submissions.first() if submissions else None
+        if latest_submission:
+            latest_submission.rerun_submission()
+
+    return redirect("assignments:show", assignment.id)
+
+
 @login_required
 def quiz_view(request, assignment_id):
     assignment = get_object_or_404(

@@ -27,6 +27,7 @@ urlpatterns = [
         name="student_submission",
     ),
     path("<int:assignment_id>/submit", views.submit_view, name="submit"),
+    path("<int:assignment_id>/rerun_all", views.rerun_all_view, name="rerun_all"),
     path("<int:assignment_id>/quiz", views.quiz_view, name="quiz"),
     path("<int:assignment_id>/report", views.quiz_report_view, name="report"),
     path("<int:assignment_id>/end", views.quiz_end_view, name="quiz_end"),

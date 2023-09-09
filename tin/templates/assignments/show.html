@@ -130,6 +130,7 @@
   <table id="submission-list" class="has-border">
     <tr>
       <th style="min-width:125px;">Date submitted</th>
+      <th style="min-width:90px;">Date last run</th>
       <th style="min-width:65px;">On time?</th>
       <th style="min-width:80px;">Completed?</th>
       <th style="min-width:90px;">Grade</th>
@@ -140,6 +141,11 @@
           <td><a href="#">{{ submission.date_submitted }}</a></td>
         {% else %}
           <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+        {% endif %}
+        {% if submission.last_run %}
+          <td>{{ submission.last_run }}</td>
+        {% else %}
+          <td>--</td>
         {% endif %}
         <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
         <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}"
@@ -159,7 +165,7 @@
 
     {% if not submissions %}
       <tr>
-        <td colspan="4" class="italic center">No submissions</td>
+        <td colspan="5" class="italic center">No submissions</td>
       </tr>
     {% endif %}
   </table>
@@ -180,6 +186,7 @@
           <th style="min-width:125px">Student</th>
           <th style="min-width:65px;">Period</th>
           <th style="min-width:125px;">Last submission date</th>
+          <th style="min-width:90px;">Last run date</th>
           <th style="min-width:80px;">Completed?</th>
           <th style="min-width:75px;">Grade</th>
           <th style="min-width:80px;">Quiz ended by user?</th>
@@ -192,6 +199,11 @@
             <td>{{ period | join:", " }}</td>
             {% if submission %}
               <td>{{ submission.date_submitted }}</td>
+              {% if submission.last_run %}
+                <td>{{ submission.last_run }}</td>
+              {% else %}
+                <td>--</td>
+              {% endif %}
               <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
               <td>
                 {% if submission.has_been_graded %}
@@ -201,7 +213,7 @@
                 {% endif %}
               </td>
             {% else %}
-              <td colspan="3" class="italic center">No submissions</td>
+              <td colspan="4" class="italic center">No submissions</td>
             {% endif %}
             <td>{% if ended %}Yes{% else %}No{% endif %}</td>
             <td>{% if quiz_issues %}Yes{% else %}No{% endif %}</td>
@@ -210,7 +222,7 @@
 
         {% if not students_and_submissions %}
           <tr>
-            <td colspan="7" class="italic center">No students in class</td>
+            <td colspan="8" class="italic center">No students in class</td>
           </tr>
         {% endif %}
       </table>
@@ -220,9 +232,10 @@
           <th style="min-width:125px">Student</th>
           <th style="min-width:65px;">Period</th>
           <th style="min-width:125px;">Last submission date</th>
+          <th style="min-width:90px;">Last run date</th>
+          <th style="min-width:75px;">Grade</th>
           <th style="min-width:65px;">On time?</th>
           <th style="min-width:80px;">Completed?</th>
-          <th style="min-width:75px;">Grade</th>
           <th style="min-width:130px;">New since your last login?</th>
           <th style="min-width:130px;">New in last 24 hours?</th>
         </tr>
@@ -233,8 +246,11 @@
             <td>{{ period | join:", " }}</td>
             {% if submission %}
               <td>{{ submission.date_submitted }}</td>
-              <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-              <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+              {% if submission.last_run %}
+                <td>{{ submission.last_run }}</td>
+              {% else %}
+                <td>--</td>
+              {% endif %}
               <td>
                 {% if submission.has_been_graded %}
                   {{ submission.html_formatted_grade | safe }}
@@ -242,17 +258,19 @@
                   <span class="italic">Not graded</span>
                 {% endif %}
               </td>
+              <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+              <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
               <td>{% if new_login %}Yes{% endif %}</td>
               <td>{% if new_24 %}Yes{% endif %}</td>
             {% else %}
-              <td colspan="7" class="italic center">No submissions</td>
+              <td colspan="8" class="italic center">No submissions</td>
             {% endif %}
           </tr>
         {% endfor %}
 
         {% if not students_and_submissions %}
           <tr>
-            <td colspan="8" class="italic center">No students in class</td>
+            <td colspan="9" class="italic center">No students in class</td>
           </tr>
         {% endif %}
       </table>
@@ -261,6 +279,7 @@
     <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download All Scores</a>
     <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download All Latest
       Submissions</a>
+    <a class="left tin-btn" href="{% url 'assignments:rerun_all' assignment.id %}">Rerun All Latest Submissions</a>
     {% if log_file_exists %}
       <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download Log</a>
     {% endif %}
