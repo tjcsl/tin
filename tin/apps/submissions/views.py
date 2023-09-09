@@ -72,6 +72,16 @@ def kill_view(request, submission_id):
 
 
 @teacher_or_superuser_required
+def rerun_view(request, submission_id):
+    submission = get_object_or_404(
+        Submission.objects.filter_visible(request.user), id=submission_id
+    )
+
+    submission.rerun_submission()
+    return redirect("submissions:show", submission.id)
+
+
+@teacher_or_superuser_required
 def comment_view(request, submission_id):
     submission = get_object_or_404(
         Submission.objects.filter_editable(request.user), id=submission_id

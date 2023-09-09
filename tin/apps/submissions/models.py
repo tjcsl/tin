@@ -121,11 +121,7 @@ class Submission(models.Model):
     @property
     def formatted_grade(self):
         if self.has_been_graded:
-            return "{}/{} ({})".format(
-                self.points,
-                self.points_possible,
-                self.grade_percent,
-            )
+            return f"{self.points} / {self.points_possible} ({self.grade_percent})"
         return "Not graded"
 
     @property
@@ -133,13 +129,10 @@ class Submission(models.Model):
         if self.has_been_graded:
             if self.point_override == 0:
                 return self.formatted_grade
-            return '{} / {} ({})&emsp;<span class="italic" style="color: {};">{}{}</span>&ensp;'.format(
-                self.points,
-                self.points_possible,
-                self.grade_percent,
-                "green" if self.point_override > 0 else "red",
-                "+" if self.point_override > 0 else "",
-                self.point_override,
+            return (
+                f"{self.points} / {self.points_possible} ({self.grade_percent})&emsp;"
+                f'<span class="italic" style="color: {"green" if self.point_override > 0 else "red"};">'
+                f'{"+" if self.point_override > 0 else ""}{self.point_override}'
             )
         return "Not graded"
 
@@ -216,6 +209,14 @@ class Submission(models.Model):
 
         with open(backup_fpath, "w", encoding="utf-8") as f_obj:
             f_obj.write(submission_text)
+
+    def rerun_submission(self):
+        from .tasks import run_submission
+
+        self.complete = False
+        self.save()
+
+        run_submission.delay(self.id)
 
     @property
     def channel_group_name(self) -> str:
