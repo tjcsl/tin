@@ -57,6 +57,7 @@ class Submission(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     date_submitted = models.DateTimeField(auto_now_add=True)
+    last_run = models.DateTimeField(null=True, blank=True)
 
     has_been_graded = models.BooleanField(default=False)
 
@@ -214,6 +215,7 @@ class Submission(models.Model):
         from .tasks import run_submission
 
         self.complete = False
+        self.last_run = timezone.now()
         self.save()
 
         run_submission.delay(self.id)
