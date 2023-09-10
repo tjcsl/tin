@@ -23,6 +23,7 @@ class PeriodAdmin(admin.ModelAdmin):
     ordering = ("course__name", "teacher__username", "name")
     save_as = True
     search_fields = ("name", "course__name", "teacher__username")
+    autocomplete_fields = ("course", "teacher")
     filter_horizontal = ("students",)
 
     @admin.display(description="Course")
@@ -44,6 +45,7 @@ class StudentImportAdmin(admin.ModelAdmin):
     ordering = ("course__name",)
     save_as = True
     search_fields = ("course__name", "students__user")
+    autocomplete_fields = ("course",)
     filter_horizontal = ("students",)
 
     @admin.display(description="Course")
