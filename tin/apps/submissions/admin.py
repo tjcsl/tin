@@ -22,6 +22,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     ordering = ("-date_submitted",)
     save_as = True
     search_fields = ("assignment__name", "student__username")
+    autocomplete_fields = ("assignment", "student")
 
     @admin.display(description="Assignment")
     def assignment_name(self, obj):
@@ -45,6 +46,7 @@ class CommentAdmin(admin.ModelAdmin):
     ordering = ("-date",)
     save_as = True
     search_fields = ("submission__assignment__name", "submission__student__username")
+    autocomplete_fields = ("submission", "author")
 
     @admin.display(description="Submission")
     def submission(self, obj):

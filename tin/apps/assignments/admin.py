@@ -12,6 +12,7 @@ class AssignmentAdmin(admin.ModelAdmin):
     ordering = ("-due",)
     save_as = True
     search_fields = ("name",)
+    autocomplete_fields = ("course", "folder")
 
     @admin.display(description="Course")
     def course_name(self, obj):
@@ -34,6 +35,7 @@ class QuizAdmin(admin.ModelAdmin):
     ordering = ("-assignment__due",)
     save_as = True
     search_fields = ("assignment__name",)
+    autocomplete_fields = ("assignment",)
 
     @admin.display(description="Due")
     def due(self, obj):
@@ -59,6 +61,7 @@ class FolderAdmin(admin.ModelAdmin):
     ordering = ("course", "name")
     save_as = True
     search_fields = ("name",)
+    autocomplete_fields = ("course",)
 
     @admin.display(description="Assignments")
     def assignments(self, obj):
@@ -73,6 +76,7 @@ class LogMessageAdmin(admin.ModelAdmin):
     ordering = ("-date",)
     save_as = True
     search_fields = ("quiz__assignment__name", "student__username", "content")
+    autocomplete_fields = ("quiz", "student")
 
     @admin.display(description="Assignment")
     def assignment(self, obj):
