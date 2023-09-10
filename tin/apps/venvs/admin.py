@@ -11,3 +11,4 @@ class VirtualenvAdmin(admin.ModelAdmin):
     list_filter = ("fully_created", "installing_packages")
     save_as = True
     search_fields = ("assignment__name",)
+    autocomplete_fields = ("assignment",)
