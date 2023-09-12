@@ -54,7 +54,7 @@
       {% for field in assignment_form %}
         <div class="tbl-row">
           <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
-          <span class="tbl-cell"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}
+          <span class="tbl-cell form-input"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}
             {% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
         </div>
       {% endfor %}

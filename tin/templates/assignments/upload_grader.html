@@ -28,13 +28,13 @@
         {% if field.name != "grader_file" %}
           <div class="tbl-row">
             <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
-            <span class="tbl-cell">{{ field }}</span>
+            <span class="tbl-cell form-input">{{ field }}</span>
           </div>
         {% endif %}
       {% endfor %}
       <div class="tbl-row">
         <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;"><label for="id_grader_file">Grader file:</label></span>
-        <span class="tbl-cell"><input type="file" name="grader_file" id="id_grader_file" required></span>
+        <span class="tbl-cell form-input"><input type="file" name="grader_file" id="id_grader_file" required></span>
       </div>
     </div>
     <input type="submit" value="Upload grader">
