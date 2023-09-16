@@ -35,7 +35,7 @@
   </ul>
 
   {% if request.user.is_student %}
-    <h2>Unsubmitted Assignments</h2>
+    <h2>To Do</h2>
     <ul id="course-list">
       {% for assignment in unsubmitted_assignments %}
         <li>
@@ -57,7 +57,7 @@
         </li>
       {% endfor %}
     </ul>
-    <h2>Assignments due in the next week</h2>
+    <h2>Due in the next week</h2>
     <ul id="course-list">
       {% for assignment in due_soon_assignments %}
         <li>
@@ -75,28 +75,6 @@
         <li>
           <div class="left">
             Nothing's due in the next week.
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-    <h2>All assignments</h2>
-    <ul id="course-list">
-      {% for assignment in all_assignments %}
-        <li>
-          <div class="left">
-            <a href="{% url "assignments:show" assignment.id %}">{% if assignment.is_quiz %}
-              [QUIZ] {% endif %}{{ assignment.name }} &mdash; {{ assignment.course.name }}</a>{% if assignment.hidden %}
-            <i> (Hidden)</i>{% endif %}
-          </div>
-          <div class="right">
-            <span class="italic">Due {{ assignment.due }}&ensp;</span>
-            <a href="{% url "assignments:submit" assignment.id %}" class="tin-btn">Submit</a>
-          </div>
-        </li>
-      {% empty %}
-        <li>
-          <div class="left">
-            No assignments.
           </div>
         </li>
       {% endfor %}
