@@ -24,26 +24,23 @@ def index_view(request):
     context = {"courses": courses}
 
     if request.user.is_student:
-        unsubmitted_assignments = (
+        assignments = (
             Assignment.objects.filter_visible(request.user)
-            .filter(course__in=request.user.courses.all())
-            .exclude(submissions__student=request.user)
+            .filter(course__students=request.user, quiz__isnull=True)
+            .order_by("due")
         )
-        courses_with_unsubmitted_assignments = set(
+
+        unsubmitted_assignments = assignments.exclude(submissions__student=request.user)
+        context["unsubmitted_assignments"] = unsubmitted_assignments
+        context["courses_with_unsubmitted_assignments"] = set(
             assignment.course for assignment in unsubmitted_assignments
         )
 
-        context["courses_with_unsubmitted_assignments"] = courses_with_unsubmitted_assignments
-        context["unsubmitted_assignments"] = unsubmitted_assignments
-
         now = timezone.now()
-        context["due_soon_assignments"] = Assignment.objects.filter_visible(request.user).filter(
-            course__students=request.user, due__gte=now, due__lte=now + timezone.timedelta(weeks=1)
+        due_soon_assignments = assignments.filter(
+            due__gte=now, due__lte=now + timezone.timedelta(weeks=1)
         )
-
-        context["all_assignments"] = Assignment.objects.filter_visible(request.user).filter(
-            course__students=request.user
-        )
+        context["due_soon_assignments"] = due_soon_assignments
 
     return render(request, "courses/home.html", context)
 
