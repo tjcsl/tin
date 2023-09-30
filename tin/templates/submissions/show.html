@@ -71,7 +71,7 @@
   <div id="grader-output" class="code-result{% if not submission.complete %} incomplete{% endif %}"
        data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="grader_output">
     <div class="result">
-      <pre><code>{{ submission.grader_output }}</code></pre>
+      <pre><code class="nohljsln">{{ submission.grader_output }}</code></pre>
     </div>
     {% if not submission.complete %}
       <div class="continuous-progress"></div>
@@ -83,7 +83,7 @@
     <div id="grader-errors" class="code-result{% if not submission.complete %} incomplete{% endif %}"
          data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="grader_errors">
       <div class="result">
-        <pre><code>{{ submission.grader_errors }}</code></pre>
+        <pre><code class="nohljsln">{{ submission.grader_errors }}</code></pre>
       </div>
       {% if not submission.complete %}
         <div class="continuous-progress"></div>
