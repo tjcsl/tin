@@ -18,13 +18,19 @@
   <script src="{% static 'js/vendor/jquery-3.3.1.min.js' %}"></script>
   <script src="{% static 'vendor/jquery-ui/jquery-ui-1.12.1.min.js' %}"></script>
   <link rel="stylesheet" type="text/css" href="{% static 'vendor/selectize/selectize.default.css' %}"/>
-  <link rel="stylesheet" href="{% static 'vendor/highlight/styles/default.css' %}">
-  <script src="{% static 'vendor/highlight/highlight.pack.js' %}"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
+  <link rel="stylesheet" href="{% static 'vendor/highlight/styles/default.min.css' %}">
+  <script src="{% static 'vendor/highlight/highlight.min.js' %}"></script>
+  <script src="{% static 'vendor/highlight/highlightjs-line-numbers.min.js' %}"></script>
+  <script>
+      hljs.highlightAll();
+      hljs.initLineNumbersOnLoad();
+  </script>
   <script type="text/javascript" src="{% static 'vendor/selectize/selectize.min.js' %}"></script>
-  <script>$(function () {
-      $(".continuous-progress").css({height: "15px"}).progressbar({value: false})
-  });</script>
+  <script>
+      $(function () {
+          $(".continuous-progress").css({height: "15px"}).progressbar({value: false})
+      });
+  </script>
   {% block head %}{% endblock %}
 </head>
 

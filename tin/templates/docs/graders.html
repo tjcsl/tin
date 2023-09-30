@@ -124,15 +124,15 @@
     read-write access to <code>output.txt</code> (in practice, the names should be randomized and/or dependent on the
     student's username) in the submission directory, and the command-line arguments <code>abc</code> and
     <code>123</code>.</p>
-  <pre><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "abc", "123"])</code></pre>
+  <pre><code class="nohljsln">subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "abc", "123"])</code></pre>
   (avoid this style; always pass <code>--</code> so it is clear where the wrapper script arguments end)
-  <pre><code>subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--", "abc", "123"])</code></pre>
-  <pre><code>subprocess.run([sys.argv[1], "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--", "abc", "123"])</code></pre>
+  <pre><code class="nohljsln">subprocess.run([sys.argv[1], "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--", "abc", "123"])</code></pre>
+  <pre><code class="nohljsln">subprocess.run([sys.argv[1], "--write", os.path.join(os.path.dirname(sys.argv[2]), "output.txt"), "--read", os.path.join(os.path.dirname(__file__), "input.txt"), "--", "abc", "123"])</code></pre>
   <p>The following code does not do what the author intended. It runs the submission with two arguments: the string
     <code>"--read"</code> and the path to a file named <code>input.txt</code> in the grader script directory. It does
     NOT give the script read access to <code>input.txt</code>.</p>
   <p>
-  <pre><code>subprocess.run([sys.argv[1], "--", "--read", os.path.join(os.path.dirname(__file__), "input.txt")])</code></pre>
+  <pre><code class="nohljsln">subprocess.run([sys.argv[1], "--", "--read", os.path.join(os.path.dirname(__file__), "input.txt")])</code></pre>
 
   <h2>Grader script output</h2>
   <p>Students can only see output from the grader that has been printed on the standard output (<code>sys.stdout</code>).
