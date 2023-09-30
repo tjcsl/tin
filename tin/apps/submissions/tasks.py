@@ -104,7 +104,7 @@ def run_submission(submission_id):
         submission.grader_errors = truncate_output(
             traceback.format_exc().replace("\0", ""), "grader_errors"
         )
-        submission.completed = True
+        submission.complete = True
         submission.save()
 
         async_to_sync(get_channel_layer().group_send)(
