@@ -25,10 +25,8 @@
     </h2>
     {% if is_teacher or request.user.is_superuser %}
       <a class="right tin-btn" href="{% url 'admin:submissions_submission_change' submission.id %}">Admin</a>
-      {% if submission.complete and submission.has_been_graded %}
-        <a class="right tin-btn" href="{% url 'submissions:rerun' submission.id %}">Re-run</a>
-        <a class="right tin-btn" href="{% url 'submissions:comment' submission.id %}">Comment</a>
-      {% endif %}
+      <a class="right tin-btn" href="{% url 'submissions:rerun' submission.id %}">Re-run</a>
+      <a class="right tin-btn" href="{% url 'submissions:comment' submission.id %}">Comment</a>
     {% endif %}
   </div>
 
