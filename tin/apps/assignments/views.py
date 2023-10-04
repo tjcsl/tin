@@ -352,6 +352,21 @@ def manage_files_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
+def download_file_view(request, assignment_id, file_id):
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
+
+    file_name, file_path = assignment.get_file(file_id)
+
+    with open(file_path, "rb") as f_obj:
+        response = http.HttpResponse(f_obj.read(), content_type="text/plain")
+    response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+
+    return response
+
+
+@teacher_or_superuser_required
 def delete_file_view(request, assignment_id, file_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
