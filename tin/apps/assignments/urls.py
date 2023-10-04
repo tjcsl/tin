@@ -11,6 +11,7 @@ urlpatterns = [
     path("<int:assignment_id>/delete", views.delete_view, name="delete"),
     path("<int:assignment_id>/grader/upload", views.upload_grader_view, name="upload_grader"),
     path("<int:assignment_id>/files", views.manage_files_view, name="manage_files"),
+    path("<int:assignment_id>/files/download/<int:file_id>", views.download_file_view, name="download_file"),
     path(
         "<int:assignment_id>/files/delete/<int:file_id>",
         views.delete_file_view,
