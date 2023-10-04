@@ -217,6 +217,16 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
+    def get_file(self, file_id: int) -> Tuple[str, str]:
+        self.make_assignment_dir()
+
+        for i, item in enumerate(
+            os.scandir(os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}"))
+        ):
+            if i == file_id and os.path.exists(item.path) and item.is_file():
+                return item.name, item.path
+        return "", ""
+
     def delete_file(self, file_id: int) -> None:
         self.make_assignment_dir()
 
