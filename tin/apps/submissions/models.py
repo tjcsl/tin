@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from ...sandboxing import get_assignment_sandbox_args
+from .utils import decimal_repr
 
 logger = logging.getLogger(__name__)
 
@@ -122,19 +123,37 @@ class Submission(models.Model):
     @property
     def formatted_grade(self):
         if self.has_been_graded:
-            return f"{self.points} / {self.points_possible} ({self.grade_percent})"
+            return f"{decimal_repr(self.points)} / {decimal_repr(self.points_possible)} ({self.grade_percent})"
+        return "Not graded"
+
+    @property
+    def bold_formatted_grade(self):
+        if self.has_been_graded:
+            return f"<b>{decimal_repr(self.points)}</b> / {decimal_repr(self.points_possible)} ({self.grade_percent})"
         return "Not graded"
 
     @property
     def html_formatted_grade(self):
         if self.has_been_graded:
-            if self.point_override == 0:
-                return self.formatted_grade
-            return (
-                f"{self.points} / {self.points_possible} ({self.grade_percent})&emsp;"
-                f'<span class="italic" style="color: {"green" if self.point_override > 0 else "red"};">'
-                f'{"+" if self.point_override > 0 else ""}{self.point_override}'
-            )
+            grade = f"{self.bold_formatted_grade}"
+            comment_count = self.comments.count()
+
+            if comment_count > 0:
+                tooltip_html = 'data-toggle="tooltip" title="Click to read comments"'
+                submission_url = reverse("submissions:show", args=(self.id,))
+
+                grade += f'&ensp;<a href="{submission_url}" style="text-decoration: none;" {tooltip_html}>'
+                if comment_count == 1:
+                    grade += f'<i class="fa fa-comment"></i>'
+                else:
+                    grade += f'<i class="fa fa-comments"></i>'
+                if self.point_override != 0:
+                    grade += f'&ensp;<span style="color: {"green" if self.point_override > 0 else "red"};">'
+                    grade += f'[{"+" if self.point_override > 0 else ""}{decimal_repr(self.point_override)}]'
+                    grade += f"</span>"
+                grade += f"</a>&ensp;"
+
+            return grade
         return "Not graded"
 
     @property

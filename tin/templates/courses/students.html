@@ -2,14 +2,13 @@
 {% load static %}
 
 {% block title %}
-  Turn-In: {{ course.name }}
+  Turn-In: {{ course.name }}: Students
 {% endblock %}
 
 {% block main %}
 
-  <h2>{{ course.name }}</h2>
+  <h2>{{ course.name }}: Students</h2>
 
-  <h3>Students</h3>
   <p>
     Teachers: {{ course.get_teacher_str }}<br>
     {% if period %}Your Period: {{ period | join:", " }}{% endif %}<br>
@@ -17,8 +16,8 @@
   </p>
 
   <a class="right tin-btn" href="{% url 'courses:add_period' course.id %}">New period</a>
-  <a class="right tin-btn" href="{% url 'courses:import_students' course.id %}">Import Students</a>
-  <a class="right tin-btn" href="{% url 'courses:manage_students' course.id %}">Manage Students</a>
+  <a class="right tin-btn" href="{% url 'courses:import_students' course.id %}">Import students</a>
+  <a class="right tin-btn" href="{% url 'courses:manage_students' course.id %}">Manage students</a>
   <br><br>
 
   <hr><br>

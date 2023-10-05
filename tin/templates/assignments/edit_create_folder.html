@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block title %}
-  Turn-In: {{ course.name }}: {% if action == "add" %}Create folder{% else %}{{ folder.name }}{% endif %}
+  Turn-In: {% if action == "add" %}{{ course.name }}: Create folder{% else %}{{ folder.name }}: Edit folder{% endif %}
 {% endblock %}
 
 {% block main %}
 
-  <h2>{{ course.name }}: {% if action == "add" %}Create folder{% else %}{{ folder.name }}{% endif %}</h2>
+  <h2>{% if action == "add" %}{{ course.name }}: Create folder{% else %}{{ folder.name }}: Edit folder{% endif %}</h2>
 
   {% if form.errors %}
     <h3 class="errors">Please correct the errors below.</h3>

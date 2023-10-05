@@ -2,13 +2,13 @@
 {% load static %}
 
 {% block title %}
-  Turn-In: {{ course.name }}: {{ folder.name }}
+  Turn-In: {{ folder.name }}
 {% endblock %}
 
 {% block main %}
 
   <div class="header">
-    <h2 class="left">{{ course.name }}: {{ folder.name }}</h2>
+    <h2 class="left">{{ folder.name }}</h2>
     {% if is_teacher or request.user.is_superuser %}
       <a class="right tin-btn" href="{% url 'admin:assignments_folder_change' folder.id %}">Admin</a>
       <a class="right tin-btn" href="{% url 'assignments:edit_folder' course.id folder.id %}">Edit Folder</a>

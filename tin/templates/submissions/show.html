@@ -3,13 +3,103 @@
 
 
 {% block title %}
-  Turn-In: {{ course.name }}: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}:
-  {% if is_teacher or request.user.is_superuser %}{{ student.username }}:{% endif %}
-  Submission #{{ submission_number }}
+  Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}:
+      {% if is_student %}
+        Submission #{{ submission_number }}
+      {% else %}
+        {{ submission.student.full_name }} ({{ submission.student.username }}): Submission #{{ submission_number }}
+      {% endif %}
 {% endblock %}
 
 {% block head %}
   <script src="{% static 'js/incomplete.js' %}"></script>
+  <script type="text/javascript">
+      let start;
+      let end;
+
+      // https://stackoverflow.com/a/4812022/11317931
+      function getSelectionCharacterOffsetWithin(element) {
+          let start = 0;
+          let end = 0;
+          const doc = element.ownerDocument || element.document;
+          const win = doc.defaultView || doc.parentWindow;
+          let sel;
+          if (typeof win.getSelection != "undefined") {
+              sel = win.getSelection();
+              if (sel.rangeCount > 0) {
+                  const range = win.getSelection().getRangeAt(0);
+                  const preCaretRange = range.cloneRange();
+                  preCaretRange.selectNodeContents(element);
+                  preCaretRange.setEnd(range.startContainer, range.startOffset);
+                  start = preCaretRange.toString().length;
+                  preCaretRange.setEnd(range.endContainer, range.endOffset);
+                  end = preCaretRange.toString().length;
+              }
+          } else if ((sel = doc.selection) && sel.type != "Control") {
+              const textRange = sel.createRange();
+              const preCaretTextRange = doc.body.createTextRange();
+              preCaretTextRange.moveToElementText(element);
+              preCaretTextRange.setEndPoint("EndToStart", textRange);
+              start = preCaretTextRange.text.length;
+              preCaretTextRange.setEndPoint("EndToEnd", textRange);
+              end = preCaretTextRange.text.length;
+          }
+          return {start: start, end: end};
+      }
+
+      function resetSelection() {
+          start = -1;
+          end = -1;
+
+          const commentPopup = document.getElementById("comment-popup");
+          Object.assign(commentPopup.style, {
+              display: `none`,
+          });
+      }
+
+      function handleSelection(event, newStart, newEnd) {
+          start = newStart;
+          end = newEnd;
+
+          const commentPopup = document.getElementById("comment-popup");
+          Object.assign(commentPopup.style, {
+              display: `none`,  // change this to `flex` to enable
+              left: `${event.clientX + window.scrollX - 16}px`,
+              top: `${event.clientY + window.scrollY - 45}px`,
+          });
+      }
+
+      function selectHandler(event) {
+          const selectionOffsets = getSelectionCharacterOffsetWithin(document.getElementById("submission"));
+          const newStart = selectionOffsets.start;
+          const newEnd = selectionOffsets.end;
+
+          if (newStart === newEnd || newStart === start && newEnd === end) {
+              resetSelection();
+          } else {
+              handleSelection(event, newStart, newEnd);
+          }
+      }
+
+      window.onload = function () {
+          document.getElementById("submission").addEventListener("selectionchange", selectHandler, false);
+          document.getElementById("submission").addEventListener("mouseup", selectHandler, false);
+          document.getElementById("submission").addEventListener("keyup", selectHandler, false);
+      };
+
+      // Use this when comments aren't form-dependent anymore
+      function addComment(comment, point_override) {
+          $.ajax({
+              type: "POST",
+              url: "{% url 'submissions:comment' submission.id %}",
+              data: {
+                  "comment": comment,
+                  "point_override": point_override,
+                  "csrfmiddlewaretoken": "{{ csrf_token }}",
+              },
+          });
+      }
+  </script>
 {% endblock %}
 
 {% block main %}
@@ -25,8 +115,7 @@
     </h2>
     {% if is_teacher or request.user.is_superuser %}
       <a class="right tin-btn" href="{% url 'admin:submissions_submission_change' submission.id %}">Admin</a>
-      <a class="right tin-btn" href="{% url 'submissions:rerun' submission.id %}">Re-run</a>
-      <a class="right tin-btn" href="{% url 'submissions:comment' submission.id %}">Comment</a>
+      <a class="right tin-btn" href="{% url 'submissions:rerun' submission.id %}">Rerun</a>
     {% endif %}
   </div>
 
@@ -65,7 +154,7 @@
     </tr>
   </table>
 
-  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
+  <h2 style="border-top:1px solid lightgray;padding-top:15px;">Grader Output</h2>
   <div id="grader-output" class="code-result{% if not submission.complete %} incomplete{% endif %}"
        data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="grader_output">
     <div class="result">
@@ -77,7 +166,7 @@
   </div>
 
   {% if is_teacher or request.user.is_superuser %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Grader Errors</h2>
     <div id="grader-errors" class="code-result{% if not submission.complete %} incomplete{% endif %}"
          data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="grader_errors">
       <div class="result">
@@ -90,7 +179,7 @@
   {% endif %}
 
   {% if submission_comments %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Comments</h3>
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;" id="comments">Comments</h2>
     <table id="comment-list" class="has-border">
       <tr>
         <th style="min-width:125px;">Date added</th>
@@ -107,6 +196,21 @@
         </tr>
       {% endfor %}
     </table>
+  {% endif %}
+
+  {% if is_teacher or request.user.is_superuser %}
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Add Comment</h2>
+    <form action="{% url 'submissions:comment' submission.id %}" method="post">
+      {% csrf_token %}
+      <textarea name="comment" placeholder="Comment" rows="5" cols="120"></textarea>
+      <br>
+      <br>
+      <label for="point_override">Point Override:</label>
+      <input type="number" name="point_override" value="0" min="-999" max="999" step="0.5">
+      <br>
+      <br>
+      <input type="submit" value="Add Comment">
+    </form>
   {% endif %}
 
   {% if not submission.complete %}
@@ -132,7 +236,7 @@
     {% endif %}
   {% endif %}
 
-  <h3 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h3>
+  <h2 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h2>
   <pre><code>{{ submission_text }}</code></pre>
 
 {% endblock %}

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  Turn-In: {{ course.name }}: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Grader
+  Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Upload grader
 {% endblock %}
 
 {% block head %}
@@ -12,7 +12,7 @@
 
 {% block main %}
 
-  <h3>Grader File Upload</h3>
+  <h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Upload grader</h2>
   <p>Size limit is 1MB.</p>
 
   <h4 style="color:red;">{{ grader_file_errors }}</h4>

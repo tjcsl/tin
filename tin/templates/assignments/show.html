@@ -28,8 +28,8 @@
       {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
       <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"
-        {% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload Grader</a>
-      <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage Files</a>
+        {% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload grader</a>
+      <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage files</a>
     {% endif %}
     {% if assignment.is_quiz %}
       {% if quiz_accessible %}
@@ -72,9 +72,153 @@
     {% endif %}
   </table>
 
+  {% if is_teacher or request.user.is_superuser %}
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Filter Submissions</h2>
+    <a class="right tin-btn" {% if active_period == "none" %}style="color:#4fab4f !important"{% endif %}
+       href="{% url 'assignments:show' assignment.id %}?period=none">None</a>
+    <a class="right tin-btn" {% if active_period == "all" %}style="color:#4fab4f !important"{% endif %}
+       href="{% url 'assignments:show' assignment.id %}?period=all">All</a>
+    {% for period in period_set %}
+      <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %}
+         href="{% url 'assignments:show' assignment.id %}?period={{ period.id }}">{{ period }}</a>
+    {% endfor %}
+    <br><br>
+    {% if active_period != "none" %}
+      {% if assignment.is_quiz %}
+        <table id="submission-list" class="has-border">
+          <tr>
+            <th style="min-width:125px">Student</th>
+            {% if not active_period.name %}
+              <th style="min-width:65px;">Period</th>
+            {% endif %}
+            <th style="min-width:125px;">Date submitted</th>
+            <th style="min-width:75px;">Grade</th>
+            <th style="min-width:65px;">Rerun?</th>
+            <th style="min-width:80px;">Completed?</th>
+            <th style="min-width:80px;">Quiz ended by user?</th>
+            <th style="min-width:80px;">Quiz issues?</th>
+          </tr>
+          {% for student, period, submission, ended, quiz_issues in students_and_submissions %}
+            <tr>
+              <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
+                ({{ student.username }})</a></td>
+              {% if not active_period.name %}
+                <td>{{ period | join:", " }}</td>
+              {% endif %}
+              {% if submission %}
+                <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+                <td>
+                  {% if submission.has_been_graded %}
+                    {{ submission.html_formatted_grade | safe }}
+                  {% else %}
+                    <span class="italic">Not graded</span>
+                  {% endif %}
+                </td>
+                <td>{% if submission.last_run %}Yes{% else %}No{% endif %}</td>
+                <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+              {% else %}
+                <td colspan="4" class="italic center">No submissions</td>
+              {% endif %}
+              <td>{% if ended %}Yes{% else %}No{% endif %}</td>
+              <td>{% if quiz_issues %}Yes{% else %}No{% endif %}</td>
+            </tr>
+          {% endfor %}
+
+          {% if not students_and_submissions %}
+            <tr>
+              <td colspan="8" class="italic center">No students in class</td>
+            </tr>
+          {% endif %}
+        </table>
+      {% else %}
+        <table id="submission-list" class="has-border">
+          <tr>
+            <th style="min-width:125px">Student</th>
+            {% if not active_period.name %}
+              <th style="min-width:65px;">Period</th>
+            {% endif %}
+            <th style="min-width:125px;">Last Submission</th>
+            <th style="min-width:75px;">Grade</th>
+            <th style="min-width:65px;">Rerun?</th>
+            <th style="min-width:65px;">On time?</th>
+            <th style="min-width:80px;">Completed?</th>
+            <th style="min-width:130px;">New since your last login?</th>
+            <th style="min-width:130px;">New in last 24 hours?</th>
+          </tr>
+          {% for student, period, submission, new_login, new_24 in students_and_submissions %}
+            <tr>
+              <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
+                ({{ student.username }})</a></td>
+              {% if not active_period.name %}
+                <td>{{ period | join:", " }}</td>
+              {% endif %}
+              {% if submission %}
+                <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+                <td>
+                  {% if submission.has_been_graded %}
+                    {{ submission.html_formatted_grade | safe }}
+                  {% else %}
+                    <span class="italic">Not graded</span>
+                  {% endif %}
+                </td>
+                <td>{% if submission.last_run %}Yes{% else %}No{% endif %}</td>
+                <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+                <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+                <td>{% if new_login %}Yes{% endif %}</td>
+                <td>{% if new_24 %}Yes{% endif %}</td>
+              {% else %}
+                <td colspan="8" class="italic center">No submissions</td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+
+          {% if not students_and_submissions %}
+            <tr>
+              <td colspan="9" class="italic center">No students in class</td>
+            </tr>
+          {% endif %}
+        </table>
+      {% endif %}
+    {% endif %}
+
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h2>
+    <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download All Scores</a>
+    <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download All Latest
+      Submissions</a>
+    <a class="left tin-btn" href="{% url 'assignments:rerun_all' assignment.id %}">Rerun All Latest Submissions</a>
+    {% if log_file_exists %}
+      <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download Log</a>
+    {% endif %}
+
+    <br>
+    <br>
+    {% if assignment.grader_file %}
+      {% if assignment.venv_fully_created %}
+        <p>A virtual environment has been created for this assignment. You can see details and manage it <a
+          href="{% url 'venvs:show' assignment.venv.id %}">here</a>.</p>
+      {% elif assignment.venv_object_created %}
+        <p>A virtual environment is being created for this assignment. This may take a minute or two (you will have to
+          refresh the page to see the updated status).</p>
+        <p>If this process takes more than a few minutes, please contact the Tin maintainers.</p>
+      {% else %}
+        <form method="post" action="{% url 'venvs:create-for-assignment' assignment.id %}">
+          {% csrf_token %}
+          <input type="submit" value="Create a virtual environment for this assignment">
+        </form>
+        <p>If you already clicked this button to create a virtual environment, but you are seeing this message anyway,
+          try waiting a few seconds and refreshing the page. If you still see this message, please contact the Tin
+          maintainers.</p>
+      {% endif %}
+    {% else %}
+      <p>You must upload a grader script before you can create a virtual environment.</p>
+    {% endif %}
+  {% endif %}
+
   {% if latest_submission %}
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Your Last Submission&ensp;<a href="{% url 'submissions:show' latest_submission.id %}" target="_blank"><i class="fa fa-external-link"></i></a></h2>
+
     {% if not assignment.is_quiz or is_teacher or request.user.is_superuser %}
-      <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
+      <h3>Grader output</h3>
       <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}"
            data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
         <div class="result">
@@ -87,7 +231,7 @@
     {% endif %}
 
     {% if request.user.is_superuser or is_teacher %}
-      <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader errors</h3>
+      <h3>Grader errors</h3>
       <div id="grader-errors" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}"
            data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_errors">
         <div class="result">
@@ -125,15 +269,15 @@
     {% endif %}
   {% endif %}
 
-  <h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}Your
-    submissions{% else %}Submissions{% endif %}</h3>
+  <h2 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}Your
+    Submissions{% else %}Submissions{% endif %}</h2>
   <table id="submission-list" class="has-border">
     <tr>
       <th style="min-width:125px;">Date submitted</th>
-      <th style="min-width:90px;">Date last run</th>
+      <th style="min-width:90px;">Grade</th>
+      <th style="min-width:65px;">Rerun?</th>
       <th style="min-width:65px;">On time?</th>
       <th style="min-width:80px;">Completed?</th>
-      <th style="min-width:90px;">Grade</th>
     </tr>
     {% for submission in submissions %}
       <tr>
@@ -142,16 +286,6 @@
         {% else %}
           <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
         {% endif %}
-        {% if submission.last_run %}
-          <td>{{ submission.last_run }}</td>
-        {% else %}
-          <td>--</td>
-        {% endif %}
-        <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-        <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}"
-            data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
-          {% if submission.complete %}Yes{% else %}No{% endif %}
-        </td>
         <td id="grade" class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}"
             data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
           {% if not submission.has_been_graded %}
@@ -159,6 +293,12 @@
           {% else %}
             {{ submission.html_formatted_grade | safe }}
           {% endif %}
+        </td>
+        <td>{% if submission.last_run %}Yes{% else %}No{% endif %}</td>
+        <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+        <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}"
+            data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
+          {% if submission.complete %}Yes{% else %}No{% endif %}
         </td>
       </tr>
     {% endfor %}
@@ -169,144 +309,5 @@
       </tr>
     {% endif %}
   </table>
-
-  {% if is_teacher or request.user.is_superuser %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">{% if request.user.is_superuser or is_teacher %}All
-      submissions{% else %}Submissions{% endif %}</h3>
-    <a class="right tin-btn" {% if active_period == "all" %}style="color:#4fab4f !important"{% endif %}
-       href="{% url 'assignments:show' assignment.id %}?period=all">All</a>
-    {% for period in period_set %}
-      <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %}
-         href="{% url 'assignments:show' assignment.id %}?period={{ period.id }}">{{ period }}</a>
-    {% endfor %}
-    <br><br>
-    {% if assignment.is_quiz %}
-      <table id="submission-list" class="has-border">
-        <tr>
-          <th style="min-width:125px">Student</th>
-          <th style="min-width:65px;">Period</th>
-          <th style="min-width:125px;">Last submission date</th>
-          <th style="min-width:90px;">Last run date</th>
-          <th style="min-width:80px;">Completed?</th>
-          <th style="min-width:75px;">Grade</th>
-          <th style="min-width:80px;">Quiz ended by user?</th>
-          <th style="min-width:80px;">Quiz issues?</th>
-        </tr>
-        {% for student, period, submission, ended, quiz_issues in students_and_submissions %}
-          <tr>
-            <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
-              ({{ student.username }})</a></td>
-            <td>{{ period | join:", " }}</td>
-            {% if submission %}
-              <td>{{ submission.date_submitted }}</td>
-              {% if submission.last_run %}
-                <td>{{ submission.last_run }}</td>
-              {% else %}
-                <td>--</td>
-              {% endif %}
-              <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
-              <td>
-                {% if submission.has_been_graded %}
-                  {{ submission.html_formatted_grade | safe }}
-                {% else %}
-                  <span class="italic">Not graded</span>
-                {% endif %}
-              </td>
-            {% else %}
-              <td colspan="4" class="italic center">No submissions</td>
-            {% endif %}
-            <td>{% if ended %}Yes{% else %}No{% endif %}</td>
-            <td>{% if quiz_issues %}Yes{% else %}No{% endif %}</td>
-          </tr>
-        {% endfor %}
-
-        {% if not students_and_submissions %}
-          <tr>
-            <td colspan="8" class="italic center">No students in class</td>
-          </tr>
-        {% endif %}
-      </table>
-    {% else %}
-      <table id="submission-list" class="has-border">
-        <tr>
-          <th style="min-width:125px">Student</th>
-          <th style="min-width:65px;">Period</th>
-          <th style="min-width:125px;">Last submission date</th>
-          <th style="min-width:90px;">Last run date</th>
-          <th style="min-width:75px;">Grade</th>
-          <th style="min-width:65px;">On time?</th>
-          <th style="min-width:80px;">Completed?</th>
-          <th style="min-width:130px;">New since your last login?</th>
-          <th style="min-width:130px;">New in last 24 hours?</th>
-        </tr>
-        {% for student, period, submission, new_login, new_24 in students_and_submissions %}
-          <tr>
-            <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
-              ({{ student.username }})</a></td>
-            <td>{{ period | join:", " }}</td>
-            {% if submission %}
-              <td>{{ submission.date_submitted }}</td>
-              {% if submission.last_run %}
-                <td>{{ submission.last_run }}</td>
-              {% else %}
-                <td>--</td>
-              {% endif %}
-              <td>
-                {% if submission.has_been_graded %}
-                  {{ submission.html_formatted_grade | safe }}
-                {% else %}
-                  <span class="italic">Not graded</span>
-                {% endif %}
-              </td>
-              <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-              <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
-              <td>{% if new_login %}Yes{% endif %}</td>
-              <td>{% if new_24 %}Yes{% endif %}</td>
-            {% else %}
-              <td colspan="8" class="italic center">No submissions</td>
-            {% endif %}
-          </tr>
-        {% endfor %}
-
-        {% if not students_and_submissions %}
-          <tr>
-            <td colspan="9" class="italic center">No students in class</td>
-          </tr>
-        {% endif %}
-      </table>
-    {% endif %}
-    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h3>
-    <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download All Scores</a>
-    <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download All Latest
-      Submissions</a>
-    <a class="left tin-btn" href="{% url 'assignments:rerun_all' assignment.id %}">Rerun All Latest Submissions</a>
-    {% if log_file_exists %}
-      <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download Log</a>
-    {% endif %}
-
-    <br>
-    <br>
-    <h3 style="margin-bottom: 0px">Virtual environment</h3>
-    {% if assignment.grader_file %}
-      {% if assignment.venv_fully_created %}
-        <p>A virtual environment has been created for this assignment. You can see details and manage it <a
-          href="{% url 'venvs:show' assignment.venv.id %}">here</a>.</p>
-      {% elif assignment.venv_object_created %}
-        <p>A virtual environment is being created for this assignment. This may take a minute or two (you will have to
-          refresh the page to see the updated status).</p>
-        <p>If this process takes more than a few minutes, please contact the Tin maintainers.</p>
-      {% else %}
-        <form method="post" action="{% url 'venvs:create-for-assignment' assignment.id %}">
-          {% csrf_token %}
-          <input type="submit" value="Create a virtual environment for this assignment">
-        </form>
-        <p>If you already clicked this button to create a virtual environment, but you are seeing this message anyway,
-          try waiting a few seconds and refreshing the page. If you still see this message, please contact the Tin
-          maintainers.</p>
-      {% endif %}
-    {% else %}
-      <p>You must upload a grader script before you can create a virtual environment.</p>
-    {% endif %}
-  {% endif %}
 
 {% endblock %}

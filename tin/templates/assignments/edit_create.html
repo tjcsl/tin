@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block title %}
-  Turn-In: {{ course.name }}: {% if action == "add" %}Create assignment
-  {% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}{% endif %}
+  Turn-In: {% if action == "add" %}{{ course.name }}: Create assignment
+    {% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Edit assignment{% endif %}
 {% endblock %}
 
 {% block head %}
@@ -31,8 +31,8 @@
 
 {% block main %}
 
-  <h2>{{ course.name }}: {% if action == "add" %}Create assignment
-    {% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}{% endif %}</h2>
+  <h2>{% if action == "add" %}{{ course.name }}: Create assignment
+    {% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Edit assignment{% endif %}</h2>
 
   {% if assignment_form.errors %}
     <h3 class="errors">Please correct the errors below.</h3>
