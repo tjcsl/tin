@@ -84,7 +84,7 @@
   {% endif %}
 
   {% if request.user.is_superuser %}
-    <h2>Administration</h2>
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h2>
     <p><a class="tin-btn" href="/admin">Django Administrative Interface</a></p>
 
     <form method="post" action="{% url 'submissions:set_aborted_complete' %}">

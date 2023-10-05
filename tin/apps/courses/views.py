@@ -309,7 +309,7 @@ def manage_students_view(request, course_id):
         {
             "form": form,
             "course": course,
-            "nav_item": "Edit",
+            "nav_item": "Manage students",
         },
     )
 
