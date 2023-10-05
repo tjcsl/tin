@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  Turn-In: {% if course %}{{ course.name }}: Edit{% else %}Create course{% endif %}
+  Turn-In: {% if course %}{{ course.name }}: {{ nav_item }}{% else %}Create course{% endif %}
 {% endblock %}
 
 {% block head %}
@@ -16,7 +16,7 @@
 
 {% block main %}
 
-  <h2>{% if course %}{{ course.name }}{% else %}Create course{% endif %}</h2>
+  <h2>{% if course %}{{ course.name }}: {{ nav_item }}{% else %}Create course{% endif %}</h2>
 
   <form action="" method="post">
     {% csrf_token %}

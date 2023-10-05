@@ -85,21 +85,24 @@ def show_view(request, assignment_id):
                             course.period_set.filter(teacher=request.user).order_by("name")[0].id
                         )
                     except:
-                        period = "all"
+                        period = "none"
                 else:
-                    period = "all"
+                    period = "none"
 
             if period == "all":
                 active_period = "all"
                 student_list = course.students.all().order_by("periods", "last_name")
+            elif period == "none":
+                active_period = "none"
+                student_list = []
             else:
                 active_period = get_object_or_404(
                     Period.objects.filter(course=course), id=int(period)
                 )
                 student_list = active_period.students.all().order_by("last_name")
         else:
-            active_period = "all"
-            student_list = course.students.all().order_by("periods", "last_name")
+            active_period = "none"
+            student_list = []
 
         for student in student_list:
             period = student.periods.filter(course=assignment.course)
@@ -406,11 +409,6 @@ def student_submissions_view(request, assignment_id, student_id):
         else None
     )
 
-    latest_submission_text = None
-    if latest_submission:
-        with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
-            latest_submission_text = f_obj.read()
-
     return render(
         request,
         "assignments/student_submissions.html",
@@ -421,7 +419,6 @@ def student_submissions_view(request, assignment_id, student_id):
             "student": student,
             "submissions": submissions,
             "latest_submission": latest_submission,
-            "latest_submission_text": latest_submission_text,
             "log_messages": log_messages,
         },
     )

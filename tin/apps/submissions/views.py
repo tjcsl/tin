@@ -83,6 +83,9 @@ def rerun_view(request, submission_id):
 
 @teacher_or_superuser_required
 def comment_view(request, submission_id):
+    if request.method != "POST":
+        raise http.Http404
+
     submission = get_object_or_404(
         Submission.objects.filter_editable(request.user), id=submission_id
     )
@@ -90,39 +93,21 @@ def comment_view(request, submission_id):
     if not submission.complete or not submission.has_been_graded:
         raise http.Http404
 
-    before_submissions = Submission.objects.filter(
-        student=submission.student, assignment=submission.assignment, id__lt=submission.id
-    )
-    submission_number = before_submissions.count() + 1
-
     with open(submission.backup_file_path, "r", encoding="utf-8") as f_obj:
         submission_text = f_obj.read()
 
-    if request.method == "POST":
-        comment = request.POST.get("comment", "")
-        point_override = request.POST.get("point_override", "")
-        comment = Comment(
-            submission=submission,
-            author=request.user,
-            start_char=0,
-            end_char=len(submission_text),
-            text=comment,
-            point_override=point_override,
-        )
-        comment.save()
-        return redirect("submissions:show", submission.id)
-
-    context = {
-        "course": submission.assignment.course,
-        "folder": submission.assignment.folder,
-        "assignment": submission.assignment,
-        "submission": submission,
-        "nav_item": "Comment",
-        "submission_number": submission_number,
-        "submission_text": submission_text,
-    }
-
-    return render(request, "submissions/comment.html", context)
+    comment = request.POST.get("comment", "")
+    point_override = request.POST.get("point_override", "")
+    comment = Comment(
+        submission=submission,
+        author=request.user,
+        start_char=0,
+        end_char=len(submission_text),
+        text=comment,
+        point_override=point_override,
+    )
+    comment.save()
+    return redirect("submissions:show", submission.id)
 
 
 @superuser_required

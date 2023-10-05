@@ -12,6 +12,7 @@
     {% if is_teacher or request.user.is_superuser %}
       <a class="right tin-btn" href="{% url 'admin:courses_course_change' course.id %}">Admin</a>
       <a class="right tin-btn" href="{% url 'courses:edit' course.id %}">Edit</a>
+      <a class="right tin-btn" href="{% url 'courses:students' course.id %}">Students</a>
     {% endif %}
   </div>
 
@@ -50,10 +51,9 @@
 
   {% if is_teacher or request.user.is_superuser %}
     <div>
-      <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New Folder</a>
-      <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
-      <a class="tin-btn" href="{% url 'courses:import_select_course' course.id %}">Import Assignments</a>
-      <a class="tin-btn" href="{% url 'courses:students' course.id %}">Manage Students</a>
+      <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New folder</a>
+      <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New assignment</a>
+      <a class="tin-btn" href="{% url 'courses:import_select_course' course.id %}">Import assignments</a>
     </div>
   {% endif %}
 

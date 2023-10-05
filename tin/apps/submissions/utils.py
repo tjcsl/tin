@@ -1,4 +1,9 @@
+from decimal import Decimal
 from typing import Dict, Union
+
+
+def decimal_repr(d: Decimal) -> Decimal:
+    return d.quantize(Decimal(1)) if d == d.to_integral() else d.normalize()
 
 
 def serialize_submission_info(submission, user) -> Dict[str, Union[None, int, float, str, bool]]:
