@@ -113,6 +113,8 @@ class Assignment(models.Model):
         validators=[MinValueValidator(10)],
     )
 
+    last_action_output = models.CharField(max_length=16 * 1024, default="", null=False, blank=True)
+
     def __str__(self):
         return self.name
 
@@ -245,22 +247,26 @@ class Assignment(models.Model):
                 fpaths.append(file[2])
 
         try:
-            subprocess.run(
+            res = subprocess.run(
                 [
                     "javac",
                     "-classpath",
                     "/usr/share/java/junit.jar:/usr/share/java/hamcrest.jar:.",
                     *fpaths,
                 ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE,
+                check=False,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 encoding="utf-8",
                 universal_newlines=True,
-                check=True,
             )
         except FileNotFoundError as e:
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
+
+        self.last_action_output = res.stdout
+        self.save()
 
     def check_rate_limit(self, student) -> None:
         now = timezone.localtime()
