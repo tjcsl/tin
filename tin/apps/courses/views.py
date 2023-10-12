@@ -52,9 +52,9 @@ def show_view(request, course_id):
 
     is_teacher = request.user in course.teacher.all()
     if request.user.is_superuser or is_teacher:
-        folders = course.folders.all()
+        folders = course.folders.order_by("name")
     else:
-        folders = course.folders.filter(assignments__hidden=False).distinct()
+        folders = course.folders.filter(assignments__hidden=False).distinct().order_by("name")
 
     assignments = course.assignments.filter(folder=None).filter_visible(request.user)
     if course.sort_assignments_by == "due_date":

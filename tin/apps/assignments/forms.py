@@ -115,3 +115,6 @@ class FolderForm(forms.ModelForm):
         fields = [
             "name",
         ]
+        help_texts = {
+            "name": "Note: Folders are ordered alphabetically."
+        }
