@@ -124,9 +124,6 @@ class Assignment(models.Model):
     def get_absolute_url(self):
         return reverse("assignments:show", args=(self.id,))
 
-    def submissions_from_student(self, student):
-        return Submission.objects.filter(assignment=self, student=student)
-
     def make_assignment_dir(self) -> None:
         assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
         os.makedirs(assignment_path, exist_ok=True)

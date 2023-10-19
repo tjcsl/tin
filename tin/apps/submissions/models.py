@@ -55,7 +55,9 @@ class Submission(models.Model):
     assignment = models.ForeignKey(
         "assignments.Assignment", on_delete=models.CASCADE, related_name="submissions"
     )
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="submissions"
+    )
 
     date_submitted = models.DateTimeField(auto_now_add=True)
     last_run = models.DateTimeField(null=True, blank=True)
