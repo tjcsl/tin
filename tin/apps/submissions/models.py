@@ -23,7 +23,10 @@ class SubmissionQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(Q(assignment__course__teacher=user) | Q(student=user)).distinct()
+            return self.filter(
+                Q(assignment__course__teacher=user)
+                | Q(student=user) & Q(assignment__quiz__isnull=True)
+            ).distinct()
 
     def filter_editable(self, user):
         if user.is_superuser:
