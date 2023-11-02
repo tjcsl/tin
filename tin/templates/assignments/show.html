@@ -215,9 +215,9 @@
   {% endif %}
 
   {% if latest_submission %}
-    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Your Last Submission&ensp;<a href="{% url 'submissions:show' latest_submission.id %}" target="_blank"><i class="fa fa-external-link"></i></a></h2>
-
     {% if not assignment.is_quiz or is_teacher or request.user.is_superuser %}
+      <h2 style="border-top:1px solid lightgray;padding-top:15px;">Your Last Submission&ensp;<a href="{% url 'submissions:show' latest_submission.id %}" target="_blank"><i class="fa fa-external-link"></i></a></h2>
+
       <h3>Grader output</h3>
       <div id="grader-output" class="code-result{% if not latest_submission.complete %} incomplete{% endif %}"
            data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="grader_output">
@@ -282,7 +282,7 @@
     {% for submission in submissions %}
       <tr>
         {% if assignment.is_quiz and not is_teacher and not request.user.is_superuser %}
-          <td><a href="#">{{ submission.date_submitted }}</a></td>
+          <td>{{ submission.date_submitted }}</td>
         {% else %}
           <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
         {% endif %}
