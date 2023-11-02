@@ -380,6 +380,9 @@ class Quiz(models.Model):
         )
 
     def open_for_student(self, student):
+        is_teacher = student in self.assignment.course.teacher.all()
+        if is_teacher or student.is_superuser:
+            return True
         return not (self.locked_for_student(student) or self.ended_for_student(student))
 
     def locked_for_student(self, student):
