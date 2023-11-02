@@ -577,11 +577,7 @@ def quiz_view(request, assignment_id):
         Assignment.objects.filter_visible(request.user), id=assignment_id
     )
 
-    if (
-        not assignment.is_quiz
-        or assignment.quiz.locked_for_student(request.user)
-        or assignment.quiz.ended_for_student(request.user)
-    ):
+    if not assignment.is_quiz or not assignment.quiz.open_for_student(request.user):
         raise http.Http404
 
     student = request.user
