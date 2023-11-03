@@ -35,7 +35,7 @@
       {% if quiz_accessible or is_teacher or request.user.is_superuser %}
         <a class="right tin-btn"
            onclick="return confirm('You are about to begin an assessment. All activity on your device will be monitored. If you open any other tabs or attempt to use any other applications, your quiz might be stopped and your teacher will be notified.')"
-           href="{% url 'assignments:quiz' assignment.id %}">Begin Quiz</a>
+           href="{% url 'assignments:quiz' assignment.id %}">Begin quiz</a>
       {% endif %}
     {% else %}
       <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
