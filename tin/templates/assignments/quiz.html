@@ -12,6 +12,9 @@
     <script src="{% static 'js/incomplete.js' %}"></script>
   {% endif %}
   <script>
+      // Text editor
+      let clipboard = "";
+
       $(function () {
           var textarea = $("#id_text");
           textarea.css("display", "none");
@@ -31,11 +34,42 @@
                   $("#text-upload form").submit();
               }
           });
+
+          editor.commands.addCommand({
+              name: "customCopy",
+              bindKey: "ctrl-c|cmd-c",
+              exec: function(editor, args) {
+                  clipboard = editor.getSelectedText();
+              }
+          });
+
+          editor.commands.addCommand({
+              name: "customCut",
+              bindKey: "ctrl-x|cmd-x",
+              exec: function(editor, args) {
+                  clipboard = editor.getSelectedText();
+                  editor.session.remove(editor.getSelectionRange());
+              }
+          });
+
+          editor.commands.addCommand({
+              name: "customPaste",
+              bindKey: "ctrl-v|ctrl-shift-v|cmd-v",
+              exec: function(editor, args) {
+                  editor.insert(clipboard);
+              }
+          });
+
+          editor.container.addEventListener("contextmenu", function(e) {
+              e.preventDefault();
+              return false;
+          }, false);
       });
 
-      var assignment_submit_url = "{% url 'assignments:quiz' assignment.id %}";
+      const assignment_submit_url = "{% url 'assignments:quiz' assignment.id %}";
   </script>
   <script>
+      // Reporting log messages
       function send_report(content, severity) {
           $.ajax({
               type: "GET",
@@ -145,6 +179,8 @@
               </div>
             {% endfor %}
           </div>
+          <h4></h4>
+          <br>
           <input type="submit" hidden=true onclick="send_report('Submitted code', 0)" id="submit-btn" value="Submit">
         </form>
       </div>
