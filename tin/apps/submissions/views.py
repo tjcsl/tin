@@ -107,6 +107,29 @@ def comment_view(request, submission_id):
         point_override=point_override,
     )
     comment.save()
+
+    submission.publish()
+
+    return redirect("submissions:show", submission.id)
+
+
+@teacher_or_superuser_required
+def publish_view(request, submission_id):
+    submission = get_object_or_404(
+        Submission.objects.filter_editable(request.user), id=submission_id
+    )
+
+    submission.publish()
+    return redirect("submissions:show", submission.id)
+
+
+@teacher_or_superuser_required
+def unpublish_view(request, submission_id):
+    submission = get_object_or_404(
+        Submission.objects.filter_editable(request.user), id=submission_id
+    )
+
+    submission.unpublish()
     return redirect("submissions:show", submission.id)
 
 

@@ -18,7 +18,7 @@ from django.utils.timezone import now
 from ... import sandboxing
 from ..auth.decorators import login_required, teacher_or_superuser_required
 from ..courses.models import Course, Period
-from ..submissions.models import Submission
+from ..submissions.models import Submission, PublishedSubmission
 from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import (
@@ -48,10 +48,10 @@ def show_view(request, assignment_id):
     quiz_accessible = assignment.is_quiz and assignment.quiz.open_for_student(request.user)
 
     if course.is_only_student_in_course(request.user):
-        submissions = Submission.objects.filter(
-            student=request.user, assignment=assignment
-        ).order_by("-date_submitted")
-        latest_submission = submissions.first() if submissions else None
+        submissions = Submission.objects.filter(student=request.user, assignment=assignment)
+        latest_submission = submissions.latest() if submissions else None
+        publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
+        published_submission = publishes.latest().submission if publishes else latest_submission
 
         return render(
             request,
@@ -60,8 +60,9 @@ def show_view(request, assignment_id):
                 "course": assignment.course,
                 "folder": assignment.folder,
                 "assignment": assignment,
-                "submissions": submissions,
+                "submissions": submissions.order_by("-date_submitted"),
                 "latest_submission": latest_submission,
+                "published_submission": published_submission,
                 "is_student": course.is_student_in_course(request.user),
                 "is_teacher": request.user in course.teacher.all(),
                 "quiz_accessible": quiz_accessible,
@@ -106,25 +107,32 @@ def show_view(request, assignment_id):
 
         for student in student_list:
             period = student.periods.filter(course=assignment.course)
-            latest_submission = (
-                Submission.objects.filter(student=student, assignment=assignment)
-                .order_by("-date_submitted")
-                .first()
-            )
+            submissions = Submission.objects.filter(student=student, assignment=assignment)
+            publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
+            latest_submission = submissions.latest() if submissions else None
+            published_submission = publishes.latest().submission if publishes else latest_submission
 
             if not assignment.is_quiz:
                 if latest_submission:
                     new_since_last_login = latest_submission.date_submitted > teacher_last_login
                     new_in_last_24 = latest_submission.date_submitted > time_24_hours_ago
                 students_and_submissions.append(
-                    (student, period, latest_submission, new_since_last_login, new_in_last_24)
+                    (
+                        student,
+                        period,
+                        # latest_submission,
+                        published_submission,
+                        new_since_last_login,
+                        new_in_last_24,
+                    )
                 )
             else:
                 students_and_submissions.append(
                     (
                         student,
                         period,
-                        latest_submission,
+                        # latest_submission,
+                        published_submission,
                         assignment.quiz.ended_for_student(student),
                         assignment.quiz.locked_for_student(student),
                     )
@@ -148,11 +156,17 @@ def show_view(request, assignment_id):
             "quiz_accessible": quiz_accessible,
         }
 
-        submissions = Submission.objects.filter(
-            student=request.user, assignment=assignment
-        ).order_by("-date_submitted")
-        latest_submission = submissions.first() if submissions else None
-        context.update({"submissions": submissions, "latest_submission": latest_submission})
+        submissions = Submission.objects.filter(student=request.user, assignment=assignment)
+        publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
+        latest_submission = submissions.latest() if submissions else None
+        published_submission = publishes.latest().submission if publishes else latest_submission
+        context.update(
+            {
+                "submissions": submissions.order_by("-date_submitted"),
+                "latest_submission": latest_submission,
+                "published_submission": published_submission,
+            }
+        )
 
         return render(request, "assignments/show.html", context)
 
@@ -398,10 +412,10 @@ def student_submissions_view(request, assignment_id, student_id):
     )
     student = get_object_or_404(User, id=student_id)
 
-    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by(
-        "-date_submitted"
-    )
-    latest_submission = submissions.first() if submissions else None
+    submissions = Submission.objects.filter(student=student, assignment=assignment)
+    publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
+    latest_submission = submissions.latest() if submissions else None
+    published_submission = publishes.latest().submission if publishes else latest_submission
 
     log_messages = (
         assignment.quiz.log_messages.filter(student=request.user).order_by("date")
@@ -417,8 +431,9 @@ def student_submissions_view(request, assignment_id, student_id):
             "folder": assignment.folder,
             "assignment": assignment,
             "student": student,
-            "submissions": submissions,
+            "submissions": submissions.order_by("-date_submitted"),
             "latest_submission": latest_submission,
+            "published_submission": published_submission,
             "log_messages": log_messages,
         },
     )
@@ -435,10 +450,8 @@ def submit_view(request, assignment_id):
 
     student = request.user
 
-    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by(
-        "-date_submitted"
-    )
-    latest_submission = submissions.first() if submissions else None
+    submissions = Submission.objects.filter(student=student, assignment=assignment)
+    latest_submission = submissions.latest() if submissions else None
     latest_submission_text = None
     if latest_submission:
         with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
@@ -561,10 +574,8 @@ def rerun_all_view(request, assignment_id):
     )
 
     for user in assignment.course.students.all():
-        submissions = Submission.objects.filter(student=user, assignment=assignment).order_by(
-            "-date_submitted"
-        )
-        latest_submission = submissions.first() if submissions else None
+        submissions = Submission.objects.filter(student=user, assignment=assignment)
+        latest_submission = submissions.latest() if submissions else None
         if latest_submission:
             latest_submission.rerun_submission()
 
@@ -582,10 +593,8 @@ def quiz_view(request, assignment_id):
 
     student = request.user
 
-    submissions = Submission.objects.filter(student=student, assignment=assignment).order_by(
-        "-date_submitted"
-    )
-    latest_submission = submissions.first() if submissions else None
+    submissions = Submission.objects.filter(student=student, assignment=assignment)
+    latest_submission = submissions.latest() if submissions else None
 
     latest_submission_text = None
     if latest_submission:
@@ -731,16 +740,16 @@ def scores_csv_view(request, assignment_id):
         row.append(student.username)
         periods = ", ".join([p.name for p in student.periods.filter(course=assignment.course)])
         row.append(periods)
-        latest_submission = (
-            Submission.objects.filter(student=student, assignment=assignment)
-            .order_by("-date_submitted")
-            .first()
-        )
-        if latest_submission is not None:
-            if latest_submission.points_received:
-                row.append(latest_submission.points_received)
-                row.append(latest_submission.points)
-                row.append(latest_submission.formatted_grade)
+
+        submissions = Submission.objects.filter(student=student, assignment=assignment)
+        publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
+        latest_submission = submissions.latest() if submissions else None
+        published_submission = publishes.latest().submission if publishes else latest_submission
+        if published_submission is not None:
+            if published_submission.points_received:
+                row.append(published_submission.points_received)
+                row.append(published_submission.points)
+                row.append(published_submission.formatted_grade)
             else:
                 row.append("NG")
                 row.append("NG")
@@ -764,13 +773,12 @@ def download_submissions_view(request, assignment_id):
     s = BytesIO()
     zf = zipfile.ZipFile(s, "w")
     for student in assignment.course.students.all():
-        latest_submission = (
-            Submission.objects.filter(student=student, assignment=assignment)
-            .order_by("-date_submitted")
-            .first()
-        )
-        if latest_submission is not None:
-            zf.write(latest_submission.file.path, arcname="{}.py".format(student.username))
+        submissions = Submission.objects.filter(student=student, assignment=assignment)
+        publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
+        latest_submission = submissions.latest() if submissions else None
+        published_submission = publishes.latest().submission if publishes else latest_submission
+        if published_submission is not None:
+            zf.write(published_submission.file.path, arcname="{}.py".format(student.username))
     zf.close()
     resp = http.HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
     resp["Content-Disposition"] = "attachment; filename={}".format(name)

@@ -35,13 +35,8 @@
     <tr>
       <th>Grade:</th>
       {% if latest_submission %}
-        <td id="grade" class="{% if not latest_submission.complete %}incomplete{% endif %}"
-            data-endpoint="{% url 'submissions:show_json' latest_submission.id %}" data-endpoint-key="formatted_grade">
-          {% if not latest_submission.has_been_graded %}
-            <span class="result-not-graded italic">Not graded</span>
-          {% else %}
-            {{ latest_submission.html_formatted_grade | safe }}
-          {% endif %}
+        <td id="grade">
+          {% include 'submissions/repr.html' with submission=latest_submission %}
         </td>
       {% else %}
         <td>
@@ -49,6 +44,14 @@
         </td>
       {% endif %}
     </tr>
+    {% if published_submission != latest_submission %}
+        <tr>
+          <th>Published grade:</th>
+          <td id="last-grade">
+            {% include 'submissions/repr.html' with submission=published_submission %}
+          </td>
+        </tr>
+      {% endif %}
   </table>
 
   {% if assignment.is_quiz %}
@@ -90,14 +93,8 @@
       <tr>
         {% if submission %}
           <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
-          <td id="grade"
-              class="{% if latest_submission == submission and not submission.complete %}incomplete{% endif %}"
-              data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
-            {% if submission.has_been_graded %}
-              {{ submission.html_formatted_grade | safe }}
-            {% else %}
-              <span class="result-not-graded italic">Not graded</span>
-            {% endif %}
+          <td id="grade">
+            {% include 'submissions/repr.html' with submission=submission %}
           </td>
           <td>{% if submission.last_run %}Yes{% else %}No{% endif %}</td>
           <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
