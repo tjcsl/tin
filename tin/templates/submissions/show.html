@@ -116,6 +116,11 @@
     {% if is_teacher or request.user.is_superuser %}
       <a class="right tin-btn" href="{% url 'admin:submissions_submission_change' submission.id %}">Admin</a>
       <a class="right tin-btn" href="{% url 'submissions:rerun' submission.id %}">Rerun</a>
+      {% if submission.is_published %}
+        <a class="right tin-btn" href="{% url 'submissions:unpublish' submission.id %}">Unpublish</a>
+      {% else %}
+        <a class="right tin-btn" href="{% url 'submissions:publish' submission.id %}">Publish</a>
+      {% endif %}
     {% endif %}
   </div>
 
@@ -145,11 +150,7 @@
       <th>Grade:</th>
       <td id="grade" class="{% if not submission.complete %}incomplete{% endif %}"
           data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">
-        {% if not submission.has_been_graded %}
-          <span class="result-not-graded italic">Not graded</span>
-        {% else %}
-          {{ submission.html_formatted_grade | safe }}
-        {% endif %}
+        {% include 'submissions/repr.html' with submission=submission %}
       </td>
     </tr>
   </table>
@@ -209,7 +210,7 @@
       <input type="number" name="point_override" value="0" min="-999" max="999" step="0.5">
       <br>
       <br>
-      <input type="submit" value="Add Comment">
+      <input type="submit" value="Add Comment (and publish)">
     </form>
   {% endif %}
 
