@@ -1,0 +1,32 @@
+{% if not submission.complete %}
+  <span class="result-not-graded italic incomplete" data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="formatted_grade">Not graded</span>
+{% elif not submission.has_been_graded %}
+  <span class="result-not-graded italic">Not graded</span>
+{% else %}
+  <b>{{ submission.points | floatformat:"-3" }}</b> / {{ submission.points_possible | floatformat:"-3" }} ({{ submission.grade_percent }})
+  {% if submission.is_published %}
+    {% if submission.is_latest_publish %}
+        <i class="fa fa-star" style="color: red" data-toggle="tooltip" title="Published {{ submission.published_submission.date }}"></i>
+    {% else %}
+        <i class="fa fa-star-o" style="color: red" data-toggle="tooltip" title="Published {{ submission.published_submission.date }}"></i>
+    {% endif %}
+  {% endif %}
+  {% if submission.comments.count > 0 %}
+      {% if submission.comments.count == 1 %}
+        <i class="fa fa-comment" data-toggle="tooltip" title="Has a teacher comment"></i>
+      {% else %}
+        <i class="fa fa-comments" data-toggle="tooltip" title="Has teacher comments"></i>
+      {% endif %}
+      {% if submission.point_override != 0 %}
+        <span style="color: {% if submission.point_override > 0 %}green{% else %}red{% endif %};" data-toggle="tooltip" title="Points were altered by a teacher">
+          <b>
+            {% if submission.point_override > 0 %}
+              [+{{ submission.point_override | floatformat:"-3" }}]
+            {% else %}
+              [{{ submission.point_override | floatformat:"-3" }}]
+            {% endif %}
+          </b>
+        </span>
+      {% endif %}
+  {% endif %}
+{% endif %}

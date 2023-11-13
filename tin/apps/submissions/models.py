@@ -132,36 +132,6 @@ class Submission(models.Model):
         return "Not graded"
 
     @property
-    def bold_formatted_grade(self):
-        if self.has_been_graded:
-            return f"<b>{decimal_repr(self.points)}</b> / {decimal_repr(self.points_possible)} ({self.grade_percent})"
-        return "Not graded"
-
-    @property
-    def html_formatted_grade(self):
-        if self.has_been_graded:
-            grade = f"{self.bold_formatted_grade}"
-            comment_count = self.comments.count()
-
-            if comment_count > 0:
-                tooltip_html = 'data-toggle="tooltip" title="Click to read comments"'
-                submission_url = reverse("submissions:show", args=(self.id,))
-
-                grade += f'&ensp;<a href="{submission_url}" style="text-decoration: none;" {tooltip_html}>'
-                if comment_count == 1:
-                    grade += f'<i class="fa fa-comment"></i>'
-                else:
-                    grade += f'<i class="fa fa-comments"></i>'
-                if self.point_override != 0:
-                    grade += f'&ensp;<span style="color: {"green" if self.point_override > 0 else "red"};">'
-                    grade += f'[{"+" if self.point_override > 0 else ""}{decimal_repr(self.point_override)}]'
-                    grade += f"</span>"
-                grade += f"</a>&ensp;"
-
-            return grade
-        return "Not graded"
-
-    @property
     def file_path(self) -> Optional[str]:
         if self.file is None:
             return None
@@ -247,6 +217,64 @@ class Submission(models.Model):
     @property
     def channel_group_name(self) -> str:
         return "submission-{}".format(self.id)
+
+    @property
+    def is_published(self):
+        return PublishedSubmission.objects.filter(
+            assignment=self.assignment, student=self.student, submission=self
+        ).exists()
+
+    @property
+    def is_latest_publish(self):
+        return (
+            PublishedSubmission.objects.filter(assignment=self.assignment, student=self.student)
+            .latest()
+            .submission
+            == self
+        )
+
+    @property
+    def published_submission(self):
+        submissions = PublishedSubmission.objects.filter(
+            student=self.student, assignment=self.assignment, submission=self
+        )
+        return submissions.first() if submissions else None
+
+    def publish(self):
+        if not self.is_published:
+            PublishedSubmission.objects.create(
+                assignment=self.assignment, student=self.student, submission=self
+            )
+
+    def unpublish(self):
+        if self.is_published:
+            PublishedSubmission.objects.filter(
+                assignment=self.assignment, student=self.student, submission=self
+            ).delete()
+
+    class Meta:
+        get_latest_by = "date_submitted"
+
+
+class PublishedSubmission(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+
+    assignment = models.ForeignKey(
+        "assignments.Assignment", on_delete=models.CASCADE, related_name="final_submissions"
+    )
+    student = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, related_name="final_submissions"
+    )
+    submission = models.OneToOneField(
+        Submission, on_delete=models.CASCADE, related_name="final_submission"
+    )
+
+    @classmethod
+    def get_published(cls, student, assignment):
+        return cls.objects.filter(student=student, assignment=assignment).order_by("-date")
+
+    class Meta:
+        get_latest_by = "submission__date_submitted"
 
 
 class Comment(models.Model):
