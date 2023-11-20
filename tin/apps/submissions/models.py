@@ -216,6 +216,15 @@ class Submission(models.Model):
         run_submission.delay(self.id)
 
     @property
+    def rerun_color(self):
+        if self.last_run is None:
+            return "black"
+        if self.last_run > timezone.now() - timezone.timedelta(minutes=5):
+            return "red"
+        if self.last_run > timezone.now() - timezone.timedelta(days=1):
+            return "orange"
+
+    @property
     def channel_group_name(self) -> str:
         return "submission-{}".format(self.id)
 
