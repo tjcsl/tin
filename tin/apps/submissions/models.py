@@ -209,6 +209,7 @@ class Submission(models.Model):
         from .tasks import run_submission
 
         self.complete = False
+        self.has_been_graded = False
         self.last_run = timezone.now()
         self.save()
 
