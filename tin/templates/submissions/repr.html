@@ -11,6 +11,9 @@
         <i class="fa fa-star-o" style="color: red" data-toggle="tooltip" title="Published {{ submission.published_submission.date }}"></i>
     {% endif %}
   {% endif %}
+  {% if submission.last_run %}
+    <i class="fa fa-repeat" style="color: {{ submission.rerun_color }}" data-toggle="tooltip" title="Rerun {{ submission.last_run }}"></i>
+  {% endif %}
   {% if submission.comments.count > 0 %}
       {% if submission.comments.count == 1 %}
         <i class="fa fa-comment" data-toggle="tooltip" title="Has a teacher comment"></i>
