@@ -85,7 +85,6 @@
     <tr>
       <th style="min-width:125px;">Date submitted</th>
       <th style="min-width:75px;">Grade</th>
-      <th style="min-width:65px;">Rerun?</th>
       <th style="min-width:65px;">On time?</th>
       <th style="min-width:80px;">Completed?</th>
     </tr>
@@ -96,7 +95,6 @@
           <td id="grade">
             {% include 'submissions/repr.html' with submission=submission %}
           </td>
-          <td>{% if submission.last_run %}Yes{% else %}No{% endif %}</td>
           <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
           <td class="{% if submission == latest_submission and not submission.complete %}incomplete{% endif %}"
               data-endpoint="{% url 'submissions:show_json' submission.id %}" data-endpoint-key="complete">
