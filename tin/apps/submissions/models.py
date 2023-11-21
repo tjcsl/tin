@@ -126,6 +126,12 @@ class Submission(models.Model):
         return "{:.2%}".format(self.points / self.points_possible)
 
     @property
+    def grade_percent_num(self):
+        if self.points_received is None:
+            return None
+        return (self.points / self.points_possible) * 100
+
+    @property
     def formatted_grade(self):
         if self.has_been_graded:
             return f"{decimal_repr(self.points)} / {decimal_repr(self.points_possible)} ({self.grade_percent})"
