@@ -110,7 +110,9 @@ def show_view(request, assignment_id):
             submissions = Submission.objects.filter(student=student, assignment=assignment)
             publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
             latest_submission = submissions.latest() if submissions else None
-            published_submission = publishes.latest().submission if publishes else latest_submission
+            published_submission = (
+                publishes.latest().submission if publishes else latest_submission
+            )
 
             if not assignment.is_quiz:
                 if latest_submission:
@@ -859,7 +861,6 @@ def show_folder_view(request, course_id, folder_id):
 def create_folder_view(request, course_id):
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
-    form = FolderForm()
     if request.method == "POST":
         form = FolderForm(request.POST)
         if form.is_valid():
@@ -868,6 +869,7 @@ def create_folder_view(request, course_id):
             folder.save()
             return redirect("courses:show", course.id)
 
+    form = FolderForm()
     context = {
         "form": form,
         "nav_item": "Create folder",

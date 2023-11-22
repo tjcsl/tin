@@ -6,12 +6,10 @@ from .models import Course, Period
 
 
 class CourseForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(CourseForm, self).__init__(*args, **kwargs)
-        self.fields["teacher"] = UserMultipleChoiceField(
-            queryset=User.objects.filter(is_teacher=True).order_by("last_name", "first_name"),
-            required=True,
-        )
+    teacher = UserMultipleChoiceField(
+        queryset=User.objects.filter(is_teacher=True).order_by("last_name", "first_name"),
+        required=True,
+    )
 
     class Meta:
         model = Course
@@ -27,6 +25,27 @@ class SelectCourseToImportFromForm(forms.Form):
 
 
 class ImportFromSelectedCourseForm(forms.Form):
+    hide = forms.BooleanField(
+        label="Hide?",
+        required=False,
+        help_text="Sets all imported assignments as hidden from students.",
+    )
+    shift_due_dates = forms.BooleanField(
+        label="Shift due date?",
+        required=False,
+        help_text="Shifts imported assignment due dates by one year.",
+    )
+    copy_graders = forms.BooleanField(
+        label="Copy graders?",
+        required=False,
+        help_text="Also imports any assignment grader scripts.",
+    )
+    copy_files = forms.BooleanField(
+        label="Copy files?",
+        required=False,
+        help_text="Also imports any uploaded files.",
+    )
+
     def __init__(self, course, *args, **kwargs):
         super(ImportFromSelectedCourseForm, self).__init__(*args, **kwargs)
         self.fields["folders"] = forms.ModelMultipleChoiceField(
@@ -41,35 +60,13 @@ class ImportFromSelectedCourseForm(forms.Form):
             queryset=course.assignments.filter(folder=None).order_by("name"),
             required=False,
         )
-        self.fields["hide"] = forms.BooleanField(
-            label="Hide?",
-            required=False,
-            help_text="Sets all imported assignments as hidden from students.",
-        )
-        self.fields["shift_due_dates"] = forms.BooleanField(
-            label="Shift due date?",
-            required=False,
-            help_text="Shifts imported assignment due dates by one year.",
-        )
-        self.fields["copy_graders"] = forms.BooleanField(
-            label="Copy graders?",
-            required=False,
-            help_text="Also imports any assignment grader scripts.",
-        )
-        self.fields["copy_files"] = forms.BooleanField(
-            label="Copy files?",
-            required=False,
-            help_text="Also imports any uploaded files.",
-        )
 
 
 class StudentForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(StudentForm, self).__init__(*args, **kwargs)
-        self.fields["students"] = UserMultipleChoiceField(
-            queryset=User.objects.order_by("last_name", "first_name"),
-            required=True,
-        )
+    students = UserMultipleChoiceField(
+        queryset=User.objects.order_by("last_name", "first_name"),
+        required=True,
+    )
 
     class Meta:
         model = Course
