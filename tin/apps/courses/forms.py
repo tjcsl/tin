@@ -18,7 +18,7 @@ class CourseForm(forms.ModelForm):
 
 class SelectCourseToImportFromForm(forms.Form):
     def __init__(self, courses, *args, **kwargs):
-        super(SelectCourseToImportFromForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["course"] = forms.ModelChoiceField(
             label="Course to Import From", widget=forms.RadioSelect, queryset=courses
         )
@@ -47,7 +47,7 @@ class ImportFromSelectedCourseForm(forms.Form):
     )
 
     def __init__(self, course, *args, **kwargs):
-        super(ImportFromSelectedCourseForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["folders"] = forms.ModelMultipleChoiceField(
             label="Select Folders",
             widget=forms.CheckboxSelectMultiple,
@@ -75,7 +75,7 @@ class StudentForm(forms.ModelForm):
 
 class PeriodForm(forms.ModelForm):
     def __init__(self, course, *args, **kwargs):
-        super(PeriodForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["teacher"] = forms.ModelChoiceField(
             queryset=course.teacher.order_by("last_name", "first_name"),
             required=True,
