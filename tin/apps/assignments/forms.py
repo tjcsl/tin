@@ -12,7 +12,7 @@ class AssignmentForm(forms.ModelForm):
     is_quiz = forms.ChoiceField(choices=QUIZ_ACTIONS)
 
     def __init__(self, course, *args, **kwargs):
-        super(AssignmentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["folder"].queryset = Folder.objects.filter(course=course)
 
         # Prevent changing the language of an assignment after it has been created
@@ -115,6 +115,4 @@ class FolderForm(forms.ModelForm):
         fields = [
             "name",
         ]
-        help_texts = {
-            "name": "Note: Folders are ordered alphabetically."
-        }
+        help_texts = {"name": "Note: Folders are ordered alphabetically."}
