@@ -12,6 +12,7 @@ urlpatterns = [
     path("<int:submission_id>/comment", views.comment_view, name="comment"),
     path("<int:submission_id>/publish", views.publish_view, name="publish"),
     path("<int:submission_id>/unpublish", views.unpublish_view, name="unpublish"),
+    path("filter", views.filter_view, name="filter"),
     path("set-aborted-complete", views.set_aborted_complete_view, name="set_aborted_complete"),
     path(
         "set-past-timeout-complete",

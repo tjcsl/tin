@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  Turn-In: Filter submissions
+{% endblock %}
+
+{% block head %}
+  <script type="text/javascript">
+      $(document).ready(function () {
+          $("#id_courses").selectize();
+          $("#id_folders").selectize();
+          $("#id_assignments").selectize();
+          $("#id_periods").selectize();
+          $("#id_students").selectize();
+      });
+  </script>
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/datetimepicker/jquery.datetimepicker.css' %}"/>
+  <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
+  <script type="text/javascript">
+      $(document).ready(function () {
+          $("#id_start_date,#id_end_date").datetimepicker({
+              lazyInit: true,
+              timepicker: true,
+              format: "Y-m-d H:i:s",
+          });
+      });
+  </script>
+{% endblock %}
+
+{% block main %}
+
+  <div class="header">
+    <h2 class="left">Filter submissions</h2>
+    {% if is_teacher or request.user.is_superuser %}
+      <a class="right tin-btn" href="{% url 'admin:submissions_submission_changelist' %}">Admin</a>
+    {% endif %}
+  </div>
+
+  {% if form.errors %}
+    <h3 class="errors">Please correct the errors below.</h3>
+    <ul class="errors">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="tbl">
+      {% for field in form %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell form-input"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}
+            {% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <p>
+      Note: Multiple selections for a field (e.g. two selected assignments) are ORed together, while different fields (a selected course and a student) are ANDed.
+      Blank fields are ignored.
+    </p>
+    <input type="submit" value="Apply filter">
+  </form>
+
+  {% if action == "show" %}
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Results</h2>
+    <p>Showing {{ submissions|length }} submission{{ submissions|pluralize }}.</p>
+    <table id="submission-list" class="has-border">
+      <tr>
+        <th style="min-width:125px;">Date submitted</th>
+        <th style="min-width:75px;">Course</th>
+        <th style="min-width:65px;">Folder</th>
+        <th style="min-width:80px;">Assignment</th>
+        <th style="min-width:75px;">Student</th>
+        <th style="min-width:75px;">Grade</th>
+        <th style="min-width:75px;">On time?</th>
+        <th style="min-width:75px;">Completed?</th>
+      </tr>
+      {% for submission in submissions %}
+        <tr>
+          {% if submission %}
+            <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+            <td><a href="{% url 'courses:show' submission.assignment.course.id %}">{{ submission.assignment.course }}</a></td>
+            <td><a href="{% url 'assignments:show_folder' submission.assignment.course.id submission.assignment.folder.id %}">{{ submission.assignment.folder }}</a></td>
+            <td><a href="{% url 'assignments:show' submission.assignment.id %}">{{ submission.assignment }}</a></td>
+            <td><a href="{% url 'assignments:student_submission' submission.assignment.id submission.student.id %}">{{ submission.student }}</a></td>
+            <td>{% include 'submissions/repr.html' with submission=submission %}</td>
+            <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+            <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+
+      {% if not submissions %}
+        <tr>
+          <td colspan="8" class="italic center">Nothing matched your filter!</td>
+        </tr>
+      {% endif %}
+    </table>
+  {% endif %}
+
+{% endblock %}

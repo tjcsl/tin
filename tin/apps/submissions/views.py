@@ -5,6 +5,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
+from .forms import FilterForm
 from ..auth.decorators import login_required, superuser_required, teacher_or_superuser_required
 from .models import Submission, Comment
 from .utils import serialize_submission_info
@@ -131,6 +132,39 @@ def unpublish_view(request, submission_id):
 
     submission.unpublish()
     return redirect("submissions:show", submission.id)
+
+
+@teacher_or_superuser_required
+def filter_view(request):
+    """Creates an assignment"""
+    if request.method == "POST":
+        filter_form = FilterForm(request.POST)
+        if filter_form.is_valid():
+            queryset = filter_form.get_results()
+
+            return render(
+                request,
+                "submissions/filter.html",
+                {
+                    "form": filter_form,
+                    "submissions": queryset,
+                    "action": "show",
+                    "nav_item": "Filter submissions",
+                },
+            )
+
+    filter_form = FilterForm()
+
+    return render(
+        request,
+        "submissions/filter.html",
+        {
+            "form": filter_form,
+            "submissions": Submission.objects.none(),
+            "action": "filter",
+            "nav_item": "Filter submissions",
+        },
+    )
 
 
 @superuser_required
