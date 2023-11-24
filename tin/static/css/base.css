@@ -159,7 +159,6 @@ ul#course-list li, ul#assignment-list li {
 
 ul#course-list li:last-child, ul#assignment-list li:last-child {
     border-bottom: 1px solid lightgray;
-
 }
 
 ul#course-list li a, ul#assignment-list li a {

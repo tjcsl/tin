@@ -5,9 +5,6 @@
 
   <div class="header">
     <h2 class="left">Courses</h2>
-    {% if request.user.is_teacher or request.user.is_superuser %}
-      <a class="right tin-btn" href="{% url 'courses:create' %}">New course</a>
-    {% endif %}
   </div>
 
   <ul id="course-list">
@@ -32,6 +29,13 @@
         </div>
       </li>
     {% endfor %}
+    {% if request.user.is_teacher or request.user.is_superuser %}
+      <li>
+        <a class="tin-btn" href="{% url 'courses:create' %}">New course</a>&ensp;
+        <a class="tin-btn" href="{% url 'submissions:filter' %}">Filter submissions</a>&ensp;
+        <a href="{% url 'docs:index' %}" class="tin-btn"><i class="fa fa-book"></i> Tin documentation</a>
+      </li>
+    {% endif %}
   </ul>
 
   {% if request.user.is_student %}
@@ -79,12 +83,10 @@
         </li>
       {% endfor %}
     </ul>
-  {% else %}
-    <h4><a href="{% url 'docs:index' %}" class="tin-btn"><i class="fa fa-book"></i> Tin documentation</a></h4>
   {% endif %}
 
   {% if request.user.is_superuser %}
-    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h2>
+    <h2>Administration</h2>
     <p><a class="tin-btn" href="/admin">Django Administrative Interface</a></p>
 
     <form method="post" action="{% url 'submissions:set_aborted_complete' %}">

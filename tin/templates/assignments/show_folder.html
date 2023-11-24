@@ -46,9 +46,7 @@
 
   {% if is_teacher or request.user.is_superuser %}
     <div>
-      <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New Assignment</a>
-      <a class="tin-btn" href="{% url 'assignments:add_folder' course.id %}">New Folder</a>
-      <a class="right tin-btn" href="{% url 'courses:students' course.id %}">Manage Roster</a>
+      <a class="tin-btn" href="{% url 'assignments:add' course.id %}">New assignment</a>
     </div>
   {% endif %}
 
