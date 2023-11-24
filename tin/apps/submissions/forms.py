@@ -7,17 +7,31 @@ from ..users.forms import UserMultipleChoiceField
 from ..users.models import User
 
 
+class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        if isinstance(obj, Course):
+            return obj.name
+        elif isinstance(obj, Folder):
+            return f"{obj.name} (in {obj.course.name})"
+        elif isinstance(obj, Assignment):
+            if obj.folder:
+                return f"{obj.name} (in {obj.folder.name} in {obj.course.name})"
+            return f"{obj.name} (in {obj.course.name})"
+        elif isinstance(obj, Period):
+            return f"{obj.name} (in {obj.course.name})"
+
+
 class FilterForm(forms.Form):
-    courses = forms.ModelMultipleChoiceField(
+    courses = CustomModelMultipleChoiceField(
         label="Courses", queryset=Course.objects.all().order_by("name"), required=False
     )
-    folders = forms.ModelMultipleChoiceField(
+    folders = CustomModelMultipleChoiceField(
         label="Folders", queryset=Folder.objects.all().order_by("name"), required=False
     )
-    assignments = forms.ModelMultipleChoiceField(
+    assignments = CustomModelMultipleChoiceField(
         label="Assignments", queryset=Assignment.objects.all().order_by("name"), required=False
     )
-    periods = forms.ModelMultipleChoiceField(
+    periods = CustomModelMultipleChoiceField(
         label="Periods", queryset=Period.objects.all().order_by("name"), required=False
     )
     students = UserMultipleChoiceField(
