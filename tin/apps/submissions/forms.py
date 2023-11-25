@@ -22,6 +22,28 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 
 class FilterForm(forms.Form):
+    ORDER_CHOICES = (
+        ("", "None"),
+        ("date_submitted", "Oldest first"),
+        ("-date_submitted", "Newest first"),
+        ("assignment__name", "Assignment name, A to Z"),
+        ("-assignment__name", "Assignment name, Z to A"),
+        ("assignment__course__name", "Course name, A to Z"),
+        ("-assignment__course__name", "Course name, Z to A"),
+        ("assignment__folder__name", "Folder name, A to Z"),
+        ("-assignment__folder__name", "Folder name, Z to A"),
+        ("student__username", "Student username, A to Z"),
+        ("-student__username", "Student username, Z to A"),
+        ("student__last_name", "Student last name, A to Z"),
+        ("-student__last_name", "Student last name, Z to A"),
+        ("student__first_name", "Student first name, A to Z"),
+        ("-student__first_name", "Student first name, Z to A"),
+        ("points_received", "Points received, low to high"),
+        ("-points_received", "Points received, high to low"),
+        ("assignment__points_possible", "Points possible, low to high"),
+        ("-assignment__points_possible", "Points possible, high to low"),
+    )
+
     courses = CustomModelMultipleChoiceField(
         label="Courses", queryset=Course.objects.all().order_by("name"), required=False
     )
@@ -48,6 +70,23 @@ class FilterForm(forms.Form):
     min_points = forms.IntegerField(label="Min points", required=False)
     max_points = forms.IntegerField(label="Max points", required=False)
     points_possible = forms.IntegerField(label="Points possible", required=False)
+
+    limit = forms.IntegerField(label="Limit", initial=1000, required=False)
+    order_by_1 = forms.ChoiceField(
+        label="Order by", choices=ORDER_CHOICES, required=False, initial=""
+    )
+    order_by_2 = forms.ChoiceField(
+        label="Then by", choices=ORDER_CHOICES, required=False, initial=""
+    )
+    order_by_3 = forms.ChoiceField(
+        label="Then by", choices=ORDER_CHOICES, required=False, initial=""
+    )
+    order_by_4 = forms.ChoiceField(
+        label="Then by", choices=ORDER_CHOICES, required=False, initial=""
+    )
+    order_by_5 = forms.ChoiceField(
+        label="Then by", choices=ORDER_CHOICES, required=False, initial=""
+    )
 
     def get_results(self):
         """Returns a queryset of submissions matching the form's filters"""
@@ -99,5 +138,13 @@ class FilterForm(forms.Form):
             queryset = queryset.filter(
                 assignment__points_possible=self.cleaned_data["points_possible"]
             )
+
+        order_bys = [self.cleaned_data[f"order_by_{i}"] for i in range(1, 6)]
+        order_bys = filter(None, order_bys)  # Remove empty selections
+        if order_bys:
+            queryset = queryset.order_by(*order_bys)
+
+        if self.cleaned_data["limit"]:
+            queryset = queryset[: self.cleaned_data["limit"]]
 
         return queryset
