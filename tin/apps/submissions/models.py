@@ -117,6 +117,8 @@ class Submission(models.Model):
 
     @property
     def points(self):
+        if self.points_received is None:
+            return None
         return self.points_received + self.point_override
 
     @property

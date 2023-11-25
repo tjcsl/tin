@@ -142,16 +142,34 @@ def filter_view(request):
         if filter_form.is_valid():
             queryset = filter_form.get_results()
 
-            return render(
-                request,
-                "submissions/filter.html",
-                {
-                    "form": filter_form,
-                    "submissions": queryset,
-                    "action": "show",
-                    "nav_item": "Filter submissions",
-                },
-            )
+            if "list_submissions" in request.POST:
+                return render(
+                    request,
+                    "submissions/filter.html",
+                    {
+                        "form": filter_form,
+                        "submissions": queryset,
+                        "action": "show",
+                        "nav_item": "Filter submissions",
+                    },
+                )
+            elif "view_code" in request.POST:
+                submission_texts = []
+                for submission in queryset:
+                    with open(submission.backup_file_path, "r", encoding="utf-8") as f_obj:
+                        submission_text = f_obj.read()
+                    submission_texts.append(submission_text)
+
+                return render(
+                    request,
+                    "submissions/filter.html",
+                    {
+                        "form": filter_form,
+                        "submissions": list(zip(queryset, submission_texts)),
+                        "action": "show_code",
+                        "nav_item": "Filter submissions",
+                    },
+                )
 
     filter_form = FilterForm()
 

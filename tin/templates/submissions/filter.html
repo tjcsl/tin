@@ -63,70 +63,96 @@
         </div>
       {% endfor %}
     </div>
-    <input type="submit" value="Apply filter">
-    <p>
-      Tips:
-    </p>
-    <ul class="standard">
-      <li>
-        Multiple selections for a field (e.g. two selected assignments) are ORed together, while different fields (a selected course and student) are ANDed.
-      </li>
-      <li>
-        Blank fields are ignored.
-      </li>
-      <li>
-        It is easy to create impossible filters, like selecting an assignment and multiple folders (an assignment can only be in one folder). Be careful!
-      </li>
-      <li>
-        Vague filters that match many submissions will take considerably longer to load.
-      </li>
-      <li>
-        The "Limit" filter can be unset to show all matching submissions, but doing so is highly discouraged.
-      </li>
-    </ul>
-  </form>
+    <input type="submit" name="list_submissions" value="Apply filter">
 
-  {% if action == "show" %}
-    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Results</h2>
-    <p>Showing {{ submissions|length }} submission{{ submissions|pluralize }}.</p>
-    <table id="submission-list" class="has-border">
-      <tr>
-        <th style="min-width:125px;">Date submitted</th>
-        <th style="min-width:75px;">Course</th>
-        <th style="min-width:65px;">Folder</th>
-        <th style="min-width:80px;">Assignment</th>
-        <th style="min-width:75px;">Student</th>
-        <th style="min-width:75px;">Grade</th>
-        <th style="min-width:75px;">On time?</th>
-        <th style="min-width:75px;">Completed?</th>
-      </tr>
-      {% for submission in submissions %}
+    {% if action == "filter" %}
+      <p>
+        Tips:
+      </p>
+      <ul class="standard">
+        <li>
+          Multiple selections for a field (e.g. two selected assignments) are ORed together, while different fields (a selected course and student) are ANDed.
+        </li>
+        <li>
+          Blank fields are ignored.
+        </li>
+        <li>
+          It is easy to create impossible filters, like selecting an assignment and multiple folders (an assignment can only be in one folder). Be careful!
+        </li>
+        <li>
+          Vague filters that match many submissions will take considerably longer to load.
+        </li>
+        <li>
+          The "Limit" filter can be unset to show all matching submissions, but doing so is highly discouraged.
+        </li>
+      </ul>
+    {% elif action == "show" %}
+      <h2 style="border-top:1px solid lightgray;padding-top:15px;">Results</h2>
+      <p>Showing {{ submissions|length }} submission{{ submissions|pluralize }}. <input type="submit" name="view_code" value="View code for each submission"></p>
+      <table id="submission-list" class="has-border">
         <tr>
-          {% if submission %}
-            <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
-            <td><a href="{% url 'courses:show' submission.assignment.course.id %}">{{ submission.assignment.course }}</a></td>
-            <td>
-              {% if submission.assignment.folder %}
-                <a href="{% url 'assignments:show_folder' submission.assignment.course.id submission.assignment.folder.id %}">{{ submission.assignment.folder }}</a>
-              {% else %}
-                <i>-</i>
-              {% endif %}
-            </td>
-            <td><a href="{% url 'assignments:show' submission.assignment.id %}">{{ submission.assignment }}</a></td>
-            <td><a href="{% url 'assignments:student_submission' submission.assignment.id submission.student.id %}">{{ submission.student }}</a></td>
-            <td>{% include 'submissions/repr.html' with submission=submission %}</td>
-            <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-            <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
-          {% endif %}
+          <th style="min-width:125px;">Date submitted</th>
+          <th style="min-width:75px;">Course</th>
+          <th style="min-width:65px;">Folder</th>
+          <th style="min-width:80px;">Assignment</th>
+          <th style="min-width:75px;">Student</th>
+          <th style="min-width:75px;">Grade</th>
+          <th style="min-width:75px;">On time?</th>
+          <th style="min-width:75px;">Completed?</th>
         </tr>
+        {% for submission in submissions %}
+          <tr>
+            {% if submission %}
+              <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+              <td><a href="{% url 'courses:show' submission.assignment.course.id %}">{{ submission.assignment.course }}</a></td>
+              <td>
+                {% if submission.assignment.folder %}
+                  <a href="{% url 'assignments:show_folder' submission.assignment.course.id submission.assignment.folder.id %}">{{ submission.assignment.folder }}</a>
+                {% else %}
+                  <i>-</i>
+                {% endif %}
+              </td>
+              <td><a href="{% url 'assignments:show' submission.assignment.id %}">{{ submission.assignment }}</a></td>
+              <td><a href="{% url 'assignments:student_submission' submission.assignment.id submission.student.id %}">{{ submission.student.full_name }} ({{ submission.student.username }})</a></td>
+              <td>{% include 'submissions/repr.html' with submission=submission %}</td>
+              <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+              <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+
+        {% if not submissions %}
+          <tr>
+            <td colspan="8" class="italic center">Nothing matched your filter!</td>
+          </tr>
+        {% endif %}
+      </table>
+    {% elif action == "show_code" %}
+      <h2 class="new-page" style="border-top:1px solid lightgray;padding-top:15px;">Results</h2>
+      <p>Showing the code for {{ submissions|length }} submission{{ submissions|pluralize }}. <input type="submit" name="list_submissions" value="Back to list"></p>
+
+      {% for submission, submission_text in submissions %}
+        {% if submission %}
+          <h3>
+            [{{ submission.date_submitted }}]
+            {{ submission.assignment.course }}
+            {% if submission.assignment.folder %}>> {{ submission.assignment.folder }}{% endif %}
+            >> {{ submission.assignment }}
+            >> {{ submission.student }}
+            {% if submission.points %}
+              >> {{ submission.points | floatformat:"-3" }} / {{ submission.points_possible | floatformat:"-3" }}
+              ({{ submission.grade_percent_num | floatformat:"-2" }}%)
+            {% else %}
+              >> Not graded
+            {% endif %}
+            {% if not submission.is_on_time %}*late*{% endif %}
+            {% if not submission.complete %}*incomplete*{% endif %}
+          </h3>
+          <pre><code>{{ submission_text }}</code></pre>
+        {% endif %}
       {% endfor %}
+    {% endif %}
 
-      {% if not submissions %}
-        <tr>
-          <td colspan="8" class="italic center">Nothing matched your filter!</td>
-        </tr>
-      {% endif %}
-    </table>
-  {% endif %}
+  </form>
 
 {% endblock %}
