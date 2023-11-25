@@ -31,9 +31,11 @@
     {% endfor %}
     {% if request.user.is_teacher or request.user.is_superuser %}
       <li>
-        <a class="tin-btn" href="{% url 'courses:create' %}">New course</a>&ensp;
-        <a class="tin-btn" href="{% url 'submissions:filter' %}">Filter submissions</a>&ensp;
-        <a href="{% url 'docs:index' %}" class="tin-btn"><i class="fa fa-book"></i> Tin documentation</a>
+        <div>
+          <a class="tin-btn" href="{% url 'courses:create' %}">New course</a>
+          <a class="tin-btn" href="{% url 'submissions:filter' %}">Filter submissions</a>
+          <a href="{% url 'docs:index' %}" class="tin-btn"><i class="fa fa-book"></i> Tin documentation</a>
+        </div>
       </li>
     {% endif %}
   </ul>
