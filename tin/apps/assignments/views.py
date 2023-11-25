@@ -102,8 +102,12 @@ def show_view(request, assignment_id):
                 )
                 student_list = active_period.students.all().order_by("last_name")
         else:
-            active_period = "none"
-            student_list = []
+            if period == "all":
+                active_period = "all"
+                student_list = course.students.all().order_by("last_name")
+            else:
+                active_period = "none"
+                student_list = []
 
         for student in student_list:
             period = student.periods.filter(course=assignment.course)
