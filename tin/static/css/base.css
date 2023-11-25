@@ -332,3 +332,19 @@ ul.errors {
 .hljs-ln-code {
     padding-left: 10px !important;
 }
+
+@media print {
+    body {
+        background-color: white;
+    }
+    #footer {
+        display: none;
+    }
+
+    .new-page {
+        page-break-before: always;
+    }
+    pre {
+        white-space: pre-wrap;
+    }
+}
