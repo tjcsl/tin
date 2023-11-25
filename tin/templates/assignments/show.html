@@ -22,9 +22,11 @@
   <div class="header">
     <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}</h2>
     {% if is_teacher or request.user.is_superuser %}
-      <a class="right tin-btn" href="{% url 'admin:assignments_assignment_change' assignment.id %}">Admin</a>
-      {% if assignment.is_quiz %}
-        <a class="right tin-btn" href="{% url 'admin:assignments_quiz_change' assignment.quiz.id %}">Admin (Quiz)</a>
+      {% if request.user.is_superuser %}
+        <a class="right tin-btn" href="{% url 'admin:assignments_assignment_change' assignment.id %}">Admin</a>
+        {% if assignment.is_quiz %}
+          <a class="right tin-btn" href="{% url 'admin:assignments_quiz_change' assignment.quiz.id %}">Admin (Quiz)</a>
+        {% endif %}
       {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
       <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"

@@ -33,7 +33,7 @@
 
   <div class="header">
     <h2 class="left">Filter submissions</h2>
-    {% if is_teacher or request.user.is_superuser %}
+    {% if request.user.is_superuser %}
       <a class="right tin-btn" href="{% url 'admin:submissions_submission_changelist' %}">Admin</a>
     {% endif %}
   </div>

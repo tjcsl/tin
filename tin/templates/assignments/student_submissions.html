@@ -14,7 +14,7 @@
   <div class="header">
     <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: {{ student.full_name }}
       ({{ student.username }})</h2>
-    {% if is_teacher or request.user.is_superuser %}
+    {% if request.user.is_superuser %}
       <a class="right tin-btn" href="{% url 'admin:users_user_change' student.id %}">Admin (Student)</a>
     {% endif %}
   </div>
