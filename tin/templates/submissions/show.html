@@ -114,7 +114,9 @@
       {% endif %}
     </h2>
     {% if is_teacher or request.user.is_superuser %}
-      <a class="right tin-btn" href="{% url 'admin:submissions_submission_change' submission.id %}">Admin</a>
+      {% if request.user.is_superuser %}
+        <a class="right tin-btn" href="{% url 'admin:submissions_submission_change' submission.id %}">Admin</a>
+      {% endif %}
       <a class="right tin-btn" href="{% url 'submissions:rerun' submission.id %}">Rerun</a>
       {% if submission.is_published %}
         <a class="right tin-btn" href="{% url 'submissions:unpublish' submission.id %}">Unpublish</a>

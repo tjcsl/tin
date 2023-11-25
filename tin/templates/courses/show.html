@@ -10,7 +10,9 @@
   <div class="header">
     <h2 class="left">{{ course.name }}</h2>
     {% if is_teacher or request.user.is_superuser %}
-      <a class="right tin-btn" href="{% url 'admin:courses_course_change' course.id %}">Admin</a>
+      {% if request.user.is_superuser %}
+        <a class="right tin-btn" href="{% url 'admin:courses_course_change' course.id %}">Admin</a>
+      {% endif %}
       <a class="right tin-btn" href="{% url 'courses:edit' course.id %}">Edit</a>
       <a class="right tin-btn" href="{% url 'courses:students' course.id %}">Students</a>
     {% endif %}

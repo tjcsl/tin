@@ -30,7 +30,9 @@
 
   <h4>Period: {{ active_period }}</h4>
   <p>
-    <a class="tin-btn" href="{% url 'admin:courses_period_change' active_period.id %}">Admin</a>
+    {% if request.user.is_superuser %}
+      <a class="tin-btn" href="{% url 'admin:courses_period_change' active_period.id %}">Admin</a>
+    {% endif %}
     <a class="tin-btn" href="{% url 'courses:edit_period' course.id active_period.id %}">Edit</a>
   </p>
 
