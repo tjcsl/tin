@@ -63,13 +63,16 @@ class FilterForm(forms.Form):
     )
     start_date = forms.DateTimeField(label="From", required=False)
     end_date = forms.DateTimeField(label="To", required=False)
+    is_latest_publish = forms.BooleanField(label="Is latest or published?", required=False)
+    is_latest = forms.BooleanField(label="Is latest?", required=False)
+    is_published = forms.BooleanField(label="Is published?", required=False)
     has_been_graded = forms.BooleanField(label="Is graded?", required=False)
     has_not_been_graded = forms.BooleanField(label="Is not graded?", required=False)
     is_complete = forms.BooleanField(label="Is complete?", required=False)
     is_incomplete = forms.BooleanField(label="Is incomplete?", required=False)
     min_points = forms.IntegerField(label="Min points", required=False)
     max_points = forms.IntegerField(label="Max points", required=False)
-    points_possible = forms.IntegerField(label="Points possible", required=False)
+    points_possible = forms.IntegerField(label="Total points possible", required=False)
 
     limit = forms.IntegerField(label="Limit", initial=1000, required=False)
     order_by_1 = forms.ChoiceField(
@@ -143,6 +146,20 @@ class FilterForm(forms.Form):
         order_bys = filter(None, order_bys)  # Remove empty selections
         if order_bys:
             queryset = queryset.order_by(*order_bys)
+
+        # This is done last to minimize queryset evaluation
+        # However, slicing must be done last (see limit below)
+        if self.cleaned_data["is_latest_publish"]:
+            latest_publish_ids = [s.pk for s in queryset if (s.is_latest_publish or s.is_latest)]
+            queryset = queryset.filter(pk__in=latest_publish_ids)
+
+        if self.cleaned_data["is_latest"]:
+            latest_ids = [s.pk for s in queryset if s.is_latest]
+            queryset = queryset.filter(pk__in=latest_ids)
+
+        if self.cleaned_data["is_published"]:
+            published_ids = [s.pk for s in queryset if s.is_latest_publish]
+            queryset = queryset.filter(pk__in=published_ids)
 
         if self.cleaned_data["limit"]:
             queryset = queryset[: self.cleaned_data["limit"]]
