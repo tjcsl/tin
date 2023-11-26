@@ -224,8 +224,16 @@ a.tin-btn {
     background: linear-gradient(to bottom, #dfdfdf 0%, #cfcfcf 100%);
 }
 
-.form-input {
-    min-width: 158px;  /* to align well with other inputs */
+.form-input > :is(select.selectized, input):not(input[type="checkbox"]) {
+    min-width: 250px;
+}
+
+.form-input > input[type="checkbox"] {
+    margin-left: 0px;
+}
+
+.form-input > select:not(.selectized) {
+    min-width: 258px;
 }
 
 input[type=submit], input[type=button] {
