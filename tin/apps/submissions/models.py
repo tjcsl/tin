@@ -237,6 +237,11 @@ class Submission(models.Model):
         return "submission-{}".format(self.id)
 
     @property
+    def is_latest(self):
+        submissions = Submission.objects.filter(assignment=self.assignment, student=self.student)
+        return submissions.latest() == self if submissions else False
+
+    @property
     def is_published(self):
         return PublishedSubmission.objects.filter(
             assignment=self.assignment, student=self.student, submission=self
@@ -244,12 +249,10 @@ class Submission(models.Model):
 
     @property
     def is_latest_publish(self):
-        return (
-            PublishedSubmission.objects.filter(assignment=self.assignment, student=self.student)
-            .latest()
-            .submission
-            == self
+        latest_publish = PublishedSubmission.objects.filter(
+            assignment=self.assignment, student=self.student
         )
+        return latest_publish.latest().submission == self if latest_publish else False
 
     @property
     def published_submission(self):
