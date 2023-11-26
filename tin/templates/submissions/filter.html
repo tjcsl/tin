@@ -129,7 +129,7 @@
       </table>
     {% elif action == "show_code" %}
       <h2 class="new-page" style="border-top:1px solid lightgray;padding-top:15px;">Results</h2>
-      <p>Showing the code for {{ submissions|length }} submission{{ submissions|pluralize }}. <input type="submit" name="list_submissions" value="Back to list"></p>
+      <p>Showing the code for {{ submissions|length }} submission{{ submissions|pluralize }}. <input type="submit" name="list_submissions" value="Back to list"> <input type="button" value="Print" onClick="window.print()"></p>
 
       {% for submission, submission_text in submissions %}
         {% if submission %}
