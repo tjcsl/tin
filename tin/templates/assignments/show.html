@@ -175,12 +175,12 @@
     {% endif %}
 
     <h2 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h2>
-    <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download All Scores</a>
-    <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download All Latest
-      Submissions</a>
-    <a class="left tin-btn" href="{% url 'assignments:rerun_all' assignment.id %}">Rerun All Latest Submissions</a>
+    <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download all scores</a>
+    <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download all latest
+      submissions</a>
+    <a class="left tin-btn" href="{% url 'assignments:rerun_all' assignment.id %}">Rerun all latest submissions</a>
     {% if log_file_exists %}
-      <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download Log</a>
+      <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
     {% endif %}
 
     <br>

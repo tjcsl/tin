@@ -73,7 +73,7 @@ class AssignmentForm(forms.ModelForm):
             "is_quiz": "If set, Tin will take the selected action if a student clicks off of the "
             "submission page.",
         }
-        widgets = {"description": forms.Textarea(attrs={"cols": 40, "rows": 8})}
+        widgets = {"description": forms.Textarea(attrs={"cols": 30, "rows": 4})}
 
 
 class GraderScriptUploadForm(forms.Form):

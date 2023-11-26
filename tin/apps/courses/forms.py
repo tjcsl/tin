@@ -64,6 +64,7 @@ class ImportFromSelectedCourseForm(forms.Form):
 
 class StudentForm(forms.ModelForm):
     students = UserMultipleChoiceField(
+        label="",
         queryset=User.objects.order_by("last_name", "first_name"),
         required=True,
     )
