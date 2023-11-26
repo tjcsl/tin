@@ -105,10 +105,10 @@ class FilterForm(forms.Form):
             queryset = queryset.filter(assignment__in=self.cleaned_data["assignments"])
 
         if self.cleaned_data["periods"]:
-            students_in_periods = Period.objects.none()
             for period in self.cleaned_data["periods"]:
-                students_in_periods |= period.students.all()
-            queryset = queryset.filter(student__in=students_in_periods)
+                queryset = queryset.filter(
+                    student__in=period.students.all(), assignment__course=period.course
+                )
 
         if self.cleaned_data["students"]:
             queryset = queryset.filter(student__in=self.cleaned_data["students"])
