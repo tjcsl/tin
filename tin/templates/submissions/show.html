@@ -201,19 +201,21 @@
     </table>
   {% endif %}
 
-  {% if is_teacher or request.user.is_superuser %}
-    <h2 style="border-top:1px solid lightgray;padding-top:15px;">Add Comment</h2>
-    <form action="{% url 'submissions:comment' submission.id %}" method="post">
-      {% csrf_token %}
-      <textarea name="comment" placeholder="Comment" rows="5" cols="120"></textarea>
-      <br>
-      <br>
-      <label for="point_override">Point Override:</label>
-      <input type="number" name="point_override" value="0" min="-999" max="999" step="0.5">
-      <br>
-      <br>
-      <input type="submit" value="Add Comment (and publish)">
-    </form>
+  {% if submission.complete and submission.has_been_graded %}
+    {% if is_teacher or request.user.is_superuser %}
+      <h2 style="border-top:1px solid lightgray;padding-top:15px;">Add Comment</h2>
+      <form action="{% url 'submissions:comment' submission.id %}" method="post">
+        {% csrf_token %}
+        <textarea name="comment" placeholder="Comment" rows="5" cols="120"></textarea>
+        <br>
+        <br>
+        <label for="point_override">Point Override:</label>
+        <input type="number" name="point_override" value="0" min="-999" max="999" step="0.5">
+        <br>
+        <br>
+        <input type="submit" value="Add Comment (and publish)">
+      </form>
+    {% endif %}
   {% endif %}
 
   {% if not submission.complete %}
