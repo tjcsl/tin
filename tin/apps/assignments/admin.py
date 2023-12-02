@@ -1,7 +1,23 @@
+import datetime
+
 from django.contrib import admin
 from django.db.models import ManyToManyField
 
-from .models import Assignment, LogMessage, Quiz, Folder
+from .models import Folder, Assignment, CooldownPeriod, Quiz, LogMessage
+
+
+@admin.register(Folder)
+class FolderAdmin(admin.ModelAdmin):
+    list_display = ("name", "course", "assignments")
+    list_filter = ("course",)
+    ordering = ("course", "name")
+    save_as = True
+    search_fields = ("name",)
+    autocomplete_fields = ("course",)
+
+    @admin.display(description="Assignments")
+    def assignments(self, obj):
+        return len(obj.assignments.all())
 
 
 @admin.register(Assignment)
@@ -25,6 +41,23 @@ class AssignmentAdmin(admin.ModelAdmin):
     @admin.display(description="Quiz", boolean=True)
     def quiz_icon(self, obj):
         return bool(obj.is_quiz)
+
+
+@admin.register(CooldownPeriod)
+class CooldownPeriodAdmin(admin.ModelAdmin):
+    date_hierarchy = "start_time"
+    list_display = ("id", "start_time", "end_time", "assignment", "student")
+    list_filter = ("assignment",)
+    ordering = ("-start_time",)
+    save_as = True
+    search_fields = ("assignment", "student")
+    autocomplete_fields = ("assignment", "student")
+
+    @admin.display(description="End Time")
+    def end_time(self, obj):
+        return obj.start_time + datetime.timedelta(
+            minutes=obj.assignment.submission_limit_cooldown
+        )
 
 
 @admin.register(Quiz)
@@ -52,20 +85,6 @@ class QuizAdmin(admin.ModelAdmin):
     @admin.display(description="Visible", boolean=True)
     def visible(self, obj):
         return not obj.assignment.hidden
-
-
-@admin.register(Folder)
-class FolderAdmin(admin.ModelAdmin):
-    list_display = ("name", "course", "assignments")
-    list_filter = ("course",)
-    ordering = ("course", "name")
-    save_as = True
-    search_fields = ("name",)
-    autocomplete_fields = ("course",)
-
-    @admin.display(description="Assignments")
-    def assignments(self, obj):
-        return len(obj.assignments.all())
 
 
 @admin.register(LogMessage)
