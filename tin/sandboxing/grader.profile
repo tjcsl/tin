@@ -32,6 +32,9 @@ blacklist /lib/systemd
 # profile/skel/bash.bashrc in case they want to start a shell or something
 private-etc localtime,nsswitch.conf,profile,skel,bash.bashrc,ssl,lsb-release,arch-release,debian_version,redhat-release,ca-certificates
 
+# allow access to /etc/java-*-openjdk/security/java.security
+private-etc java-8-openjdk,java-11-openjdk,java-13-openjdk,java-16-openjdk,java-17-openjdk
+
 read-only /etc
 read-only /opt
 read-only /usr
