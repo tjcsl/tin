@@ -7,7 +7,7 @@ from typing import List, Tuple
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
@@ -276,7 +276,13 @@ class Assignment(models.Model):
             ).count()
             > self.submission_limit_count
         ):
-            CooldownPeriod.objects.get_or_create(assignment=self, student=student)
+            with transaction.atomic():
+                current_cooldown = CooldownPeriod.objects.filter(
+                    assignment=self, student=student
+                ).first()
+                if current_cooldown:
+                    current_cooldown.delete()
+                CooldownPeriod.objects.create(assignment=self, student=student)
 
     @property
     def venv_object_created(self):
@@ -339,7 +345,6 @@ class CooldownPeriod(models.Model):
         else:
             if obj.get_time_to_end() < datetime.timedelta():
                 # Ended already
-                obj.delete()
                 return False
             else:
                 return True

@@ -47,10 +47,10 @@ class AssignmentAdmin(admin.ModelAdmin):
 class CooldownPeriodAdmin(admin.ModelAdmin):
     date_hierarchy = "start_time"
     list_display = ("id", "start_time", "end_time", "assignment", "student")
-    list_filter = ("assignment",)
+    list_filter = ("assignment__course",)
     ordering = ("-start_time",)
     save_as = True
-    search_fields = ("assignment", "student")
+    search_fields = ("assignment__name", "student__username")
     autocomplete_fields = ("assignment", "student")
 
     @admin.display(description="End Time")
