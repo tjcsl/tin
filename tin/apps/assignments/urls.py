@@ -11,7 +11,11 @@ urlpatterns = [
     path("<int:assignment_id>/delete", views.delete_view, name="delete"),
     path("<int:assignment_id>/grader/upload", views.upload_grader_view, name="upload_grader"),
     path("<int:assignment_id>/files", views.manage_files_view, name="manage_files"),
-    path("<int:assignment_id>/files/download/<int:file_id>", views.download_file_view, name="download_file"),
+    path(
+        "<int:assignment_id>/files/download/<int:file_id>",
+        views.download_file_view,
+        name="download_file",
+    ),
     path(
         "<int:assignment_id>/files/delete/<int:file_id>",
         views.delete_file_view,
@@ -28,7 +32,7 @@ urlpatterns = [
         name="student_submission",
     ),
     path("<int:assignment_id>/submit", views.submit_view, name="submit"),
-    path("<int:assignment_id>/rerun_all", views.rerun_all_view, name="rerun_all"),
+    path("<int:assignment_id>/rerun", views.rerun_view, name="rerun"),
     path("<int:assignment_id>/quiz", views.quiz_view, name="quiz"),
     path("<int:assignment_id>/report", views.quiz_report_view, name="report"),
     path("<int:assignment_id>/end", views.quiz_end_view, name="quiz_end"),

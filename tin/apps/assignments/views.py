@@ -7,6 +7,7 @@ import subprocess
 import zipfile
 from io import BytesIO
 
+import celery
 from django import http
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -574,16 +575,33 @@ def submit_view(request, assignment_id):
     )
 
 
-def rerun_all_view(request, assignment_id):
+def rerun_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
+    course = assignment.course
+    period = request.GET.get("period", "")
 
-    for user in assignment.course.students.all():
-        submissions = Submission.objects.filter(student=user, assignment=assignment)
+    if period == "all":
+        students = course.students.all()
+    elif course.period_set.exists():
+        students = get_object_or_404(
+            Period.objects.filter(course=course), id=int(period)
+        ).students.all()
+    else:
+        raise http.Http404
+
+    submission_reruns = []
+
+    for student in students:
+        submissions = Submission.objects.filter(student=student, assignment=assignment)
         latest_submission = submissions.latest() if submissions else None
-        if latest_submission:
-            latest_submission.rerun_submission()
+        publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
+        published_submission = publishes.latest().submission if publishes else latest_submission
+        if published_submission:
+            submission_reruns.append(published_submission.rerun())
+
+    celery.group(submission_reruns).delay()
 
     return redirect("assignments:show", assignment.id)
 

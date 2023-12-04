@@ -3,6 +3,7 @@ import os
 import subprocess
 from typing import Optional
 
+from celery.canvas import Signature
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -213,7 +214,7 @@ class Submission(models.Model):
         with open(backup_fpath, "w", encoding="utf-8") as f_obj:
             f_obj.write(submission_text)
 
-    def rerun_submission(self):
+    def rerun(self) -> Signature:
         from .tasks import run_submission
 
         self.complete = False
@@ -221,7 +222,7 @@ class Submission(models.Model):
         self.last_run = timezone.now()
         self.save()
 
-        run_submission.delay(self.id)
+        return run_submission.s(self.id)
 
     @property
     def rerun_color(self):
