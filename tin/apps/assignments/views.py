@@ -277,7 +277,7 @@ def delete_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
-def upload_grader_view(request, assignment_id):
+def manage_grader_view(request, assignment_id):
     """Uploads a grader for an assignment"""
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
@@ -310,18 +310,45 @@ def upload_grader_view(request, assignment_id):
         else:
             grader_file_errors = "Please select a file."
 
+    grader_file = assignment.grader_file
+    if grader_file:
+        with grader_file.open(mode="r") as f_obj:
+            grader_text = f_obj.read()
+    else:
+        grader_text = ""
+
     return render(
         request,
-        "assignments/upload_grader.html",
+        "assignments/grader.html",
         {
             "grader_form": grader_form,
             "grader_file_errors": grader_file_errors,
             "course": assignment.course,
             "folder": assignment.folder,
             "assignment": assignment,
-            "nav_item": "Upload grader",
+            "grader_text": grader_text,
+            "nav_item": "Manage grader" if grader_file else "Upload grader",
         },
     )
+
+
+@teacher_or_superuser_required
+def download_grader_view(request, assignment_id):
+    """Downloads the grader for an assignment"""
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
+
+    grader_file = assignment.grader_file
+    if not grader_file:
+        raise http.Http404
+
+    with grader_file.open() as f_obj:
+        response = http.HttpResponse(f_obj.read(), content_type="text/plain")
+    filename = f'{assignment.name.replace(" ", "_")}_{grader_file.name.split("/")[-1]}'
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    return response
 
 
 @teacher_or_superuser_required

@@ -12,17 +12,21 @@
 
 {% block main %}
 
-  <h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Upload grader</h2>
-  <p>Size limit is 1MB.</p>
-
-  <h4 style="color:red;">{{ grader_file_errors }}</h4>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+  <h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Grader</h2>
+  <p>
     {% if assignment.grader_file %}
       You have already uploaded a grader script. Uploading here will replace it.
     {% else %}
       There is no grader script for this assignment.
     {% endif %}
+    <br>
+    Please read <a href="{% url 'docs:graders' %}">the documentation on creating graders</a> before you upload.
+    <br>
+    Size limit is 1MB.
+  </p>
+  <h4 style="color:red;">{{ grader_file_errors }}</h4>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
     <div class="tbl">
       {% for field in grader_form %}
         {% if field.name != "grader_file" %}
@@ -37,9 +41,14 @@
         <span class="tbl-cell form-input"><input type="file" name="grader_file" id="id_grader_file" required></span>
       </div>
     </div>
-    <input type="submit" value="Upload grader">
-    <p>Note: Please read <a href="{% url 'docs:graders' %}">the documentation on creating graders</a> before you upload.
+    <input type="submit" value="Upload">
     </p>
   </form>
+
+  {% if assignment.grader_file %}
+    <h3 style="border-top:1px solid lightgray;padding-top:15px;">Current grader</h3>
+    <a class="left tin-btn" href="{% url 'assignments:download_grader' assignment.id %}">Download</a>
+    <pre><code>{{ grader_text }}</code></pre>
+  {% endif %}
 
 {% endblock %}

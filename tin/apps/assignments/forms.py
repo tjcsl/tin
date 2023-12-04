@@ -78,6 +78,7 @@ class AssignmentForm(forms.ModelForm):
 
 class GraderScriptUploadForm(forms.Form):
     grader_file = forms.FileField(
+        label="Upload grader",
         max_length=settings.SUBMISSION_SIZE_LIMIT,
         allow_empty_file=False,
         help_text="Size limit is 1MB.",
