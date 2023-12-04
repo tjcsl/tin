@@ -5,7 +5,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .forms import FilterForm
+from .forms import FilterForm, CommentForm
 from ..auth.decorators import login_required, superuser_required, teacher_or_superuser_required
 from .models import Submission, Comment
 from .utils import serialize_submission_info
@@ -111,6 +111,55 @@ def comment_view(request, submission_id):
 
     submission.publish()
 
+    return redirect("submissions:show", submission.id)
+
+
+@teacher_or_superuser_required
+def edit_comment_view(request, submission_id, comment_id):
+    submission = get_object_or_404(
+        Submission.objects.filter_editable(request.user), id=submission_id
+    )
+    comment = get_object_or_404(submission.comments.all(), id=comment_id)
+    assignment = submission.assignment
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect("submissions:show", submission.id)
+
+    before_submissions = Submission.objects.filter(
+        student=submission.student, assignment=submission.assignment, id__lt=submission.id
+    )
+    submission_number = before_submissions.count() + 1
+
+    form = CommentForm(instance=comment)
+    context = {
+        "form": form,
+        "nav_item": "Edit comment",
+        "course": assignment.course,
+        "folder": assignment.folder,
+        "assignment": assignment,
+        "submission": submission,
+        "comment": comment,
+        "submission_number": submission_number,
+    }
+
+    return render(request, "submissions/edit_comment.html", context=context)
+
+
+@teacher_or_superuser_required
+def delete_comment_view(request, submission_id, comment_id):
+    submission = get_object_or_404(
+        Submission.objects.filter_editable(request.user), id=submission_id
+    )
+    comment = get_object_or_404(submission.comments.all(), id=comment_id)
+    course = submission.assignment.course
+
+    if not course.teacher.filter(id=request.user.id).exists() and not request.user.is_superuser:
+        raise http.Http404
+
+    comment.delete()
     return redirect("submissions:show", submission.id)
 
 

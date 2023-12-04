@@ -934,13 +934,13 @@ def edit_folder_view(request, course_id, folder_id):
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
     folder = get_object_or_404(course.folders.all(), id=folder_id)
 
-    form = FolderForm(instance=folder)
     if request.method == "POST":
         form = FolderForm(request.POST, instance=folder)
         if form.is_valid():
             form.save()
             return redirect("assignments:show_folder", course.id, folder.id)
 
+    form = FolderForm(instance=folder)
     context = {
         "form": form,
         "nav_item": "Edit",

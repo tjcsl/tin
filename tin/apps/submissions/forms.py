@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Submission
+from .models import Submission, Comment
 from ..assignments.models import Folder, Assignment
 from ..courses.models import Course, Period
 from ..users.forms import UserMultipleChoiceField
@@ -165,3 +165,13 @@ class FilterForm(forms.Form):
             queryset = queryset[: self.cleaned_data["limit"]]
 
         return queryset
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["text", "point_override"]
+        widgets = {
+            "text": forms.Textarea(attrs={"cols": 120, "rows": 5}),
+            "point_override": forms.NumberInput(attrs={"step": 0.5}),
+        }
