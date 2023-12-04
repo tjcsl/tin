@@ -4,7 +4,7 @@
   <span class="result-not-graded italic">Not graded</span>
 {% else %}
   <b>{{ submission.points | floatformat:"-3" }}</b> / {{ submission.points_possible | floatformat:"-3" }} ({{ submission.grade_percent_num | floatformat:"-2" }}%)
-  {% if submission.is_published %}
+  {% if submission.is_published and submission.comments.count <= 0 %}
     {% if submission.is_latest_publish %}
         <i class="fa fa-star" style="color: red" data-toggle="tooltip" title="Published {{ submission.published_submission.date }}"></i>
     {% else %}
