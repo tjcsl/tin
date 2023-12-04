@@ -29,8 +29,11 @@
         {% endif %}
       {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
-      <a class="right tin-btn" href="{% url 'assignments:upload_grader' assignment.id %}"
-        {% if not assignment.grader_file %} style="color:#EF1010;"{% endif %}>Upload grader</a>
+      {% if assignment.grader_file %}
+        <a class="right tin-btn" href="{% url 'assignments:manage_grader' assignment.id %}">Manage grader</a>
+      {% else %}
+        <a class="right tin-btn" href="{% url 'assignments:manage_grader' assignment.id %}" style="color:#EF1010;">Upload grader</a>
+      {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage files</a>
     {% endif %}
     {% if assignment.is_quiz %}
