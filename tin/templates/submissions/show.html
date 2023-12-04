@@ -196,6 +196,9 @@
           <td><span>{{ comment.author.full_name }} ({{ comment.author.username }})</span></td>
           <td><span>{{ comment.text }}</span></td>
           <td><span>{{ comment.point_override }}</span></td>
+          {% if is_teacher or request.user.is_superuser %}
+            <td><a href="{% url 'submissions:edit_comment' submission.id comment.id %}">Edit</a></td>
+          {% endif %}
         </tr>
       {% endfor %}
     </table>
