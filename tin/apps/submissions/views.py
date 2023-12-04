@@ -78,7 +78,7 @@ def rerun_view(request, submission_id):
         Submission.objects.filter_visible(request.user), id=submission_id
     )
 
-    submission.rerun_submission()
+    submission.rerun().apply_async()
     return redirect("submissions:show", submission.id)
 
 
