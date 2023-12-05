@@ -4,11 +4,13 @@
   <span class="result-not-graded italic">Not graded</span>
 {% else %}
   <b>{{ submission.points | floatformat:"-3" }}</b> / {{ submission.points_possible | floatformat:"-3" }} ({{ submission.grade_percent_num | floatformat:"-2" }}%)
-  {% if submission.is_published and submission.comments.count <= 0 %}
-    {% if submission.is_latest_publish %}
-        <i class="fa fa-star" style="color: red" data-toggle="tooltip" title="Published {{ submission.published_submission.date }}"></i>
-    {% else %}
-        <i class="fa fa-star-o" style="color: red" data-toggle="tooltip" title="Published {{ submission.published_submission.date }}"></i>
+  {% if submission.is_published %}
+    {% if submission.comments.count <= 0 or request.user.is_teacher or request.user.is_superuser %}
+      {% if submission.is_latest_publish %}
+          <i class="fa fa-star" style="color: red" data-toggle="tooltip" title="Published {{ submission.published_submission.date }}"></i>
+      {% else %}
+          <i class="fa fa-star-o" style="color: red" data-toggle="tooltip" title="Published {{ submission.published_submission.date }}"></i>
+      {% endif %}
     {% endif %}
   {% endif %}
   {% if submission.last_run %}
