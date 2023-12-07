@@ -386,12 +386,14 @@ def manage_files_view(request, assignment_id):
 
     files = assignment.list_files()
 
+    actions = assignment.course.file_actions.all()
+
     return render(
         request,
         "assignments/manage_files.html",
         {
             "files": files,
-            "has_java_files": any(f[1].endswith(".java") for f in files),
+            "actions": actions,
             "form": form,
             "file_errors": file_errors,
             "course": assignment.course,
@@ -429,12 +431,13 @@ def delete_file_view(request, assignment_id, file_id):
 
 
 @teacher_or_superuser_required
-def compile_java_files_view(request, assignment_id):
+def file_action_view(request, assignment_id, action_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
+    action = get_object_or_404(assignment.course.file_actions.all(), id=action_id)
 
-    assignment.compile_java_files()
+    action.run(assignment)
 
     return redirect("assignments:manage_files", assignment.id)
 

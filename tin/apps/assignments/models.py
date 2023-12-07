@@ -12,7 +12,8 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
-from ...sandboxing import get_assignment_sandbox_args
+from ..courses.models import Course
+from ...sandboxing import get_assignment_sandbox_args, get_action_sandbox_args
 from ..submissions.models import Submission
 from ..venvs.models import Virtualenv
 
@@ -236,35 +237,6 @@ class Assignment(models.Model):
                 os.remove(item.path)
                 return
 
-    def compile_java_files(self) -> None:
-        fpaths = []
-
-        for file in self.list_files():
-            if file[1].endswith(".java"):
-                fpaths.append(file[2])
-
-        try:
-            res = subprocess.run(
-                [
-                    "javac",
-                    "-classpath",
-                    "/usr/share/java/junit.jar:/usr/share/java/hamcrest.jar:.",
-                    *fpaths,
-                ],
-                check=False,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                encoding="utf-8",
-                universal_newlines=True,
-            )
-        except FileNotFoundError as e:
-            logger.error("Cannot run processes: %s", e)
-            raise FileNotFoundError from e
-
-        self.last_action_output = res.stdout
-        self.save()
-
     def check_rate_limit(self, student) -> None:
         now = timezone.localtime()
 
@@ -417,3 +389,100 @@ class LogMessage(models.Model):
         return reverse(
             "assignments:student_submission", args=(self.quiz.assignment.id, self.student.id)
         )
+
+
+def run_action(command: List[str]) -> str:
+    try:
+        res = subprocess.run(
+            command,
+            check=False,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            encoding="utf-8",
+            universal_newlines=True,
+        )
+    except FileNotFoundError as e:
+        logger.error("File not found: %s", e)
+        raise FileNotFoundError from e
+    return res.stdout
+
+
+class FileAction(models.Model):
+    MATCH_TYPES = (("S", "Start with"), ("E", "End with"), ("C", "Contain"))
+
+    name = models.CharField(max_length=50)
+
+    courses = models.ManyToManyField(Course, related_name="file_actions")
+    command = models.CharField(max_length=1024)
+
+    match_type = models.CharField(max_length=1, choices=MATCH_TYPES, null=True, blank=True)
+    match_value = models.CharField(max_length=100, null=True, blank=True)
+    case_sensitive_match = models.BooleanField(default=False)
+
+    is_sandboxed = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def run(self, assignment: Assignment):
+        command = self.command.split(" ")
+
+        if (
+            ("$FILE" in self.command or "$FILES" in self.command)
+            and self.match_type
+            and self.match_value
+        ):
+            filepaths = []
+
+            for file in assignment.list_files():
+                if self.case_sensitive_match:
+                    filename = file[1]
+                    match = self.match_value
+                else:
+                    filename = file[1].lower()
+                    match = self.match_value.lower()
+                if (
+                    self.match_type == "S"
+                    and filename.startswith(match)
+                    or self.match_type == "E"
+                    and filename.endswith(match)
+                    or self.match_type == "C"
+                    and match in filename
+                ):
+                    filepaths.append(f"{file[2]}")
+
+            if "$FILES" in command:
+                new_command = []
+                for command_part in command:
+                    if command_part == "$FILES":
+                        new_command.extend(filepaths)
+                    else:
+                        new_command.append(command_part)
+                command = new_command
+
+            # Special case for multi-command actions
+            if "$FILE" in command:
+                output = self.name
+                for filepath in filepaths:
+                    new_command = [filepath if part == "$FILE" else part for part in command]
+                    output += "\n-----\n" + " ".join(new_command) + "\n-----\n"
+                    if self.is_sandboxed:
+                        new_command = get_action_sandbox_args(new_command, network_access=False)
+                    output += run_action(new_command)
+
+                assignment.last_action_output = output
+                assignment.save()
+                return
+
+        if self.is_sandboxed:
+            command = get_action_sandbox_args(command, network_access=False)
+
+        output = self.name + "\n" + " ".join(command) + "\n-----\n"
+        output += run_action(command)
+
+        assignment.last_action_output = output
+        assignment.save()
