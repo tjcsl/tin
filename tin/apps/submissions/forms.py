@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 
 from .models import Submission, Comment
 from ..assignments.models import Folder, Assignment
@@ -105,10 +106,10 @@ class FilterForm(forms.Form):
             queryset = queryset.filter(assignment__in=self.cleaned_data["assignments"])
 
         if self.cleaned_data["periods"]:
+            query = queryset.none()
             for period in self.cleaned_data["periods"]:
-                queryset = queryset.filter(
-                    student__in=period.students.all(), assignment__course=period.course
-                )
+                query |= Q(student__in=period.students.all()) & Q(assignment__course=period.course)
+            queryset = queryset.filter(query)
 
         if self.cleaned_data["students"]:
             queryset = queryset.filter(student__in=self.cleaned_data["students"])
