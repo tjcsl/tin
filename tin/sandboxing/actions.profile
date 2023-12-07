@@ -35,13 +35,13 @@ private-etc localtime,nsswitch.conf,profile,skel,bash.bashrc,ssl,lsb-release,arc
 # allow access to /etc/alternatives, /etc/java-*-openjdk/security/java.security
 private-etc alternatives,java-8-openjdk,java-11-openjdk,java-13-openjdk,java-16-openjdk,java-17-openjdk
 
-read-only /etc
+#read-only /etc
 read-only /opt
-read-only /usr
+#read-only /usr
 read-only /lib
 read-only /lib64
 read-only /var
-read-only /bin
+#read-only /bin
 read-only /sbin
 read-only /dev
 read-only /sys

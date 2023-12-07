@@ -25,9 +25,9 @@ urlpatterns = [
         name="delete_file",
     ),
     path(
-        "<int:assignment_id>/files/compile_java_files",
-        views.compile_java_files_view,
-        name="compile_java_files",
+        "<int:assignment_id>/files/action/<int:action_id>",
+        views.file_action_view,
+        name="file_action",
     ),
     path(
         "<int:assignment_id>/students/<int:student_id>",
