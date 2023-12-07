@@ -3,7 +3,7 @@ import datetime
 from django.contrib import admin
 from django.db.models import ManyToManyField
 
-from .models import Folder, Assignment, CooldownPeriod, Quiz, LogMessage
+from .models import Folder, Assignment, CooldownPeriod, Quiz, LogMessage, FileAction
 
 
 @admin.register(Folder)
@@ -100,3 +100,25 @@ class LogMessageAdmin(admin.ModelAdmin):
     @admin.display(description="Assignment")
     def assignment(self, obj):
         return obj.quiz.assignment.name
+
+
+@admin.register(FileAction)
+class FileActionAdmin(admin.ModelAdmin):
+    list_display = ("name", "command", "match", "is_sandboxed")
+    list_filter = ("is_sandboxed",)
+    save_as = True
+    search_fields = (
+        "name",
+        "match_value",
+    )
+    filter_horizontal = ("courses",)
+
+    @admin.display(description="Match")
+    def match(self, obj):
+        if obj.match_type == "S":
+            return f"{obj.match_value}*"
+        elif obj.match_type == "E":
+            return f"*{obj.match_value}"
+        elif obj.match_type == "C":
+            return f"*{obj.match_value}*"
+        return ""

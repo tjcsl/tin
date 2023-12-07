@@ -51,17 +51,17 @@
   </form>
 
 
-  <h3 style="border-top:1px solid lightgray;padding-top:15px;">File actions</h3>
-  {% if has_java_files %}
-    <form method="post" action="{% url 'assignments:compile_java_files' assignment.id %}">
-      {% csrf_token %}
-      <input type="submit" value="Compile all uploaded .java files">
-    </form>
-  {% endif %}
-
-  {% if assignment.last_action_output %}
-    <h3>Last action output</h3>
-    <pre><code class="nohljsln">{{ assignment.last_action_output }}</code></pre>
+  {% if actions or assignment.last_action_output %}
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">File actions</h2>
+    {% for action in actions %}
+      <a class="left tin-btn" href="{% url 'assignments:file_action' assignment.id action.id %}">{{ action.name }}</a>
+    {% empty %}
+      <p class="italic">No actions available</p>
+    {% endfor %}
+    {% if assignment.last_action_output %}
+      <h3>Last action output</h3>
+      <pre><code class="nohljsln">{{ assignment.last_action_output }}</code></pre>
+    {% endif %}
   {% endif %}
 
 {% endblock %}

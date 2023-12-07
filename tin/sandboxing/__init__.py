@@ -14,10 +14,52 @@ def get_assignment_sandbox_args(
     read_only=None,
     extra_firejail_args=None,
 ):
+    return get_sandbox_args(
+        command_args,
+        "grader",
+        network_access=network_access,
+        direct_network_access=direct_network_access,
+        whitelist=whitelist,
+        read_only=read_only,
+        extra_firejail_args=extra_firejail_args,
+    )
+
+
+def get_action_sandbox_args(
+    command_args,
+    *,
+    network_access: bool,
+    direct_network_access: bool = False,
+    whitelist=None,
+    read_only=None,
+    extra_firejail_args=None,
+):
+    return get_sandbox_args(
+        command_args,
+        "actions",
+        network_access=network_access,
+        direct_network_access=direct_network_access,
+        whitelist=whitelist,
+        read_only=read_only,
+        extra_firejail_args=extra_firejail_args,
+    )
+
+
+def get_sandbox_args(
+    command_args,
+    profile,
+    *,
+    network_access: bool,
+    direct_network_access: bool = False,
+    whitelist=None,
+    read_only=None,
+    extra_firejail_args=None,
+):
+
     firejail_args = [
         "firejail",
         "--quiet",
-        "--profile={}".format(os.path.join(os.path.dirname(__file__), "grader.profile")),
+        "--profile={}".format(os.path.join(os.path.dirname(__file__), f"{profile}.profile")),
     ]
 
     if whitelist:
