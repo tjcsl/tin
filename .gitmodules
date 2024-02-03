@@ -1,0 +1,4 @@
+[submodule "tin/sandboxing"]
+	path = tin/sandboxing
+	url = git@gitlab.tjhsst.edu:tin/sandboxing.git
+	branch = master
