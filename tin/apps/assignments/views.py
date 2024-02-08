@@ -115,9 +115,7 @@ def show_view(request, assignment_id):
             submissions = Submission.objects.filter(student=student, assignment=assignment)
             publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
             latest_submission = submissions.latest() if submissions else None
-            published_submission = (
-                publishes.latest().submission if publishes else latest_submission
-            )
+            graded_submission = publishes.latest().submission if publishes else latest_submission
 
             if not assignment.is_quiz:
                 if latest_submission:
@@ -127,8 +125,8 @@ def show_view(request, assignment_id):
                     (
                         student,
                         period,
-                        # latest_submission,
-                        published_submission,
+                        latest_submission,
+                        graded_submission,
                         new_since_last_login,
                         new_in_last_24,
                     )
@@ -138,8 +136,8 @@ def show_view(request, assignment_id):
                     (
                         student,
                         period,
-                        # latest_submission,
-                        published_submission,
+                        latest_submission,
+                        graded_submission,
                         assignment.quiz.ended_for_student(student),
                         assignment.quiz.locked_for_student(student),
                     )
@@ -166,12 +164,12 @@ def show_view(request, assignment_id):
         submissions = Submission.objects.filter(student=request.user, assignment=assignment)
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
         latest_submission = submissions.latest() if submissions else None
-        published_submission = publishes.latest().submission if publishes else latest_submission
+        graded_submission = publishes.latest().submission if publishes else latest_submission
         context.update(
             {
                 "submissions": submissions.order_by("-date_submitted"),
                 "latest_submission": latest_submission,
-                "published_submission": published_submission,
+                "graded_submission": graded_submission,
             }
         )
 

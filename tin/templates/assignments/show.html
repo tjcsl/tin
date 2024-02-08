@@ -68,11 +68,11 @@
           <td class="italic">Not submitted</td>
         {% endif %}
       </tr>
-      {% if published_submission != latest_submission %}
+      {% if graded_submission != latest_submission %}
         <tr>
           <th>Published grade:</th>
           <td id="published-grade">
-            {% include 'submissions/repr.html' with submission=published_submission %}
+            {% include 'submissions/repr.html' with submission=graded_submission %}
           </td>
         </tr>
       {% endif %}
@@ -105,19 +105,19 @@
             <th style="min-width:80px;">Quiz ended by user?</th>
             <th style="min-width:80px;">Quiz issues?</th>
           </tr>
-          {% for student, period, submission, ended, quiz_issues in students_and_submissions %}
+          {% for student, period, latest_submission, graded_submission, ended, quiz_issues in students_and_submissions %}
             <tr>
               <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
                 ({{ student.username }})</a></td>
               {% if not active_period.name %}
                 <td>{{ period | join:", " }}</td>
               {% endif %}
-              {% if submission %}
-                <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+              {% if latest_submission %}
+                <td><a href="{% url 'submissions:show' latest_submission.id %}">{{ latest_submission.date_submitted }}</a></td>
                 <td>
-                  {% include 'submissions/repr.html' with submission=submission %}
+                  {% include 'submissions/repr.html' with submission=graded_submission %}
                 </td>
-                <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+                <td>{% if latest_submission.complete %}Yes{% else %}No{% endif %}</td>
               {% else %}
                 <td colspan="3" class="italic center">No submissions</td>
               {% endif %}
@@ -146,20 +146,20 @@
             <th style="min-width:130px;">New since your last login?</th>
             <th style="min-width:130px;">New in last 24 hours?</th>
           </tr>
-          {% for student, period, submission, new_login, new_24 in students_and_submissions %}
+          {% for student, period, latest_submission, graded_submission, new_login, new_24 in students_and_submissions %}
             <tr>
               <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
                 ({{ student.username }})</a></td>
               {% if not active_period.name %}
                 <td>{{ period | join:", " }}</td>
               {% endif %}
-              {% if submission %}
-                <td><a href="{% url 'submissions:show' submission.id %}">{{ submission.date_submitted }}</a></td>
+              {% if latest_submission %}
+                <td><a href="{% url 'submissions:show' latest_submission.id %}">{{ latest_submission.date_submitted }}</a></td>
                 <td>
-                  {% include 'submissions/repr.html' with submission=submission %}
+                  {% include 'submissions/repr.html' with submission=graded_submission %}
                 </td>
-                <td>{% if submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-                <td>{% if submission.complete %}Yes{% else %}No{% endif %}</td>
+                <td>{% if latest_submission.is_on_time %}Yes{% else %}No{% endif %}</td>
+                <td>{% if latest_submission.complete %}Yes{% else %}No{% endif %}</td>
                 <td>{% if new_login %}Yes{% endif %}</td>
                 <td>{% if new_24 %}Yes{% endif %}</td>
               {% else %}
