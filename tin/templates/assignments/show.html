@@ -154,7 +154,12 @@
                 <td>{{ period | join:", " }}</td>
               {% endif %}
               {% if latest_submission %}
-                <td><a href="{% url 'submissions:show' latest_submission.id %}">{{ latest_submission.date_submitted }}</a></td>
+                <td>
+                  {% if graded_submission and graded_submission != latest_submission %}
+                    <i class="fa fa-exclamation" style="color: red" data-toggle="tooltip" title="Not published!"></i>
+                  {% endif %}
+                  <a href="{% url 'submissions:show' latest_submission.id %}">{{ latest_submission.date_submitted }}</a>
+                </td>
                 <td>
                   {% include 'submissions/repr.html' with submission=graded_submission %}
                 </td>
