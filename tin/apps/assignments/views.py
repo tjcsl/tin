@@ -52,7 +52,7 @@ def show_view(request, assignment_id):
         submissions = Submission.objects.filter(student=request.user, assignment=assignment)
         latest_submission = submissions.latest() if submissions else None
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
-        published_submission = publishes.latest().submission if publishes else latest_submission
+        graded_submission = publishes.latest().submission if publishes else latest_submission
 
         return render(
             request,
@@ -63,7 +63,7 @@ def show_view(request, assignment_id):
                 "assignment": assignment,
                 "submissions": submissions.order_by("-date_submitted"),
                 "latest_submission": latest_submission,
-                "published_submission": published_submission,
+                "graded_submission": graded_submission,
                 "is_student": course.is_student_in_course(request.user),
                 "is_teacher": request.user in course.teacher.all(),
                 "quiz_accessible": quiz_accessible,
