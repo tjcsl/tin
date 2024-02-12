@@ -190,10 +190,9 @@
     <h2 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h2>
     {% if log_file_exists %}
       <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
+      <br>
+      <br>
     {% endif %}
-
-    <br>
-    <br>
     {% if assignment.grader_file %}
       {% if assignment.venv_fully_created %}
         <p>A virtual environment has been created for this assignment. You can see details and manage it <a
