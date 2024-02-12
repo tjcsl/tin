@@ -331,6 +331,30 @@ ul.errors {
     font-size: 1.4em;
 }
 
+.float-right {
+    position: fixed;
+    float: right;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+    height: auto;
+    background-color: #f2f2f4;
+}
+
+.submission-list-collapsed {
+    display: none;
+}
+
+.scrolling {
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+.submissions-overview-collapse, .submissions-overview-expand {
+    float: right;
+    cursor: pointer;
+}
+
 .hljs-ln-numbers {
     padding-right: 10px !important;
     text-align: right;

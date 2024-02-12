@@ -19,9 +19,11 @@ def show_view(request, submission_id):
         Submission.objects.filter_visible(request.user), id=submission_id
     )
 
-    before_submissions = Submission.objects.filter(
-        student=submission.student, assignment=submission.assignment, id__lt=submission.id
+    submissions = Submission.objects.filter(
+        student=submission.student, assignment=submission.assignment
     )
+
+    before_submissions = submissions.filter(id__lt=submission.id)
     submission_number = before_submissions.count() + 1
 
     try:
@@ -38,6 +40,7 @@ def show_view(request, submission_id):
         "submission_number": submission_number,
         "submission_text": submission_text,
         "submission_comments": submission.comments.all(),
+        "submissions": submissions.order_by("-date_submitted"),
         "is_student": submission.assignment.course.is_student_in_course(request.user),
         "is_teacher": request.user in submission.assignment.course.teacher.all(),
     }
