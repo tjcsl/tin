@@ -183,12 +183,11 @@
       <br>
       <span><b>Actions:</b></span>
       <a class="left tin-btn" href="{% url 'assignments:rerun' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}">Rerun submissions</a>
+      <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}" target="_blank">Download code (.zip)</a>
     {% endif %}
 
     <h2 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h2>
     <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download all scores</a>
-    <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}">Download all latest
-      submissions</a>
     {% if log_file_exists %}
       <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
     {% endif %}
@@ -230,7 +229,7 @@
         {% if not latest_submission.complete %}
           <div class="continuous-progress"></div>
         {% endif %}
-      </div>  
+      </div>
     {% endif %}
 
     {% if request.user.is_superuser or is_teacher %}

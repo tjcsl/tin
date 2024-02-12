@@ -826,14 +826,27 @@ def download_submissions_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
-    name = "assignment_{}_student_submissions.zip".format(assignment.id)
+    course = assignment.course
+    period = request.GET.get("period", "")
+
+    if period == "all":
+        students = course.students.all()
+        name = "assignment_{}_all_submissions.zip".format(assignment.id)
+    elif course.period_set.exists():
+        period_obj = get_object_or_404(Period.objects.filter(course=course), id=int(period))
+        students = period_obj.students.all()
+        name = "assignment_{}_period_{}_submissions.zip".format(
+            assignment.id, period_obj.name.replace(" ", "_")
+        )
+    else:
+        raise http.Http404
 
     s = BytesIO()
     zf = zipfile.ZipFile(s, "w")
-    for student in assignment.course.students.all():
+    for student in students:
         submissions = Submission.objects.filter(student=student, assignment=assignment)
-        publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
         latest_submission = submissions.latest() if submissions else None
+        publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
         published_submission = publishes.latest().submission if publishes else latest_submission
         if published_submission is not None:
             zf.write(published_submission.file.path, arcname="{}.py".format(student.username))
