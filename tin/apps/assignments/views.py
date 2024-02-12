@@ -785,23 +785,35 @@ def scores_csv_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
+    course = assignment.course
+    period = request.GET.get("period", "")
+
+    if period == "all":
+        students = course.students.all()
+        name = "assignment_{}_all_scores.csv".format(assignment.id)
+    elif course.period_set.exists():
+        period_obj = get_object_or_404(Period.objects.filter(course=course), id=int(period))
+        students = period_obj.students.all()
+        name = "assignment_{}_period_{}_scores.csv".format(
+            assignment.id, period_obj.name.replace(" ", "_")
+        )
+    else:
+        raise http.Http404
 
     response = http.HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="scores.csv"'
+    response["Content-Disposition"] = "attachment; filename={}".format(name)
 
     writer = csv.writer(response)
     writer.writerow(["Name", "Username", "Period", "Raw Score", "Final Score", "Formatted Grade"])
 
-    for student in assignment.course.students.all().order_by("periods", "last_name"):
-        row = []
-        row.append(student.full_name)
-        row.append(student.username)
+    for student in students.order_by("periods", "last_name"):
+        row = [student.full_name, student.username]
         periods = ", ".join([p.name for p in student.periods.filter(course=assignment.course)])
         row.append(periods)
 
         submissions = Submission.objects.filter(student=student, assignment=assignment)
-        publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
         latest_submission = submissions.latest() if submissions else None
+        publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
         published_submission = publishes.latest().submission if publishes else latest_submission
         if published_submission is not None:
             if published_submission.points_received:

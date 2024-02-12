@@ -184,10 +184,10 @@
       <span><b>Actions:</b></span>
       <a class="left tin-btn" href="{% url 'assignments:rerun' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}">Rerun submissions</a>
       <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}" target="_blank">Download code (.zip)</a>
+      <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}" target="_blank">Download scores (.csv)</a>
     {% endif %}
 
     <h2 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h2>
-    <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}">Download all scores</a>
     {% if log_file_exists %}
       <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
     {% endif %}
