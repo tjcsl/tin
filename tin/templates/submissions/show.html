@@ -166,8 +166,6 @@
             <th style="border: none;"></th>
             <th style="min-width:125px;">Date submitted</th>
             <th style="min-width:75px;">Grade</th>
-            <th style="min-width:65px;">On time?</th>
-            <th style="min-width:80px;">Completed?</th>
           </tr>
           {% for table_submission in submissions %}
             <tr>
@@ -180,18 +178,13 @@
               <td id="grade">
                 {% include 'submissions/repr.html' with submission=table_submission %}
               </td>
-              <td>{% if table_submission.is_on_time %}Yes{% else %}No{% endif %}</td>
-              <td class="{% if table_submission == latest_submission and not table_submission.complete %}incomplete{% endif %}"
-                  data-endpoint="{% url 'submissions:show_json' table_submission.id %}" data-endpoint-key="complete">
-                {% if table_submission.complete %}Yes{% else %}No{% endif %}
-              </td>
             </tr>
           {% endfor %}
-  
+
           {% if not submissions %}
             <tr>
               <td></td>
-              <td colspan="4" class="italic center">No submissions</td>
+              <td colspan="2" class="italic center">No submissions</td>
             </tr>
           {% endif %}
         </table>
