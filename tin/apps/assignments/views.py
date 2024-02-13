@@ -853,16 +853,32 @@ def download_submissions_view(request, assignment_id):
     else:
         raise http.Http404
 
+    language = "P" if assignment.filename.endswith(".py") else "J"
+    extension = "java" if language == "J" else "py"
+    cc = "// " if language == "J" else "# "
+    default_header = f"{cc}Turn-In\n{cc}Course: {course.name}\n{cc}Assignment: {assignment.name}\n"
+    custom_header = "{0}Period: {1}\n{0}Student: {2} ({3})\n{0}Date: {4}\n\n"
+
     s = BytesIO()
-    zf = zipfile.ZipFile(s, "w")
-    for student in students:
-        submissions = Submission.objects.filter(student=student, assignment=assignment)
-        latest_submission = submissions.latest() if submissions else None
-        publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
-        published_submission = publishes.latest().submission if publishes else latest_submission
-        if published_submission is not None:
-            zf.write(published_submission.file.path, arcname="{}.py".format(student.username))
-    zf.close()
+    with zipfile.ZipFile(s, "w") as zf:
+        for student in students:
+            submissions = Submission.objects.filter(student=student, assignment=assignment)
+            latest_submission = submissions.latest() if submissions else None
+            publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
+            published_submission = publishes.latest().submission if publishes else latest_submission
+            if published_submission is not None:
+                period = ", ".join(p.name for p in student.periods.filter(course=assignment.course))
+                date = published_submission.date_submitted.strftime("%D (%B %e, %Y) %-I:%M %P")
+                with open(published_submission.file.path, "r") as f_obj:
+                    submission_header = custom_header.format(
+                        cc,
+                        period,
+                        student.full_name,
+                        student.username,
+                        date,
+                    )
+                    file_text = default_header + submission_header + f_obj.read()
+                    zf.writestr(f"{student.username}.{extension}", file_text)
     resp = http.HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
     resp["Content-Disposition"] = "attachment; filename={}".format(name)
     return resp
