@@ -920,8 +920,10 @@ def run_moss_view(request, assignment_id):
                     publishes.latest().submission if publishes else latest_submission
                 )
                 if published_submission is not None:
-                    runner.addFile(published_submission.backup_file_path, f"{student.username}.py")
-
+                    try:
+                        runner.addFile(published_submission.backup_file_path, f"{student.username}.py")
+                    except Exception:  # addFile({}) => File not found or is empty.
+                        pass  # Ignore this submission (maybe do something else?)
             try:
                 url = runner.send()
             except (ConnectionResetError, BrokenPipeError):
