@@ -10,9 +10,7 @@ urlpatterns = [
     path("<int:assignment_id>/edit", views.edit_view, name="edit"),
     path("<int:assignment_id>/delete", views.delete_view, name="delete"),
     path("<int:assignment_id>/grader", views.manage_grader_view, name="manage_grader"),
-    path(
-        "<int:assignment_id>/grader/download", views.download_grader_view, name="download_grader"
-    ),
+    path("<int:assignment_id>/grader/download", views.download_grader_view, name="download_grader"),
     path("<int:assignment_id>/files", views.manage_files_view, name="manage_files"),
     path(
         "<int:assignment_id>/files/download/<int:file_id>",
@@ -46,12 +44,11 @@ urlpatterns = [
         views.download_submissions_view,
         name="download_submissions",
     ),
+    path("<int:assignment_id>/run_moss", views.run_moss_view, name="run_moss"),
     path("<int:assignment_id>/download_log", views.download_log_view, name="download_log"),
     path("folder/<int:course_id>/<int:folder_id>", views.show_folder_view, name="show_folder"),
     path("add/folder/<int:course_id>", views.create_folder_view, name="add_folder"),
-    path(
-        "edit/folder/<int:course_id>/<int:folder_id>", views.edit_folder_view, name="edit_folder"
-    ),
+    path("edit/folder/<int:course_id>/<int:folder_id>", views.edit_folder_view, name="edit_folder"),
     path(
         "delete/folder/<int:course_id>/<int:folder_id>",
         views.delete_folder_view,

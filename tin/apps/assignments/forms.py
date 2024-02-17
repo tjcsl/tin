@@ -110,6 +110,56 @@ class TextSubmissionForm(forms.ModelForm):
         fields = []
 
 
+class MossForm(forms.Form):
+    # from http://moss.stanford.edu/general/scripts.html
+    LANGUAGES = (
+        ("c", "C"),
+        ("cc", "C++"),
+        ("java", "Java"),
+        ("ml", "ML"),
+        ("pascal", "Pascal"),
+        ("ada", "Ada"),
+        ("lisp", "Lisp"),
+        ("scheme", "Scheme"),
+        ("haskell", "Haskell"),
+        ("fortran", "Fortran"),
+        ("ascii", "ASCII"),
+        ("vhdl", "VHDL"),
+        ("verilog", "Verilog"),
+        ("perl", "Perl"),
+        ("matlab", "Matlab"),
+        ("python", "Python"),
+        ("mips", "MIPS"),
+        ("prolog", "Prolog"),
+        ("spice", "Spice"),
+        ("vb", "Visual Basic"),
+        ("csharp", "C#"),
+        ("modula2", "Modula-2"),
+        ("a8086", "a8086 Assembly"),
+        ("javascript", "JavaScript"),
+        ("plsql", "PL/SQL"),
+    )
+
+    language = forms.ChoiceField(choices=LANGUAGES, label="Language")
+    # base_file = forms.FileField(
+    #     max_length=settings.SUBMISSION_SIZE_LIMIT,
+    #     required=False,
+    #     allow_empty_file=True,
+    #     help_text="A common choice is the assignment's shell code",
+    # )
+    user_id = forms.CharField(
+        max_length=15,
+        label="Moss User ID",
+    )
+
+    def __init__(self, filename, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if filename.endswith(".java"):
+            self.initial["language"] = "java"
+        elif filename.endswith(".py"):
+            self.initial["language"] = "python"
+
+
 class FolderForm(forms.ModelForm):
     class Meta:
         model = Folder

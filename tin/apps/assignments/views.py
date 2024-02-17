@@ -8,6 +8,7 @@ import zipfile
 from io import BytesIO
 
 import celery
+import mosspy
 from django import http
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -29,6 +30,7 @@ from .forms import (
     GraderScriptUploadForm,
     FileUploadForm,
     TextSubmissionForm,
+    MossForm,
 )
 from .models import Assignment, CooldownPeriod, LogMessage, Quiz, upload_grader_file_path
 
@@ -882,6 +884,67 @@ def download_submissions_view(request, assignment_id):
     resp = http.HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
     resp["Content-Disposition"] = "attachment; filename={}".format(name)
     return resp
+
+
+@teacher_or_superuser_required
+def run_moss_view(request, assignment_id):
+    assignment = get_object_or_404(
+        Assignment.objects.filter_editable(request.user), id=assignment_id
+    )
+    course = assignment.course
+    period = request.GET.get("period", "")
+
+    if period == "all":
+        students = course.students.all()
+    elif course.period_set.exists():
+        students = get_object_or_404(
+            Period.objects.filter(course=course), id=int(period)
+        ).students.all()
+    else:
+        raise http.Http404
+
+    errors = ""
+    filename = assignment.filename
+
+    if request.method == "POST":
+        form = MossForm(filename, request.POST, request.FILES)
+        if form.is_valid():
+            runner = mosspy.Moss(form.cleaned_data["user_id"], form.cleaned_data["language"])
+            for student in students:
+                submissions = Submission.objects.filter(student=student, assignment=assignment)
+                latest_submission = submissions.latest() if submissions else None
+                publishes = PublishedSubmission.objects.filter(
+                    student=student, assignment=assignment
+                )
+                published_submission = (
+                    publishes.latest().submission if publishes else latest_submission
+                )
+                if published_submission is not None:
+                    runner.addFile(published_submission.file.path, f"{student.username}.py")
+
+            try:
+                url = runner.send()
+            except (ConnectionResetError, BrokenPipeError):
+                errors = "Invalid Moss User ID, please try again."
+            else:
+                return redirect(url)
+        else:
+            errors = form.errors
+    else:
+        form = MossForm(filename)
+
+    return render(
+        request,
+        "assignments/run_moss.html",
+        {
+            "form": form,
+            "errors": errors,
+            "course": assignment.course,
+            "folder": assignment.folder,
+            "assignment": assignment,
+            "nav_item": "Run Moss",
+        },
+    )
 
 
 @teacher_or_superuser_required
