@@ -871,7 +871,7 @@ def download_submissions_view(request, assignment_id):
             if published_submission is not None:
                 period = ", ".join(p.name for p in student.periods.filter(course=assignment.course))
                 date = published_submission.date_submitted.strftime("%D (%B %e, %Y) %-I:%M %P")
-                with open(published_submission.file.path, "r") as f_obj:
+                with open(published_submission.backup_file_path, "r") as f_obj:
                     submission_header = custom_header.format(
                         cc,
                         period,
@@ -920,7 +920,7 @@ def run_moss_view(request, assignment_id):
                     publishes.latest().submission if publishes else latest_submission
                 )
                 if published_submission is not None:
-                    runner.addFile(published_submission.file.path, f"{student.username}.py")
+                    runner.addFile(published_submission.backup_file_path, f"{student.username}.py")
 
             try:
                 url = runner.send()
