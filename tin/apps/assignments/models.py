@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
-from ..courses.models import Course
+from ..courses.models import Course, Period
 from ...sandboxing import get_assignment_sandbox_args, get_action_sandbox_args
 from ..submissions.models import Submission
 from ..venvs.models import Virtualenv
@@ -389,6 +389,77 @@ class LogMessage(models.Model):
         return reverse(
             "assignments:student_submission", args=(self.quiz.assignment.id, self.student.id)
         )
+
+
+def moss_base_file_path(obj, _):  # pylint: disable=unused-argument
+    assert obj.assignment.id is not None
+    return f"assignment-{obj.assignment.id}/moss-{obj.id}/base.{obj.extension}"
+
+
+class MossResult(models.Model):
+    # from http://moss.stanford.edu/general/scripts.html
+    LANGUAGES = (
+        ("c", "C"),
+        ("cc", "C++"),
+        ("java", "Java"),
+        ("ml", "ML"),
+        ("pascal", "Pascal"),
+        ("ada", "Ada"),
+        ("lisp", "Lisp"),
+        ("scheme", "Scheme"),
+        ("haskell", "Haskell"),
+        ("fortran", "Fortran"),
+        ("ascii", "ASCII"),
+        ("vhdl", "VHDL"),
+        ("verilog", "Verilog"),
+        ("perl", "Perl"),
+        ("matlab", "Matlab"),
+        ("python", "Python"),
+        ("mips", "MIPS"),
+        ("prolog", "Prolog"),
+        ("spice", "Spice"),
+        ("vb", "Visual Basic"),
+        ("csharp", "C#"),
+        ("modula2", "Modula-2"),
+        ("a8086", "a8086 Assembly"),
+        ("javascript", "JavaScript"),
+        ("plsql", "PL/SQL"),
+    )
+
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="moss_results",
+    )
+    period = models.ForeignKey(
+        Period,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="moss_results",
+    )
+
+    language = models.CharField(max_length=10, choices=LANGUAGES, default="python")
+    base_file = models.FileField(upload_to=moss_base_file_path, null=True, blank=True)
+    user_id = models.CharField(max_length=20)
+
+    date = models.DateTimeField(auto_now_add=True)
+    url = models.URLField(max_length=200, null=True, blank=True)
+    status = models.CharField(max_length=1024, default="", null=False, blank=True)
+
+    @property
+    def extension(self):
+        return "java" if self.language == "java" else "py"
+
+    @property
+    def download_folder(self):
+        return os.path.join(settings.MEDIA_ROOT, "moss-runs", f"moss-{self.id}")
+
+    def __str__(self):
+        return f"Moss result for {self.assignment}"
+
+    def __repr__(self):
+        return f"Moss result for {self.assignment}"
 
 
 def run_action(command: List[str]) -> str:

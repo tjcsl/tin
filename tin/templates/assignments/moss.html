@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Moss
+{% endblock %}
+
+{% block main %}
+
+  <h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Run Moss</h2>
+
+  <h4 style="color:red;">{{ errors }}</h4>
+
+  <form action="" method="post">
+    {% csrf_token %}
+    <div class="tbl">
+      {% for field in form %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell form-input"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}
+            {% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <input type="submit" value="Run">
+  </form>
+
+
+  <h2 style="border-top:1px solid lightgray;padding-top:15px;">Past Results</h2>
+  <table class="has-border">
+    <tr>
+      <th>Date</th>
+      <th>Period</th>
+      <th>Language</th>
+      <th>Base File?</th>
+      <th>User ID</th>
+    </tr>
+    {% if past_results is not None %}
+      {% for res in past_results %}
+        <tr>
+          <td>{{ res.date }}</td>
+          <td>{% if res.period %}{{ res.period }}{% else %}All{% endif %}</td>
+          <td>{{ res.get_language_display }}</td>
+          <td>{% if res.base_file %}Yes{% else %}No{% endif %}</td>
+          <td>{{ res.user_id }}</td>
+          {% if res.url %}
+            <td><a href="{{ res.url }}" target="_blank">View Results</a></td>
+          {% elif res.status %}
+            <td>{{ res.status }}</td>
+          {% else %}
+            <td>Loading...</td>
+          {% endif %}
+        </tr>
+      {% empty %}
+        <tr class="italic">
+          <td colspan="5">No Moss results yet</td>
+        </tr>
+      {% endfor %}
+    {% else %}
+      <tr class="italic">
+        <td colspan="5">An error occurred while listing Moss results. Please try again.</td>
+      </tr>
+    {% endif %}
+  </table>
+
+{% endblock %}

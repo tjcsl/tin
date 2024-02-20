@@ -44,7 +44,7 @@ urlpatterns = [
         views.download_submissions_view,
         name="download_submissions",
     ),
-    path("<int:assignment_id>/run_moss", views.run_moss_view, name="run_moss"),
+    path("<int:assignment_id>/moss", views.moss_view, name="moss"),
     path("<int:assignment_id>/download_log", views.download_log_view, name="download_log"),
     path("folder/<int:course_id>/<int:folder_id>", views.show_folder_view, name="show_folder"),
     path("add/folder/<int:course_id>", views.create_folder_view, name="add_folder"),

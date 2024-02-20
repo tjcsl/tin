@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
-from .models import Assignment, Folder
+from .models import Assignment, Folder, MossResult
 
 
 class AssignmentForm(forms.ModelForm):
@@ -110,54 +110,22 @@ class TextSubmissionForm(forms.ModelForm):
         fields = []
 
 
-class MossForm(forms.Form):
-    # from http://moss.stanford.edu/general/scripts.html
-    LANGUAGES = (
-        ("c", "C"),
-        ("cc", "C++"),
-        ("java", "Java"),
-        ("ml", "ML"),
-        ("pascal", "Pascal"),
-        ("ada", "Ada"),
-        ("lisp", "Lisp"),
-        ("scheme", "Scheme"),
-        ("haskell", "Haskell"),
-        ("fortran", "Fortran"),
-        ("ascii", "ASCII"),
-        ("vhdl", "VHDL"),
-        ("verilog", "Verilog"),
-        ("perl", "Perl"),
-        ("matlab", "Matlab"),
-        ("python", "Python"),
-        ("mips", "MIPS"),
-        ("prolog", "Prolog"),
-        ("spice", "Spice"),
-        ("vb", "Visual Basic"),
-        ("csharp", "C#"),
-        ("modula2", "Modula-2"),
-        ("a8086", "a8086 Assembly"),
-        ("javascript", "JavaScript"),
-        ("plsql", "PL/SQL"),
-    )
-
-    language = forms.ChoiceField(choices=LANGUAGES, label="Language")
-    # base_file = forms.FileField(
-    #     max_length=settings.SUBMISSION_SIZE_LIMIT,
-    #     required=False,
-    #     allow_empty_file=True,
-    #     help_text="A common choice is the assignment's shell code",
-    # )
-    user_id = forms.CharField(
-        max_length=15,
-        label="Moss User ID",
-    )
-
-    def __init__(self, filename, *args, **kwargs):
+class MossForm(forms.ModelForm):
+    def __init__(self, assignment, period, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if filename.endswith(".java"):
-            self.initial["language"] = "java"
-        elif filename.endswith(".py"):
-            self.initial["language"] = "python"
+        self.fields["period"].queryset = assignment.course.period_set.all()
+        if period:
+            self.fields["period"].initial = period
+        self.fields["language"].initial = (
+            "java" if assignment.filename.endswith(".java") else "python"
+        )
+
+    class Meta:
+        model = MossResult
+        fields = ["period", "language", "base_file", "user_id"]
+        help_texts = {
+            "period": "Leave blank to run Moss on all students in the course.",
+        }
 
 
 class FolderForm(forms.ModelForm):

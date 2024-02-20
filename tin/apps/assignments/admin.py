@@ -3,7 +3,7 @@ import datetime
 from django.contrib import admin
 from django.db.models import ManyToManyField
 
-from .models import Folder, Assignment, CooldownPeriod, Quiz, LogMessage, FileAction
+from .models import Folder, Assignment, CooldownPeriod, Quiz, LogMessage, FileAction, MossResult
 
 
 @admin.register(Folder)
@@ -55,9 +55,7 @@ class CooldownPeriodAdmin(admin.ModelAdmin):
 
     @admin.display(description="End Time")
     def end_time(self, obj):
-        return obj.start_time + datetime.timedelta(
-            minutes=obj.assignment.submission_limit_cooldown
-        )
+        return obj.start_time + datetime.timedelta(minutes=obj.assignment.submission_limit_cooldown)
 
 
 @admin.register(Quiz)
@@ -100,6 +98,25 @@ class LogMessageAdmin(admin.ModelAdmin):
     @admin.display(description="Assignment")
     def assignment(self, obj):
         return obj.quiz.assignment.name
+
+
+@admin.register(MossResult)
+class MossResultAdmin(admin.ModelAdmin):
+    date_hierarchy = "date"
+    list_display = ("date", "assignment", "course_name", "language", "user_id", "status")
+    list_filter = ("assignment__course", "language", "user_id")
+    ordering = ("-date",)
+    save_as = True
+    search_fields = ("assignment__name", "url")
+    autocomplete_fields = ("assignment",)
+
+    @admin.display(description="Assignment")
+    def assignment(self, obj):
+        return obj.quiz.assignment.name
+
+    @admin.display(description="Course")
+    def course_name(self, obj):
+        return obj.assignment.course.name
 
 
 @admin.register(FileAction)

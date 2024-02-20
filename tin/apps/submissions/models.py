@@ -141,6 +141,33 @@ class Submission(models.Model):
         return "Not graded"
 
     @property
+    def file_header(self):
+        language = "P" if self.assignment.filename.endswith(".py") else "J"
+
+        course = self.assignment.course
+
+        header_template = "\n".join(
+            (
+                "{0}Turn-In",
+                "{0}Course: {1}",
+                "{0}Assignment: {2}",
+                "{0}Period: {3}",
+                "{0}Student: {4} ({5})",
+                "{0}Date: {6}",
+            )
+        )
+
+        return header_template.format(
+            "// " if language == "J" else "# ",
+            course.name,
+            self.assignment.name,
+            ", ".join(p.name for p in self.student.periods.filter(course=course)),
+            self.student.full_name,
+            self.student.username,
+            self.date_submitted.strftime("%D (%B %e, %Y) %-I:%M %P"),
+        )
+
+    @property
     def file_path(self) -> Optional[str]:
         if self.file is None:
             return None

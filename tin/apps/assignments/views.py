@@ -32,7 +32,8 @@ from .forms import (
     TextSubmissionForm,
     MossForm,
 )
-from .models import Assignment, CooldownPeriod, LogMessage, Quiz, upload_grader_file_path
+from .models import Assignment, CooldownPeriod, LogMessage, Quiz
+from .tasks import run_moss
 
 logger = logging.getLogger(__name__)
 
@@ -887,65 +888,46 @@ def download_submissions_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
-def run_moss_view(request, assignment_id):
+def moss_view(request, assignment_id):
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
     course = assignment.course
     period = request.GET.get("period", "")
 
-    if period == "all":
-        students = course.students.all()
-    elif course.period_set.exists():
-        students = get_object_or_404(
-            Period.objects.filter(course=course), id=int(period)
-        ).students.all()
+    if period and period != "all" and course.period_set.exists():
+        period = get_object_or_404(Period.objects.filter(course=course), id=int(period))
     else:
-        raise http.Http404
+        period = None
 
     errors = ""
     filename = assignment.filename
 
     if request.method == "POST":
-        form = MossForm(filename, request.POST, request.FILES)
+        form = MossForm(assignment, period, request.POST, request.FILES)
         if form.is_valid():
-            runner = mosspy.Moss(form.cleaned_data["user_id"], form.cleaned_data["language"])
-            for student in students:
-                submissions = Submission.objects.filter(student=student, assignment=assignment)
-                latest_submission = submissions.latest() if submissions else None
-                publishes = PublishedSubmission.objects.filter(
-                    student=student, assignment=assignment
-                )
-                published_submission = (
-                    publishes.latest().submission if publishes else latest_submission
-                )
-                if published_submission is not None:
-                    try:
-                        runner.addFile(
-                            published_submission.backup_file_path, f"{student.username}.py"
-                        )
-                    except Exception:  # addFile({}) => File not found or is empty.
-                        pass  # Ignore this submission (maybe do something else?)
-            try:
-                url = runner.send()
-            except (ConnectionResetError, BrokenPipeError):
-                errors = "Invalid Moss User ID, please try again."
-            except ConnectionError:
-                errors = "Connection refused, please try again."
-            else:
-                return redirect(url)
-        else:
-            errors = form.errors
-    else:
-        form = MossForm(filename)
+            moss_result = form.save(commit=False)
+            moss_result.assignment = assignment
+            moss_result.filename = filename
+            moss_result.save()
+            run_moss.delay(moss_result.id)
+        return redirect(
+            reverse("assignments:moss", kwargs={"assignment_id": assignment_id})
+            + (f"?period={period.id}" if period else "")
+        )
+
+    form = MossForm(assignment, period)
+
+    past_results = assignment.moss_results.order_by("-date")
 
     return render(
         request,
-        "assignments/run_moss.html",
+        "assignments/moss.html",
         {
             "form": form,
             "errors": errors,
-            "course": assignment.course,
+            "past_results": past_results,
+            "course": course,
             "folder": assignment.folder,
             "assignment": assignment,
             "nav_item": "Run Moss",
