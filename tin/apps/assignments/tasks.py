@@ -41,15 +41,13 @@ def run_moss(moss_result_id):
         publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
         published_submission = publishes.latest().submission if publishes else latest_submission
         if published_submission is not None:
-            try:
-                with open(published_submission.backup_file_path, "r") as f:
-                    file_text = f.read()
-            except OSError:
-                pass
-            file_with_header = published_submission.file_header + file_text
+            file_with_header = published_submission.file_text_with_header
             with open(os.path.join(download_folder, f"{student.username}.{extension}"), "w") as f:
                 f.write(file_with_header)
-            runner.addFile(os.path.join(download_folder, f"{student.username}.{extension}"))
+            runner.addFile(
+                os.path.join(download_folder, f"{student.username}.{extension}"),
+                f"{student.first_name}_{student.last_name}",
+            )
 
     moss_result.status = "Uploading code to Moss..."
     moss_result.save()

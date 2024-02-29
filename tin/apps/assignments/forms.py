@@ -125,6 +125,7 @@ class MossForm(forms.ModelForm):
         fields = ["period", "language", "base_file", "user_id"]
         help_texts = {
             "period": "Leave blank to run Moss on all students in the course.",
+            "base_file": "The assignment's shell code (optional).",
         }
 
 

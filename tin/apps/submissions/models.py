@@ -168,6 +168,26 @@ class Submission(models.Model):
         )
 
     @property
+    def file_text(self):
+        if self.file is None:
+            return None
+
+        try:
+            with open(self.file_path, "r") as f:
+                file_text = f.read()
+        except OSError:
+            file_text = "[Error accessing submission file]"
+
+        return file_text
+
+    @property
+    def file_text_with_header(self):
+        if self.file is None:
+            return None
+
+        return self.file_header + "\n\n" + self.file_text
+
+    @property
     def file_path(self) -> Optional[str]:
         if self.file is None:
             return None
