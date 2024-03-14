@@ -88,7 +88,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "social_django.context_processors.backends",
                 "social_django.context_processors.login_redirect",
-                "tin.apps.context_processors.response_developer_email",
+                "tin.apps.context_processors.response_footer",
             ]
         },
     }
@@ -240,6 +240,7 @@ SENTRY_PUBLIC_DSN = None
 SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000  # 1 MB
 
 DEVELOPER_EMAIL = "tin@tjhsst.edu"
+REPO_URL = "https://github.com/tjcsl/tin"
 
 # Spaces and special characters may not be handled correctly
 # Not importing correctly - specified directly in apps/submissions/tasks.py
