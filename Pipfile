@@ -10,6 +10,7 @@ isort = "~=5.10.1"
 black = "~=22.6.0"
 autopep8 = "~=1.6.0"
 pylint-django = "~=2.5.3"
+django-stubs = "*"
 
 [packages]
 django = "~=3.2.14"
