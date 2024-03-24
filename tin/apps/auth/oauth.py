@@ -16,8 +16,7 @@ class IonOauth2(BaseOAuth2):  # pylint: disable=abstract-method
     ACCESS_TOKEN_METHOD = "POST"
     EXTRA_DATA = [("refresh_token", "refresh_token", True), ("expires_in", "expires")]
 
-    @staticmethod
-    def get_scope():
+    def get_scope(self):
         return ["read"]
 
     def get_user_details(self, response):
@@ -37,6 +36,5 @@ class IonOauth2(BaseOAuth2):  # pylint: disable=abstract-method
             "is_teacher": profile["is_teacher"],
         }
 
-    @staticmethod
-    def get_user_id(details, response):  # pylint: disable=unused-argument
+    def get_user_id(self, details, response):
         return details["id"]

@@ -59,7 +59,7 @@ class SubmissionJsonConsumer(JsonWebsocketConsumer):
             if msg_type == "request-info":
                 self.send_submission_info()
 
-    def submission_updated(self, event) -> None:  # pylint: disable=unused-argument
+    def submission_updated(self, _event) -> None:
         self.send_submission_info()
 
     def send_submission_info(self):

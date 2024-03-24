@@ -122,12 +122,15 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
+if DEBUG:
+    AUTH_PASSWORD_VALIDATORS = []
+else:
+    AUTH_PASSWORD_VALIDATORS = [
+        {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+        {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+        {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+        {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    ]
 
 
 # Authentication-related settings
@@ -135,7 +138,6 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = ("tin.apps.auth.oauth.IonOauth2",)
 
 if DEBUG:
-    AUTH_PASSWORD_VALIDATORS = []
     AUTHENTICATION_BACKENDS += ("django.contrib.auth.backends.ModelBackend",)
 
 SOCIAL_AUTH_USER_FIELDS = [

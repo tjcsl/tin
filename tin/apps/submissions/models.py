@@ -1,6 +1,7 @@
 import logging
 import os
 import subprocess
+from datetime import timedelta
 from typing import Optional
 
 from celery.canvas import Signature
@@ -275,9 +276,9 @@ class Submission(models.Model):
     def rerun_color(self):
         if self.last_run is None:
             return "black"
-        if self.last_run > timezone.now() - timezone.timedelta(minutes=5):
+        if self.last_run > timezone.now() - timedelta(minutes=5):
             return "red"
-        if self.last_run > timezone.now() - timezone.timedelta(days=1):
+        if self.last_run > timezone.now() - timedelta(days=1):
             return "orange"
 
     @property

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -37,9 +37,7 @@ def index_view(request):
         )
 
         now = timezone.now()
-        due_soon_assignments = assignments.filter(
-            due__gte=now, due__lte=now + timezone.timedelta(weeks=1)
-        )
+        due_soon_assignments = assignments.filter(due__gte=now, due__lte=now + timedelta(weeks=1))
         context["due_soon_assignments"] = due_soon_assignments
 
     return render(request, "courses/home.html", context)
@@ -344,7 +342,7 @@ def edit_period_view(request, course_id, period_id):
     if request.method == "POST":
         form = PeriodForm(course, data=request.POST, instance=period)
         if form.is_valid():
-            period = form.save()
+            form.save()
             return redirect("courses:students", course.id)
     else:
         form = PeriodForm(course, instance=period)

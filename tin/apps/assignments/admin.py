@@ -1,7 +1,6 @@
 import datetime
 
 from django.contrib import admin
-from django.db.models import ManyToManyField
 
 from .models import Folder, Assignment, CooldownPeriod, Quiz, LogMessage, FileAction, MossResult
 
@@ -55,7 +54,9 @@ class CooldownPeriodAdmin(admin.ModelAdmin):
 
     @admin.display(description="End Time")
     def end_time(self, obj):
-        return obj.start_time + datetime.timedelta(minutes=obj.assignment.submission_limit_cooldown)
+        return obj.start_time + datetime.timedelta(
+            minutes=obj.assignment.submission_limit_cooldown
+        )
 
 
 @admin.register(Quiz)

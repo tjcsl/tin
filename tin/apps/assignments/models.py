@@ -274,10 +274,9 @@ class Assignment(models.Model):
 
     @property
     def is_quiz(self):
-        try:
+        if hasattr(self, "quiz"):
             return self.quiz
-        except:
-            return False
+        return False
 
 
 class CooldownPeriod(models.Model):

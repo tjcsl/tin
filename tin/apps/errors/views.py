@@ -2,9 +2,9 @@
 from django.shortcuts import render
 
 
-def handle_404_view(request, exception):
+def handle_404_view(request, _exception):
     # Render it maybe?
-    del exception
+    del _exception
     return render(request, "error/404.html", status=404)
 
 

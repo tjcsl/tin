@@ -1,13 +1,11 @@
 import logging
 import os
-import subprocess
 
 import mosspy
 from celery import shared_task
 
 from ..submissions.models import Submission, PublishedSubmission
 from .models import MossResult
-from ...sandboxing import get_assignment_sandbox_args
 
 logger = logging.getLogger(__name__)
 

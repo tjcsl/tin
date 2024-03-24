@@ -8,7 +8,6 @@ import zipfile
 from io import BytesIO
 
 import celery
-import mosspy
 from django import http
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -89,7 +88,7 @@ def show_view(request, assignment_id):
                         period = (
                             course.period_set.filter(teacher=request.user).order_by("name")[0].id
                         )
-                    except:
+                    except IndexError:
                         period = "none"
                 else:
                     period = "none"
@@ -221,10 +220,10 @@ def edit_view(request, assignment_id):
 
     course = assignment.course
     initial_is_quiz = -1
-    try:
+
+    if hasattr(assignment, "quiz"):
         initial_is_quiz = assignment.quiz.action
-    except:
-        pass
+
     assignment_form = AssignmentForm(
         course, instance=assignment, initial={"is_quiz": initial_is_quiz}
     )
@@ -235,16 +234,14 @@ def edit_view(request, assignment_id):
 
             quiz_type = assignment_form.cleaned_data["is_quiz"]
             if quiz_type == "-1":
-                try:
+                if hasattr(assignment, "quiz"):
                     assignment.quiz.delete()
-                except:
-                    pass
             else:
-                try:
+                if hasattr(assignment, "quiz"):
                     assignment.quiz.action = quiz_type
                     assignment.save()
                     assignment.quiz.save()
-                except:
+                else:
                     Quiz.objects.create(assignment=assignment, action=quiz_type)
 
             return redirect("assignments:show", assignment.id)
@@ -865,7 +862,9 @@ def download_submissions_view(request, assignment_id):
             submissions = Submission.objects.filter(student=student, assignment=assignment)
             latest_submission = submissions.latest() if submissions else None
             publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
-            published_submission = publishes.latest().submission if publishes else latest_submission
+            published_submission = (
+                publishes.latest().submission if publishes else latest_submission
+            )
             if published_submission is not None:
                 file_with_header = published_submission.file_text_with_header
                 zf.writestr(f"{student.username}.{extension}", file_with_header)
