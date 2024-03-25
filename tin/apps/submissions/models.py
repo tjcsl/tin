@@ -155,6 +155,7 @@ class Submission(models.Model):
                 "{0}Period: {3}",
                 "{0}Student: {4} ({5})",
                 "{0}Date: {6}",
+                "{0}Grade: {7}",
             )
         )
 
@@ -166,6 +167,7 @@ class Submission(models.Model):
             self.student.full_name,
             self.student.username,
             self.date_submitted.strftime("%D (%B %e, %Y) %-I:%M %P"),
+            self.formatted_grade,
         )
 
     @property
