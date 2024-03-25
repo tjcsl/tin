@@ -62,6 +62,22 @@ def show_json_view(request, submission_id):
 
 
 @login_required
+def download_view(request, submission_id):
+    submission = get_object_or_404(
+        Submission.objects.filter_visible(request.user), id=submission_id
+    )
+
+    file_with_header = submission.file_text_with_header
+    language = "P" if submission.assignment.filename.endswith(".py") else "J"
+    extension = "java" if language == "J" else "py"
+    username = submission.student.username
+
+    response = http.HttpResponse(file_with_header, content_type="text/plain")
+    response["Content-Disposition"] = f'attachment; filename="{username}.{extension}"'
+    return response
+
+
+@login_required
 def kill_view(request, submission_id):
     submission = get_object_or_404(
         Submission.objects.filter_editable(request.user), id=submission_id

@@ -282,6 +282,7 @@
   {% endif %}
 
   <h2 style="border-top:1px solid lightgray;padding-top:15px;">Submission</h2>
+  <a class="left tin-btn" href="{% url 'submissions:download' submission.id %}">Download</a>
   <pre><code>{{ submission_text }}</code></pre>
 
 {% endblock %}
