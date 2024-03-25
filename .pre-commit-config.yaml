@@ -1,0 +1,9 @@
+repos:
+- repo: local
+  hooks:
+    - id: format
+      name: format
+      entry: pipenv run ./scripts/format.sh && test -z "$(git status --porcelain=v1 .)"
+      language: system
+      types: [python]
+      pass_filenames: false
