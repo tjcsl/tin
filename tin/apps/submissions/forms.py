@@ -1,11 +1,11 @@
 from django import forms
 from django.db.models import Q
 
-from .models import Submission, Comment
-from ..assignments.models import Folder, Assignment
+from ..assignments.models import Assignment, Folder
 from ..courses.models import Course, Period
 from ..users.forms import UserMultipleChoiceField
 from ..users.models import User
+from .models import Comment, Submission
 
 
 class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):

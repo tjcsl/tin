@@ -4,7 +4,7 @@ import os
 import mosspy
 from celery import shared_task
 
-from ..submissions.models import Submission, PublishedSubmission
+from ..submissions.models import PublishedSubmission, Submission
 from .models import MossResult
 
 logger = logging.getLogger(__name__)

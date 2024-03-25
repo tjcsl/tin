@@ -5,9 +5,9 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .forms import FilterForm, CommentForm
 from ..auth.decorators import login_required, superuser_required, teacher_or_superuser_required
-from .models import Submission, Comment
+from .forms import CommentForm, FilterForm
+from .models import Comment, Submission
 from .utils import serialize_submission_info
 
 # Create your views here.

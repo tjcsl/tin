@@ -12,8 +12,8 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
+from ...sandboxing import get_action_sandbox_args, get_assignment_sandbox_args
 from ..courses.models import Course, Period
-from ...sandboxing import get_assignment_sandbox_args, get_action_sandbox_args
 from ..submissions.models import Submission
 from ..venvs.models import Virtualenv
 

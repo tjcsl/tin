@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Submission, Comment
+from .models import Comment, Submission
 
 # Register your models here.
 

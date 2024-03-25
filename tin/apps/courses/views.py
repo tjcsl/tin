@@ -7,10 +7,10 @@ from ..assignments.models import Assignment
 from ..auth.decorators import login_required, teacher_or_superuser_required
 from .forms import (
     CourseForm,
-    PeriodForm,
-    StudentForm,
-    SelectCourseToImportFromForm,
     ImportFromSelectedCourseForm,
+    PeriodForm,
+    SelectCourseToImportFromForm,
+    StudentForm,
 )
 from .models import Course, Period, StudentImport
 

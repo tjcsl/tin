@@ -8,6 +8,7 @@ import zipfile
 from io import BytesIO
 
 import celery
+
 from django import http
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -19,17 +20,17 @@ from django.utils.timezone import now
 from ... import sandboxing
 from ..auth.decorators import login_required, teacher_or_superuser_required
 from ..courses.models import Course, Period
-from ..submissions.models import Submission, PublishedSubmission
+from ..submissions.models import PublishedSubmission, Submission
 from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import (
     AssignmentForm,
     FileSubmissionForm,
+    FileUploadForm,
     FolderForm,
     GraderScriptUploadForm,
-    FileUploadForm,
-    TextSubmissionForm,
     MossForm,
+    TextSubmissionForm,
 )
 from .models import Assignment, CooldownPeriod, LogMessage, Quiz
 from .tasks import run_moss
@@ -862,9 +863,7 @@ def download_submissions_view(request, assignment_id):
             submissions = Submission.objects.filter(student=student, assignment=assignment)
             latest_submission = submissions.latest() if submissions else None
             publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
-            published_submission = (
-                publishes.latest().submission if publishes else latest_submission
-            )
+            published_submission = publishes.latest().submission if publishes else latest_submission
             if published_submission is not None:
                 file_with_header = published_submission.file_text_with_header
                 zf.writestr(f"{student.username}.{extension}", file_with_header)
