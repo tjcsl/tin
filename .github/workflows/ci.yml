@@ -1,0 +1,36 @@
+name: CI
+on:
+  - push
+  - pull_request
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version:
+          - 3.8
+
+    steps:
+      - name: Set up repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pipenv
+
+      - name: Install dependencies
+        run: |
+          set -e
+          pip install pipenv
+          pipenv install --dev --deploy
+
+      - name: Check formatting with format.sh
+        run: pipenv run ./scripts/format.sh && test -z "$(git status --porcelain=v1 .)"
