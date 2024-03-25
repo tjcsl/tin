@@ -752,7 +752,7 @@ def quiz_report_view(request, assignment_id):
                 resp = "lock"
 
         json_data = json.dumps(resp)
-    return http.HttpResponse(json_data, content_type="application/json")
+    return http.JsonResponse(json_data)
 
 
 @login_required

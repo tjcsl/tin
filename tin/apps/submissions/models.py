@@ -263,7 +263,7 @@ class Submission(models.Model):
             f_obj.write(submission_text)
 
     def rerun(self) -> Signature:
-        from .tasks import run_submission
+        from .tasks import run_submission  # pylint: disable=import-outside-toplevel
 
         self.complete = False
         self.has_been_graded = False
@@ -280,6 +280,7 @@ class Submission(models.Model):
             return "red"
         if self.last_run > timezone.now() - timedelta(days=1):
             return "orange"
+        return "black"
 
     @property
     def channel_group_name(self) -> str:

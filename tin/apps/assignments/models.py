@@ -515,14 +515,13 @@ class FileAction(models.Model):
                 else:
                     filename = file[1].lower()
                     match = self.match_value.lower()
-                if (
-                    self.match_type == "S"
-                    and filename.startswith(match)
-                    or self.match_type == "E"
-                    and filename.endswith(match)
-                    or self.match_type == "C"
-                    and match in filename
-                ):
+
+                is_match = (
+                    (self.match_type == "S" and filename.startswith(match))
+                    or (self.match_type == "E" and filename.endswith(match))
+                    or (self.match_type == "C" and match in filename)
+                )
+                if is_match:
                     filepaths.append(f"{file[2]}")
 
             if "$FILES" in command:

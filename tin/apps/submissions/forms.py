@@ -20,6 +20,7 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
             return f"{obj.name} (in {obj.course.name})"
         elif isinstance(obj, Period):
             return f"{obj.name} (in {obj.course.name})"
+        return super().label_from_instance(obj)
 
 
 class FilterForm(forms.Form):
