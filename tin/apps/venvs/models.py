@@ -75,7 +75,7 @@ class Venv(models.Model):
             ["pip", "freeze"],
             network_access=False,
             read_only=[self.path],
-            extra_firejail_args=["--rlimit-fsize=209715200"],
+            extra_firejail_args=[f"--rlimit-fsize={settings.VENV_FILE_SIZE_LIMIT}"],
         )
 
         try:
@@ -113,7 +113,7 @@ class Venv(models.Model):
                 ["pip", "install", "--upgrade", "--", *pkgs],
                 network_access=True,
                 whitelist=[self.path],
-                extra_firejail_args=["--rlimit-fsize=209715200"],
+                extra_firejail_args=[f"--rlimit-fsize={settings.VENV_FILE_SIZE_LIMIT}"],
             )
 
             try:

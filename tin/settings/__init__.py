@@ -244,6 +244,8 @@ SUBMISSION_SIZE_LIMIT = 1 * 1000 * 1000  # 1 MB
 DEVELOPER_EMAIL = "tin@tjhsst.edu"
 REPO_URL = "https://github.com/tjcsl/tin"
 
+VENV_FILE_SIZE_LIMIT = 1 * 1000 * 1000 * 1000  # 1 GB
+
 # Spaces and special characters may not be handled correctly
 # Not importing correctly - specified directly in apps/submissions/tasks.py
 # as of 8/3/2022, 2022ldelwich
