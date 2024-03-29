@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "79b31cb920437fa1f003a78c97247462419cca432fd26f34eef90a8d10d9f45f"
+            "sha256": "52dfdf5a0975ae0f4bb26da2b7721ef25328be9af585980de0e7dc78f5b8f5ba"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -901,12 +901,15 @@
             "version": "==2.0.0"
         },
         "sentry-sdk": {
-            "hashes": [
-                "sha256:2469240f6190aaebcb453033519eae69cfe8cc602065b4667e18ee14fc1e35dc",
-                "sha256:4fbace9a763285b608c06f01a807b51acb35f6059da6a01236654e08b0ee81ff"
+            "extras": [
+                "celery",
+                "django"
             ],
-            "index": "pypi",
-            "version": "==1.9.10"
+            "hashes": [
+                "sha256:eb65289da013ca92fad2694851ad2f086aa3825e808dc285bd7dcaf63602bb18",
+                "sha256:f7125a9235795811962d52ff796dc032cd1d0dd98b59beaced8380371cd9c13c"
+            ],
+            "version": "==1.44.0"
         },
         "service-identity": {
             "hashes": [

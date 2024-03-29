@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -267,5 +268,8 @@ except ImportError:
 
 if not DEBUG:
     sentry_sdk.init(
-        dsn=SENTRY_PUBLIC_DSN, integrations=[DjangoIntegration()], send_default_pii=True
+        dsn=SENTRY_PUBLIC_DSN,
+        integrations=[DjangoIntegration(), CeleryIntegration()],
+        send_default_pii=True,
+        enable_tracing=True,
     )
