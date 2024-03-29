@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+
+  <div class="header">
+    <h2 class="left">Virtual environments</h2>
+  </div>
+
+  <ul id="venv-list">
+    {% for venv in venvs %}
+      <li>
+        <div class="left">
+          <a href="{% url 'venvs:show' venv.id %}">{{ venv.name }}</a>
+        </div>
+      </li>
+    {% empty %}
+      <li>
+        <div class="left">
+          <p>No virtual environments to show</p>
+        </div>
+      </li>
+    {% endfor %}
+    <li>
+      <div>
+        <a class="tin-btn" href="{% url 'venvs:add' %}">New virtual environment</a>
+      </div>
+    </li>
+  </ul>
+
+{% endblock %}

@@ -31,6 +31,7 @@ class AssignmentForm(forms.ModelForm):
             "folder",
             "language",
             "filename",
+            "venv",
             "points_possible",
             "due",
             "hidden",
@@ -43,6 +44,7 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown",
         ]
         labels = {
+            "venv": "Virtual environment",
             "hidden": "Hide assignment from students?",
             "enable_grader_timeout": "Set a timeout for the grader?",
             "grader_timeout": "Grader timeout (seconds):",
@@ -57,6 +59,7 @@ class AssignmentForm(forms.ModelForm):
             "filename": "Clarify which file students need to upload (including the file "
             "extension). For Java assignments, this also sets the name of the "
             "saved submission file.",
+            "venv": "If set, Tin will run the student's code in this virtual environment.",
             "grader_has_network_access": 'If unset, this effectively disables "Give submissions '
             'internet access" below. If set, it increases the amount '
             "of time it takes to start up the grader (to about 1.5 "

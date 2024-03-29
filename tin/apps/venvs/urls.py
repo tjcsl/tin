@@ -5,11 +5,8 @@ from . import views
 app_name = "venvs"
 
 urlpatterns = [
+    path("", views.index_view, name="index"),
     path("<int:venv_id>", views.show_view, name="show"),
-    path(
-        "create-for-assignment/<int:assignment_id>",
-        views.create_for_assignment_view,
-        name="create-for-assignment",
-    ),
-    path("<int:venv_id>/install-packages", views.install_view, name="install-packages"),
+    path("add", views.create_view, name="add"),
+    path("<int:venv_id>/install_packages", views.install_packages_view, name="install_packages"),
 ]

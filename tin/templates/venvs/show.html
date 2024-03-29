@@ -2,76 +2,81 @@
 {% load static %}
 
 {% block title %}
-  Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment
+  Turn-In: Virtual environment {{ venv.name }}
 {% endblock %}
 
 {% block main %}
 
   <div class="header">
-    <h2 class="left">{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Virtual environment</h2>
+    <h2 class="left">{{ venv.name }}</h2>
     {% if request.user.is_superuser %}
-      <a class="right tin-btn" href="{% url 'admin:venvs_virtualenv_change' venv.id %}">Admin</a>
+      <a class="right tin-btn" href="{% url 'admin:venvs_venv_change' venv.id %}">Admin</a>
     {% endif %}
-    <a class="right tin-btn" href="{% url 'assignments:show' assignment.id %}">View Assignment</a>
   </div>
 
-  <h3>Installed packages</h3>
-
-  {% if venv.installing_packages %}
-    <p class="italic">This virtual environment is currently installing or upgrading packages. This list may be
-      incomplete.</p>
-  {% endif %}
-  <table class="has-border">
-    <tr>
-      <th>Package</th>
-      <th>Version</th>
-    </tr>
-    {% with packages=venv.list_packages %}
-      {% if packages is not None %}
-        {% for pkgname, version in packages %}
-          <tr>
-            <td>{{ pkgname }}</td>
-            <td>{{ version }}</td>
-          </tr>
-        {% empty %}
+  {% if not venv.fully_created %}
+    <p>This virtual environment is being created. The process may take a minute or two (you will have to
+      refresh the page to see the updated status).</p>
+    <p>If it takes more than a few minutes, please contact the Tin maintainers by emailing <a href="mailto:{{ DEVELOPER_EMAIL }}">{{ DEVELOPER_EMAIL }}</a>
+  {% else %}
+    <h3>Installed packages</h3>
+  
+    {% if venv.installing_packages %}
+      <p class="italic">This virtual environment is currently installing or upgrading packages. This list may be
+        incomplete.</p>
+    {% endif %}
+    <table class="has-border">
+      <tr>
+        <th>Package</th>
+        <th>Version</th>
+      </tr>
+      {% with packages=venv.list_packages %}
+        {% if packages is not None %}
+          {% for pkgname, version in packages %}
+            <tr>
+              <td>{{ pkgname }}</td>
+              <td>{{ version }}</td>
+            </tr>
+          {% empty %}
+            <tr class="italic">
+              <td colspan="2">No installed packages</td>
+            </tr>
+          {% endfor %}
+        {% else %}
           <tr class="italic">
-            <td colspan="2">No installed packages</td>
+            <td colspan="2">An error occurred while listing installed packages. Please try again.</td>
           </tr>
-        {% endfor %}
-      {% else %}
-        <tr class="italic">
-          <td colspan="2">An error occurred while listing installed packages. Please try again.</td>
-        </tr>
-      {% endif %}
-    {% endwith %}
-  </table>
-
-  <h3>Install packages</h3>
-  <form action="{% url 'venvs:install-packages' venv.id %}" method="post">
-    {% csrf_token %}
-    <div class="tbl">
-      <div class="package-name-container"><input type="text" name="packages[]" placeholder="Package name"
-        {% if venv.installing_packages %} disabled{% endif %}>
-        <input type="button" value="X"
-               onclick="if($('.package-name-container').get().length > 1) { var cont = $(this).closest('.package-name-container'); cont.remove(); }">
-      </div>
-    </div>
-    <input type="button" value="+"
-           onclick="var last_cont = $('.package-name-container').last(); last_cont.clone().insertAfter(last_cont).find('input[type=text]').val('');">
-    <br>
-    <br>
-    <input type="submit" value="Install packages"{% if venv.installing_packages %} disabled{% endif %}>
-
+        {% endif %}
+      {% endwith %}
+    </table>
+  
+    <h3>Install packages</h3>
     {% if venv.installing_packages %}
       <p class="italic">
         You cannot install packages while the virtual environment is installing packages.
       </p>
+    {% else %}
+      <form action="{% url 'venvs:install_packages' venv.id %}" method="post">
+        {% csrf_token %}
+        <div class="tbl">
+          <div class="package-name-container"><input type="text" name="packages[]" placeholder="Package name"
+            {% if venv.installing_packages %} disabled{% endif %}>
+            <input type="button" value="X"
+                   onclick="if($('.package-name-container').get().length > 1) { var cont = $(this).closest('.package-name-container'); cont.remove(); }">
+          </div>
+        </div>
+        <input type="button" value="+"
+               onclick="var last_cont = $('.package-name-container').last(); last_cont.clone().insertAfter(last_cont).find('input[type=text]').val('');">
+        <br>
+        <br>
+        <input type="submit" value="Install packages"{% if venv.installing_packages %} disabled{% endif %}>
+      </form>
     {% endif %}
-  </form>
-
-  {% if venv.package_installation_output and not venv.installing_packages %}
-    <h3>Last package installation output</h3>
-    <pre><code class="nohljsln">{{ venv.package_installation_output }}</code></pre>
+  
+    {% if venv.package_installation_output and not venv.installing_packages %}
+      <h3>Last package installation output</h3>
+      <pre><code class="nohljsln">{{ venv.package_installation_output }}</code></pre>
+    {% endif %}
   {% endif %}
 
 {% endblock %}

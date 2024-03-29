@@ -12,111 +12,55 @@ from ... import sandboxing
 logger = logging.getLogger(__name__)
 
 
-class VirtualenvCreationError(Exception):
+class VenvCreationError(Exception):
     pass
 
 
-class VirtualenvExistsError(VirtualenvCreationError):
+class VenvExistsError(VenvCreationError):
     pass
 
 
 class VenvQuerySet(models.query.QuerySet):
     def filter_visible(self, user):
-        if user.is_superuser:
+        if user.is_superuser or user.is_teacher:
             return self.all()
-        else:
-            return self.filter(assignment__course__teacher=user).distinct()
+        return self.none()
 
     def filter_editable(self, user):
         if user.is_superuser:
             return self.all()
-        else:
-            return self.filter(assignment__course__teacher=user).distinct()
+        return self.none()
 
 
-class Virtualenv(models.Model):
+class Venv(models.Model):
     objects = VenvQuerySet.as_manager()
 
-    assignment = models.OneToOneField(
-        "assignments.Assignment", on_delete=models.CASCADE, related_name="venv", null=False
-    )
+    name = models.CharField(max_length=255, null=False, blank=False)
 
     fully_created = models.BooleanField(null=False)
 
     installing_packages = models.BooleanField(default=False, null=False)
 
+    OUTPUT_MAX_LENGTH = 16 * 1024
     package_installation_output = models.CharField(
-        max_length=16 * 1024, default="", null=False, blank=True
+        max_length=OUTPUT_MAX_LENGTH, default="", null=False, blank=True
     )
 
     def __str__(self):
-        return f"Virtualenv for {self.assignment}"
+        return self.name
 
     def __repr__(self):
-        return f"Virtualenv for {self.assignment}"
+        return f"<Virtualenv: {self.name}>"
 
     def get_absolute_url(self):
         return reverse("venvs:show", args=[self.id])
 
-    def get_full_path(self):
-        assert self.assignment.grader_file.name
-        return os.path.join(
-            settings.MEDIA_ROOT, os.path.dirname(self.assignment.grader_file.name), "venv"
-        )
-
-    @classmethod
-    def create_venv_for_assignment(cls, assignment):
-        try:
-            venv = cls.objects.create(assignment=assignment, fully_created=False)
-        except IntegrityError:
-            raise VirtualenvExistsError
-
-        success = False
-
-        try:
-            if os.path.exists(venv.get_full_path()):
-                raise VirtualenvCreationError(
-                    "Virtualenv directory for assignment #{} exists".format(assignment.id)
-                )
-
-            try:
-                res = subprocess.run(
-                    [
-                        sys.executable,
-                        "-m",
-                        "virtualenv",
-                        "-p",
-                        settings.SUBMISSION_PYTHON,
-                        "--",
-                        venv.get_full_path(),
-                    ],
-                    check=False,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                )
-            except FileNotFoundError as e:
-                logger.error("Cannot run processes: %s", e)
-                raise FileNotFoundError from e
-
-            if res.returncode != 0:
-                raise VirtualenvCreationError(
-                    "Error creating virtual environment (return code {}): {}".format(
-                        res.returncode, res.stdout
-                    )
-                )
-
-            venv.fully_created = True
-            venv.save()
-            success = True
-        finally:
-            if not success:
-                venv.delete()
-
-        return venv
+    @property
+    def path(self):
+        return os.path.join(settings.MEDIA_ROOT, "venvs", f"venv-{self.id}")
 
     def get_activation_env(self):
-        venv_path = self.get_full_path()
+        venv_path = self.path
 
         return {
             "VIRTUAL_ENV": venv_path,
@@ -130,7 +74,7 @@ class Virtualenv(models.Model):
         args = sandboxing.get_assignment_sandbox_args(
             ["pip", "freeze"],
             network_access=False,
-            read_only=[self.get_full_path()],
+            read_only=[self.path],
             extra_firejail_args=["--rlimit-fsize=209715200"],
         )
 
@@ -168,7 +112,7 @@ class Virtualenv(models.Model):
             args = sandboxing.get_assignment_sandbox_args(
                 ["pip", "install", "--upgrade", "--", *pkgs],
                 network_access=True,
-                whitelist=[self.get_full_path()],
+                whitelist=[self.path],
                 extra_firejail_args=["--rlimit-fsize=209715200"],
             )
 
@@ -186,9 +130,9 @@ class Virtualenv(models.Model):
                 raise FileNotFoundError from e
 
             try:
-                self.package_installation_output = res.stdout.decode()[-16 * 1024:]
+                self.package_installation_output = res.stdout.decode()[-self.OUTPUT_MAX_LENGTH:]
             except UnicodeDecodeError:
-                self.package_installation_output = str(res.stdout)[-16 * 1024:]
+                self.package_installation_output = str(res.stdout)[-self.OUTPUT_MAX_LENGTH:]
         finally:
             self.installing_packages = False
             self.save()

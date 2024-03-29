@@ -62,7 +62,7 @@ def run_submission(submission_id):
             raise FileNotFoundError from e
 
         python_exe = (
-            os.path.join(submission.assignment.venv.get_full_path(), "bin/python")
+            os.path.join(submission.assignment.venv.path, "bin", "python")
             if submission.assignment.venv_fully_created
             else "/usr/bin/python3.10"
         )
@@ -84,7 +84,7 @@ def run_submission(submission_id):
             wrapper_text = wrapper_file.read().format(
                 has_network_access=bool(submission.assignment.has_network_access),
                 venv_path=(
-                    submission.assignment.venv.get_full_path()
+                    submission.assignment.venv.path
                     if submission.assignment.venv_fully_created
                     else None
                 ),
@@ -132,8 +132,8 @@ def run_submission(submission_id):
         if not settings.DEBUG or shutil.which("firejail") is not None:
             whitelist = [os.path.dirname(grader_path)]
             read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
-            if submission.assignment.venv_object_created:
-                read_only.append(submission.assignment.venv.get_full_path())
+            if submission.assignment.venv_fully_created:
+                read_only.append(submission.assignment.venv.path)
 
             args = sandboxing.get_assignment_sandbox_args(
                 args,

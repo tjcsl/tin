@@ -15,7 +15,7 @@ from django.utils import timezone
 from ...sandboxing import get_action_sandbox_args, get_assignment_sandbox_args
 from ..courses.models import Course, Period
 from ..submissions.models import Submission
-from ..venvs.models import Virtualenv
+from ..venvs.models import Venv
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +83,15 @@ class Assignment(models.Model):
 
     course = models.ForeignKey(
         "courses.Course", on_delete=models.CASCADE, related_name="assignments"
+    )
+
+    venv = models.ForeignKey(
+        Venv,
+        on_delete=models.SET_NULL,
+        default=None,
+        null=True,
+        blank=True,
+        related_name="assignments",
     )
 
     points_possible = models.DecimalField(
@@ -257,12 +266,8 @@ class Assignment(models.Model):
                 CooldownPeriod.objects.create(assignment=self, student=student)
 
     @property
-    def venv_object_created(self):
-        return Virtualenv.objects.filter(assignment=self).exists()
-
-    @property
     def venv_fully_created(self):
-        return Virtualenv.objects.filter(assignment=self, fully_created=True).exists()
+        return self.venv and self.venv.fully_created
 
     @property
     def grader_log_filename(self):

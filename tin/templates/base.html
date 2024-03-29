@@ -67,6 +67,10 @@
         <li><i class="fa fa-chevron-right"></i></li>
         <li><a href="{% url 'docs:index' %}">Docs</a></li>
       {% endif %}
+      {% if venvs_app %}
+        <li><i class="fa fa-chevron-right"></i></li>
+        <li><a href="{% url 'venvs:index' %}">Virtual Environments</a></li>
+      {% endif %}
       {% if nav_item %}
         <li><i class="fa fa-chevron-right"></i></li>
         <li><a href="">{{ nav_item }}</a></li>
