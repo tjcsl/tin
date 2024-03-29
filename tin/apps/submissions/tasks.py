@@ -133,6 +133,7 @@ def run_submission(submission_id):
             whitelist = [os.path.dirname(grader_path)]
             read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
             if submission.assignment.venv_fully_created:
+                whitelist.append(submission.assignment.venv.path)
                 read_only.append(submission.assignment.venv.path)
 
             args = sandboxing.get_assignment_sandbox_args(
