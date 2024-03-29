@@ -7,6 +7,7 @@
 
 {% block head %}
   <script src="{% static 'vendor/js.cookie-2.2.1.min.js' %}"></script>
+  <script src="{% static 'js/assignment-actions.js' %}"></script>
 
   {% if latest_submission %}
     <script src="{% static 'js/incomplete.js' %}"></script>
@@ -35,6 +36,9 @@
         <a class="right tin-btn" href="{% url 'assignments:manage_grader' assignment.id %}" style="color:#EF1010;">Upload grader</a>
       {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage files</a>
+      {% if log_file_exists %}
+        <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
+      {% endif %}
     {% endif %}
     {% if assignment.is_quiz %}
       {% if quiz_accessible or is_teacher or request.user.is_superuser %}
@@ -180,19 +184,24 @@
           {% endif %}
         </table>
       {% endif %}
-      <br>
-      <span><b>Actions:</b></span>
-      <a class="left tin-btn" href="{% url 'assignments:rerun' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}">Rerun submissions</a>
-      <a class="left tin-btn" href="{% url 'assignments:scores_csv' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}" target="_blank">Download scores (.csv)</a>
-      <a class="left tin-btn" href="{% url 'assignments:download_submissions' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}" target="_blank">Download code (.zip)</a>
-      <a class="left tin-btn" href="{% url 'assignments:moss' assignment.id %}?period={% if active_period == "all" %}all{% else %}{{ active_period.id }}{% endif %}">Run Moss</a>
     {% endif %}
 
     <h2 style="border-top:1px solid lightgray;padding-top:15px;">Administration</h2>
-    {% if log_file_exists %}
-      <a class="left tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
-      <br>
-    {% endif %}
+    <label>
+      <b>For students in</b>
+      <select id="assignment-action-period-select">
+        <option value="all" selected>all periods</option>
+        {% for period in period_set %}
+          <option value="{{ period.id }}">{{ period }}</option>
+        {% endfor %}
+      </select>
+      <b>:</b>
+      &nbsp;
+    </label>
+    <a class="left tin-btn assignment-action" data-href="{% url 'assignments:rerun' assignment.id %}">Rerun submissions</a>
+    <a class="left tin-btn assignment-action" data-href="{% url 'assignments:scores_csv' assignment.id %}" target="_blank">Download scores (.csv)</a>
+    <a class="left tin-btn assignment-action" data-href="{% url 'assignments:download_submissions' assignment.id %}" target="_blank">Download code (.zip)</a>
+    <a class="left tin-btn assignment-action" data-href="{% url 'assignments:moss' assignment.id %}">Run Moss</a>
     {% if assignment.venv_fully_created %}
       <p>
         This assignment uses a virtual environment to run submissions.
