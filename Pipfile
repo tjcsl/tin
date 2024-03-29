@@ -33,8 +33,5 @@ redis = "~=3.5.3"
 mosspy = "*"
 aiocontextvars = {version = "~=0.2.2", markers = "python_version < '3.7'"}
 
-[requires]
-python_version = ">=3.8"
-
 [pipenv]
 allow_prereleases = true
