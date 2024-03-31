@@ -3,17 +3,29 @@
 <meta charset="utf-8">
 
 <!-- Favicon Tags (https://realfavicongenerator.net/) -->
-<link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+
+<!-- Browser -->
 <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
 <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
-<link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
-<link rel="mask-icon" href="{% static 'favicon/safari-pinned-tab.svg' %}" color="#4fab4f">
-<link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}">
-<meta name="apple-mobile-web-app-title" content="Turn-In">
+
+<!-- Windows -->
 <meta name="application-name" content="Turn-In">
 <meta name="msapplication-TileColor" content="#4fab4f">
 <meta name="msapplication-config" content="{% static 'favicon/browserconfig.xml' %}">
+
+<!-- macOS -->
+<link rel="mask-icon" href="{% static 'favicon/safari-pinned-tab.svg' %}" color="#4fab4f">
+
+<!-- iOS -->
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+<meta name="apple-mobile-web-app-title" content="Turn-In">
+
+<!-- Android -->
+<link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
 <meta name="theme-color" content="#4fab4f">
+
+<!-- Legacy -->
+<link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}">
 
 {% comment "Old Favicon Tags" %}
 <link rel="icon" href="{% static 'img/logos/logo-mark-black.svg' %}" type="image/svg+xml" sizes="any">
