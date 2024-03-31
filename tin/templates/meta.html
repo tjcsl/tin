@@ -6,8 +6,10 @@
 <!-- Favicon Tags (https://realfavicongenerator.net/) -->
 
 <!-- Browser -->
-<link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
-<link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-dark-32x32.png' %}" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-dark-16x16.png' %}" media="(prefers-color-scheme: dark)">
 
 <!-- Windows -->
 <meta name="application-name" content="Turn-In">
@@ -27,7 +29,8 @@
 <meta name="theme-color" content="#4fab4f">
 
 <!-- Legacy -->
-<link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}">
+<link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}" media="(prefers-color-scheme: light)">
+<link rel="shortcut icon" href="{% static 'favicon/favicon-dark.ico' %}" media="(prefers-color-scheme: dark)">
 
 {% comment "Old Favicon Tags" %}
 <link rel="icon" href="{% static 'img/logos/logo-mark-black.svg' %}" type="image/svg+xml" sizes="any">
