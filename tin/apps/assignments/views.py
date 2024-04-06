@@ -488,13 +488,7 @@ def submit_view(request, assignment_id):
 
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None
-    latest_submission_text = None
-    if latest_submission:
-        try:
-            with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
-                latest_submission_text = f_obj.read()
-        except OSError:
-            latest_submission_text = ""
+    latest_submission_text = latest_submission.file_text if latest_submission else None
 
     file_form = FileSubmissionForm()
     text_form = TextSubmissionForm(initial={"text": latest_submission_text})
@@ -651,14 +645,7 @@ def quiz_view(request, assignment_id):
 
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None
-
-    latest_submission_text = None
-    if latest_submission:
-        try:
-            with open(latest_submission.backup_file_path, "r", encoding="utf-8") as f_obj:
-                latest_submission_text = f_obj.read()
-        except OSError:
-            latest_submission_text = ""
+    latest_submission_text = latest_submission.file_text if latest_submission else ""
 
     text_form = TextSubmissionForm(initial={"text": latest_submission_text})
     text_errors = ""

@@ -26,19 +26,13 @@ def show_view(request, submission_id):
     before_submissions = submissions.filter(id__lt=submission.id)
     submission_number = before_submissions.count() + 1
 
-    try:
-        with open(submission.backup_file_path, "r", encoding="utf-8") as f_obj:
-            submission_text = f_obj.read()
-    except OSError:
-        submission_text = "Error accessing submission file."
-
     context = {
         "course": submission.assignment.course,
         "folder": submission.assignment.folder,
         "assignment": submission.assignment,
         "submission": submission,
         "submission_number": submission_number,
-        "submission_text": submission_text,
+        "submission_text": submission.file_text,
         "submission_comments": submission.comments.all(),
         "submissions": submissions.order_by("-date_submitted"),
         "is_student": submission.assignment.course.is_student_in_course(request.user),
@@ -116,19 +110,13 @@ def comment_view(request, submission_id):
     if not submission.complete or not submission.has_been_graded:
         raise http.Http404
 
-    try:
-        with open(submission.backup_file_path, "r", encoding="utf-8") as f_obj:
-            submission_text = f_obj.read()
-    except OSError:
-        submission_text = "Error accessing submission file."
-
     comment = request.POST.get("comment", "")
     point_override = request.POST.get("point_override", "")
     comment = Comment(
         submission=submission,
         author=request.user,
         start_char=0,
-        end_char=len(submission_text),
+        end_char=len(submission.file_text),
         text=comment,
         point_override=point_override,
     )
@@ -230,12 +218,7 @@ def filter_view(request):
             elif "view_code" in request.POST:
                 submission_texts = []
                 for submission in queryset:
-                    try:
-                        with open(submission.backup_file_path, "r", encoding="utf-8") as f_obj:
-                            submission_text = f_obj.read()
-                    except OSError:
-                        submission_text = "Error accessing submission file."
-                    submission_texts.append(submission_text)
+                    submission_texts.append(submission.file_text)
 
                 return render(
                     request,
