@@ -79,11 +79,12 @@
                   "severity": severity,
               },
               success: function (data) {
-                  console.log(data);
-                  if (data == "color") {
+                  const action = data.action;
+                  console.log(action);
+                  if (action === "color") {
                       document.body.style.backgroundColor = "#F72F35";
                   }
-                  if (data == "lock") {
+                  if (action === "lock") {
                       document.location = "{% url 'assignments:show' assignment.id %}";
                   }
               },

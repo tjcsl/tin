@@ -725,22 +725,20 @@ def quiz_report_view(request, assignment_id):
     content = request.GET.get("content", "")
     severity = int(request.GET.get("severity", 0))
 
-    if assignment.quiz.ended_for_student(request.user):
-        json_data = json.dumps("no action")
-    else:
+    action = "no action"
+
+    if not assignment.quiz.ended_for_student(request.user):
         LogMessage.objects.create(
             quiz=assignment.quiz, student=request.user, content=content, severity=severity
         )
 
-        resp = "no action"
         if severity >= settings.QUIZ_ISSUE_THRESHOLD:
             if assignment.quiz.action == "1":
-                resp = "color"
+                action = "color"
             elif assignment.quiz.action == "2":
-                resp = "lock"
+                action = "lock"
 
-        json_data = json.dumps(resp)
-    return http.JsonResponse(json_data)
+    return http.JsonResponse({"action": action})
 
 
 @login_required
