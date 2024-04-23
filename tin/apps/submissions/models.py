@@ -156,7 +156,8 @@ class Submission(models.Model):
                 "{0}Period: {3}",
                 "{0}Student: {4} ({5})",
                 "{0}Date: {6}",
-                "{0}Grade: {7}",
+                "{0}Due Date: {7}",
+                "{0}Grade: {8}",
             )
         )
 
@@ -168,6 +169,7 @@ class Submission(models.Model):
             self.student.full_name,
             self.student.username,
             timezone.localtime(self.date_submitted).strftime("%D (%B %e, %Y) %-I:%M %P"),
+            timezone.localtime(self.assignment.due).strftime("%D (%B %e, %Y) %-I:%M %P"),
             self.formatted_grade,
         )
 
