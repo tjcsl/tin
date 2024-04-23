@@ -167,7 +167,7 @@ class Submission(models.Model):
             ", ".join(p.name for p in self.student.periods.filter(course=course)),
             self.student.full_name,
             self.student.username,
-            self.date_submitted.strftime("%D (%B %e, %Y) %-I:%M %P"),
+            timezone.localtime(self.date_submitted).strftime("%D (%B %e, %Y) %-I:%M %P"),
             self.formatted_grade,
         )
 
