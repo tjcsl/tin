@@ -20,13 +20,14 @@ from tin.apps.errors.views import handle_404_view, handle_500_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("social_django.urls", namespace="social")),
+    path("__debug__/", include("debug_toolbar.urls")),
     path("courses/", include("tin.apps.courses.urls", namespace="courses")),
     path("assignments/", include("tin.apps.assignments.urls", namespace="assignments")),
     path("submissions/", include("tin.apps.submissions.urls", namespace="submissions")),
     path("venvs/", include("tin.apps.venvs.urls", namespace="venvs")),
     path("docs/", include("tin.apps.docs.urls", namespace="docs")),
     path("", include("tin.apps.auth.urls", namespace="auth")),
+    path("", include("social_django.urls", namespace="social")),
 ]
 
 handler404 = handle_404_view

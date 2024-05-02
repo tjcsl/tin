@@ -32,3 +32,4 @@ redis = "~=3.5.3"
 mosspy = "*"
 aiocontextvars = {version = "~=0.2.2", markers = "python_version < '3.7'"}
 sentry-sdk = {extras = ["celery", "django"], version = "*"}
+django-debug-toolbar = "*"

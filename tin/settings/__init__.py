@@ -40,6 +40,11 @@ ALLOWED_HOSTS = [
     "tin.sites.tjhsst.edu",
 ]
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost",
+]
+
 
 # Application definition
 
@@ -54,6 +59,7 @@ INSTALLED_APPS = [
     "social_django",
     "django_extensions",
     "django_celery_results",
+    "debug_toolbar",
     "tin.apps",
     "tin.apps.users",
     "tin.apps.auth",
@@ -65,6 +71,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -237,6 +244,29 @@ CELERY_BROKER_URL = "redis://localhost:6379/1"
 
 SENTRY_PUBLIC_DSN = None
 
+
+# Django debug toolbar settings
+
+_enabled_panels = {
+    "debug_toolbar.panels.history.HistoryPanel",
+    "debug_toolbar.panels.versions.VersionsPanel",
+    "debug_toolbar.panels.timer.TimerPanel",
+    "debug_toolbar.panels.settings.SettingsPanel",
+    "debug_toolbar.panels.headers.HeadersPanel",
+    "debug_toolbar.panels.request.RequestPanel",
+    "debug_toolbar.panels.sql.SQLPanel",
+    "debug_toolbar.panels.staticfiles.StaticFilesPanel",
+    "debug_toolbar.panels.templates.TemplatesPanel",
+    "debug_toolbar.panels.cache.CachePanel",
+    "debug_toolbar.panels.signals.SignalsPanel",
+    "debug_toolbar.panels.redirects.RedirectsPanel",
+    "debug_toolbar.panels.profiling.ProfilingPanel",
+}
+
+DEBUG_TOOLBAR_CONFIG = {
+    "DISABLE_PANELS": _enabled_panels,
+    "SHOW_COLLAPSED": True,
+}
 
 # Tin-specific settings
 
