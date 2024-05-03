@@ -45,13 +45,13 @@ INTERNAL_IPS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "channels",
     "social_django",
     "django_extensions",
     "django_celery_results",
@@ -99,7 +99,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "tin.wsgi.application"
-ASGI_APPLICATION = "tin.routing.application"
+ASGI_APPLICATION = "tin.asgi.application"
 
 
 CHANNEL_LAYERS = {
