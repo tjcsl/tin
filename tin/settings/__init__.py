@@ -12,10 +12,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-import sentry_sdk
-from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.django import DjangoIntegration
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -240,11 +236,6 @@ CELERY_RESULT_BACKEND = "django-db"
 CELERY_BROKER_URL = "redis://localhost:6379/1"
 
 
-# Sentry settings
-
-SENTRY_PUBLIC_DSN = None
-
-
 # Django debug toolbar settings
 
 _enabled_panels = {
@@ -294,12 +285,3 @@ try:
     from .secret import *  # noqa
 except ImportError:
     pass
-
-
-if not DEBUG:
-    sentry_sdk.init(
-        dsn=SENTRY_PUBLIC_DSN,
-        integrations=[DjangoIntegration(), CeleryIntegration()],
-        send_default_pii=True,
-        enable_tracing=True,
-    )

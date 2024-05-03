@@ -1,35 +1,37 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "~=4.2"
+channels = "~=4.1"
+daphne = "~=4.1"
+gunicorn = "~=22.0"
+social-auth-app-django = "~=5.4"
+requests = "~=2.31"
+psutil = "~=5.9"
+celery = "~=5.3.5"  # Celery v5.4 may stop supporting Python 3.8
+django-celery-results = "~=2.5"
+psycopg = "~=3.1"
+virtualenv = "~=20.26"
+redis = "~=5.0"
+channels-redis = "~=4.2"
+django-extensions = "~=3.2"
+ipython = "~=8.12.3"  # IPython follows NEP 29, so v8.13 does not support Python 3.8
+mosspy = "~=1.0"
+django-debug-toolbar = "~=4.3"
 
 [dev-packages]
-flake8 = "~=5.0.3"
-pylint = "~=2.14.5"
-isort = "~=5.10.1"
-black = "~=22.6.0"
-autopep8 = "~=1.6.0"
-pylint-django = "~=2.5.3"
+flake8 = "*"
+pylint = "*"
+isort = "*"
+black = "*"
+autopep8 = "*"
+pylint-django = "*"
 django-stubs = "*"
 pre-commit = "*"
 
-[packages]
-django = "~=3.2.14"
-channels = "~=2.4.0"
-daphne = "~=2.5.0"
-gunicorn = "~=20.1.0"
-social-auth-app-django = "~=5.0.0"
-requests = "~=2.28.1"
-psutil = "~=5.9.1"
-celery = "~=4.4.7"
-django-celery-results = "~=1.2.1"
-psycopg2 = "~=2.9.3"
-virtualenv = "~=20.16.2"
-channels-redis = "~=3.0.1"
-ipython = "~=7.17.0"
-django-extensions = "~=3.0.5"
-redis = "~=3.5.3"
-mosspy = "*"
-aiocontextvars = {version = "~=0.2.2", markers = "python_version < '3.7'"}
-sentry-sdk = {extras = ["celery", "django"], version = "*"}
-django-debug-toolbar = "*"
+[requires]
+python_version = "3.8"
+python_full_version = "3.8.16"
