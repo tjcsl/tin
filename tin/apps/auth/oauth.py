@@ -21,7 +21,8 @@ class IonOauth2(BaseOAuth2):  # pylint: disable=abstract-method
 
     def get_user_details(self, response):
         profile = self.get_json(
-            "https://ion.tjhsst.edu/api/profile", params={"access_token": response["access_token"]}
+            "https://ion.tjhsst.edu/api/profile",
+            params={"access_token": response["access_token"]},
         )
         # fields used to populate/update User model
         return {

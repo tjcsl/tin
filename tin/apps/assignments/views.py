@@ -1,6 +1,5 @@
 import csv
 import datetime
-import json
 import logging
 import os
 import subprocess
@@ -729,7 +728,10 @@ def quiz_report_view(request, assignment_id):
 
     if not assignment.quiz.ended_for_student(request.user):
         LogMessage.objects.create(
-            quiz=assignment.quiz, student=request.user, content=content, severity=severity
+            quiz=assignment.quiz,
+            student=request.user,
+            content=content,
+            severity=severity,
         )
 
         if severity >= settings.QUIZ_ISSUE_THRESHOLD:

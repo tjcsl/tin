@@ -101,7 +101,9 @@ def edit_view(request, course_id):
         form = CourseForm(instance=course)
 
     return render(
-        request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Edit"}
+        request,
+        "courses/edit_create.html",
+        {"form": form, "course": course, "nav_item": "Edit"},
     )
 
 

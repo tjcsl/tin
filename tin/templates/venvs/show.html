@@ -20,7 +20,7 @@
     <p>If it takes more than a few minutes, please contact the Tin maintainers by emailing <a href="mailto:{{ DEVELOPER_EMAIL }}">{{ DEVELOPER_EMAIL }}</a>
   {% else %}
     <h3>Installed packages</h3>
-  
+
     {% if venv.installing_packages %}
       <p class="italic">This virtual environment is currently installing or upgrading packages. This list may be
         incomplete.</p>
@@ -49,7 +49,7 @@
         {% endif %}
       {% endwith %}
     </table>
-  
+
     <h3>Install packages</h3>
     {% if venv.installing_packages %}
       <p class="italic">
@@ -72,7 +72,7 @@
         <input type="submit" value="Install packages"{% if venv.installing_packages %} disabled{% endif %}>
       </form>
     {% endif %}
-  
+
     {% if venv.package_installation_output and not venv.installing_packages %}
       <h3>Last package installation output</h3>
       <pre><code class="nohljsln">{{ venv.package_installation_output }}</code></pre>

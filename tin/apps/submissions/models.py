@@ -336,7 +336,9 @@ class PublishedSubmission(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     assignment = models.ForeignKey(
-        "assignments.Assignment", on_delete=models.CASCADE, related_name="final_submissions"
+        "assignments.Assignment",
+        on_delete=models.CASCADE,
+        related_name="final_submissions",
     )
     student = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="final_submissions"

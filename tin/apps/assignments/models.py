@@ -391,7 +391,8 @@ class LogMessage(models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            "assignments:student_submission", args=(self.quiz.assignment.id, self.student.id)
+            "assignments:student_submission",
+            args=(self.quiz.assignment.id, self.student.id),
         )
 
 

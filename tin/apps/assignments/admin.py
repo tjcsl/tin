@@ -60,7 +60,14 @@ class CooldownPeriodAdmin(admin.ModelAdmin):
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):
     date_hierarchy = "assignment__due"
-    list_display = ("assignment", "course_name", "folder_name", "due", "action", "visible")
+    list_display = (
+        "assignment",
+        "course_name",
+        "folder_name",
+        "due",
+        "action",
+        "visible",
+    )
     list_filter = ("action",)
     ordering = ("-assignment__due",)
     save_as = True
@@ -102,7 +109,14 @@ class LogMessageAdmin(admin.ModelAdmin):
 @admin.register(MossResult)
 class MossResultAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
-    list_display = ("date", "assignment", "course_name", "language", "user_id", "status")
+    list_display = (
+        "date",
+        "assignment",
+        "course_name",
+        "language",
+        "user_id",
+        "status",
+    )
     list_filter = ("assignment__course", "language", "user_id")
     ordering = ("-date",)
     save_as = True

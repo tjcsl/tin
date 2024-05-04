@@ -1,10 +1,9 @@
 import logging
 import os
 import subprocess
-import sys
 
 from django.conf import settings
-from django.db import IntegrityError, models
+from django.db import models
 from django.urls import reverse
 
 from ... import sandboxing

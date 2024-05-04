@@ -6,7 +6,7 @@ from celery import shared_task
 
 from django.conf import settings
 
-from .models import Venv, VenvCreationError, VenvExistsError
+from .models import Venv, VenvCreationError
 
 logger = logging.getLogger(__name__)
 

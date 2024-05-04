@@ -53,7 +53,9 @@ class FilterForm(forms.Form):
         label="Folders", queryset=Folder.objects.all().order_by("name"), required=False
     )
     assignments = CustomModelMultipleChoiceField(
-        label="Assignments", queryset=Assignment.objects.all().order_by("name"), required=False
+        label="Assignments",
+        queryset=Assignment.objects.all().order_by("name"),
+        required=False,
     )
     periods = CustomModelMultipleChoiceField(
         label="Periods", queryset=Period.objects.all().order_by("name"), required=False

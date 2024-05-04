@@ -6,7 +6,12 @@ from .models import Assignment, Folder, MossResult
 
 
 class AssignmentForm(forms.ModelForm):
-    QUIZ_ACTIONS = (("-1", "No"), ("0", "Log only"), ("1", "Color Change"), ("2", "Lock"))
+    QUIZ_ACTIONS = (
+        ("-1", "No"),
+        ("0", "Log only"),
+        ("1", "Color Change"),
+        ("2", "Lock"),
+    )
 
     due = forms.DateTimeInput()
     is_quiz = forms.ChoiceField(choices=QUIZ_ACTIONS)

@@ -1,7 +1,6 @@
 from django import http
 from django.shortcuts import get_object_or_404, redirect, render
 
-from ..assignments.models import Assignment
 from ..auth.decorators import teacher_or_superuser_required
 from .forms import VenvForm
 from .models import Venv
@@ -89,7 +88,9 @@ def edit_view(request, venv_id):
 def install_packages_view(request, venv_id):
     if request.method == "POST":
         venv = get_object_or_404(
-            Venv.objects.filter_editable(request.user), id=venv_id, installing_packages=False
+            Venv.objects.filter_editable(request.user),
+            id=venv_id,
+            installing_packages=False,
         )
 
         venv.installing_packages = True
