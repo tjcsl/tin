@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load markdownify %}
 
 {% block title %}
   Turn-In: {{ course.name }}: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}
@@ -50,7 +51,7 @@
       <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
     {% endif %}
   </div>
-  {{ assignment.description | linebreaks }}
+  {{ assignment.description | markdownify }}
 
   <table id="assignment-info">
     <tr>

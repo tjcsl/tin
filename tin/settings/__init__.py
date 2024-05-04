@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from markdown.extensions.codehilite import CodeHiliteExtension
+from .markdown import HtmlCodeFormatter
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,6 +58,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_celery_results",
     "debug_toolbar",
+    "markdownify.apps.MarkdownifyConfig",
     "tin.apps",
     "tin.apps.users",
     "tin.apps.auth",
@@ -234,6 +237,47 @@ CELERY_RESULT_BACKEND = "django-db"
 
 
 CELERY_BROKER_URL = "redis://localhost:6379/1"
+
+
+# Markdown
+MARKDOWNIFY = {
+    "default": {
+        "MARKDOWN_EXTENSIONS": [
+            "fenced_code",
+            CodeHiliteExtension(pygments_formatter=HtmlCodeFormatter)
+        ],
+        "WHITELIST_ATTRS": [
+            "class",
+            "href",
+            "src",
+            "alt"
+        ],
+        "WHITELIST_TAGS": [
+            'a',
+            'abbr',
+            'acronym',
+            'b',
+            'blockquote',
+            "code",
+            'em',
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6"
+            'i',
+            "img",
+            'li',
+            'ol',
+            'p',
+            "pre",
+            "span",
+            'strong',
+            'ul'
+        ]
+    }
+}
 
 
 # Django debug toolbar settings
