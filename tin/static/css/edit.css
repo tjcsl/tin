@@ -1,0 +1,109 @@
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  max-width: 90%;
+  width: 90%;
+  border: none;
+  border-radius: 10px;
+  text-align: center;
+  outline: none;
+  font-size: 15px;
+  box-shadow: 6px 6px 12px #777,
+              -6px -6px 12px #ffffff;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.active {
+  border-radius: 10px 10px 0px 0px;
+}
+
+.content {
+  display: none;
+  max-width: 90%;
+  width: 90%;
+  padding-top: 18px;
+  overflow: hidden;
+  background-color: #F2F2F4;
+  border-radius: 0px 0px 10px 10px;
+  box-shadow: inset 6px 6px 12px #d9d9d9,
+              inset -6px -6px 12px #ffffff;
+}
+
+.block {
+  display: block;
+}
+
+.collapsible:after {
+  content: '+'; /* Unicode character for "plus" sign (+) */
+  font-size: 20px;
+  float: left;
+  margin-right: 5px;
+  color: white;
+}
+
+.active:after {
+  content: "-"; /* Unicode character for "minus" sign (-) */
+  color: white;
+  font-size: 20px;
+}
+
+.padding-div {
+  background: transparent;
+  height: 20px;
+  width: auto;
+}
+
+/* This should be aligned to the right vertically stacked */
+.right-col {
+  width: 50%;
+  float: right;
+}
+
+/* This is the text that's not in a collapsible */
+#required {
+  width: 50%;
+  float: left;
+  padding-bottom: 50px;
+}
+
+/* Style the description box */
+#description {
+  max-width: 90%;
+  width: 90%;
+  height: 300px;
+}
+
+@media (max-width: 900.02px) {
+
+  .right-col {
+    width: 90%;
+    float: left;
+  }
+
+  #required {
+    width: 90%;
+    float: left;
+    padding-bottom: 20px;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: row;
+  width: 90%;
+  padding-bottom: 15px;
+}
+
+.tag {
+  width: 30%;
+  padding-left: 18px;
+}
+
+.field-input {
+  width: 70%;
+}
