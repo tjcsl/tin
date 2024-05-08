@@ -45,7 +45,7 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown",
         ]
         labels = {
-            "markdown": "Use Markdown",
+            "markdown": "Use markdown?",
             "venv": "Virtual environment",
             "hidden": "Hide assignment from students?",
             "enable_grader_timeout": "Set a timeout for the grader?",
@@ -61,7 +61,7 @@ class AssignmentForm(forms.ModelForm):
             "filename": "Clarify which file students need to upload (including the file "
             "extension). For Java assignments, this also sets the name of the "
             "saved submission file.",
-            "markdown": "Turns on markdown in the description. This is needed if adding images, code, or hyperlinks is wanted.",
+            "markdown": "This allows adding images, code blocks, or hyperlinks to the assignment description.",
             "venv": "If set, Tin will run the student's code in this virtual environment.",
             "grader_has_network_access": 'If unset, this effectively disables "Give submissions '
             'internet access" below. If set, it increases the amount '

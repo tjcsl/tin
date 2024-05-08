@@ -12,10 +12,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-from markdown.extensions.codehilite import CodeHiliteExtension
-
-from .markdown import HtmlCodeFormatter
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -246,7 +242,6 @@ MARKDOWNIFY = {
     "default": {
         "MARKDOWN_EXTENSIONS": [
             "fenced_code",
-            CodeHiliteExtension(pygments_formatter=HtmlCodeFormatter),
         ],
         "WHITELIST_ATTRS": ["class", "href", "src", "alt"],
         "WHITELIST_TAGS": [
