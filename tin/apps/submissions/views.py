@@ -4,6 +4,7 @@ from django import http
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from ..auth.decorators import login_required, superuser_required, teacher_or_superuser_required
 from .forms import CommentForm, FilterForm
@@ -80,8 +81,9 @@ def kill_view(request, submission_id):
     if request.method == "POST":
         submission.kill_requested = True
         submission.save()
-        if request.GET.get("next"):
-            return redirect(request.GET["next"])
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+            return redirect(next_url)
         else:
             return redirect("submissions:show", submission.id)
     else:
