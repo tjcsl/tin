@@ -142,9 +142,7 @@ def edit_comment_view(request, submission_id, comment_id):
             return redirect("submissions:show", submission.id)
 
     before_submissions = Submission.objects.filter(
-        student=submission.student,
-        assignment=submission.assignment,
-        id__lt=submission.id,
+        student=submission.student, assignment=submission.assignment, id__lt=submission.id
     )
     submission_number = before_submissions.count() + 1
 

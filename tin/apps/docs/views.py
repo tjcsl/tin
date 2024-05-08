@@ -28,7 +28,5 @@ def graders_view(request):
 @teacher_or_superuser_required
 def sample_graders_view(request):
     return render(
-        request,
-        "docs/sample_graders.html",
-        {"docs_app": True, "nav_item": "Sample graders"},
+        request, "docs/sample_graders.html", {"docs_app": True, "nav_item": "Sample graders"}
     )

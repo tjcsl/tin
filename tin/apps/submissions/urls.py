@@ -24,11 +24,7 @@ urlpatterns = [
     path("<int:submission_id>/publish", views.publish_view, name="publish"),
     path("<int:submission_id>/unpublish", views.unpublish_view, name="unpublish"),
     path("filter", views.filter_view, name="filter"),
-    path(
-        "set-aborted-complete",
-        views.set_aborted_complete_view,
-        name="set_aborted_complete",
-    ),
+    path("set-aborted-complete", views.set_aborted_complete_view, name="set_aborted_complete"),
     path(
         "set-past-timeout-complete",
         views.set_past_timeout_complete_view,
