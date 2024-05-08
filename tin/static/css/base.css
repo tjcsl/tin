@@ -141,7 +141,7 @@ body {
     text-align: right;
 }
 
-ul:not(.standard) {
+ul.no-list {
     list-style-type: none;
     padding-left: 0px;
 }

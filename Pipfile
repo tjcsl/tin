@@ -13,6 +13,7 @@ requests = "~=2.31"
 psutil = "~=5.9"
 celery = "~=5.3.5"  # Celery v5.4 may stop supporting Python 3.8
 django-celery-results = "~=2.5"
+django-markdownify = "~=0.9"  # includes the markdown package
 psycopg = "~=3.1"
 virtualenv = "~=20.26"
 redis = "~=5.0"

@@ -11,7 +11,7 @@
     that are very easy to fall into, and you should read this entire page before writing a grader script.</p>
 
   <p>When a submission is uploaded, the grader script is passed the following arguments:</p>
-  <ul class="standard">
+  <ul>
     <li>The full path to a Python program that, when run, will run the student's submission. This separate script is
       required for reasons that will be explained later.
     </li>
@@ -20,7 +20,7 @@
     </li>
     <li>
       The submitting student's username.
-      <ul class="standard">
+      <ul>
         <li>Do not parse the submission filename to extract this information (or any other information) as the format
           for submission filenames may change without warning.
         </li>
@@ -47,18 +47,18 @@
   <h2>Directory structure</h2>
   <p>Currently, <code>tin</code> follows the following directory structure for assignments and submission.</p>
   <p>This structure assumes a single submission from <code>2020awilliam</code> on 01/01/2019 at 12:34 AM.</p>
-  <ul class="standard">
+  <ul>
     <li><code>grader.py</code> &ndash; The grader script</li>
     <li><code>grader.log</code> &ndash; The grader's logfile (not automatically created, but recognized specially by
       <code>tin</code>)
     </li>
     <li>
       <code>2020awilliam/</code> &ndash; A directory containing everything related to a particular student's submissions
-      <ul class="standard">
+      <ul>
         <li><code>submission_20190101_001234.py</code> &ndash; The actual submission (do not run directly)</li>
         <li>
           <code>wrappers/</code> &ndash; The directory containing the submission wrappers
-          <ul class="standard">
+          <ul>
             <li><code>submission_20190101_001234.py</code> &ndash; The submission wrapper</li>
           </ul>
         </li>
@@ -70,7 +70,7 @@
     as a visual aid.</p>
 
   <h2>Restrictions placed on student submissions</h2>
-  <ul class="standard">
+  <ul>
     <li>1GB memory limit, and restrictions on the number of external programs that can be launched</li>
     <li>By default, not able to access the Internet</li>
     <li>Only able to access the submission itself, not any other files</li>
@@ -89,7 +89,7 @@
     increase the limit.</p>
   <p>Submissions can be given access to specific files by passing additional arguments to the wrapper script as follows
     (these must precede any other arguments to be passed to the submission):</p>
-  <ul class="standard">
+  <ul>
     <li><code>--write &lt;filename&gt;</code>: Give the submission read/write access to the specified file. The filename
       should be given as an absolute path.
     </li>

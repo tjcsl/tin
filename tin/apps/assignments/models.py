@@ -72,6 +72,7 @@ class Assignment(models.Model):
         related_name="assignments",
     )
     description = models.CharField(max_length=4096)
+    markdown = models.BooleanField(default=False)
 
     LANGUAGES = (
         ("P", "Python 3"),

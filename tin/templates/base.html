@@ -34,7 +34,7 @@
 <body>
 
 <div id="nav">
-  <ul>
+  <ul class="no-list">
     <li><a href="{% url 'auth:index' %}"><h1><span class="logo"></span>Turn-In</h1></a></li>
     {% if request.user.is_authenticated %}
       {% if course %}
