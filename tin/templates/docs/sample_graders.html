@@ -10,6 +10,7 @@
 
   <h3>A grader for a program that outputs the nth Fibonacci number</h3>
   <pre><code>import sys, subprocess
+
 N = 100
 cur_fib = 1
 next_fib = 1
@@ -19,13 +20,13 @@ for i in range(1, N + 1):
     try:
         res = subprocess.run(
             [sys.executable, sys.argv[1], str(i)],
-            timeout = 5,
-            stdin = subprocess.DEVNULL,
-            stdout = subprocess.PIPE,
-            stderr = subprocess.PIPE,
+            timeout=5,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
     except subprocess.TimeoutExpired:
-        print("Script timeout for number {}".format(i))
+        print(f"Script timeout for number {i}")
     else:
         stdout = res.stdout.strip()
         if not res.stderr and res.returncode == 0:
@@ -33,18 +34,23 @@ for i in range(1, N + 1):
                 if int(stdout) == cur_fib:
                     score += 1
                 else:
-                    print("Invalid result for number {} (printed {}, answer is {})".format(i, int(stdout), cur_fib))
+                    print(
+                        f"Invalid result for number {i} (printed {int(stdout)}, answer is {cur_fib})"
+                    )
                     failing_cases.append(i)
             except ValueError:
-                print("Non-integer printed for number {}".format(i))
+                print(f"Non-integer printed for number {i}")
                 failing_cases.append(i)
         else:
-            print("Script error for number {}".format(i))
+            print(f"Script error for number {i}")
             failing_cases.append(i)
     next_fib, cur_fib = cur_fib + next_fib, next_fib
-print("Score: {}".format(score / N))
+print(f"Score: {score / N}")
 
 with open(sys.argv[4], "a") as logfile:
-    logfile.write("User: {}; Score: {}/{}; Failing test cases: {}\n".format(sys.argv[3], score, N, ", ".join(map(str, failing_cases))))</code></pre>
+    logfile.write(
+        f"User: {sys.argv[3]}; Score: {score}/{N}; Failing test cases: {', '.join(str(case) for case in failing_cases)}\n"
+    )
+    </code></pre>
 
 {% endblock %}

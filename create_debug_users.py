@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
-import sys
 import subprocess
+import sys
 
 if not __file__.endswith("shell.py"):
     subprocess.call(
