@@ -11,21 +11,13 @@
   <link rel="stylesheet" type="text/css" href="{% static 'css/edit.css' %}">
   <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
   <script type="text/javascript">
-      $(document).ready(function () {
-          $("#id_due").datetimepicker({
-              lazyInit: true,
-              timepicker: true,
-              format: "Y-m-d H:i:s",
-          });
-      });
-  </script>
-  <style>
-      #id_description {
-          font-family: inherit;
-      }
-  </style>
-  <script>
     $(document).ready(function () {
+      $("#id_due").datetimepicker({
+          lazyInit: true,
+          timepicker: true,
+          format: "Y-m-d H:i:s",
+      });
+
       const coll = $('.collapsible');
       let i;
 

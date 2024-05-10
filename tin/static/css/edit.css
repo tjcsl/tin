@@ -5,20 +5,20 @@
   padding: 18px;
   max-width: 90%;
   width: 90%;
-  border: none;
   border-radius: 10px;
   text-align: center;
   outline: none;
   font-size: 15px;
+  border: none;
   box-shadow: 6px 6px 12px #777,
               -6px -6px 12px #ffffff;
 }
 
-.active, .collapsible:hover {
+button.collapsible.active, .collapsible:hover {
   background-color: #555;
 }
 
-.active {
+button.collapsible.active {
   border-radius: 10px 10px 0px 0px;
 }
 
@@ -46,7 +46,7 @@
   color: white;
 }
 
-.active:after {
+button.collapsible.active:after {
   content: "-"; /* Unicode character for "minus" sign (-) */
   color: white;
   font-size: 20px;
@@ -72,10 +72,13 @@
 }
 
 /* Style the description box */
-#description {
-  max-width: 90%;
+textarea {
   width: 90%;
   height: 300px;
+  resize: vertical;
+  /* For legacy browsers without CSS 3 support */
+  min-width: 90%;
+  max-width: 90%;
 }
 
 @media (max-width: 900.02px) {
@@ -106,4 +109,8 @@
 
 .field-input {
   width: 70%;
+}
+
+#id_description {
+  font-family: inherit;
 }
