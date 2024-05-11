@@ -18,11 +18,8 @@
           format: "Y-m-d H:i:s",
       });
 
-      const coll = $('.collapsible');
-      let i;
-
-      for (i = 0; i < coll.length; i++) {
-        coll[i].addEventListener("click", function() {
+      for (category of $(".collapsible")) {
+        category.addEventListener("click", function() {
           this.classList.toggle("active");
           const content = this.nextElementSibling;
           content.classList.toggle("block");

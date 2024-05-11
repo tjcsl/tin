@@ -14,7 +14,7 @@
               -6px -6px 12px #ffffff;
 }
 
-button.collapsible.active, .collapsible:hover {
+.collapsible:hover {
   background-color: #555;
 }
 

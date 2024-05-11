@@ -30,7 +30,7 @@ class AssignmentForm(forms.ModelForm):
                 "issues."
             )
 
-        # prevent description from getting too bix
+        # prevent description from getting too big
         self.fields["description"].widget.attrs.update({"id": "description"})
 
     def get_sections(self) -> Iterable[Dict[str, str | Tuple[str, ...] | bool]]:
