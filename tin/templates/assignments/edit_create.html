@@ -8,21 +8,25 @@
 
 {% block head %}
   <link rel="stylesheet" type="text/css" href="{% static 'vendor/datetimepicker/jquery.datetimepicker.css' %}"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/edit.css' %}">
   <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
   <script type="text/javascript">
-      $(document).ready(function () {
-          $("#id_due").datetimepicker({
-              lazyInit: true,
-              timepicker: true,
-              format: "Y-m-d H:i:s",
-          });
+    $(document).ready(function () {
+      $("#id_due").datetimepicker({
+          lazyInit: true,
+          timepicker: true,
+          format: "Y-m-d H:i:s",
       });
-  </script>
-  <style>
-      #id_description {
-          font-family: inherit;
+
+      for (category of $(".collapsible")) {
+        category.addEventListener("click", function() {
+          this.classList.toggle("active");
+          const content = this.nextElementSibling;
+          content.classList.toggle("block");
+        });
       }
-  </style>
+    });
+  </script>
 {% endblock %}
 
 {% block main %}
@@ -46,24 +50,49 @@
 
   <form action="" method="post">
     {% csrf_token %}
-    <div class="tbl">
-      {% for field in assignment_form %}
-        <div class="tbl-row">
-          <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
-          <span class="tbl-cell form-input"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}
-            {% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
-        </div>
-      {% endfor %}
-    </div>
-    {% if action == "add" %}
-      <div>Note: You'll be able to upload a grader script after you create the assignment.</div>
-    {% else %}
-      <div>Note: You can upload a grader script with the "Upload grader" button on the assignment page.</div>
-    {% endif %}
-    <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
-    {% if action == "edit" %}
-      &emsp;<a style="color:red" href="{% url 'assignments:delete' assignment.id %}">Delete Assignment</a>
-    {% endif %}
-  </form>
 
+    <div class="fields">
+      <div id="required">
+        {% for field in assignment_form.get_main_section.fields %}
+          <div class="field">
+            <span class="tag">{{ field.label_tag }}</span>
+            <span class="field-input">{{ field }}{% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
+          </div>
+        {% endfor %}
+        <br>
+        <div>
+          {% if action == "add" %}
+            Note: You'll be able to upload a grader script after you create the assignment.
+          {% else %}
+            Note: You can upload a grader script with the "Upload grader" button on the assignment page.
+          {% endif %}
+        </div>
+        <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
+        {% if action == "edit" %}
+          &emsp;<a style="color:red" href="{% url 'assignments:delete' assignment.id %}">Delete Assignment</a>
+        {% endif %}
+        </input>
+      </div>
+
+      <div class="right-col">
+        {% for category in assignment_form.get_sections %}
+          <button type="button" class="collapsible {% if not category.collapsed %}active{% endif %}">{{ category.name }}</button>
+          <div class="content {% if not category.collapsed %}block{% endif %}">
+            {% if category.description %}
+              <span style="font-size:20px">{{ category.description }}</span>
+              <br><br>
+            {% endif %}
+            {% for field in category.fields %}
+              <div class="field">
+                <span class="tag">{{ field.label_tag }}</span>
+                <span class="field-input">{{ field }}{% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="padding-div"></div>
+        {% endfor %}
+        <div class="padding-div"></div>
+      </div>
+    </div>
+  </form>
 {% endblock %}

@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from logging import getLogger
+from typing import Dict, Iterable, Tuple
+
 from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
 from .models import Assignment, Folder, MossResult
+
+logger = getLogger(__name__)
 
 
 class AssignmentForm(forms.ModelForm):
@@ -22,6 +29,26 @@ class AssignmentForm(forms.ModelForm):
                 "Changing this after uploading a grader script is not recommended and will cause "
                 "issues."
             )
+
+        # prevent description from getting too big
+        self.fields["description"].widget.attrs.update({"id": "description"})
+
+    def get_sections(self) -> Iterable[Dict[str, str | Tuple[str, ...] | bool]]:
+        for section in self.Meta.sections:
+            if section["name"]:
+                # operate on copy so errors on refresh don't happen
+                section = section.copy()
+                section["fields"] = tuple(self[field] for field in section["fields"])
+                yield section
+
+    def get_main_section(self) -> Dict[str, str | Tuple[str, ...]]:
+        for section in self.Meta.sections:
+            if section["name"] == "":
+                section = section.copy()
+                section["fields"] = tuple(self[field] for field in section["fields"])
+                return section
+        logger.error(f"Could not find main section for assignment {self}")
+        return {"fields": ()}
 
     class Meta:
         model = Assignment
@@ -57,6 +84,45 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown": "Rate limit cooldown period (minutes)",
             "is_quiz": "Is this a quiz?",
         }
+        sections = (
+            {
+                "name": "",
+                "fields": (
+                    "name",
+                    "description",
+                    "markdown",
+                    "due",
+                    "points_possible",
+                    "is_quiz",
+                    "hidden",
+                ),
+            },
+            {
+                "name": "Environment Setup",
+                "description": "",
+                "fields": (
+                    "folder",
+                    "language",
+                    "filename",
+                    "venv",
+                ),
+                "collapsed": False,
+            },
+            {
+                "name": "Submissions",
+                "description": "",
+                "fields": (
+                    "enable_grader_timeout",
+                    "grader_timeout",
+                    "has_network_access",
+                    "grader_has_network_access",
+                    "submission_limit_count",
+                    "submission_limit_interval",
+                    "submission_limit_cooldown",
+                ),
+                "collapsed": True,
+            },
+        )
         help_texts = {
             "filename": "Clarify which file students need to upload (including the file "
             "extension). For Java assignments, this also sets the name of the "
@@ -80,6 +146,9 @@ class AssignmentForm(forms.ModelForm):
             "submission page.",
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 30, "rows": 4})}
+
+    def __str__(self) -> str:
+        return f"AssignmentForm(\"{self['name'].value()}\")"
 
 
 class GraderScriptUploadForm(forms.Form):
