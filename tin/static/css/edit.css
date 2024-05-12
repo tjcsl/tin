@@ -1,4 +1,4 @@
-.collapsible {
+button.collapsible {
   background-color: #777;
   color: white;
   cursor: pointer;
@@ -10,16 +10,22 @@
   outline: none;
   font-size: 15px;
   border: none;
-  box-shadow: 6px 6px 12px #777,
-              -6px -6px 12px #ffffff;
 }
 
-.collapsible:hover {
+button.collapsible:hover {
   background-color: #555;
 }
 
 button.collapsible.active {
   border-radius: 10px 10px 0px 0px;
+  box-shadow: 6px 0 12px #777,
+              -6px -6px 12px #ffffff;
+}
+
+button.collapsible:not(.active) {
+  border-radius: 10px;
+  box-shadow: 6px 6px 12px #777,
+              -6px -6px 12px #ffffff;
 }
 
 .content {
@@ -30,8 +36,8 @@ button.collapsible.active {
   overflow: hidden;
   background-color: #F2F2F4;
   border-radius: 0px 0px 10px 10px;
-  box-shadow: inset 6px 6px 12px #d9d9d9,
-              inset -6px -6px 12px #ffffff;
+  box-shadow: 6px 6px 12px #777,
+              -6px 0 12px #ffffff;
 }
 
 .block {
