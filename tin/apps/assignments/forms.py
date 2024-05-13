@@ -55,6 +55,7 @@ class AssignmentForm(forms.ModelForm):
         fields = [
             "name",
             "description",
+            "autocomplete",
             "markdown",
             "folder",
             "language",
@@ -112,6 +113,7 @@ class AssignmentForm(forms.ModelForm):
                 "name": "Submissions",
                 "description": "",
                 "fields": (
+                    "autocomplete",
                     "enable_grader_timeout",
                     "grader_timeout",
                     "has_network_access",
