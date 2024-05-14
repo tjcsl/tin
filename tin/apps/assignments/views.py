@@ -1,6 +1,5 @@
 import csv
 import datetime
-import json
 import logging
 import os
 import subprocess
@@ -105,13 +104,12 @@ def show_view(request, assignment_id):
                     Period.objects.filter(course=course), id=int(period)
                 )
                 student_list = active_period.students.all().order_by("last_name")
+        elif period == "all":
+            active_period = "all"
+            student_list = course.students.all().order_by("last_name")
         else:
-            if period == "all":
-                active_period = "all"
-                student_list = course.students.all().order_by("last_name")
-            else:
-                active_period = "none"
-                student_list = []
+            active_period = "none"
+            student_list = []
 
         for student in student_list:
             period = student.periods.filter(course=assignment.course)
@@ -237,13 +235,12 @@ def edit_view(request, assignment_id):
             if quiz_type == "-1":
                 if hasattr(assignment, "quiz"):
                     assignment.quiz.delete()
+            elif hasattr(assignment, "quiz"):
+                assignment.quiz.action = quiz_type
+                assignment.save()
+                assignment.quiz.save()
             else:
-                if hasattr(assignment, "quiz"):
-                    assignment.quiz.action = quiz_type
-                    assignment.save()
-                    assignment.quiz.save()
-                else:
-                    Quiz.objects.create(assignment=assignment, action=quiz_type)
+                Quiz.objects.create(assignment=assignment, action=quiz_type)
 
             return redirect("assignments:show", assignment.id)
 
@@ -533,44 +530,24 @@ def submit_view(request, assignment_id):
                 file_form = FileSubmissionForm(request.POST, request.FILES)
                 file_errors = (
                     "You have made too many submissions too quickly. You will be able to "
-                    "re-submit in {}.".format(end_delta)
+                    f"re-submit in {end_delta}."
                 )
             else:
                 text_form = TextSubmissionForm(request.POST)
                 text_errors = (
                     "You have made too many submissions too quickly. You will be able to "
-                    "re-submit in {}.".format(end_delta)
+                    f"re-submit in {end_delta}."
                 )
-        else:
-            if request.FILES.get("file"):
-                if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
-                    file_form = FileSubmissionForm(request.POST, request.FILES)
-                    if file_form.is_valid():
-                        try:
-                            submission_text = request.FILES["file"].read().decode()
-                        except UnicodeDecodeError:
-                            file_errors = "Please don't upload binary files."
-                        else:
-                            submission = Submission()
-                            submission.assignment = assignment
-                            submission.student = student
-                            submission.save_file(submission_text)
-                            submission.save()
-
-                            assignment.check_rate_limit(student)
-
-                            submission.create_backup_copy(submission_text)
-
-                            run_submission.delay(submission.id)
-                            return redirect("assignments:show", assignment.id)
-                else:
-                    file_errors = "That file's too large. Are you sure it's a Python program?"
-            else:
-                text_form = TextSubmissionForm(request.POST)
-                if text_form.is_valid():
-                    submission_text = text_form.cleaned_data["text"]
-                    if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
-                        submission = text_form.save(commit=False)
+        elif request.FILES.get("file"):
+            if request.FILES["file"].size <= settings.SUBMISSION_SIZE_LIMIT:
+                file_form = FileSubmissionForm(request.POST, request.FILES)
+                if file_form.is_valid():
+                    try:
+                        submission_text = request.FILES["file"].read().decode()
+                    except UnicodeDecodeError:
+                        file_errors = "Please don't upload binary files."
+                    else:
+                        submission = Submission()
                         submission.assignment = assignment
                         submission.student = student
                         submission.save_file(submission_text)
@@ -582,8 +559,27 @@ def submit_view(request, assignment_id):
 
                         run_submission.delay(submission.id)
                         return redirect("assignments:show", assignment.id)
-                    else:
-                        text_errors = "Submission too large"
+            else:
+                file_errors = "That file's too large. Are you sure it's a Python program?"
+        else:
+            text_form = TextSubmissionForm(request.POST)
+            if text_form.is_valid():
+                submission_text = text_form.cleaned_data["text"]
+                if len(submission_text) <= settings.SUBMISSION_SIZE_LIMIT:
+                    submission = text_form.save(commit=False)
+                    submission.assignment = assignment
+                    submission.student = student
+                    submission.save_file(submission_text)
+                    submission.save()
+
+                    assignment.check_rate_limit(student)
+
+                    submission.create_backup_copy(submission_text)
+
+                    run_submission.delay(submission.id)
+                    return redirect("assignments:show", assignment.id)
+                else:
+                    text_errors = "Submission too large"
 
     return render(
         request,
@@ -660,8 +656,7 @@ def quiz_view(request, assignment_id):
         ):
             text_form = TextSubmissionForm(request.POST)
             text_errors = (
-                "You may only have a maximum of {} submission{} running at the same "
-                "time".format(
+                "You may only have a maximum of {} submission{} running at the same " "time".format(
                     settings.CONCURRENT_USER_SUBMISSION_LIMIT,
                     "" if settings.CONCURRENT_USER_SUBMISSION_LIMIT == 1 else "s",
                 )
@@ -676,7 +671,7 @@ def quiz_view(request, assignment_id):
             text_form = TextSubmissionForm(request.POST)
             text_errors = (
                 "You have made too many submissions too quickly. You will be able to re-submit"
-                "in {}.".format(end_delta)
+                f"in {end_delta}."
             )
         else:
             text_form = TextSubmissionForm(request.POST)
@@ -776,7 +771,7 @@ def scores_csv_view(request, assignment_id):
 
     if period == "all":
         students = course.students.all()
-        name = "assignment_{}_all_scores.csv".format(assignment.id)
+        name = f"assignment_{assignment.id}_all_scores.csv"
     elif course.period_set.exists():
         period_obj = get_object_or_404(Period.objects.filter(course=course), id=int(period))
         students = period_obj.students.all()
@@ -787,7 +782,7 @@ def scores_csv_view(request, assignment_id):
         raise http.Http404
 
     response = http.HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename={}".format(name)
+    response["Content-Disposition"] = f"attachment; filename={name}"
 
     writer = csv.writer(response)
     writer.writerow(["Name", "Username", "Period", "Raw Score", "Final Score", "Formatted Grade"])
@@ -829,7 +824,7 @@ def download_submissions_view(request, assignment_id):
 
     if period == "all":
         students = course.students.all()
-        name = "assignment_{}_all_submissions.zip".format(assignment.id)
+        name = f"assignment_{assignment.id}_all_submissions.zip"
     elif course.period_set.exists():
         period_obj = get_object_or_404(Period.objects.filter(course=course), id=int(period))
         students = period_obj.students.all()
@@ -853,7 +848,7 @@ def download_submissions_view(request, assignment_id):
                 file_with_header = published_submission.file_text_with_header
                 zf.writestr(f"{student.username}.{extension}", file_with_header)
     resp = http.HttpResponse(s.getvalue(), content_type="application/x-zip-compressed")
-    resp["Content-Disposition"] = "attachment; filename={}".format(name)
+    resp["Content-Disposition"] = f"attachment; filename={name}"
     return resp
 
 
@@ -930,10 +925,8 @@ def download_log_view(request, assignment_id):
     try:
         res = subprocess.run(
             args,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
+            capture_output=True,
+            text=True,
             check=True,
         )
     except FileNotFoundError as e:
@@ -943,8 +936,8 @@ def download_log_view(request, assignment_id):
     data = res.stdout
 
     response = http.HttpResponse(data, content_type="text/plain")
-    response["Content-Disposition"] = 'attachment; filename="{}-grader.log"'.format(
-        slugify(assignment.name)
+    response["Content-Disposition"] = (
+        f'attachment; filename="{slugify(assignment.name)}-grader.log"'
     )
 
     return response

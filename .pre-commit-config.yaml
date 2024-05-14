@@ -1,9 +1,59 @@
+default_stages: [commit, push]
+fail_fast: false
+exclude: ^tin/(static/.*vendor|.*migrations)
+
 repos:
-- repo: local
-  hooks:
-    - id: format
-      name: format
-      entry: ./scripts/format.sh && test -z "$(git status --porcelain=v1 .)"
-      language: system
-      types: [python]
-      pass_filenames: false
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-ast
+        name: Validate Python
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: check-yaml
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.5
+    hooks:
+      - id: codespell
+        files: ^.*\.(py|md|rst)$
+        args: ["-L", "num,ans", "-w"]
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-noqa
+        name: Precision flake ignores
+      - id: python-use-type-annotations
+        name: No type comments
+      - id: python-check-blanket-type-ignore
+        name: No type ignore without scope
+      - id: python-no-log-warn
+        name: No useage of logger.warn
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.2
+    hooks:
+      - id: pyupgrade
+        name: Update code to new python versions
+        args: [--py38-plus]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.5
+    hooks:
+      - id: ruff
+        args: [ "--fix", "--exit-non-zero-on-fix" ]
+        files: ^tin/.*
+        name: ruff lint
+      - id: ruff-format
+        files: ^tin/.*
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
+      - id: isort
+        name: isort (cython)
+        types: [cython]
+      - id: isort
+        name: isort (pyi)
+        types: [pyi]

@@ -24,12 +24,6 @@ mosspy = "~=1.0"
 django-debug-toolbar = "~=4.3"
 
 [dev-packages]
-flake8 = "*"
-pylint = "*"
-isort = "*"
-black = "*"
-autopep8 = "*"
-pylint-django = "*"
 django-stubs = "*"
 pre-commit = "*"
 

@@ -10,6 +10,8 @@ defaults:
 jobs:
   format:
     runs-on: ubuntu-latest
+    env:
+      PYTHONUTF: 1
 
     strategy:
       matrix:
@@ -26,11 +28,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pipenv
 
-      - name: Install dependencies
-        run: |
-          set -e
-          pip install pipenv
-          pipenv install --dev --deploy
-
-      - name: Check formatting with format.sh
-        run: pipenv run ./scripts/format.sh && test -z "$(git status --porcelain=v1 .)"
+      # Only use this until pre-commit ci is added
+      # The README lists that as the recommended solution
+      - name: Check formatting and linting
+        uses: pre-commit/action@v3.0.1

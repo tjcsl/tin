@@ -1,7 +1,6 @@
 from django import http
 from django.shortcuts import get_object_or_404, redirect, render
 
-from ..assignments.models import Assignment
 from ..auth.decorators import teacher_or_superuser_required
 from .forms import VenvForm
 from .models import Venv

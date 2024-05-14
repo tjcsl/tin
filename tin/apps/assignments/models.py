@@ -28,11 +28,11 @@ class Folder(models.Model):
     def __str__(self):
         return self.name
 
-    def __repr__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse("assignments:show_folder", args=[self.course.id, self.id])
+
+    def __repr__(self):
+        return self.name
 
 
 class AssignmentQuerySet(models.query.QuerySet):
@@ -54,14 +54,12 @@ class AssignmentQuerySet(models.query.QuerySet):
 def upload_grader_file_path(assignment, _):  # pylint: disable=unused-argument
     assert assignment.id is not None
     if assignment.language == "P":
-        return "assignment-{}/grader.py".format(assignment.id)
+        return f"assignment-{assignment.id}/grader.py"
     else:
-        return "assignment-{}/Grader.java".format(assignment.id)
+        return f"assignment-{assignment.id}/Grader.java"
 
 
 class Assignment(models.Model):
-    objects = AssignmentQuerySet.as_manager()
-
     name = models.CharField(max_length=50)
     folder = models.ForeignKey(
         Folder,
@@ -126,14 +124,16 @@ class Assignment(models.Model):
 
     last_action_output = models.CharField(max_length=16 * 1024, default="", null=False, blank=True)
 
-    def __str__(self):
-        return self.name
+    objects = AssignmentQuerySet.as_manager()
 
-    def __repr__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return reverse("assignments:show", args=(self.id,))
+
+    def __repr__(self):
+        return self.name
 
     def make_assignment_dir(self) -> None:
         assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
@@ -169,7 +169,7 @@ class Assignment(models.Model):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 encoding="utf-8",
-                universal_newlines=True,
+                text=True,
                 check=True,
             )
         except FileNotFoundError as e:
@@ -203,7 +203,7 @@ class Assignment(models.Model):
     def save_file(self, file_text: str, file_name: str) -> None:
         self.make_assignment_dir()
 
-        fpath = os.path.join(settings.MEDIA_ROOT, "assignment-{}".format(self.id), file_name)
+        fpath = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}", file_name)
 
         os.makedirs(os.path.dirname(fpath), exist_ok=True)
 
@@ -220,7 +220,7 @@ class Assignment(models.Model):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 encoding="utf-8",
-                universal_newlines=True,
+                text=True,
                 check=True,
             )
         except FileNotFoundError as e:
@@ -349,11 +349,11 @@ class Quiz(models.Model):
     def __str__(self):
         return f"Quiz for {self.assignment}"
 
-    def __repr__(self):
-        return f"Quiz for {self.assignment}"
-
     def get_absolute_url(self):
         return reverse("assignments:show", args=(self.assignment.id,))
+
+    def __repr__(self):
+        return f"Quiz for {self.assignment}"
 
     def issues_for_student(self, student):
         return (
@@ -387,13 +387,13 @@ class LogMessage(models.Model):
     def __str__(self):
         return f"{self.content} for {self.quiz}"
 
-    def __repr__(self):
-        return f"{self.content} for {self.quiz}"
-
     def get_absolute_url(self):
         return reverse(
             "assignments:student_submission", args=(self.quiz.assignment.id, self.student.id)
         )
+
+    def __repr__(self):
+        return f"{self.content} for {self.quiz}"
 
 
 def moss_base_file_path(obj, _):  # pylint: disable=unused-argument
@@ -449,8 +449,11 @@ class MossResult(models.Model):
     user_id = models.CharField(max_length=20)
 
     date = models.DateTimeField(auto_now_add=True)
-    url = models.URLField(max_length=200, null=True, blank=True)
+    url = models.URLField(max_length=200, blank=True)
     status = models.CharField(max_length=1024, default="", null=False, blank=True)
+
+    def __str__(self):
+        return f"Moss result for {self.assignment}"
 
     @property
     def extension(self):
@@ -459,9 +462,6 @@ class MossResult(models.Model):
     @property
     def download_folder(self):
         return os.path.join(settings.MEDIA_ROOT, "moss-runs", f"moss-{self.id}")
-
-    def __str__(self):
-        return f"Moss result for {self.assignment}"
 
     def __repr__(self):
         return f"Moss result for {self.assignment}"
@@ -476,7 +476,7 @@ def run_action(command: List[str]) -> str:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding="utf-8",
-            universal_newlines=True,
+            text=True,
         )
     except FileNotFoundError as e:
         logger.error("File not found: %s", e)
@@ -492,8 +492,8 @@ class FileAction(models.Model):
     courses = models.ManyToManyField(Course, related_name="file_actions")
     command = models.CharField(max_length=1024)
 
-    match_type = models.CharField(max_length=1, choices=MATCH_TYPES, null=True, blank=True)
-    match_value = models.CharField(max_length=100, null=True, blank=True)
+    match_type = models.CharField(max_length=1, choices=MATCH_TYPES, blank=True)
+    match_value = models.CharField(max_length=100, blank=True)
     case_sensitive_match = models.BooleanField(default=False)
 
     is_sandboxed = models.BooleanField(default=True)
