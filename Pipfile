@@ -9,9 +9,9 @@ channels = "~=4.1"
 daphne = "~=4.1"
 gunicorn = "~=22.0"
 social-auth-app-django = "~=5.4"
-requests = "~=2.31"
+requests = "~=2.32"
 psutil = "~=5.9"
-celery = "~=5.3.5"  # Celery v5.4 may stop supporting Python 3.8
+celery = "~=5.4.0"  # warning: doesn't use semantic versioning (lock minor version)
 django-celery-results = "~=2.5"
 django-markdownify = "~=0.9"  # includes the markdown package
 psycopg = "~=3.1"
@@ -19,9 +19,10 @@ virtualenv = "~=20.26"
 redis = "~=5.0"
 channels-redis = "~=4.2"
 django-extensions = "~=3.2"
-ipython = "~=8.12.3"  # IPython follows NEP 29, so v8.13 does not support Python 3.8
+ipython = "~=8.24.0"  # warning: doesn't use semantic versioning (lock minor version)
 mosspy = "~=1.0"
-django-debug-toolbar = "~=4.3"
+django-debug-toolbar = "~=4.4"
+pytest-django = "~=4.8"
 
 [dev-packages]
 pytest-django = "~=4.8"
@@ -39,4 +40,4 @@ sphinxcontrib-django = "*"
 pytest-cov = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.11"
