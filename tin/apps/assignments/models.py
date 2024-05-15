@@ -449,7 +449,7 @@ class MossResult(models.Model):
     user_id = models.CharField(max_length=20)
 
     date = models.DateTimeField(auto_now_add=True)
-    url = models.URLField(max_length=200, blank=True)
+    url = models.URLField(max_length=200, null=True, blank=True)
     status = models.CharField(max_length=1024, default="", null=False, blank=True)
 
     def __str__(self):
@@ -492,8 +492,8 @@ class FileAction(models.Model):
     courses = models.ManyToManyField(Course, related_name="file_actions")
     command = models.CharField(max_length=1024)
 
-    match_type = models.CharField(max_length=1, choices=MATCH_TYPES, blank=True)
-    match_value = models.CharField(max_length=100, blank=True)
+    match_type = models.CharField(max_length=1, choices=MATCH_TYPES, null=True, blank=True)
+    match_value = models.CharField(max_length=100, null=True, blank=True)
     case_sensitive_match = models.BooleanField(default=False)
 
     is_sandboxed = models.BooleanField(default=True)

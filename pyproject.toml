@@ -68,6 +68,8 @@ select = [
     "UP",
 ]
 ignore = [
+  # null=True on charfields
+  "DJ001",
   # branching
   "PLR09",
   # mutable class attrs annotated as typing.ClassVar
