@@ -31,4 +31,4 @@ jobs:
       # Only use this until pre-commit ci is added
       # The README lists that as the recommended solution
       - name: Check formatting and linting
-        uses: pre-commit/action@v3
+        uses: pre-commit/action@v3.0.1
