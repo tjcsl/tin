@@ -24,13 +24,10 @@ repos:
     rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa
-        name: Precision flake ignores
+      - id: python-check-blanket-type-ignore
       - id: python-use-type-annotations
         name: No type comments
-      - id: python-check-blanket-type-ignore
-        name: No type ignore without scope
       - id: python-no-log-warn
-        name: No useage of logger.warn
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.15.2
     hooks:
