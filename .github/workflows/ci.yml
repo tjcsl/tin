@@ -32,7 +32,7 @@ jobs:
           pip install pipenv
 
       - name: Check Pipfile.lock
-        run: bash scripts/check_pipfile.sh
+        run: pipenv verify
 
       # Since we don't install dependencies, we have to have this
       - name: Make dir for virtualenv
