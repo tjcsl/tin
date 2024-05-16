@@ -127,7 +127,7 @@ class AssignmentForm(forms.ModelForm):
             "filename": "Clarify which file students need to upload (including the file "
             "extension). For Java assignments, this also sets the name of the "
             "saved submission file.",
-            "markdown": "This allows adding images, code blocks, or hyperlinks to the assignment description.",  # noqa: E501
+            "markdown": "This allows adding images, code blocks, or hyperlinks to the assignment description.",
             "venv": "If set, Tin will run the student's code in this virtual environment.",
             "grader_has_network_access": 'If unset, this effectively disables "Give submissions '
             'internet access" below. If set, it increases the amount '

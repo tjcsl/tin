@@ -78,6 +78,11 @@ ignore = [
   "PLR2004",
   # mutable class attrs annotated as typing.ClassVar
   "RUF012",
+  # as recommended by https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+  "E111",
+  "E114",
+  "E117",
+  "E501",
 ]
 
 [tool.ruff.format]
