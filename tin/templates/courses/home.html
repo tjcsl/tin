@@ -90,7 +90,7 @@
 
   {% if request.user.is_superuser %}
     <h2>Administration</h2>
-    <p><a class="tin-btn" href="/admin">Django Administrative Interface</a></p>
+    <p><a class="tin-btn" href="{% url 'admin:index' %}">Django Administrative Interface</a></p>
 
     <form method="post" action="{% url 'submissions:set_aborted_complete' %}">
       {% csrf_token %}
