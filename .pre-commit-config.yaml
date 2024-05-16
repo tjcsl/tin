@@ -18,6 +18,7 @@ repos:
     hooks:
       - id: codespell
         files: ^.*\.(py|md|rst)$
+        # TODO: Remove after python version >= 3.11
         additional_dependencies:
           - tomli
   - repo: https://github.com/astral-sh/ruff-pre-commit
