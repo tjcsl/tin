@@ -260,9 +260,7 @@ def run_submission(submission_id):
                     score = submission.assignment.points_possible * Decimal(score[:-1]) / 100
                 else:
                     score = Decimal(score)
-
-                HAS_BEEN_GRADED_MAX = 1000
-                if abs(score) < HAS_BEEN_GRADED_MAX:
+                if abs(score) < 1000:
                     submission.points_received = score
                     submission.has_been_graded = True
     finally:

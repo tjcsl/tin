@@ -656,7 +656,7 @@ def quiz_view(request, assignment_id):
         ):
             text_form = TextSubmissionForm(request.POST)
             text_errors = (
-                "You may only have a maximum of {} submission{} running at the same " "time".format(
+                "You may only have a maximum of {} submission{} running at the same time".format(
                     settings.CONCURRENT_USER_SUBMISSION_LIMIT,
                     "" if settings.CONCURRENT_USER_SUBMISSION_LIMIT == 1 else "s",
                 )

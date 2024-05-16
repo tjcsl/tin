@@ -11,7 +11,6 @@ repos:
       - id: trailing-whitespace
       - id: mixed-line-ending
       - id: check-toml
-      - id: check-yaml
       - id: detect-private-key
       - id: check-yaml
   - repo: https://github.com/codespell-project/codespell
@@ -19,21 +18,8 @@ repos:
     hooks:
       - id: codespell
         files: ^.*\.(py|md|rst)$
-        args: ["-L", "num,ans", "-w"]
-  - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.10.0
-    hooks:
-      - id: python-check-blanket-noqa
-      - id: python-check-blanket-type-ignore
-      - id: python-use-type-annotations
-        name: No type comments
-      - id: python-no-log-warn
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
-    hooks:
-      - id: pyupgrade
-        name: Update code to new python versions
-        args: [--py38-plus]
+        additional_dependencies:
+          - tomli
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.3.5
     hooks:

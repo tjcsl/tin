@@ -62,6 +62,8 @@ select = [
     "INP",
     # Pylint
     "PL",
+    # pygrep hooks
+    "PGH",
     # ruff
     "RUF",
     # pyupgrade
@@ -72,6 +74,8 @@ ignore = [
   "DJ001",
   # branching
   "PLR09",
+  # magic number comparison
+  "PLR2004",
   # mutable class attrs annotated as typing.ClassVar
   "RUF012",
 ]
@@ -79,3 +83,7 @@ ignore = [
 [tool.ruff.format]
 docstring-code-format = true
 line-ending = "lf"
+
+[tool.codespell]
+write-changes = true
+ignore-words-list = ["num", "ans"]
