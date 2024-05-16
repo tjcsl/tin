@@ -33,3 +33,7 @@ jobs:
 
       - name: Check Pipfile.lock
         run: bash scripts/check_pipfile.sh
+
+      # Since we don't install dependencies, we have to have this
+      - name: Make dir for virtualenv
+        run: mkdir -p $HOME/.local/share/virtualenvs
