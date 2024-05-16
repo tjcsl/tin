@@ -72,8 +72,6 @@ class Assignment(models.Model):
         related_name="assignments",
     )
     description = models.CharField(max_length=4096)
-    autocomplete = models.BooleanField(default=False)
-
     markdown = models.BooleanField(default=False)
 
     LANGUAGES = (
