@@ -32,4 +32,4 @@ jobs:
           pip install pipenv
 
       - name: Check Pipfile.lock
-        run: test -z scripts/check_pipfile.sh
+        run: bash scripts/check_pipfile.sh
