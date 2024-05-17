@@ -18,3 +18,77 @@ exclude = '''
 )/
 '''
 
+[tool.ruff]
+exclude = [
+  ".eggs",
+  ".git",
+  ".github",
+  ".hg",
+  ".mypy_cache",
+  ".tox",
+  ".venv",
+  ".env",
+  "venv",
+  "env",
+  "secret",
+  "build",
+  "_build",
+  "buck-out",
+  "dist",
+  "media",
+  "migrations",
+]
+
+# show fixes made in stdout
+# show-fixes = true
+
+line-length = 100
+
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    # flake8-bugbear
+    "B",
+    # flake8-comprehensions
+    "C4",
+    # flake8-django
+    "DJ",
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # flake8-no-pep420
+    "INP",
+    # Pylint
+    "PL",
+    # pygrep hooks
+    "PGH",
+    # ruff
+    "RUF",
+    # pyupgrade
+    "UP",
+]
+ignore = [
+  # null=True on charfields
+  "DJ001",
+  # branching
+  "PLR09",
+  # magic number comparison
+  "PLR2004",
+  # mutable class attrs annotated as typing.ClassVar
+  "RUF012",
+  # as recommended by https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+  "E111",
+  "E114",
+  "E117",
+  "E501",
+]
+
+[tool.ruff.format]
+docstring-code-format = true
+line-ending = "lf"
+
+[tool.codespell]
+write-changes = true
+ignore-words-list = ["num", "ans"]

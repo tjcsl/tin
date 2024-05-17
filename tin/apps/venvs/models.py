@@ -1,10 +1,9 @@
 import logging
 import os
 import subprocess
-import sys
 
 from django.conf import settings
-from django.db import IntegrityError, models
+from django.db import models
 from django.urls import reverse
 
 from ... import sandboxing
@@ -33,8 +32,6 @@ class VenvQuerySet(models.query.QuerySet):
 
 
 class Venv(models.Model):
-    objects = VenvQuerySet.as_manager()
-
     name = models.CharField(max_length=255, null=False, blank=False)
 
     fully_created = models.BooleanField(null=False)
@@ -46,14 +43,16 @@ class Venv(models.Model):
         max_length=OUTPUT_MAX_LENGTH, default="", null=False, blank=True
     )
 
+    objects = VenvQuerySet.as_manager()
+
     def __str__(self):
         return self.name
 
-    def __repr__(self):
-        return f"<Virtualenv: {self.name}>"
-
     def get_absolute_url(self):
         return reverse("venvs:show", args=[self.id])
+
+    def __repr__(self):
+        return f"<Virtualenv: {self.name}>"
 
     @property
     def path(self):
@@ -83,10 +82,8 @@ class Venv(models.Model):
                 args,
                 check=False,
                 env=env,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                universal_newlines=True,
+                capture_output=True,
+                text=True,
             )
         except FileNotFoundError as e:
             logger.error("Cannot run processes: %s", e)
@@ -130,9 +127,9 @@ class Venv(models.Model):
                 raise FileNotFoundError from e
 
             try:
-                self.package_installation_output = res.stdout.decode()[-self.OUTPUT_MAX_LENGTH:]
+                self.package_installation_output = res.stdout.decode()[-self.OUTPUT_MAX_LENGTH :]
             except UnicodeDecodeError:
-                self.package_installation_output = str(res.stdout)[-self.OUTPUT_MAX_LENGTH:]
+                self.package_installation_output = str(res.stdout)[-self.OUTPUT_MAX_LENGTH :]
         finally:
             self.installing_packages = False
             self.save()

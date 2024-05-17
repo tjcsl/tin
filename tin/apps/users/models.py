@@ -44,7 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         social_auth = self.get_social_auth()
         params.update({"format": "json"})
         params.update({"access_token": social_auth.access_token})
-        res = requests.get("https://ion.tjhsst.edu/api/{}".format(url), params=params)
+        res = requests.get(f"https://ion.tjhsst.edu/api/{url}", params=params)
         if res.status_code == 401:
             if refresh:
                 try:

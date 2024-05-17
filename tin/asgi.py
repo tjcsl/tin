@@ -23,7 +23,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tin.settings")
 django_asgi_app = get_asgi_application()
 
 
-from .apps.submissions.consumers import SubmissionJsonConsumer  # fmt: off
+from .apps.submissions.consumers import SubmissionJsonConsumer  # noqa: E402
 
 
 class WebsocketCloseConsumer(WebsocketConsumer):

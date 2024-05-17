@@ -3,7 +3,7 @@ from social_core.pipeline.user import get_username as social_get_username
 
 
 def get_username(strategy, details, *args, user=None, **kwargs):
-    result = social_get_username(strategy, details, user=user, *args, **kwargs)
+    result = social_get_username(strategy, details, *args, user=user, **kwargs)
     # if not hasattr(user, 'social_user'):
     #    user.social_user
     return result
