@@ -8,8 +8,10 @@
 {% block head %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.1/ace.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.1/ext-modelist.min.js"></script>
-  <script src="{% static 'vendor/js.cookie-2.2.1.min.js' %}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.1/ext-language_tools.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.5/js.cookie.min.js"
+          integrity="sha512-nlp9/l96/EpjYBx7EP7pGASVXNe80hGhYAUrjeXnu/fyF5Py0/RXav4BBNs7n5Hx1WFhOEOWSAVjGeC3oKxDVQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="{% static 'js/upload-dragdrop.js' %}"></script>
   <script>
       $(function () {
@@ -26,7 +28,7 @@
           editor.session.setMode(mode);
 
           editor.setOptions({
-            enableLiveAutocompletion: true
+              enableLiveAutocompletion: true
           });
 
           editor.getSession().setValue(textarea.val());
@@ -63,7 +65,8 @@
               {% for field in file_form %}
                 <div class="tbl-row">
                   <span class="tbl-cell bold" style="vertical-align:top;padding-right:5px;">{{ field.label_tag }}</span>
-                  <span class="tbl-cell form-input"{% if field.help_text %} style="padding-bottom:5px"{% endif %}>{{ field }}
+                  <span class="tbl-cell form-input"{% if field.help_text %}
+                        style="padding-bottom:5px"{% endif %}>{{ field }}
                     {% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
                 </div>
               {% endfor %}

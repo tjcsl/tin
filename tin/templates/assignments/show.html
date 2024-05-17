@@ -7,12 +7,14 @@
 {% endblock %}
 
 {% block head %}
-  <script src="{% static 'vendor/js.cookie-2.2.1.min.js' %}"></script>
   <script src="{% static 'js/assignment-actions.js' %}"></script>
 
   {% if latest_submission %}
     <script src="{% static 'js/incomplete.js' %}"></script>
   {% endif %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.5/js.cookie.min.js"
+          integrity="sha512-nlp9/l96/EpjYBx7EP7pGASVXNe80hGhYAUrjeXnu/fyF5Py0/RXav4BBNs7n5Hx1WFhOEOWSAVjGeC3oKxDVQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="{% static 'js/upload-dragdrop.js' %}"></script>
   <script>
       var assignment_submit_url = "{% url 'assignments:submit' assignment.id %}";
