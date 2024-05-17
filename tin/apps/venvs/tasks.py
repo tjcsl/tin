@@ -6,7 +6,7 @@ from celery import shared_task
 
 from django.conf import settings
 
-from .models import Venv, VenvCreationError, VenvExistsError
+from .models import Venv, VenvCreationError
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +39,7 @@ def create_venv(venv_id):
 
         if res.returncode != 0:
             raise VenvCreationError(
-                "Error creating virtual environment (return code {}): {}".format(
-                    res.returncode, res.stdout
-                )
+                f"Error creating virtual environment (return code {res.returncode}): {res.stdout}"
             )
 
         venv.fully_created = True

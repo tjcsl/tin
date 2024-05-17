@@ -56,8 +56,6 @@ def upload_submission_file_path(submission, _):  # pylint: disable=unused-argume
 
 
 class Submission(models.Model):
-    objects = SubmissionQuerySet.as_manager()
-
     assignment = models.ForeignKey(
         "assignments.Assignment", on_delete=models.CASCADE, related_name="submissions"
     )
@@ -85,16 +83,12 @@ class Submission(models.Model):
     grader_output = models.CharField(max_length=10 * 1024, blank=True)
     grader_errors = models.CharField(max_length=4 * 1024, blank=True)
 
-    def __str__(self):
-        return "{}{} [{}]: {} ({})".format(
-            ("[INCOMPLETE] " if not self.complete else ""),
-            self.student.username,
-            self.date_submitted.strftime("%Y-%m-%d %H:%M:%S"),
-            self.assignment.name,
-            (self.grade_percent if self.has_been_graded else "not graded"),
-        )
+    objects = SubmissionQuerySet.as_manager()
 
-    def __repr__(self):
+    class Meta:
+        get_latest_by = "date_submitted"
+
+    def __str__(self):
         return "{}{} [{}]: {} ({})".format(
             ("[INCOMPLETE] " if not self.complete else ""),
             self.student.username,
@@ -105,6 +99,15 @@ class Submission(models.Model):
 
     def get_absolute_url(self):
         return reverse("submissions:show", args=[self.id])
+
+    def __repr__(self):
+        return "{}{} [{}]: {} ({})".format(
+            ("[INCOMPLETE] " if not self.complete else ""),
+            self.student.username,
+            self.date_submitted.strftime("%Y-%m-%d %H:%M:%S"),
+            self.assignment.name,
+            (self.grade_percent if self.has_been_graded else "not graded"),
+        )
 
     @property
     def is_on_time(self):
@@ -128,7 +131,7 @@ class Submission(models.Model):
     def grade_percent(self):
         if self.points_received is None:
             return None
-        return "{:.2%}".format(self.points / self.points_possible)
+        return f"{self.points / self.points_possible:.2%}"
 
     @property
     def grade_percent_num(self):
@@ -139,7 +142,10 @@ class Submission(models.Model):
     @property
     def formatted_grade(self):
         if self.has_been_graded:
-            return f"{decimal_repr(self.points)} / {decimal_repr(self.points_possible)} ({self.grade_percent})"
+            return (
+                f"{decimal_repr(self.points)} / {decimal_repr(self.points_possible)} "
+                f"({self.grade_percent})"
+            )
         return "Not graded"
 
     @property
@@ -179,7 +185,7 @@ class Submission(models.Model):
             return None
 
         try:
-            with open(self.backup_file_path, "r") as f:
+            with open(self.backup_file_path) as f:
                 file_text = f.read()
         except OSError:
             file_text = "[Error accessing submission file]"
@@ -249,7 +255,7 @@ class Submission(models.Model):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
                 encoding="utf-8",
-                universal_newlines=True,
+                text=True,
                 check=True,
             )
         except FileNotFoundError as e:
@@ -289,7 +295,7 @@ class Submission(models.Model):
 
     @property
     def channel_group_name(self) -> str:
-        return "submission-{}".format(self.id)
+        return f"submission-{self.id}"
 
     @property
     def is_latest(self):
@@ -328,9 +334,6 @@ class Submission(models.Model):
                 assignment=self.assignment, student=self.student, submission=self
             ).delete()
 
-    class Meta:
-        get_latest_by = "date_submitted"
-
 
 class PublishedSubmission(models.Model):
     date = models.DateTimeField(auto_now_add=True)
@@ -345,12 +348,15 @@ class PublishedSubmission(models.Model):
         Submission, on_delete=models.CASCADE, related_name="final_submission"
     )
 
+    class Meta:
+        get_latest_by = "submission__date_submitted"
+
+    def __str__(self) -> str:
+        return f"{type(self).__name__}({self.assignment!s})"
+
     @classmethod
     def get_published(cls, student, assignment):
         return cls.objects.filter(student=student, assignment=assignment).order_by("-date")
-
-    class Meta:
-        get_latest_by = "submission__date_submitted"
 
 
 class Comment(models.Model):
@@ -364,3 +370,6 @@ class Comment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     text = models.CharField(max_length=1024)
     point_override = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return f"{type(self).__name__}({self.submission!s})"

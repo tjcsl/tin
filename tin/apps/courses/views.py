@@ -32,9 +32,9 @@ def index_view(request):
 
         unsubmitted_assignments = assignments.exclude(submissions__student=request.user)
         context["unsubmitted_assignments"] = unsubmitted_assignments
-        context["courses_with_unsubmitted_assignments"] = set(
+        context["courses_with_unsubmitted_assignments"] = {
             assignment.course for assignment in unsubmitted_assignments
-        )
+        }
 
         now = timezone.now()
         due_soon_assignments = assignments.filter(due__gte=now, due__lte=now + timedelta(weeks=1))
@@ -187,12 +187,12 @@ def import_from_selected_course(request, course_id, other_course_id):
                 old_assignment = Assignment.objects.get(id=old_id)
 
                 if form.cleaned_data["copy_graders"] and old_assignment.grader_file:
-                    with open(old_assignment.grader_file.path, "r") as f:
+                    with open(old_assignment.grader_file.path) as f:
                         assignment.save_grader_file(f.read())  # Save to new directory
 
                 if form.cleaned_data["copy_files"]:
                     for _, filename, path, _, _ in old_assignment.list_files():
-                        with open(path, "r") as f:
+                        with open(path) as f:
                             assignment.save_file(f.read(), filename)
 
             return redirect("courses:show", course.id)

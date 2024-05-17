@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 def truncate_output(text, field_name):
     max_len = Submission._meta.get_field(field_name).max_length
-    return ("..." + text[-max_len + 5:]) if len(text) > max_len else text
+    return ("..." + text[-max_len + 5 :]) if len(text) > max_len else text
 
 
 @shared_task
@@ -54,7 +54,7 @@ def run_submission(submission_id):
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
                 check=True,
             )
         except FileNotFoundError as e:
@@ -96,7 +96,7 @@ def run_submission(submission_id):
             f_obj.write(wrapper_text)
 
         os.chmod(submission_wrapper_path, 0o700)
-    except IOError:
+    except OSError:
         submission.grader_output = (
             "An internal error occurred. Please try again.\n"
             "If the problem persists, contact your teacher."
@@ -155,7 +155,7 @@ def run_submission(submission_id):
             stdin=subprocess.DEVNULL,
             bufsize=0,
             cwd=os.path.dirname(grader_path),
-            preexec_fn=os.setpgrp,
+            preexec_fn=os.setpgrp,  # noqa: PLW1509
             env=env,
         ) as proc:
             start_time = time.time()
@@ -239,7 +239,7 @@ def run_submission(submission_id):
 
                     if errors and not errors.endswith("\n"):
                         errors += "\n"
-                    errors += "[Grader exited with status {}]".format(retcode)
+                    errors += f"[Grader exited with status {retcode}]"
 
             submission.grader_output = truncate_output(output.replace("\0", ""), "grader_output")
             submission.grader_errors = truncate_output(errors.replace("\0", ""), "grader_errors")

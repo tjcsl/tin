@@ -21,8 +21,6 @@ class CourseQuerySet(models.query.QuerySet):
 class Course(models.Model):
     SORT_BY = (("due_date", "Due Date"), ("name", "Name"))
 
-    objects = CourseQuerySet.as_manager()
-
     name = models.CharField(max_length=50, blank=False)
     teacher = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -35,17 +33,19 @@ class Course(models.Model):
 
     sort_assignments_by = models.CharField(max_length=30, choices=SORT_BY, default="due_date")
 
-    def __str__(self):
-        return self.name
+    objects = CourseQuerySet.as_manager()
 
-    def __repr__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return reverse("courses:show", args=[self.id])
 
+    def __repr__(self):
+        return self.name
+
     def get_teacher_str(self):
-        return ", ".join((t.last_name for t in self.teacher.all()))
+        return ", ".join(t.last_name for t in self.teacher.all())
 
     def is_student_in_course(self, user):
         return user in self.students.all()
@@ -75,11 +75,11 @@ class Period(models.Model):
     def __str__(self):
         return self.name
 
-    def __repr__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse("courses:students", args=[self.course.id]) + f"?period={self.id}"
+
+    def __repr__(self):
+        return self.name
 
 
 class StudentImportUser(models.Model):
@@ -105,11 +105,11 @@ class StudentImport(models.Model):
     def __str__(self):
         return f"Import into {self.course.name}"
 
-    def __repr__(self):
-        return f"Import into {self.course.name}"
-
     def get_absolute_url(self):
         return reverse("courses:import_students", args=[self.course.id])
+
+    def __repr__(self):
+        return f"Import into {self.course.name}"
 
     def queue_users(self, usernames):
         for username in usernames:

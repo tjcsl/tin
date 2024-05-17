@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Dict, Iterable, Tuple
+from typing import Iterable
 
 from django import forms
 from django.conf import settings
@@ -33,20 +33,20 @@ class AssignmentForm(forms.ModelForm):
         # prevent description from getting too big
         self.fields["description"].widget.attrs.update({"id": "description"})
 
-    def get_sections(self) -> Iterable[Dict[str, str | Tuple[str, ...] | bool]]:
+    def get_sections(self) -> Iterable[dict[str, str | tuple[str, ...] | bool]]:
         for section in self.Meta.sections:
             if section["name"]:
                 # operate on copy so errors on refresh don't happen
-                section = section.copy()
-                section["fields"] = tuple(self[field] for field in section["fields"])
-                yield section
+                new_section = section.copy()
+                new_section["fields"] = tuple(self[field] for field in new_section["fields"])
+                yield new_section
 
-    def get_main_section(self) -> Dict[str, str | Tuple[str, ...]]:
+    def get_main_section(self) -> dict[str, str | tuple[str, ...]]:
         for section in self.Meta.sections:
             if section["name"] == "":
-                section = section.copy()
-                section["fields"] = tuple(self[field] for field in section["fields"])
-                return section
+                new_section = section.copy()
+                new_section["fields"] = tuple(self[field] for field in new_section["fields"])
+                return new_section
         logger.error(f"Could not find main section for assignment {self}")
         return {"fields": ()}
 

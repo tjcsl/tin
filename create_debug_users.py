@@ -31,7 +31,7 @@ users = [
 # fmt: on
 
 for user_info in users:
-    print("Creating user {}".format(user_info[0]))
+    print(f"Creating user {user_info[0]}")
     if user_info[1] is None:
         user = User.objects.get_or_create(username=user_info[0])[0]
     else:
