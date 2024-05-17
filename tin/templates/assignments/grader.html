@@ -5,11 +5,6 @@
   Turn-In: {% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Upload grader
 {% endblock %}
 
-{% block head %}
-  <link rel="stylesheet" type="text/css" href="{% static 'vendor/datetimepicker/jquery.datetimepicker.css' %}"/>
-  <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
-{% endblock %}
-
 {% block main %}
 
   <h2>{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Grader</h2>

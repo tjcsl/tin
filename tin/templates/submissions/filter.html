@@ -6,6 +6,13 @@
 {% endblock %}
 
 {% block head %}
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css"
+        integrity="sha512-f0tzWhCwVFS3WeYaofoLWkTP62ObhewQ1EZn65oSYDZUg1+CyywGKkWzm8BxaJj5HGKI72PnMH9jYyIFz+GH7g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"
+          integrity="sha512-AIOTidJAcHBH2G/oZv9viEGXRqDNmfdPVPYOYKGy3fti0xIplnlgMHUGfuNRzC6FkzIo0iIxgFnr9RikFxK+sw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script type="text/javascript">
       $(document).ready(function () {
           $("#id_courses").selectize();
@@ -16,8 +23,6 @@
           $("<div></div>").css({"border-top": "1px solid lightgray", "margin-top": "10px", "margin-bottom": "15px"}).insertBefore($("#id_limit").parent().parent());
       });
   </script>
-  <link rel="stylesheet" type="text/css" href="{% static 'vendor/datetimepicker/jquery.datetimepicker.css' %}"/>
-  <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
   <script type="text/javascript">
       $(document).ready(function () {
           $("#id_start_date,#id_end_date").datetimepicker({

@@ -3,29 +3,34 @@
 
 {% block title %}
   Turn-In: {% if action == "add" %}{{ course.name }}: Create assignment
-    {% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Edit assignment{% endif %}
+  {% else %}{% if assignment.is_quiz %}[QUIZ] {% endif %}{{ assignment.name }}: Edit assignment{% endif %}
 {% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" type="text/css" href="{% static 'vendor/datetimepicker/jquery.datetimepicker.css' %}"/>
   <link rel="stylesheet" type="text/css" href="{% static 'css/edit.css' %}">
-  <script type="text/javascript" src="{% static 'vendor/datetimepicker/jquery.datetimepicker.js' %}"></script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css"
+        integrity="sha512-f0tzWhCwVFS3WeYaofoLWkTP62ObhewQ1EZn65oSYDZUg1+CyywGKkWzm8BxaJj5HGKI72PnMH9jYyIFz+GH7g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"
+          integrity="sha512-AIOTidJAcHBH2G/oZv9viEGXRqDNmfdPVPYOYKGy3fti0xIplnlgMHUGfuNRzC6FkzIo0iIxgFnr9RikFxK+sw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script type="text/javascript">
-    $(document).ready(function () {
-      $("#id_due").datetimepicker({
-          lazyInit: true,
-          timepicker: true,
-          format: "Y-m-d H:i:s",
-      });
+      $(document).ready(function () {
+          $("#id_due").datetimepicker({
+              lazyInit: true,
+              timepicker: true,
+              format: "Y-m-d H:i:s",
+          });
 
-      for (category of $(".collapsible")) {
-        category.addEventListener("click", function() {
-          this.classList.toggle("active");
-          const content = this.nextElementSibling;
-          content.classList.toggle("block");
-        });
-      }
-    });
+          for (category of $(".collapsible")) {
+              category.addEventListener("click", function () {
+                  this.classList.toggle("active");
+                  const content = this.nextElementSibling;
+                  content.classList.toggle("block");
+              });
+          }
+      });
   </script>
 {% endblock %}
 
@@ -76,7 +81,8 @@
 
       <div class="right-col">
         {% for category in assignment_form.get_sections %}
-          <button type="button" class="collapsible {% if not category.collapsed %}active{% endif %}">{{ category.name }}</button>
+          <button type="button"
+                  class="collapsible {% if not category.collapsed %}active{% endif %}">{{ category.name }}</button>
           <div class="content {% if not category.collapsed %}block{% endif %}">
             {% if category.description %}
               <span style="font-size:20px">{{ category.description }}</span>
