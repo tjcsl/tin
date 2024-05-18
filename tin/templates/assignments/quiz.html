@@ -6,7 +6,9 @@
 {% endblock %}
 
 {% block head %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.1/ace.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.2/ace.min.js"
+          integrity="sha512-40pej1Lz2wywxd9lNJwJNSp9ekNFyX6wCmOzoaqIuUqexcjAUYqnhbg+fYUuPHzVyr5hshGv5FX8Om7yuTuWnA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   {% if latest_submission %}
     <script src="{% static 'js/incomplete.js' %}"></script>
   {% endif %}
@@ -37,7 +39,7 @@
           editor.commands.addCommand({
               name: "customCopy",
               bindKey: "ctrl-c|cmd-c",
-              exec: function(editor, args) {
+              exec: function (editor, args) {
                   clipboard = editor.getSelectedText();
               }
           });
@@ -45,7 +47,7 @@
           editor.commands.addCommand({
               name: "customCut",
               bindKey: "ctrl-x|cmd-x",
-              exec: function(editor, args) {
+              exec: function (editor, args) {
                   clipboard = editor.getSelectedText();
                   editor.session.remove(editor.getSelectionRange());
               }
@@ -54,12 +56,12 @@
           editor.commands.addCommand({
               name: "customPaste",
               bindKey: "ctrl-v|ctrl-shift-v|cmd-v",
-              exec: function(editor, args) {
+              exec: function (editor, args) {
                   editor.insert(clipboard);
               }
           });
 
-          editor.container.addEventListener("contextmenu", function(e) {
+          editor.container.addEventListener("contextmenu", function (e) {
               e.preventDefault();
               return false;
           }, false);
