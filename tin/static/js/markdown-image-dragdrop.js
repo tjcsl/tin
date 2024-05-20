@@ -1,3 +1,22 @@
+// Adapted from https://stackoverflow.com/a/11077016/11317931
+function insertAtCursor(myField, myValue) {
+    if (document.selection) {
+        myField.focus();
+        sel = document.selection.createRange();
+        sel.text = myValue;
+    } else if (myField.selectionStart || myField.selectionStart === 0) {
+        const startPos = myField.selectionStart;
+        const endPos = myField.selectionEnd;
+        myField.value = myField.value.substring(0, startPos)
+            + myValue
+            + myField.value.substring(endPos, myField.value.length);
+        myField.selectionStart = startPos + myValue.length;
+        myField.selectionEnd = startPos + myValue.length;
+    } else {
+        myField.value += myValue;
+    }
+}
+
 $(function () {
     if (IMGBB_API_KEY) {
         const markdownToggle = $("#id_markdown");
@@ -43,7 +62,6 @@ $(function () {
                     const dt = e.originalEvent.dataTransfer;
                     e.preventDefault();
                     if (dt && dt.files.length) {
-                        console.log(dt.files);
                         if (dt.files.length != 1) {
                             alert("Please only upload one file at a time.");
                             return;
@@ -60,8 +78,9 @@ $(function () {
                             processData: false,
                             contentType: false,
                         }).done(function (data) {
-                            console.log(data);
-                            description.val(description.val() + "\n\n![](" + data.data.url + ")");
+                            const name = data.data.title;
+                            const url = data.data.url;
+                            insertAtCursor(description[0], `![${name}](${url})`);
                         });
                     }
                     upload_overlay.stop().fadeOut(150);
