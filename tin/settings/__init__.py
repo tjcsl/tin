@@ -317,11 +317,8 @@ CONCURRENT_USER_SUBMISSION_LIMIT = 2
 # Threshold for log messages being issues
 QUIZ_ISSUE_THRESHOLD = 5
 
-# ImageKit.io settings
-IMAGEKIT_ENABLED = False
-IMAGEKIT_URL_ENDPOINT = None
-IMAGEKIT_PUBLIC_KEY = None
-IMAGEKIT_PRIVATE_KEY = None
+# ImgBB API key (set in secret.py)
+IMGBB_API_KEY = ""
 
 try:
     from .secret import *  # noqa: F403
