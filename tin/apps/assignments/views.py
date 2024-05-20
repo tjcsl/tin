@@ -7,6 +7,7 @@ import zipfile
 from io import BytesIO
 
 import celery
+from imagekitio import ImageKit
 
 from django import http
 from django.conf import settings
@@ -244,17 +245,32 @@ def edit_view(request, assignment_id):
 
             return redirect("assignments:show", assignment.id)
 
+    context = {
+        "assignment_form": assignment_form,
+        "course": assignment.course,
+        "folder": assignment.folder,
+        "assignment": assignment,
+        "action": "edit",
+        "nav_item": "Edit",
+    }
+
+    if settings.IMAGEKIT_ENABLED:
+        imagekit = ImageKit(
+            private_key=settings.IMAGEKIT_PRIVATE_KEY,
+            public_key=settings.IMAGEKIT_PUBLIC_KEY,
+            url_endpoint=settings.IMAGEKIT_URL_ENDPOINT,
+        )
+        context["imagekit_enabled"] = True
+        context["imagekit_url"] = settings.IMAGEKIT_URL_ENDPOINT
+        context["imagekit_public_key"] = settings.IMAGEKIT_PUBLIC_KEY
+        context["imagekit_auth"] = imagekit.get_authentication_parameters()
+    else:
+        context["imagekit_enabled"] = False
+
     return render(
         request,
         "assignments/edit_create.html",
-        {
-            "assignment_form": assignment_form,
-            "course": assignment.course,
-            "folder": assignment.folder,
-            "assignment": assignment,
-            "action": "edit",
-            "nav_item": "Edit",
-        },
+        context,
     )
 
 
