@@ -58,6 +58,8 @@ select = [
     "E",
     # Pyflakes
     "F",
+    # isort
+    "I",
     # flake8-no-pep420
     "INP",
     # Pylint
@@ -84,6 +86,9 @@ ignore = [
   "E117",
   "E501",
 ]
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.format]
 docstring-code-format = true

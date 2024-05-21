@@ -30,8 +30,3 @@ repos:
         name: ruff lint
       - id: ruff-format
         files: ^tin/.*
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        name: isort (python)
