@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import datetime
 import logging
 import os
 import subprocess
-from typing import List, Tuple
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -176,7 +177,7 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
-    def list_files(self) -> List[Tuple[int, str, str, int, datetime.datetime]]:
+    def list_files(self) -> list[tuple[int, str, str, int, datetime.datetime]]:
         self.make_assignment_dir()
 
         assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
@@ -227,7 +228,7 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
-    def get_file(self, file_id: int) -> Tuple[str, str]:
+    def get_file(self, file_id: int) -> tuple[str, str]:
         self.make_assignment_dir()
 
         for i, item in enumerate(
@@ -467,7 +468,7 @@ class MossResult(models.Model):
         return f"Moss result for {self.assignment}"
 
 
-def run_action(command: List[str]) -> str:
+def run_action(command: list[str]) -> str:
     try:
         res = subprocess.run(
             command,

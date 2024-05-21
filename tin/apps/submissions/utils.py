@@ -1,12 +1,13 @@
+from __future__ import annotations
+
 from decimal import Decimal
-from typing import Dict, Union
 
 
 def decimal_repr(d: Decimal) -> Decimal:
     return d.quantize(Decimal(1)) if d == d.to_integral() else d.normalize()
 
 
-def serialize_submission_info(submission, user) -> Dict[str, Union[None, int, float, str, bool]]:
+def serialize_submission_info(submission, user) -> dict[str, None | int | float | str | bool]:
     data = {
         "grader_output": submission.grader_output,
         "has_been_graded": submission.has_been_graded,

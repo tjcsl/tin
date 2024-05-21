@@ -1,12 +1,13 @@
+from __future__ import annotations
+
 import logging
 
 import requests
-from social_django.utils import load_strategy
-
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.db import models
 from django.utils import timezone
+from social_django.utils import load_strategy
 
 logger = logging.getLogger(__name__)
 

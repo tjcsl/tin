@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.shortcuts import render, reverse
 
 from ..auth.decorators import teacher_or_superuser_required

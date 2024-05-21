@@ -10,6 +10,8 @@ This module is able to serve as a fallback due to PEP 420's import processing sp
 https://peps.python.org/pep-0420/#specification.
 """
 
+from __future__ import annotations
+
 import logging
 
 logger = logging.getLogger(__name__)
