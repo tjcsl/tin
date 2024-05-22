@@ -78,10 +78,17 @@ def show_view(request, assignment_id):
         teacher_last_login = request.user.last_login
         time_24_hours_ago = now() - datetime.timedelta(days=1)
 
+        query = request.GET.get("query", "")
+
         period = request.GET.get("period", "")
         period_set = course.period_set.order_by("teacher", "name")
 
-        if course.period_set.exists():
+        if query:
+            active_period = "query"
+            student_list = course.students.filter(full_name__icontains=query).order_by(
+                "periods", "last_name"
+            )
+        elif course.period_set.exists():
             if period == "":
                 if request.user in course.teacher.all():
                     try:
@@ -157,6 +164,7 @@ def show_view(request, assignment_id):
             ),
             "is_student": course.is_student_in_course(request.user),
             "is_teacher": request.user in course.teacher.all(),
+            "query": query,
             "period_set": period_set,
             "active_period": active_period,
             "quiz_accessible": quiz_accessible,
