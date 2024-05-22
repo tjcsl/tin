@@ -452,7 +452,7 @@ def student_submissions_view(request, assignment_id, student_id):
     published_submission = publishes.latest().submission if publishes else latest_submission
 
     log_messages = (
-        assignment.quiz.log_messages.filter(student=request.user).order_by("date")
+        assignment.quiz.log_messages.filter(student=student).order_by("date")
         if assignment.is_quiz
         else None
     )
