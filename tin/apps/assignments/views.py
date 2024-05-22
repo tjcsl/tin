@@ -252,6 +252,7 @@ def edit_view(request, assignment_id):
             "course": assignment.course,
             "folder": assignment.folder,
             "assignment": assignment,
+            "imgbb_api_key": settings.IMGBB_API_KEY,
             "action": "edit",
             "nav_item": "Edit",
         },
