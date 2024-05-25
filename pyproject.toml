@@ -1,3 +1,7 @@
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE="tin.settings"
+python_files="test.py test_*.py *_tests.py"
+
 [tool.black]
 line-length = 100
 exclude = '''
@@ -62,6 +66,8 @@ select = [
     "INP",
     # Pylint
     "PL",
+    # Pytest
+    "PT",
     # pygrep hooks
     "PGH",
     # ruff
@@ -76,6 +82,8 @@ ignore = [
   "PLR09",
   # magic number comparison
   "PLR2004",
+  # fixtures not returning anything should have leading underscore
+  "PT004",
   # mutable class attrs annotated as typing.ClassVar
   "RUF012",
   # as recommended by https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
@@ -84,6 +92,12 @@ ignore = [
   "E117",
   "E501",
 ]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+parametrize-names-type = "tuple"
+parametrize-values-type = "tuple"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = [

@@ -1,54 +1,47 @@
 from django.urls import reverse
 
-from ...tests.tin_test import TinTestCase
+from tin.tests import teacher
+
 from .models import Course
-from .views import index_view
-
-COURSE_NAME = "Intro to OpenGL"
 
 
-class TestCourseViews(TinTestCase):
-    def setup(self) -> None:
-        super().setup()
-        self.course = self.create_course()
+@teacher
+def test_create_course(client, teacher) -> None:
+    COURSE_NAME = "Foundations of CS"
+    response = client.post(
+        reverse("courses:create"),
+        {
+            "name": [COURSE_NAME],
+            "teacher": [f"{teacher.id}"],
+            "sort_assignments_by": ["due_date"],
+        },
+    )
+    assert response.status_code == 302
+    filter_ = Course.objects.filter(name__exact=COURSE_NAME)
+    assert filter_.count() == 1
+    course = filter_.get()
+    assert course.name == COURSE_NAME
 
-    def test_redirect(self) -> None:
-        request = self.factory.get(reverse("courses:index"))
-        request.user = self.anonymous
-        response = index_view(request)
 
-        assert response.status_code == 302
-        assert response.url.startswith("/login/?next=")
+@teacher
+def test_edit_course(client, course, teacher) -> None:
+    old_name = course.name
+    response = client.post(
+        reverse("courses:edit", args=[course.id]),
+        {
+            "name": [f"{old_name} and Bezier Curves"],
+            "teacher": [f"{teacher.id}"],
+            "sort_assignments_by": ["due_date"],
+        },
+    )
 
-    def test_create_course(self) -> None:
-        COURSE_NAME = "Foundations of CS"
-        response = self.client.post(
-            reverse("courses:create"),
-            {
-                "name": [COURSE_NAME],
-                "teacher": [f"{self.teacher.id}"],
-                "sort_assignments_by": ["due_date"],
-            },
-        )
-        assert response.status_code == 302
-        assert Course.objects.filter(name__exact=COURSE_NAME).exists()
+    course.refresh_from_db()
+    assert response.status_code == 302
+    assert course.name == f"{old_name} and Bezier Curves"
 
-    def test_edit_course(self) -> None:
-        response = self.client.post(
-            reverse("courses:edit", args=[self.course.id]),
-            {
-                "name": [f"{COURSE_NAME} and Bezier Curves"],
-                "teacher": [f"{self.teacher.id}"],
-                "sort_assignments_by": ["due_date"],
-            },
-        )
 
-        self.course.refresh_from_db()
-        assert response.status_code == 302
-        assert self.course.name == f"{COURSE_NAME} and Bezier Curves"
+def test_redirect(client) -> None:
+    response = client.get(reverse("courses:index"))
 
-    def create_course(self, name: str = COURSE_NAME) -> Course:
-        course, created = Course.objects.get_or_create(name=name)
-        if created:
-            course.teacher.add(self.teacher)
-        return course
+    assert response.status_code == 302
+    assert response.url.startswith("/login/?next=")

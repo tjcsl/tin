@@ -1,1 +1,1 @@
-from .tin_test import TinTestCase
+from .utils import admin, student, teacher

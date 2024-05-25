@@ -12,7 +12,7 @@ user_data = [
 # fmt: on
 
 
-def add_users_to_database(password: str, debug: bool = True) -> None:
+def add_users_to_database(password: str, *, verbose: bool = True) -> None:
     User = get_user_model()
 
     for (
@@ -22,10 +22,15 @@ def add_users_to_database(password: str, debug: bool = True) -> None:
         is_staff,
         is_superuser,
     ) in user_data:
-        if debug:
-            print(f"Creating user {username}")
+        user, created = User.objects.get_or_create(username=username)
 
-        user = User.objects.get_or_create(username=username)[0]
+        if not created:
+            if verbose:
+                print(f"User {username} already exists, skipping...")
+            continue
+
+        if verbose:
+            print(f"Creating user {username}...")
 
         name = username.capitalize()
         user.full_name = name

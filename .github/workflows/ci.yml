@@ -26,15 +26,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pipenv
 
-      - name: Install dependencies
+      - name: Install pipenv
         run: |
           set -e
           pip install pipenv
 
-          pipenv install
-
+      # we have to check this first because
+      # installing autofixes the lock
       - name: Check Pipfile.lock
         run: pipenv verify
+
+      - name: Install dependencies
+        run: pipenv install
 
       - name: Run Tests
         run: pipenv run python3 manage.py test

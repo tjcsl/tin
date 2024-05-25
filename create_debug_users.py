@@ -17,8 +17,8 @@ if not __file__.endswith("shell.py"):
 
 
 
-from tin.tests.create_users import make_users
+from tin.tests.create_users import add_users_to_database
 
 password = input("Enter password for all users: ")
 
-make_users(password)
+add_users_to_database(password=password, verbose=True)

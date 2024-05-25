@@ -22,6 +22,7 @@ django-extensions = "~=3.2"
 ipython = "~=8.12.3"  # IPython follows NEP 29, so v8.13 does not support Python 3.8
 mosspy = "~=1.0"
 django-debug-toolbar = "~=4.3"
+pytest-django = "~=4.8"
 
 [dev-packages]
 django-stubs = "*"
