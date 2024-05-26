@@ -99,6 +99,11 @@ mark-parentheses = false
 parametrize-names-type = "tuple"
 parametrize-values-type = "tuple"
 
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = [
+  "User",
+]
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = [
   "F401",

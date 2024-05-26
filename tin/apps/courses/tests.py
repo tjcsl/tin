@@ -7,20 +7,20 @@ from .models import Course
 
 @teacher
 def test_create_course(client, teacher) -> None:
-    COURSE_NAME = "Foundations of CS"
+    course_name = "Foundations of CS"
     response = client.post(
         reverse("courses:create"),
         {
-            "name": [COURSE_NAME],
+            "name": [course_name],
             "teacher": [f"{teacher.id}"],
             "sort_assignments_by": ["due_date"],
         },
     )
     assert is_redirect(response)
-    filter_ = Course.objects.filter(name__exact=COURSE_NAME)
+    filter_ = Course.objects.filter(name__exact=course_name)
     assert filter_.count() == 1
     course = filter_.get()
-    assert course.name == COURSE_NAME
+    assert course.name == course_name
 
 
 @teacher
