@@ -41,7 +41,9 @@ def is_redirect(
         return response.url.startswith(url)
     if part == "full":
         return response.url == url
-    return part.endswith(url)
+    if part == "end":
+        return part.endswith(url)
+    raise ValueError(f"Didn't recognize argument {part=}")
 
 
 def not_redirect(response: HttpResponse) -> bool:
