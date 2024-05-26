@@ -4,7 +4,7 @@ exclude: ^tin/(static/.*vendor|.*migrations)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
       - id: check-ast
         name: validate python
@@ -14,7 +14,7 @@ repos:
       - id: detect-private-key
       - id: check-yaml
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
       - id: codespell
         files: ^.*\.(py|md|rst)$
@@ -22,7 +22,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.5
+    rev: v0.4.4
     hooks:
       - id: ruff
         args: [ "--fix", "--exit-non-zero-on-fix" ]
@@ -31,7 +31,7 @@ repos:
       - id: ruff-format
         files: ^tin/.*
   - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
         name: isort (python)
