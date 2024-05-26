@@ -60,10 +60,12 @@ def is_login_redirect(response: HttpResponse, next: str | None = None) -> bool:
     of the login is that url
     """
     login_success_url = "/login/"
+    part = "base"
     if next is not None and isinstance(next, str):
         login_success_url += f"?next={next}"
+        part = "full"
 
-    return is_redirect(response, url=login_success_url, part="base")
+    return is_redirect(response, url=login_success_url, part=part)
 
 
 def not_login_redirect(response: HttpResponse, **kwargs: str | None) -> bool:
