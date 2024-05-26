@@ -8,7 +8,7 @@ defaults:
     shell: bash
 
 jobs:
-  format:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -26,14 +26,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pipenv
 
-      - name: Install dependencies
-        run: |
-          set -e
-          pip install pipenv
+      - name: Install pipenv
+        run: pip install pipenv
 
+      # we have to check this first because
+      # installing autofixes the lock
       - name: Check Pipfile.lock
         run: pipenv verify
 
-      # Since we don't install dependencies, we have to have this
-      - name: Make dir for virtualenv
-        run: mkdir -p $HOME/.local/share/virtualenvs
+      - name: Install dependencies
+        run: pipenv install --deploy
+
+      - name: Run Tests
+        run: pipenv run python3 manage.py test

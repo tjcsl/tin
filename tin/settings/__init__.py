@@ -112,6 +112,8 @@ CHANNEL_LAYERS = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+TEST_RUNNER = "tin.tests.runner.PytestRunner"
+
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -192,8 +194,6 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "America/New_York"
 
 USE_I18N = True
-
-USE_L10N = True
 
 USE_TZ = True
 
@@ -321,6 +321,6 @@ QUIZ_ISSUE_THRESHOLD = 5
 IMGBB_API_KEY = ""
 
 try:
-    from .secret import *  # noqa: F403
+    from .secret import *
 except ImportError:
     pass
