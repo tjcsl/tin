@@ -318,6 +318,6 @@ CONCURRENT_USER_SUBMISSION_LIMIT = 2
 QUIZ_ISSUE_THRESHOLD = 5
 
 try:
-    from .secret import *  # noqa: F403
+    from .secret import *
 except ImportError:
     pass

@@ -2,7 +2,7 @@ import pytest
 
 from django.urls import reverse
 
-from tin.tests import teacher
+from tin.tests import is_redirect, teacher
 
 
 @teacher
@@ -10,7 +10,7 @@ def test_create_folder(client, course) -> None:
     response = client.post(
         reverse("assignments:add_folder", args=[course.id]), {"name": "Fragment Shader"}
     )
-    assert response.status_code == 302
+    assert is_redirect(response)
     assert course.folders.exists()
 
 
@@ -34,7 +34,7 @@ def test_create_assignment(client, course, is_quiz) -> None:
         reverse("assignments:add", args=[course.id]),
         data,
     )
-    assert response.status_code == 302
+    assert is_redirect(response)
     assignment_set = course.assignments.filter(name__exact=data["name"])
     assert assignment_set.count() == 1
     assignment = assignment_set.get()

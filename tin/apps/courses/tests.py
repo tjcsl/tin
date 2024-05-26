@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from tin.tests import teacher
+from tin.tests import is_login_redirect, is_redirect, teacher
 
 from .models import Course
 
@@ -16,7 +16,7 @@ def test_create_course(client, teacher) -> None:
             "sort_assignments_by": ["due_date"],
         },
     )
-    assert response.status_code == 302
+    assert is_redirect(response)
     filter_ = Course.objects.filter(name__exact=COURSE_NAME)
     assert filter_.count() == 1
     course = filter_.get()
@@ -36,12 +36,11 @@ def test_edit_course(client, course, teacher) -> None:
     )
 
     course.refresh_from_db()
-    assert response.status_code == 302
+    assert is_redirect(response)
     assert course.name == f"{old_name} and Bezier Curves"
 
 
 def test_redirect(client) -> None:
     response = client.get(reverse("courses:index"))
 
-    assert response.status_code == 302
-    assert response.url.startswith("/login/?next=")
+    assert is_login_redirect(response)
