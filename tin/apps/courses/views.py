@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import date, timedelta
 
 from django.shortcuts import get_object_or_404, redirect, render

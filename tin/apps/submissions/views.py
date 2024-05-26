@@ -1,5 +1,6 @@
-import psutil
+from __future__ import annotations
 
+import psutil
 from django import http
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render

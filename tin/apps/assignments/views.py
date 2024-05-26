@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import csv
 import datetime
 import logging
@@ -7,7 +9,6 @@ import zipfile
 from io import BytesIO
 
 import celery
-
 from django import http
 from django.conf import settings
 from django.contrib.auth import get_user_model

@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class PytestRunner:
     """Runs pytest to discover and run tests."""
 

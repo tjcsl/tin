@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 import logging
 import subprocess
 import sys
 
 from celery import shared_task
-
 from django.conf import settings
 
 from .models import Venv, VenvCreationError

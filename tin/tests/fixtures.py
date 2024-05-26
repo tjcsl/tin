@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 import tin.tests.create_users as users

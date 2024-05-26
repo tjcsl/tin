@@ -7,13 +7,13 @@ For more information on this file, see
 https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
 """
 
+from __future__ import annotations
+
 import os
-from typing import Optional
 
 from channels.auth import AuthMiddlewareStack
 from channels.generic.websocket import WebsocketConsumer
 from channels.routing import ProtocolTypeRouter, URLRouter
-
 from django.core.asgi import get_asgi_application
 from django.urls import path
 
@@ -31,7 +31,7 @@ class WebsocketCloseConsumer(WebsocketConsumer):
         self.accept()
         self.close()
 
-    def receive(self, text_data: Optional[str] = None, bytes_data: Optional[bytes] = None):
+    def receive(self, text_data: str | None = None, bytes_data: bytes | None = None):
         pass
 
     def disconnect(self, code):

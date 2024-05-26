@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 import logging
 import os
 import subprocess
 from datetime import timedelta
-from typing import Optional
 
 from celery.canvas import Signature
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -200,14 +200,14 @@ class Submission(models.Model):
         return self.file_header + "\n\n" + self.file_text
 
     @property
-    def file_path(self) -> Optional[str]:
+    def file_path(self) -> str | None:
         if self.file is None:
             return None
 
         return os.path.join(settings.MEDIA_ROOT, self.file.name)
 
     @property
-    def wrapper_file_path(self) -> Optional[str]:
+    def wrapper_file_path(self) -> str | None:
         if self.file is None:
             return None
 
@@ -219,7 +219,7 @@ class Submission(models.Model):
         )
 
     @property
-    def backup_file_path(self) -> Optional[str]:
+    def backup_file_path(self) -> str | None:
         if self.file is None:
             return None
 
