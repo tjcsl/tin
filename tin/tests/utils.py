@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     P = ParamSpec("P")
 
     TestFunction = Callable[..., object]
+    TestFunctionDecorator = Callable[[TestFunction], TestFunction]
 
 
 # we need this function to take into account usage as
@@ -22,7 +23,7 @@ def apply_fixture(__f: Callable[P, T], prefix: str, **kwargs: Any) -> Callable[P
 
 
 @overload
-def apply_fixture(__f: None, prefix: str, **kwargs: Any) -> TestFunction: ...
+def apply_fixture(__f: None, prefix: str, **kwargs: Any) -> TestFunctionDecorator: ...
 
 
 def apply_fixture(__f: TestFunction | None, /, prefix: str, **kwargs: Any):
@@ -32,7 +33,15 @@ def apply_fixture(__f: TestFunction | None, /, prefix: str, **kwargs: Any):
     return fixture
 
 
-def admin(__f: TestFunction | None = None, /, **kwargs: Any) -> TestFunction:
+@overload
+def admin(__f: TestFunction, /, **kwargs: Any) -> TestFunction: ...
+
+
+@overload
+def admin(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
+
+
+def admin(__f: TestFunction | None = None, /, **kwargs: Any):
     """
     Log in as an admin.
 
@@ -50,7 +59,15 @@ def admin(__f: TestFunction | None = None, /, **kwargs: Any) -> TestFunction:
     return apply_fixture(__f, "admin_login", **kwargs)
 
 
-def teacher(__f: TestFunction | None = None, /, **kwargs: Any) -> TestFunction:
+@overload
+def teacher(__f: TestFunction, /, **kwargs: Any) -> TestFunction: ...
+
+
+@overload
+def teacher(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
+
+
+def teacher(__f: TestFunction | None = None, /, **kwargs: Any):
     """
     Log in as a teacher
 
@@ -68,7 +85,15 @@ def teacher(__f: TestFunction | None = None, /, **kwargs: Any) -> TestFunction:
     return apply_fixture(__f, "teacher_login", **kwargs)
 
 
-def student(__f: TestFunction | None = None, /, **kwargs: Any) -> TestFunction:
+@overload
+def student(__f: TestFunction, /, **kwargs: Any) -> TestFunction: ...
+
+
+@overload
+def student(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
+
+
+def student(__f: TestFunction | None = None, /, **kwargs: Any):
     """
     Log in as a student
 
