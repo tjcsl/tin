@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     T = TypeVar("T", bound=object, default=None)
     P = ParamSpec("P")
 
-    TestFunction = Callable[..., object]
     TestFunctionDecorator = Callable[[Callable[P, T]], Callable[P, T]]
 
 
