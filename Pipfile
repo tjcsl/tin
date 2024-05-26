@@ -27,6 +27,7 @@ pytest-django = "~=4.8"
 [dev-packages]
 django-stubs = "*"
 pre-commit = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.8"
