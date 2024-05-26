@@ -27,9 +27,7 @@ jobs:
           cache: pipenv
 
       - name: Install pipenv
-        run: |
-          set -e
-          pip install pipenv
+        run: pip install pipenv
 
       # we have to check this first because
       # installing autofixes the lock
@@ -37,7 +35,7 @@ jobs:
         run: pipenv verify
 
       - name: Install dependencies
-        run: pipenv install
+        run: pipenv install --deploy
 
       - name: Run Tests
         run: pipenv run python3 manage.py test
