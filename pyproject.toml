@@ -64,6 +64,8 @@ select = [
     "F",
     # flake8-no-pep420
     "INP",
+    # pep8-naming
+    "N",
     # Pylint
     "PL",
     # Pytest
