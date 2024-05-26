@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     P = ParamSpec("P")
 
     TestFunction = Callable[..., object]
-    TestFunctionDecorator = Callable[[TestFunction], TestFunction]
+    TestFunctionDecorator = Callable[[Callable[P, T]], Callable[P, T]]
 
 
 # we need this function to take into account usage as
@@ -26,22 +26,30 @@ def apply_fixture(__f: Callable[P, T], prefix: str, **kwargs: Any) -> Callable[P
 def apply_fixture(__f: None, prefix: str, **kwargs: Any) -> TestFunctionDecorator: ...
 
 
-def apply_fixture(__f: TestFunction | None, /, prefix: str, **kwargs: Any):
+def apply_fixture(
+    __f: Callable[P, T] | None, /, prefix: str, **kwargs: Any
+) -> Callable[P, T] | TestFunctionDecorator:
     fixture = pytest.mark.usefixtures(prefix, **kwargs)
     if __f is not None and callable(__f):
         return fixture(__f)
     return fixture
 
 
+# We define overloads for each function
+# because it looks nicer on hover
+
+
 @overload
-def admin(__f: TestFunction, /, **kwargs: Any) -> TestFunction: ...
+def admin(__f: Callable[P, T], /, **kwargs: Any) -> Callable[P, T]: ...
 
 
 @overload
 def admin(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
 
 
-def admin(__f: TestFunction | None = None, /, **kwargs: Any):
+def admin(
+    __f: Callable[P, T] | None = None, /, **kwargs: Any
+) -> Callable[P, T] | TestFunctionDecorator:
     """
     Log in as an admin.
 
@@ -60,14 +68,16 @@ def admin(__f: TestFunction | None = None, /, **kwargs: Any):
 
 
 @overload
-def teacher(__f: TestFunction, /, **kwargs: Any) -> TestFunction: ...
+def teacher(__f: Callable[P, T], /, **kwargs: Any) -> Callable[P, T]: ...
 
 
 @overload
 def teacher(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
 
 
-def teacher(__f: TestFunction | None = None, /, **kwargs: Any):
+def teacher(
+    __f: Callable[P, T] | None = None, /, **kwargs: Any
+) -> Callable[P, T] | TestFunctionDecorator:
     """
     Log in as a teacher
 
@@ -86,14 +96,16 @@ def teacher(__f: TestFunction | None = None, /, **kwargs: Any):
 
 
 @overload
-def student(__f: TestFunction, /, **kwargs: Any) -> TestFunction: ...
+def student(__f: Callable[P, T], /, **kwargs: Any) -> Callable[P, T]: ...
 
 
 @overload
 def student(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
 
 
-def student(__f: TestFunction | None = None, /, **kwargs: Any):
+def student(
+    __f: Callable[P, T] | None = None, /, **kwargs: Any
+) -> Callable[P, T] | TestFunctionDecorator:
     """
     Log in as a student
 
