@@ -1,5 +1,6 @@
-import pytest
+from __future__ import annotations
 
+import pytest
 from django.urls import reverse
 
 from tin.tests import is_redirect, teacher
