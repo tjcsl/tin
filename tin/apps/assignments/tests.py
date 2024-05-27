@@ -20,7 +20,6 @@ def test_create_assignment(client, course) -> None:
         "name": "Write a Vertex Shader",
         "description": "See https://learnopengl.com/Getting-started/Shaders",
         "language": "P",
-        "is_quiz": False,
         "filename": "vertex.glsl",
         "points_possible": "300",
         "due": "04/16/2025",
@@ -28,6 +27,8 @@ def test_create_assignment(client, course) -> None:
         "submission_limit_count": "90",
         "submission_limit_interval": "30",
         "submission_limit_cooldown": "30",
+        "is_quiz": False,
+        "quiz_action": "2",
     }
     response = client.post(
         reverse("assignments:add", args=[course.id]),
