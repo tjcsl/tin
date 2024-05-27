@@ -12,6 +12,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.2/ext-modelist.min.js"
           integrity="sha512-bxvuZHJlay2Y4HHIPrEhyE9YRfKoyqI/JoRPyeu5YwLLfvecSUupKJluhXOvDNTfVZXQnXOxd7Fo3vJxij3GSQ=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.2/ext-language_tools.min.js"
+          integrity="sha512-4l33zsqrqf1PBA3iEZ399Jl9on7It0HngOkI3TG2c6W0wUyTiXRxd9Eh8zFBXNy8fMlgda/u4u1metnbEf5Hzg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   {% if latest_submission %}
     <script src="{% static 'js/incomplete.js' %}"></script>
   {% endif %}
@@ -31,6 +34,12 @@
           var filename = "{{ assignment.filename }}";
           var mode = modelist.getModeForPath(filename).mode;
           editor.session.setMode(mode);
+
+          {% if assignment.quiz_autocomplete_enabled %}
+              editor.setOptions({
+                  enableLiveAutocompletion: true
+              });
+          {% endif %}
 
           editor.getSession().setValue(textarea.val());
           editor.getSession().on("change", function () {

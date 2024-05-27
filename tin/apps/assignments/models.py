@@ -128,6 +128,7 @@ class Assignment(models.Model):
     is_quiz = models.BooleanField(default=False)
     QUIZ_ACTIONS = (("0", "Log only"), ("1", "Color Change"), ("2", "Lock"))
     quiz_action = models.CharField(max_length=1, choices=QUIZ_ACTIONS, default="2")
+    quiz_autocomplete_enabled = models.BooleanField(default=False)
 
     objects = AssignmentQuerySet.as_manager()
 

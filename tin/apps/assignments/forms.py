@@ -69,6 +69,7 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown",
             "is_quiz",
             "quiz_action",
+            "quiz_autocomplete_enabled",
         ]
         labels = {
             "markdown": "Use markdown?",
@@ -82,6 +83,7 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_interval": "Rate limit interval (minutes)",
             "submission_limit_cooldown": "Rate limit cooldown period (minutes)",
             "is_quiz": "Is this a quiz?",
+            "quiz_autocomplete_enabled": "Enable code autocompletion?",
         }
         sections = (
             {
@@ -112,6 +114,7 @@ class AssignmentForm(forms.ModelForm):
                 "fields": (
                     "is_quiz",
                     "quiz_action",
+                    "quiz_autocomplete_enabled",
                 ),
                 "collapsed": False,
             },
@@ -149,9 +152,13 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown": 'This sets the length of the "cooldown" period after a '
             "student exceeds the rate limit for submissions.",
             "folder": "If blank, assignment will show on the main classroom page.",
-            "is_quiz": "This forces students to submit through a page that monitors their actions.",
+            "is_quiz": "This forces students to submit through a page that monitors their actions. The below options "
+            "have no effect if this is unset.",
             "quiz_action": "Tin will take the selected action if a student clicks off of the "
             "quiz page.",
+            "quiz_autocomplete_enabled": "This gives students basic code completion in the quiz editor, including "
+            "variable names, built-in functions, and keywords. It's recommended for quizzes that focus on code logic "
+            "and not syntax.",
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 30, "rows": 4})}
 
