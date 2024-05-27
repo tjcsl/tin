@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from django.urls import reverse
 
-from tin.tests import is_redirect, teacher
+from tin.tests import is_redirect, login
 
 
-@teacher
+@login("teacher")
 def test_create_folder(client, course) -> None:
     response = client.post(
         reverse("assignments:add_folder", args=[course.id]), {"name": "Fragment Shader"}
@@ -14,7 +14,7 @@ def test_create_folder(client, course) -> None:
     assert course.folders.exists()
 
 
-@teacher
+@login("teacher")
 def test_create_assignment(client, course) -> None:
     data = {
         "name": "Write a Vertex Shader",
