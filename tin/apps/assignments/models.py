@@ -125,6 +125,10 @@ class Assignment(models.Model):
 
     last_action_output = models.CharField(max_length=16 * 1024, default="", null=False, blank=True)
 
+    is_quiz = models.BooleanField(default=False)
+    QUIZ_ACTIONS = (("0", "Log only"), ("1", "Color Change"), ("2", "Lock"))
+    quiz_action = models.CharField(max_length=1, choices=QUIZ_ACTIONS, default="2")
+
     objects = AssignmentQuerySet.as_manager()
 
     def __str__(self):
@@ -279,11 +283,23 @@ class Assignment(models.Model):
             else None
         )
 
-    @property
-    def is_quiz(self):
-        if hasattr(self, "quiz"):
-            return self.quiz
-        return False
+    def quiz_open_for_student(self, student):
+        is_teacher = student in self.course.teacher.all()
+        if is_teacher or student.is_superuser:
+            return True
+        return not (self.quiz_ended_for_student(student) or self.quiz_locked_for_student(student))
+
+    def quiz_ended_for_student(self, student):
+        return self.log_messages.filter(student=student, content="Ended quiz").exists()
+
+    def quiz_locked_for_student(self, student):
+        return self.quiz_issues_for_student(student) and self.quiz_action == "2"
+
+    def quiz_issues_for_student(self, student):
+        return (
+            sum(lm.severity for lm in self.log_messages.filter(student=student))
+            >= settings.QUIZ_ISSUE_THRESHOLD
+        )
 
 
 class CooldownPeriod(models.Model):
@@ -335,6 +351,9 @@ class CooldownPeriod(models.Model):
         )
 
 
+# WARNING: This model is deprecated and will be removed in the future.
+# It is kept for backwards compatibility with existing data.
+# All fields and methods have been migrated to the Assignment model.
 class Quiz(models.Model):
     QUIZ_ACTIONS = (("0", "Log only"), ("1", "Color Change"), ("2", "Lock"))
 
@@ -358,7 +377,7 @@ class Quiz(models.Model):
 
     def issues_for_student(self, student):
         return (
-            sum(lm.severity for lm in self.log_messages.filter(student=student))
+            sum(lm.severity for lm in self.assignment.log_messages.filter(student=student))
             >= settings.QUIZ_ISSUE_THRESHOLD
         )
 
@@ -372,11 +391,13 @@ class Quiz(models.Model):
         return self.issues_for_student(student) and self.action == "2"
 
     def ended_for_student(self, student):
-        return self.log_messages.filter(student=student, content="Ended quiz").exists()
+        return self.assignment.log_messages.filter(student=student, content="Ended quiz").exists()
 
 
-class LogMessage(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="log_messages")
+class QuizLogMessage(models.Model):
+    assignment = models.ForeignKey(
+        Assignment, on_delete=models.CASCADE, related_name="log_messages"
+    )
     student = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="log_messages"
     )
@@ -386,15 +407,13 @@ class LogMessage(models.Model):
     severity = models.IntegerField()
 
     def __str__(self):
-        return f"{self.content} for {self.quiz}"
+        return f"{self.content} for {self.assignment} by {self.student}"
 
     def get_absolute_url(self):
-        return reverse(
-            "assignments:student_submission", args=(self.quiz.assignment.id, self.student.id)
-        )
+        return reverse("assignments:student_submission", args=(self.assignment.id, self.student.id))
 
     def __repr__(self):
-        return f"{self.content} for {self.quiz}"
+        return f"{self.content} for {self.assignment} by {self.student}"
 
 
 def moss_base_file_path(obj, _):  # pylint: disable=unused-argument

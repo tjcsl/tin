@@ -4,7 +4,15 @@ import datetime
 
 from django.contrib import admin
 
-from .models import Assignment, CooldownPeriod, FileAction, Folder, LogMessage, MossResult, Quiz
+from .models import (
+    Assignment,
+    CooldownPeriod,
+    FileAction,
+    Folder,
+    MossResult,
+    Quiz,
+    QuizLogMessage,
+)
 
 
 @admin.register(Folder)
@@ -86,19 +94,15 @@ class QuizAdmin(admin.ModelAdmin):
         return not obj.assignment.hidden
 
 
-@admin.register(LogMessage)
-class LogMessageAdmin(admin.ModelAdmin):
+@admin.register(QuizLogMessage)
+class QuizLogMessageAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
     list_display = ("content", "assignment", "student", "date", "severity")
     list_filter = ("student", "severity")
     ordering = ("-date",)
     save_as = True
-    search_fields = ("quiz__assignment__name", "student__username", "content")
-    autocomplete_fields = ("quiz", "student")
-
-    @admin.display(description="Assignment")
-    def assignment(self, obj):
-        return obj.quiz.assignment.name
+    search_fields = ("assignment__name", "student__username", "content")
+    autocomplete_fields = ("assignment", "student")
 
 
 @admin.register(MossResult)
@@ -110,10 +114,6 @@ class MossResultAdmin(admin.ModelAdmin):
     save_as = True
     search_fields = ("assignment__name", "url")
     autocomplete_fields = ("assignment",)
-
-    @admin.display(description="Assignment")
-    def assignment(self, obj):
-        return obj.quiz.assignment.name
 
     @admin.display(description="Course")
     def course_name(self, obj):
