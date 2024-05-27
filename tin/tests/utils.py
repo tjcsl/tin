@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-__all__ = ("admin", "teacher", "student")
+__all__ = ("login",)
 
-from typing import TYPE_CHECKING, Any, Callable, overload
+from typing import TYPE_CHECKING, Any, Callable
 
 import pytest
 
@@ -12,111 +12,29 @@ if TYPE_CHECKING:
     T = TypeVar("T", bound=object, default=None)
     P = ParamSpec("P")
 
-    TestFunctionDecorator = Callable[[Callable[P, T]], Callable[P, T]]
 
-
-# we need this function to take into account usage as
-# @admin() or @admin
-@overload
-def apply_fixture(__f: Callable[P, T], prefix: str, **kwargs: Any) -> Callable[P, T]: ...
-
-
-@overload
-def apply_fixture(__f: None, prefix: str, **kwargs: Any) -> TestFunctionDecorator: ...
-
-
-def apply_fixture(
-    __f: Callable[P, T] | None, /, prefix: str, **kwargs: Any
-) -> Callable[P, T] | TestFunctionDecorator:
-    fixture = pytest.mark.usefixtures(prefix, **kwargs)
-    if __f is not None and callable(__f):
-        return fixture(__f)
-    return fixture
-
-
-# We define overloads for each function
-# because it looks nicer on hover
-
-
-@overload
-def admin(__f: Callable[P, T], /, **kwargs: Any) -> Callable[P, T]: ...
-
-
-@overload
-def admin(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
-
-
-def admin(
-    __f: Callable[P, T] | None = None, /, **kwargs: Any
-) -> Callable[P, T] | TestFunctionDecorator:
+def login(user: str, *args: Any) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """
-    Log in as an admin.
+    Login ``client`` as a tin user type.
 
-    .. code-block:: python
+    .. code-block::
 
-        @admin
-        def test_something(client):
-            # client is logged in as an admin
+        @login("admin")
+        def test_no_redirect(client, course):
+            response = client.post(reverse("courses:index"), {})
+            assert not_login_redirect(response)
 
-
-        @admin(kwarg_for_usefixtures=xyz)
-        def test_something(client):
-            # client is logged in as an admin
-    """
-    return apply_fixture(__f, "admin_login", **kwargs)
-
-
-@overload
-def teacher(__f: Callable[P, T], /, **kwargs: Any) -> Callable[P, T]: ...
-
-
-@overload
-def teacher(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
-
-
-def teacher(
-    __f: Callable[P, T] | None = None, /, **kwargs: Any
-) -> Callable[P, T] | TestFunctionDecorator:
-    """
-    Log in as a teacher
-
-    .. code-block:: python
-
-        @teacher
-        def test_something(client):
+        @login("teacher")
+        def test_teacher_thing(client):
             # client is logged in as a teacher
 
+        @login("student")
+        def test_redirect(client):
+            # client is a student
 
-        @teacher(kwarg_for_usefixtures=xyz)
         def test_something(client):
-            # client is logged in as a teacher
+            response = client.post(reverse("courses:index"), {})
+            assert is_login_redirect(response)
     """
-    return apply_fixture(__f, "teacher_login", **kwargs)
 
-
-@overload
-def student(__f: Callable[P, T], /, **kwargs: Any) -> Callable[P, T]: ...
-
-
-@overload
-def student(__f: None, /, **kwargs: Any) -> TestFunctionDecorator: ...
-
-
-def student(
-    __f: Callable[P, T] | None = None, /, **kwargs: Any
-) -> Callable[P, T] | TestFunctionDecorator:
-    """
-    Log in as a student
-
-    .. code-block:: python
-
-        @student
-        def test_something(client):
-            # client is logged in as a student
-
-
-        @student(kwarg_for_usefixtures=xyz)
-        def test_something(client):
-            # client is logged in as a student
-    """
-    return apply_fixture(__f, "student_login", **kwargs)
+    return pytest.mark.usefixtures(f"{user}_login", *args)

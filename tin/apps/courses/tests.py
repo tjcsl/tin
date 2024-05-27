@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from django.urls import reverse
 
-from tin.tests import is_login_redirect, is_redirect, teacher
+from tin.tests import is_login_redirect, is_redirect, login
 
 from .models import Course
 
 
-@teacher
+@login("teacher")
 def test_create_course(client, teacher) -> None:
     course_name = "Foundations of CS"
     response = client.post(
@@ -25,7 +25,7 @@ def test_create_course(client, teacher) -> None:
     assert course.name == course_name
 
 
-@teacher
+@login("teacher")
 def test_edit_course(client, course, teacher) -> None:
     old_name = course.name
     response = client.post(
