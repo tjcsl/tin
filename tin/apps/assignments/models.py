@@ -284,7 +284,7 @@ class Assignment(models.Model):
         )
 
     def quiz_open_for_student(self, student):
-        is_teacher = student in self.course.teacher.all()
+        is_teacher = self.course.teacher.filter(id=student.id).exists()
         if is_teacher or student.is_superuser:
             return True
         return not (self.quiz_ended_for_student(student) or self.quiz_locked_for_student(student))
