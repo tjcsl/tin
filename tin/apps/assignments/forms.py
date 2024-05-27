@@ -13,10 +13,7 @@ logger = getLogger(__name__)
 
 
 class AssignmentForm(forms.ModelForm):
-    QUIZ_ACTIONS = (("-1", "No"), ("0", "Log only"), ("1", "Color Change"), ("2", "Lock"))
-
     due = forms.DateTimeInput()
-    is_quiz = forms.ChoiceField(choices=QUIZ_ACTIONS)
 
     def __init__(self, course, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,6 +67,8 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_count",
             "submission_limit_interval",
             "submission_limit_cooldown",
+            "is_quiz",
+            "quiz_action",
         ]
         labels = {
             "markdown": "Use markdown?",
@@ -93,7 +92,6 @@ class AssignmentForm(forms.ModelForm):
                     "markdown",
                     "due",
                     "points_possible",
-                    "is_quiz",
                     "hidden",
                 ),
             },
@@ -109,7 +107,16 @@ class AssignmentForm(forms.ModelForm):
                 "collapsed": False,
             },
             {
-                "name": "Submissions",
+                "name": "Quiz Options",
+                "description": "",
+                "fields": (
+                    "is_quiz",
+                    "quiz_action",
+                ),
+                "collapsed": False,
+            },
+            {
+                "name": "Other Settings",
                 "description": "",
                 "fields": (
                     "enable_grader_timeout",
@@ -142,8 +149,9 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown": 'This sets the length of the "cooldown" period after a '
             "student exceeds the rate limit for submissions.",
             "folder": "If blank, assignment will show on the main classroom page.",
-            "is_quiz": "If set, Tin will take the selected action if a student clicks off of the "
-            "submission page.",
+            "is_quiz": "This forces students to submit through a page that monitors their actions.",
+            "quiz_action": "Tin will take the selected action if a student clicks off of the "
+            "quiz page.",
         }
         widgets = {"description": forms.Textarea(attrs={"cols": 30, "rows": 4})}
 

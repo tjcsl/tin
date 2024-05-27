@@ -28,9 +28,6 @@
     {% if is_teacher or request.user.is_superuser %}
       {% if request.user.is_superuser %}
         <a class="right tin-btn" href="{% url 'admin:assignments_assignment_change' assignment.id %}">Admin</a>
-        {% if assignment.is_quiz %}
-          <a class="right tin-btn" href="{% url 'admin:assignments_quiz_change' assignment.quiz.id %}">Admin (Quiz)</a>
-        {% endif %}
       {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:edit' assignment.id %}">Edit</a>
       {% if assignment.grader_file %}
