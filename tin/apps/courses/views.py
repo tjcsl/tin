@@ -21,9 +21,15 @@ from .models import Course, Period, StudentImport
 @login_required
 def index_view(request):
     """Lists all courses"""
-    courses = Course.objects.filter_visible(request.user).order_by("-created")
+    courses = (
+        Course.objects.filter_visible(request.user).filter(archived=False).order_by("-created")
+    )
+    courses_expired = (
+        Course.objects.filter(archived=True).filter_permission(request.user, "r").distinct()
+    )
+    courses_expired = courses_expired.order_by("-created")
 
-    context = {"courses": courses}
+    context = {"courses": courses, "expired_courses": courses_expired}
 
     if request.user.is_student:
         assignments = (
@@ -32,7 +38,9 @@ def index_view(request):
             .order_by("due")
         )
 
-        unsubmitted_assignments = assignments.exclude(submissions__student=request.user)
+        unsubmitted_assignments = assignments.exclude(
+            submissions__student=request.user
+        ).filter_permission(request.user, "w")
         context["unsubmitted_assignments"] = unsubmitted_assignments
         context["courses_with_unsubmitted_assignments"] = {
             assignment.course for assignment in unsubmitted_assignments
@@ -85,8 +93,12 @@ def create_view(request):
             course = form.save(commit=True)
             return redirect("courses:show", course.id)
     else:
-        form = CourseForm()
-    return render(request, "courses/edit_create.html", {"form": form, "nav_item": "Create course"})
+        form = CourseForm(is_create=True)
+    return render(
+        request,
+        "courses/edit_create.html",
+        {"form": form, "nav_item": "Create course"},
+    )
 
 
 @teacher_or_superuser_required
@@ -100,7 +112,8 @@ def edit_view(request, course_id):
             course = form.save()
             return redirect("courses:show", course.id)
     else:
-        form = CourseForm(instance=course)
+        initial = {"permission": "r" if not course.archived else course.permission}
+        form = CourseForm(instance=course, initial=initial)
 
     return render(
         request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Edit"}

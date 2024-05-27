@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -11,7 +13,10 @@ class CourseQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(Q(teacher=user) | Q(students=user)).distinct()
+            return self.filter(
+                Q(teacher=user)
+                | (Q(students=user) & (Q(archived=False) | Q(permission__contains="r")))
+            ).distinct()
 
     def filter_editable(self, user):
         if user.is_superuser:
@@ -19,9 +24,20 @@ class CourseQuerySet(models.query.QuerySet):
         else:
             return self.filter(teacher=user).distinct()
 
+    def filter_permission(self, user, perm: Literal["-", "r", "w", "rw"]):
+        if user.is_superuser:
+            return self.all()
+        else:
+            return self.filter(Q(archived=False) | Q(permission__icontains=perm) | Q(teacher=user))
+
 
 class Course(models.Model):
     SORT_BY = (("due_date", "Due Date"), ("name", "Name"))
+    PERMISSIONS = (
+        ("rw", "view and submit assignments"),
+        ("r", "view assignments"),
+        ("-", "see nothing"),
+    )
 
     name = models.CharField(max_length=50, blank=False)
     teacher = models.ManyToManyField(
@@ -34,6 +50,9 @@ class Course(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     sort_assignments_by = models.CharField(max_length=30, choices=SORT_BY, default="due_date")
+
+    archived = models.BooleanField(default=False)
+    permission = models.CharField(max_length=30, choices=PERMISSIONS, default="r")
 
     objects = CourseQuerySet.as_manager()
 

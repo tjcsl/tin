@@ -463,7 +463,8 @@ def student_submissions_view(request, assignment_id, student_id):
 @login_required
 def submit_view(request, assignment_id):
     assignment = get_object_or_404(
-        Assignment.objects.filter_visible(request.user), id=assignment_id
+        Assignment.objects.filter_visible(request.user).filter_permission(request.user, "w"),
+        id=assignment_id,
     )
 
     if assignment.is_quiz:

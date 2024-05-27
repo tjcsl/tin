@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import subprocess
+from typing import Literal
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -42,7 +43,11 @@ class AssignmentQuerySet(models.query.QuerySet):
             return self.all()
         else:
             return self.filter(
-                Q(course__teacher=user) | Q(course__students=user, hidden=False)
+                Q(course__teacher=user)
+                | (
+                    Q(course__students=user, hidden=False)
+                    & (Q(course__archived=False) | Q(course__permission__contains="r"))
+                )
             ).distinct()
 
     def filter_editable(self, user):
@@ -50,6 +55,16 @@ class AssignmentQuerySet(models.query.QuerySet):
             return self.all()
         else:
             return self.filter(course__teacher=user).distinct()
+
+    def filter_permission(self, user, perm: Literal["-", "r", "w", "rw"]):
+        if user.is_superuser:
+            return self.all()
+        else:
+            return self.filter(
+                Q(course__archived=False)
+                | Q(course__permission__icontains=perm)
+                | Q(course__teacher=user)
+            )
 
 
 def upload_grader_file_path(assignment, _):  # pylint: disable=unused-argument

@@ -146,16 +146,19 @@ ul.no-list {
   padding-left: 0px;
 }
 
+/* TODO: Should probably rewrite with classes instead of id */
 ul#course-list,
 ul#assignment-list,
-ul#venv-list {
+ul#venv-list,
+ul#archive-list {
   padding-left: 0px;
   margin-left: 0px;
 }
 
 ul#course-list li,
 ul#assignment-list li,
-ul#venv-list li {
+ul#venv-list li,
+ul#archive-list li {
   display: flex;
   padding: 10px 0px;
   border-top: 1px solid lightgray;
@@ -163,7 +166,8 @@ ul#venv-list li {
 
 ul#course-list li:last-child,
 ul#assignment-list li:last-child,
-ul#venv-list li:last-child {
+ul#venv-list li:last-child,
+ul#archive-list li:last-child {
   border-bottom: 1px solid lightgray;
 }
 
@@ -192,7 +196,8 @@ ul#venv-list li .left {
 
 ul#course-list li .right,
 ul#assignment-list li .right,
-ul#venv-list li .right {
+ul#venv-list li .right,
+ul#archive-list li .right {
   margin-left: auto;
   flex: 0 0 auto;
   text-align: right;

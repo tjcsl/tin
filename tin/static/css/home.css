@@ -1,0 +1,17 @@
+.dropdown {
+  padding: 20px 0px;
+}
+
+#archive-courses-toggle {
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#archive-courses-toggle:focus {
+  outline: revert;
+}
+
+#archive-courses-toggle:hover {
+  color: #4fab4f;
+}

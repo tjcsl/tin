@@ -8,6 +8,11 @@ from .models import Course, Period
 
 
 class CourseForm(forms.ModelForm):
+    def __init__(self, *args, is_create: bool = False, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        if is_create:
+            self.fields.pop("archived")
+
     teacher = UserMultipleChoiceField(
         queryset=User.objects.filter(is_teacher=True).order_by("last_name", "first_name"),
         required=True,
@@ -15,7 +20,11 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ["name", "teacher", "sort_assignments_by"]
+        fields = ["name", "teacher", "sort_assignments_by", "archived", "permission"]
+        labels = {
+            "archived": "Archive course?",
+            "permission": "When archived, students can:",
+        }
 
 
 class SelectCourseToImportFromForm(forms.Form):

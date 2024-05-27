@@ -1,6 +1,30 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block head %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+          integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    let plus = true;
+
+    $(document).ready(function(){
+      toggle();
+    });
+    function toggle(){
+        $('.dropdown-content').toggle();
+        if (plus) {
+          $('#arrow').html("+");
+        } else {
+          $('#arrow').html("-");
+        }
+        plus = !plus;
+      };
+
+  </script>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+{% endblock %}
+
 {% block main %}
 
   <div class="header">
@@ -88,6 +112,33 @@
     </ul>
   {% endif %}
 
+  {% if expired_courses %}
+    <div class="dropdown">
+      <h2 id="archive-courses-toggle""
+        onclick="toggle()">Archived Courses <span id="arrow" style="font-weight:normal"></span></h2>
+      <div class="dropdown-content">
+        <ul id="archive-list">
+          {% for course in expired_courses %}
+            <li>
+              <div class="left">
+                <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
+                {% if course in courses_with_unsubmitted_assignments %}
+                  <br>
+                  <span class="italic">Unsubmitted assignments</span>
+                {% endif %}
+              </div>
+              <div class="right">
+                Teachers: {{ course.get_teacher_str }}<br>
+                {{ course.students.count }} student{{ course.students.count | pluralize }}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
+
   {% if request.user.is_superuser %}
     <h2>Administration</h2>
     <p><a class="tin-btn" href="{% url 'admin:index' %}">Django Administrative Interface</a></p>
@@ -102,5 +153,4 @@
       <input type="submit" value="Mark all submissions that have passed the grader timeout as complete">
     </form>
   {% endif %}
-
 {% endblock %}
