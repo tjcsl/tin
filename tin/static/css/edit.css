@@ -18,14 +18,12 @@ button.collapsible:hover {
 
 button.collapsible.active {
   border-radius: 10px 10px 0px 0px;
-  box-shadow: 6px 0 12px #777,
-              -6px -6px 12px #ffffff;
+  box-shadow: 6px 0 12px #777, -6px -6px 12px #ffffff;
 }
 
 button.collapsible:not(.active) {
   border-radius: 10px;
-  box-shadow: 6px 6px 12px #777,
-              -6px -6px 12px #ffffff;
+  box-shadow: 6px 6px 12px #777, -6px -6px 12px #ffffff;
 }
 
 .content {
@@ -34,10 +32,9 @@ button.collapsible:not(.active) {
   width: 90%;
   padding-top: 18px;
   overflow: hidden;
-  background-color: #F2F2F4;
+  background-color: #f2f2f4;
   border-radius: 0px 0px 10px 10px;
-  box-shadow: 6px 6px 12px #777,
-              -6px 0 12px #ffffff;
+  box-shadow: 6px 6px 12px #777, -6px 0 12px #ffffff;
 }
 
 .block {
@@ -53,7 +50,7 @@ button.collapsible:not(.active) {
 }
 
 button.collapsible.active:after {
-  content: "-"; /* Unicode character for "minus" sign (-) */
+  content: '-'; /* Unicode character for "minus" sign (-) */
   color: white;
   font-size: 20px;
 }
@@ -88,7 +85,6 @@ textarea {
 }
 
 @media (max-width: 900.02px) {
-
   .right-col {
     width: 90%;
     float: left;
