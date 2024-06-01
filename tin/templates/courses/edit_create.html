@@ -13,14 +13,17 @@
 
       function togglePermission() {
         if ($('#id_archived').is(':checked')) {
-          $("#permission").fadeTo(100, 1);
+          $("#permission").show(300);
         } else {
-          $("#permission").fadeTo(100, 0);
+          $("#permission").hide(300);
         }
       }
-      $("#id_archived").on("change", togglePermission);
-      // decide if it should be checked or not initially
-      togglePermission();
+
+      const archivedCheckbox = $("#id_archived");
+      archivedCheckbox.on("change", togglePermission);
+      if (!archivedCheckbox.is(":checked")) {
+        $("#permission").hide();
+      }
     });
   </script>
 {% endblock %}
@@ -34,7 +37,7 @@
     <div class="tbl">
       {% for field in form %}
       <div class="tbl-row" {% if field.name == "permission" %} id="{{ field.name }}" {% endif %}>
-          <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;min-width:200px;">{{ field.label_tag }}</span>
           <span class="tbl-cell form-input">{{ field }}</span>
         </div>
       {% endfor %}
