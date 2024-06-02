@@ -88,3 +88,35 @@ def test_access_hidden_archived_course(
 
     response = client.get(reverse("assignments:submit", args=[assignment.id]))
     assert response.status_code == submitcode
+
+
+# teachers should always be able to access their own course
+@login("teacher")
+@pytest.mark.parametrize(
+    "perm",
+    ("-", "r", "w"),
+)
+@pytest.mark.parametrize(
+    "is_archived",
+    (True, False),
+)
+def test_teacher_access_hidden_archived_course(
+    client,
+    course,
+    assignment,
+    perm: str,
+    is_archived: bool,
+):
+    course.archived = is_archived
+    course.permission = perm
+    course.save()
+    response = client.get(
+        reverse("courses:show", args=[course.id]),
+    )
+    assert response.status_code == 200
+
+    response = client.get(reverse("assignments:show", args=[assignment.id]))
+    assert response.status_code == 200
+
+    response = client.get(reverse("assignments:submit", args=[assignment.id]))
+    assert response.status_code == 200
