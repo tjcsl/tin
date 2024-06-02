@@ -66,7 +66,14 @@ def test_redirect(client) -> None:
     ),
 )
 def test_access_hidden_archived_course(
-    client, course, assignment, perm, is_archived, coursecode, assignmentcode, submitcode
+    client,
+    course,
+    assignment,
+    perm: str,
+    is_archived: bool,
+    coursecode: int,
+    assignmentcode: int,
+    submitcode: int,
 ):
     course.archived = is_archived
     course.permission = perm
