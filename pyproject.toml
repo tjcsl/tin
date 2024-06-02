@@ -24,19 +24,11 @@ exclude = '''
 '''
 
 [tool.ruff]
-exclude = [
-  ".eggs",
-  ".git",
+extend-exclude = [
   ".github",
-  ".hg",
-  ".mypy_cache",
-  ".tox",
-  ".venv",
   ".env",
-  "venv",
   "env",
   "secret",
-  "build",
   "_build",
   "buck-out",
   "dist",
@@ -44,8 +36,7 @@ exclude = [
   "migrations",
 ]
 
-# show fixes made in stdout
-# show-fixes = true
+show-fixes = false
 
 line-length = 100
 
@@ -55,6 +46,8 @@ target-version = "py38"
 select = [
     # flake8-bugbear
     "B",
+    # flake8-blind-except
+    "BLE",
     # flake8-comprehensions
     "C4",
     # flake8-django
@@ -63,6 +56,8 @@ select = [
     "E",
     # Pyflakes
     "F",
+    # flake8-boolean-trap
+    "FBT",
     # isort
     "I",
     # flake8-no-pep420
