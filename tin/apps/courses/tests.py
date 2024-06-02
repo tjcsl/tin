@@ -55,17 +55,20 @@ def test_redirect(client) -> None:
 
 @login("student")
 @pytest.mark.parametrize(
-    ("perm", "coursecode", "assignmentcode", "submitcode"),
+    ("perm", "is_archived", "coursecode", "assignmentcode", "submitcode"),
     (
-        ("-", 404, 404, 404),
-        ("r", 200, 200, 404),
-        ("w", 200, 200, 200),
+        ("-", False, 200, 200, 200),
+        ("r", False, 200, 200, 200),
+        ("w", False, 200, 200, 200),
+        ("-", True, 404, 404, 404),
+        ("r", True, 200, 200, 404),
+        ("w", True, 200, 200, 200),
     ),
 )
 def test_access_hidden_archived_course(
-    client, course, assignment, perm, coursecode, assignmentcode, submitcode
+    client, course, assignment, perm, is_archived, coursecode, assignmentcode, submitcode
 ):
-    course.archived = True
+    course.archived = is_archived
     course.permission = perm
     course.save()
     response = client.get(
