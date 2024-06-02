@@ -29,9 +29,6 @@ extend-exclude = [
   ".env",
   "env",
   "secret",
-  "_build",
-  "buck-out",
-  "dist",
   "media",
   "migrations",
 ]
