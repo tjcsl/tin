@@ -38,7 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def short_name(self):
         return self.username
 
-    def api_request(self, url, params=None, refresh=True):
+    def api_request(self, url, params=None, *, refresh=True):
         if params is None:
             params = {}
 
@@ -52,7 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                     self.get_social_auth().refresh_token(load_strategy())
                 except BaseException as ex:  # pylint: disable=broad-except
                     logger.exception(str(ex))
-                return self.api_request(url, params, False)
+                return self.api_request(url, params, refresh=False)
             else:
                 logger.error("Ion API Request Failure: %s %s", res.status_code, res.json())
         return res.json()
