@@ -21,15 +21,11 @@ from .models import Course, Period, StudentImport
 @login_required
 def index_view(request):
     """Lists all courses"""
-    courses = (
-        Course.objects.filter_visible(request.user).filter(archived=False).order_by("-created")
-    )
-    courses_expired = (
-        Course.objects.filter(archived=True).filter_permission(request.user, "r").distinct()
-    )
-    courses_expired = courses_expired.order_by("-created")
+    visible = Course.objects.filter_visible(request.user).order_by("-created")
+    courses = visible.filter(archived=False)
+    archived_courses = visible.filter(archived=True)
 
-    context = {"courses": courses, "expired_courses": courses_expired}
+    context = {"courses": courses, "archived_courses": archived_courses}
 
     if request.user.is_student:
         assignments = (
@@ -40,7 +36,7 @@ def index_view(request):
 
         unsubmitted_assignments = assignments.exclude(
             submissions__student=request.user
-        ).filter_permission(request.user, "w")
+        ).filter_permissions(request.user, "w")
         context["unsubmitted_assignments"] = unsubmitted_assignments
         context["courses_with_unsubmitted_assignments"] = {
             assignment.course for assignment in unsubmitted_assignments
@@ -112,8 +108,7 @@ def edit_view(request, course_id):
             course = form.save()
             return redirect("courses:show", course.id)
     else:
-        initial = {"permission": "r" if not course.archived else course.permission}
-        form = CourseForm(instance=course, initial=initial)
+        form = CourseForm(instance=course)
 
     return render(
         request, "courses/edit_create.html", {"form": form, "course": course, "nav_item": "Edit"}

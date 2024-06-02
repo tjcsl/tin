@@ -42,8 +42,10 @@
           {% endif %}
         </div>
         <div class="right">
-          Teachers: {{ course.get_teacher_str }}<br>
-          {{ course.students.count }} student{{ course.students.count | pluralize }}
+          {% with studentcount=course.students.count %}
+            Teachers: {{ course.get_teacher_str }}<br>
+            {{ studentcount }} student{{ studentcount | pluralize }}
+          {% endwith %}
         </div>
       </li>
     {% empty %}
@@ -64,6 +66,35 @@
       </li>
     {% endif %}
   </ul>
+
+  {% if archived_courses %}
+    <div class="dropdown">
+      <h2 id="archive-courses-toggle""
+        onclick="toggle()">Archived Courses <span id="arrow" style="font-weight:normal"></span></h2>
+      <div class="dropdown-content">
+        <ul id="archive-list">
+          {% for course in archived_courses %}
+            <li>
+              <div class="left">
+                <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
+                {% if course in courses_with_unsubmitted_assignments %}
+                  <br>
+                  <span class="italic">Unsubmitted assignments</span>
+                {% endif %}
+              </div>
+              <div class="right">
+                {% with studentcount=course.students.count %}
+                  Teachers: {{ course.get_teacher_str }}<br>
+                  {{ studentcount }} student{{ studentcount | pluralize }}
+                {% endwith %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
 
   {% if request.user.is_student %}
     <h2>Due in the next week</h2>
@@ -111,33 +142,6 @@
       {% endfor %}
     </ul>
   {% endif %}
-
-  {% if expired_courses %}
-    <div class="dropdown">
-      <h2 id="archive-courses-toggle""
-        onclick="toggle()">Archived Courses <span id="arrow" style="font-weight:normal"></span></h2>
-      <div class="dropdown-content">
-        <ul id="archive-list">
-          {% for course in expired_courses %}
-            <li>
-              <div class="left">
-                <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
-                {% if course in courses_with_unsubmitted_assignments %}
-                  <br>
-                  <span class="italic">Unsubmitted assignments</span>
-                {% endif %}
-              </div>
-              <div class="right">
-                Teachers: {{ course.get_teacher_str }}<br>
-                {{ course.students.count }} student{{ course.students.count | pluralize }}
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  {% endif %}
-
 
   {% if request.user.is_superuser %}
     <h2>Administration</h2>

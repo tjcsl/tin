@@ -59,7 +59,7 @@ def test_redirect(client) -> None:
     (
         ("-", 404, 404, 404),
         ("r", 200, 200, 404),
-        ("rw", 200, 200, 200),
+        ("w", 200, 200, 200),
     ),
 )
 def test_access_hidden_archived_course(

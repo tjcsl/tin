@@ -38,33 +38,28 @@ class Folder(models.Model):
 
 
 class AssignmentQuerySet(models.query.QuerySet):
-    def filter_visible(self, user):
+    def filter_permissions(self, user, *perms: Literal["-", "r", "w"]):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(
-                Q(course__teacher=user)
-                | (
-                    Q(course__students=user, hidden=False)
-                    & (Q(course__archived=False) | Q(course__permission__contains="r"))
-                )
-            ).distinct()
+            perm_q = Q(course__archived=False)
+            for perm in perms:
+                perm_q |= Q(course__permission=perm)
+            q = Q(course__teacher=user) | (Q(course__students=user, hidden=False) & perm_q)
+
+            return self.filter(q).distinct()
+
+    def filter_visible(self, user):
+        return self.filter_permissions(user, "r", "w")
+
+    def filter_submittable(self, user):
+        return self.filter_permissions(user, "w")
 
     def filter_editable(self, user):
         if user.is_superuser:
             return self.all()
         else:
             return self.filter(course__teacher=user).distinct()
-
-    def filter_permission(self, user, perm: Literal["-", "r", "w", "rw"]):
-        if user.is_superuser:
-            return self.all()
-        else:
-            return self.filter(
-                Q(course__archived=False)
-                | Q(course__permission__icontains=perm)
-                | Q(course__teacher=user)
-            )
 
 
 def upload_grader_file_path(assignment, _):  # pylint: disable=unused-argument
