@@ -90,6 +90,7 @@ def quiz(assignment):
     Creates a quiz in :meth:`~.course`
     """
     assignment.is_quiz = True
+    assignment.save()
     return assignment
 
 
