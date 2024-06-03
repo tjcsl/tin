@@ -16,7 +16,6 @@ if not __file__.endswith("shell.py"):
     exit()
 
 
-
 from tin.tests.create_users import add_users_to_database
 
 password = input("Enter password for all users: ")

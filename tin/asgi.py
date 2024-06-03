@@ -1,5 +1,4 @@
-"""
-ASGI config for tin project.
+"""ASGI config for tin project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

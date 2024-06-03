@@ -28,6 +28,11 @@ pytest-django = "~=4.8"
 django-stubs = "*"
 pre-commit = "*"
 typing-extensions = "*"
+sphinx = "*"
+furo = "*"
+myst-parser = "*"
+sphinx-copybutton = "*"
+sphinxcontrib-django = "*"
 
 [requires]
 python_version = "3.8"

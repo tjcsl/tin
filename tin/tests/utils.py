@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 def login(user: str, *args: Any) -> Callable[[Callable[P, T]], Callable[P, T]]:
-    """
-    Login ``client`` as a tin user type.
+    """Login ``client`` as a tin user type.
 
     .. code-block::
 
@@ -36,5 +35,4 @@ def login(user: str, *args: Any) -> Callable[[Callable[P, T]], Callable[P, T]]:
             response = client.post(reverse("courses:index"), {})
             assert is_login_redirect(response)
     """
-
     return pytest.mark.usefixtures(f"{user}_login", *args)

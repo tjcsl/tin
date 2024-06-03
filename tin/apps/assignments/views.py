@@ -40,10 +40,11 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def show_view(request, assignment_id):
-    """
-    Shows an overview of the assignment
-    :param request: The request
-    :param assignment_id: The assignment id
+    """Shows an overview of the assignment
+
+    Args:
+        request : The request
+        assignment_id : The assignment id
     """
     assignment: Assignment = get_object_or_404(
         Assignment.objects.filter_visible(request.user), id=assignment_id

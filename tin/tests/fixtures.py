@@ -16,9 +16,7 @@ def create_users():
 
 @pytest.fixture
 def admin(django_user_model):
-    """
-    Fixture to pass in an Admin
-    user into a test
+    """Fixture to pass in an Admin user into a test
 
     .. code-block:: python
 
@@ -30,9 +28,7 @@ def admin(django_user_model):
 
 @pytest.fixture
 def teacher(django_user_model):
-    """
-    Fixture to pass in a Teacher user
-    into a test
+    """Fixture to pass in a Teacher user into a test
 
     .. code-block:: python
 
@@ -44,9 +40,7 @@ def teacher(django_user_model):
 
 @pytest.fixture
 def student(django_user_model):
-    """
-    Fixture to pass in a Student user
-    into a test
+    """Fixture to pass in a Student user into a test
 
     .. code-block:: python
 
@@ -58,8 +52,8 @@ def student(django_user_model):
 
 @pytest.fixture
 def course(teacher, student):
-    """
-    Fixture containing a course object
+    """Fixture containing a course object
+
     The name of the course is "Intro to OpenGL",
     and the teacher is the same teacher as given by
     :meth:`~.teacher` and a student is from :meth:`~.student`
@@ -72,9 +66,7 @@ def course(teacher, student):
 
 @pytest.fixture
 def assignment(course):
-    """
-    Creates an assignment in :meth:`~.course`
-    """
+    """Creates an assignment in :meth:`~.course`"""
     data = {
         "name": "Write a Shader",
         "description": "See https://learnopengl.com/Getting-started/Shaders",
@@ -86,9 +78,7 @@ def assignment(course):
 
 @pytest.fixture
 def quiz(assignment):
-    """
-    Creates a quiz in :meth:`~.course`
-    """
+    """Creates a quiz in :meth:`~.course`"""
     assignment.is_quiz = True
     assignment.save()
     return assignment
@@ -96,8 +86,8 @@ def quiz(assignment):
 
 @pytest.fixture
 def admin_login(client):
-    """
-    Convenience fixture for logging in as admin.
+    """Convenience fixture for logging in as admin.
+
     Use the decorator :meth:`.admin` to save writing
 
     .. code-block:: python
@@ -107,14 +97,13 @@ def admin_login(client):
             response = client.get(reverse("assignments:edit", args=[course.id]))
             assert response.status_code != 302
     """
-
     client.login(username="admin", password=PASSWORD)
 
 
 @pytest.fixture
 def teacher_login(client):
-    """
-    Convenience fixture for logging in as a teacher
+    """Convenience fixture for logging in as a teacher
+
     Use the decorator :meth:`.teacher` to save writing
 
     .. code-block:: python
@@ -124,14 +113,13 @@ def teacher_login(client):
             response = client.get(reverse("assignments:edit", args=[course.id]))
             assert response.status_code != 302
     """
-
     client.login(username="teacher", password=PASSWORD)
 
 
 @pytest.fixture
 def student_login(client):
-    """
-    Convenience decorator for logging in as a teacher
+    """Convenience decorator for logging in as a teacher
+
     Use the decorator :meth:`.student` to save writing
 
     .. code-block:: python
@@ -141,5 +129,4 @@ def student_login(client):
             response = client.get(reverse("assignments:edit", args=[course.id]))
             assert response.status_code == 302
     """
-
     client.login(username="student", password=PASSWORD)

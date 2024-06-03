@@ -1,7 +1,4 @@
-"""
-A module containing frequently used
-checks throughout the tests
-"""
+"""A module containing frequently used checks throughout the tests"""
 
 from __future__ import annotations
 
@@ -20,16 +17,12 @@ __all__ = (
 def is_redirect(
     response: HttpResponse, url: str | None = None, part: Literal["base", "full", "end"] = "full"
 ) -> bool:
-    """
-    Checks if ``response`` is a redirect.
+    """Checks if ``response`` is a redirect.
 
-    Parameters
-    ----------
-        url
-            Checks if redirect url is the same as url
+    Parameters:
+        url : Checks if redirect url is the same as url
 
-        part
-            Which part of the url to check. Can be base, full, or end.
+        part : Which part of the url to check. Can be base, full, or end.
     """
     if not (isinstance(response, HttpResponseRedirect) and response.status_code == 302):
         return False
@@ -47,9 +40,7 @@ def is_redirect(
 
 
 def not_redirect(response: HttpResponse) -> bool:
-    """
-    Inverse of :meth:`is_redirect`
-    """
+    """Inverse of :meth:`is_redirect`"""
     return not is_redirect(response)
 
 

@@ -1,5 +1,4 @@
-"""
-WSGI config for tin project.
+"""WSGI config for tin project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

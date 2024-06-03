@@ -9,3 +9,5 @@ tin/settings/secret.py
 tin/serve
 
 .idea/
+docs/build/
+docs/source/reference/
