@@ -6,20 +6,22 @@
           integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    let plus = true;
+      let expanded = false;
 
-    $(document).ready(function(){
-      toggle();
-    });
-    function toggle(){
-        $('.dropdown-content').toggle();
-        if (plus) {
-          $('#arrow').html("+");
-        } else {
-          $('#arrow').html("-");
-        }
-        plus = !plus;
-      };
+      $(document).ready(function () {
+          toggle();
+      });
+
+      function toggle() {
+          $('.dropdown-content').toggle();
+          const toggleIcon = $('#toggle-icon');
+          if (expanded) {
+              toggleIcon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+          } else {
+              toggleIcon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+          }
+          expanded = !expanded;
+      }
 
   </script>
   <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
@@ -57,26 +59,27 @@
     {% endfor %}
     {% if archived_courses %}
       <li>
-      <div class="dropdown">
-        <a id="archive-courses-toggle"
-          onclick="toggle()"><span id="arrow" style="font-weight:normal"></span> Archived Courses</a>
-        <div class="dropdown-content">
-          <ul id="archive-list">
-            {% for course in archived_courses %}
-              <li>
-                <div class="left">
-                  <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
-                </div>
-                <div class="right">
-                  {% with studentcount=course.students.count %}
-                    Teachers: {{ course.get_teacher_str }} • {{ studentcount }} student{{ studentcount | pluralize }}
-                  {% endwith %}
-                </div>
-              </li>
-            {% endfor %}
-          </ul>
+        <div class="dropdown">
+          <a id="archive-courses-toggle" onclick="toggle()">
+            <i id="toggle-icon" class="fa fa-chevron-right"></i> Archived Courses
+          </a>
+          <div class="dropdown-content">
+            <ul id="archive-list">
+              {% for course in archived_courses %}
+                <li>
+                  <div class="left">
+                    <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
+                  </div>
+                  <div class="right">
+                    {% with studentcount=course.students.count %}
+                      Teachers: {{ course.get_teacher_str }} • {{ studentcount }} student{{ studentcount | pluralize }}
+                    {% endwith %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
-      </div>
       </li>
     {% endif %}
     {% if request.user.is_teacher or request.user.is_superuser %}
