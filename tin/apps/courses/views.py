@@ -34,9 +34,11 @@ def index_view(request):
             .order_by("due")
         )
 
-        unsubmitted_assignments = assignments.exclude(
-            submissions__student=request.user
-        ).filter_permissions(request.user, "w")
+        unsubmitted_assignments = (
+            assignments.exclude(submissions__student=request.user)
+            .filter(course__archived=False)
+            .filter_permissions(request.user, "w")
+        )
         context["unsubmitted_assignments"] = unsubmitted_assignments
         context["courses_with_unsubmitted_assignments"] = {
             assignment.course for assignment in unsubmitted_assignments
