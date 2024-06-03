@@ -620,7 +620,8 @@ def rerun_view(request, assignment_id):
 @login_required
 def quiz_view(request, assignment_id):
     assignment: Assignment = get_object_or_404(
-        Assignment.objects.filter_visible(request.user), id=assignment_id
+        Assignment.objects.filter_visible(request.user).filter(course__archived=False),
+        id=assignment_id,
     )
 
     if not assignment.is_quiz or not assignment.quiz_open_for_student(request.user):
