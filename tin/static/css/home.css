@@ -6,6 +6,9 @@
 
 #archive-courses-toggle {
   cursor: pointer;
+  width: 130px;
+  display: inline-block;
+  text-align: right;
 }
 
 #archive-courses-toggle:hover {

@@ -40,7 +40,7 @@
         <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
       {% endif %}
     {% endif %}
-    {% if "w" in course.permission or is_teacher or request.user.is_superuser %}
+    {% if not course.archived or course.permission == "w" or is_teacher or request.user.is_superuser %}
       {% if assignment.is_quiz %}
         {% if quiz_accessible or is_teacher or request.user.is_superuser %}
           <a class="right tin-btn"
