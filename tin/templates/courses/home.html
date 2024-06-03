@@ -55,6 +55,30 @@
         </div>
       </li>
     {% endfor %}
+    {% if archived_courses %}
+      <li>
+      <div class="dropdown">
+        <a id="archive-courses-toggle"
+          onclick="toggle()"><span id="arrow" style="font-weight:normal"></span> Archived Courses</a>
+        <div class="dropdown-content">
+          <ul id="archive-list">
+            {% for course in archived_courses %}
+              <li>
+                <div class="left">
+                  <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
+                </div>
+                <div class="right">
+                  {% with studentcount=course.students.count %}
+                    Teachers: {{ course.get_teacher_str }} • {{ studentcount }} student{{ studentcount | pluralize }}
+                  {% endwith %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      </li>
+    {% endif %}
     {% if request.user.is_teacher or request.user.is_superuser %}
       <li>
         <div>
@@ -66,35 +90,6 @@
       </li>
     {% endif %}
   </ul>
-
-  {% if archived_courses %}
-    <div class="dropdown">
-      <h2 id="archive-courses-toggle""
-        onclick="toggle()">Archived Courses <span id="arrow" style="font-weight:normal"></span></h2>
-      <div class="dropdown-content">
-        <ul id="archive-list">
-          {% for course in archived_courses %}
-            <li>
-              <div class="left">
-                <a href="{% url 'courses:show' course.id %}">{{ course.name }}</a>
-                {% if course in courses_with_unsubmitted_assignments %}
-                  <br>
-                  <span class="italic">Unsubmitted assignments</span>
-                {% endif %}
-              </div>
-              <div class="right">
-                {% with studentcount=course.students.count %}
-                  Teachers: {{ course.get_teacher_str }}<br>
-                  {{ studentcount }} student{{ studentcount | pluralize }}
-                {% endwith %}
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  {% endif %}
-
 
   {% if request.user.is_student %}
     <h2>Due in the next week</h2>
