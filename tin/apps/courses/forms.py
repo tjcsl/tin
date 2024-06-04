@@ -25,6 +25,10 @@ class CourseForm(forms.ModelForm):
             "archived": "Archive course?",
             "permission": "When archived, students can:",
         }
+        help_texts = {
+            "archived": "Has the course ended? Archive it to control future student access.",
+            "permission": "This setting doesn't affect quizzes: students can never submit quizzes in an archived course.",
+        }
 
 
 class SelectCourseToImportFromForm(forms.Form):

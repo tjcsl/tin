@@ -37,8 +37,8 @@
     <div class="tbl">
       {% for field in form %}
       <div class="tbl-row" {% if field.name == "permission" %} id="{{ field.name }}" {% endif %}>
-          <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;min-width:200px;">{{ field.label_tag }}</span>
-          <span class="tbl-cell form-input">{{ field }}</span>
+          <span class="tbl-cell bold" style="padding-right:5px;min-width:200px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell form-input">{{ field }}{% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
         </div>
       {% endfor %}
     </div>
