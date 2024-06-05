@@ -7,10 +7,24 @@
 
 {% block head %}
   <script type="text/javascript">
-      $(document).ready(function () {
-          $("#id_students").selectize();
-          $("#id_teacher").selectize();
-      });
+    $(document).ready(function () {
+      $("#id_students").selectize();
+      $("#id_teacher").selectize();
+
+      function togglePermission() {
+        if ($('#id_archived').is(':checked')) {
+          $("#permission").show(300);
+        } else {
+          $("#permission").hide(300);
+        }
+      }
+
+      const archivedCheckbox = $("#id_archived");
+      archivedCheckbox.on("change", togglePermission);
+      if (!archivedCheckbox.is(":checked")) {
+        $("#permission").hide();
+      }
+    });
   </script>
 {% endblock %}
 
@@ -22,9 +36,9 @@
     {% csrf_token %}
     <div class="tbl">
       {% for field in form %}
-        <div class="tbl-row">
-          <span class="tbl-cell bold" style="vertical-align:middle;padding-right:5px;">{{ field.label_tag }}</span>
-          <span class="tbl-cell form-input">{{ field }}</span>
+      <div class="tbl-row" {% if field.name == "permission" %} id="{{ field.name }}" {% endif %}>
+          <span class="tbl-cell bold" style="padding-right:5px;min-width:200px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell form-input">{{ field }}{% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
         </div>
       {% endfor %}
     </div>

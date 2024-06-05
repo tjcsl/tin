@@ -11,7 +11,10 @@ class CourseQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(Q(teacher=user) | Q(students=user)).distinct()
+            return self.filter(
+                Q(teacher=user)
+                | (Q(students=user) & (Q(archived=False) | Q(permission="r") | Q(permission="w")))
+            ).distinct()
 
     def filter_editable(self, user):
         if user.is_superuser:
@@ -22,6 +25,11 @@ class CourseQuerySet(models.query.QuerySet):
 
 class Course(models.Model):
     SORT_BY = (("due_date", "Due Date"), ("name", "Name"))
+    PERMISSIONS = (
+        ("w", "view and submit assignments"),
+        ("r", "view assignments"),
+        ("-", "see nothing"),
+    )
 
     name = models.CharField(max_length=50, blank=False)
     teacher = models.ManyToManyField(
@@ -34,6 +42,9 @@ class Course(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     sort_assignments_by = models.CharField(max_length=30, choices=SORT_BY, default="due_date")
+
+    archived = models.BooleanField(default=False)
+    permission = models.CharField(max_length=1, choices=PERMISSIONS, default="r")
 
     objects = CourseQuerySet.as_manager()
 

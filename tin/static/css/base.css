@@ -146,53 +146,65 @@ ul.no-list {
   padding-left: 0px;
 }
 
+/* TODO: Should probably rewrite with classes instead of id */
 ul#course-list,
 ul#assignment-list,
-ul#venv-list {
+ul#venv-list,
+ul#archive-list {
   padding-left: 0px;
   margin-left: 0px;
 }
 
-ul#course-list li,
-ul#assignment-list li,
-ul#venv-list li {
+ul#course-list > li,
+ul#assignment-list > li,
+ul#venv-list > li,
+ul#archive-list > li {
   display: flex;
   padding: 10px 0px;
   border-top: 1px solid lightgray;
 }
 
-ul#course-list li:last-child,
-ul#assignment-list li:last-child,
-ul#venv-list li:last-child {
+ul#course-list > li:last-child,
+ul#assignment-list > li:last-child,
+ul#venv-list > li:last-child {
   border-bottom: 1px solid lightgray;
 }
 
-ul#course-list li a,
-ul#assignment-list li a,
-ul#venv-list li a {
+ul#archive-list > li:first-child {
+  border-top: 0;
+}
+
+ul#archive-list > li:last-child {
+  padding-bottom: 0;
+}
+
+ul#course-list > li a,
+ul#assignment-list > li a,
+ul#venv-list > li a {
   height: min-content;
   color: black;
   font-weight: bold;
   text-decoration: none;
 }
 
-ul#course-list li a:hover,
-ul#assignment-list li a:hover,
-ul#venv-list li a:hover {
+ul#course-list > li a:hover,
+ul#assignment-list > li a:hover,
+ul#venv-list > li a:hover {
   text-decoration: underline;
 }
 
-ul#course-list li .left,
-ul#assignment-list li .left,
-ul#venv-list li .left {
+ul#course-list > li .left,
+ul#assignment-list > li .left,
+ul#venv-list > li .left {
   margin-right: auto;
   flex: 0 0 auto;
   text-align: left;
 }
 
-ul#course-list li .right,
-ul#assignment-list li .right,
-ul#venv-list li .right {
+ul#course-list > li .right,
+ul#assignment-list > li .right,
+ul#venv-list > li .right,
+ul#archive-list > li .right {
   margin-left: auto;
   flex: 0 0 auto;
   text-align: right;

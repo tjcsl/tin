@@ -3,9 +3,7 @@ from __future__ import annotations
 from django.shortcuts import render
 
 
-def handle_404_view(request, _exception):
-    # Render it maybe?
-    del _exception
+def handle_404_view(request, exception):
     return render(request, "error/404.html", status=404)
 
 

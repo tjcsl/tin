@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from django.utils import timezone
 
 import tin.tests.create_users as users
 from tin.apps.courses.models import Course
@@ -56,16 +57,41 @@ def student(django_user_model):
 
 
 @pytest.fixture
-def course(teacher):
+def course(teacher, student):
     """
     Fixture containing a course object
     The name of the course is "Intro to OpenGL",
     and the teacher is the same teacher as given by
-    :meth:`~teacher`
+    :meth:`~.teacher` and a student is from :meth:`~.student`
     """
     course = Course.objects.create(name="Intro to OpenGL")
     course.teacher.add(teacher)
+    course.students.add(student)
     return course
+
+
+@pytest.fixture
+def assignment(course):
+    """
+    Creates an assignment in :meth:`~.course`
+    """
+    data = {
+        "name": "Write a Shader",
+        "description": "See https://learnopengl.com/Getting-started/Shaders",
+        "points_possible": "300",
+        "due": timezone.now(),
+    }
+    return course.assignments.create(**data)
+
+
+@pytest.fixture
+def quiz(assignment):
+    """
+    Creates a quiz in :meth:`~.course`
+    """
+    assignment.is_quiz = True
+    assignment.save()
+    return assignment
 
 
 @pytest.fixture

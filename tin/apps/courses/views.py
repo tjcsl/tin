@@ -21,9 +21,11 @@ from .models import Course, Period, StudentImport
 @login_required
 def index_view(request):
     """Lists all courses"""
-    courses = Course.objects.filter_visible(request.user).order_by("-created")
+    visible = Course.objects.filter_visible(request.user).order_by("-created")
+    courses = visible.filter(archived=False)
+    archived_courses = visible.filter(archived=True)
 
-    context = {"courses": courses}
+    context = {"courses": courses, "archived_courses": archived_courses}
 
     if request.user.is_student:
         assignments = (
@@ -32,7 +34,11 @@ def index_view(request):
             .order_by("due")
         )
 
-        unsubmitted_assignments = assignments.exclude(submissions__student=request.user)
+        unsubmitted_assignments = (
+            assignments.exclude(submissions__student=request.user)
+            .filter(course__archived=False)
+            .filter_permissions(request.user, "w")
+        )
         context["unsubmitted_assignments"] = unsubmitted_assignments
         context["courses_with_unsubmitted_assignments"] = {
             assignment.course for assignment in unsubmitted_assignments
@@ -85,8 +91,12 @@ def create_view(request):
             course = form.save(commit=True)
             return redirect("courses:show", course.id)
     else:
-        form = CourseForm()
-    return render(request, "courses/edit_create.html", {"form": form, "nav_item": "Create course"})
+        form = CourseForm(is_create=True)
+    return render(
+        request,
+        "courses/edit_create.html",
+        {"form": form, "nav_item": "Create course"},
+    )
 
 
 @teacher_or_superuser_required

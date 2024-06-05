@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import subprocess
+from typing import Literal
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -37,13 +38,22 @@ class Folder(models.Model):
 
 
 class AssignmentQuerySet(models.query.QuerySet):
-    def filter_visible(self, user):
+    def filter_permissions(self, user, *perms: Literal["-", "r", "w"]):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(
-                Q(course__teacher=user) | Q(course__students=user, hidden=False)
-            ).distinct()
+            perm_q = Q(course__archived=False)
+            for perm in perms:
+                perm_q |= Q(course__permission=perm)
+            q = Q(course__teacher=user) | (Q(course__students=user, hidden=False) & perm_q)
+
+            return self.filter(q).distinct()
+
+    def filter_visible(self, user):
+        return self.filter_permissions(user, "r", "w")
+
+    def filter_submittable(self, user):
+        return self.filter_permissions(user, "w")
 
     def filter_editable(self, user):
         if user.is_superuser:
