@@ -70,6 +70,8 @@ class AssignmentForm(forms.ModelForm):
             "is_quiz",
             "quiz_action",
             "quiz_autocomplete_enabled",
+            "quiz_description",
+            "quiz_description_markdown",
         ]
         labels = {
             "markdown": "Use markdown?",
@@ -84,6 +86,7 @@ class AssignmentForm(forms.ModelForm):
             "submission_limit_cooldown": "Rate limit cooldown period (minutes)",
             "is_quiz": "Is this a quiz?",
             "quiz_autocomplete_enabled": "Enable code autocompletion?",
+            "quiz_description_markdown": "Use markdown?",
         }
         sections = (
             {
@@ -115,6 +118,8 @@ class AssignmentForm(forms.ModelForm):
                     "is_quiz",
                     "quiz_action",
                     "quiz_autocomplete_enabled",
+                    "quiz_description",
+                    "quiz_description_markdown",
                 ),
                 "collapsed": False,
             },
@@ -159,8 +164,16 @@ class AssignmentForm(forms.ModelForm):
             "quiz_autocomplete_enabled": "This gives students basic code completion in the quiz editor, including "
             "variable names, built-in functions, and keywords. It's recommended for quizzes that focus on code logic "
             "and not syntax.",
+            "quiz_description": "Unlike the assignment description (left) which shows up on the assignment page, the "
+            "quiz description only appears once the student has started the quiz. This is useful for quiz "
+            "instructions that need to be hidden until the student enters the monitored quiz environment.",
+            "quiz_description_markdown": "This allows adding images, code blocks, or hyperlinks to the quiz "
+            "description.",
         }
-        widgets = {"description": forms.Textarea(attrs={"cols": 30, "rows": 4})}
+        widgets = {
+            "description": forms.Textarea(attrs={"cols": 30, "rows": 8}),
+            "quiz_description": forms.Textarea(attrs={"cols": 30, "rows": 6}),
+        }
 
     def __str__(self) -> str:
         return f"AssignmentForm(\"{self['name'].value()}\")"

@@ -76,12 +76,11 @@ button.collapsible.active:after {
 
 /* Style the description box */
 textarea {
-  width: 90%;
-  height: 300px;
+  width: 95%;
   resize: vertical;
   /* For legacy browsers without CSS 3 support */
-  min-width: 90%;
-  max-width: 90%;
+  min-width: 95%;
+  max-width: 95%;
 }
 
 @media (max-width: 900.02px) {

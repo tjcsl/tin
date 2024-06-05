@@ -1,5 +1,6 @@
 {% extends "base_wo_head.html" %}
 {% load static %}
+{% load markdownify %}
 
 {% block title %}
   Turn-In: {{ assignment.name }}: Take Quiz
@@ -131,6 +132,15 @@
   <h2>{{ assignment.name }}: Take Quiz</h2>
 
   {% if assignment.grader_file %}
+
+    {% if assignment.quiz_description %}
+      {% if assignment.quiz_description_markdown %}
+        {{ assignment.quiz_description | markdownify }}
+      {% else %}
+        <p>{{ assignment.quiz_description | linebreaks }}</p>
+      {% endif %}
+    {% endif %}
+
 
     {% if latest_submission %}
       <h3 style="border-top:1px solid lightgray;padding-top:15px;">Grader output</h3>
