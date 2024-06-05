@@ -2,14 +2,14 @@
   <img src="./assets/tin-logo.gif" width="500">
 </p>
 <br>
-<br>
 <p align="center">
+  <i>An autograder for Computer Science Classes</i>
+  <br>
+  <br>
   <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"></a>
   <img src="https://github.com/tjcsl/tin/actions/workflows/ci.yml/badge.svg">
   <a href="https://github.com/pre-commit/pre-commit"><img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit"></a>
-  <br>
-  <br>
-  <i>An autograder for Computer Science Classes</i>
+  <a href="https://wakatime.com/badge/github/tjcsl/tin"><img src="https://wakatime.com/badge/github/tjcsl/tin.svg" alt="wakatime"></a>
 </p>
 <hr>
 
