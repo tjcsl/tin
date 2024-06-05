@@ -27,8 +27,7 @@ class SubmissionQuerySet(models.query.QuerySet):
             return self.all()
         else:
             return self.filter(
-                Q(assignment__course__teacher=user)
-                | Q(student=user) & Q(assignment__quiz__isnull=True)
+                Q(assignment__course__teacher=user) | Q(student=user) & Q(assignment__is_quiz=False)
             ).distinct()
 
     def filter_editable(self, user):

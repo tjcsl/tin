@@ -30,7 +30,7 @@ def index_view(request):
     if request.user.is_student:
         assignments = (
             Assignment.objects.filter_visible(request.user)
-            .filter(course__students=request.user, quiz__isnull=True)
+            .filter(course__students=request.user, is_quiz=False)
             .order_by("due")
         )
 
