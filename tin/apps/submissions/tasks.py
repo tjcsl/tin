@@ -245,7 +245,7 @@ def run_submission(submission_id):
             submission.grader_output = truncate_output(output.replace("\0", ""), "grader_output")
             submission.grader_errors = truncate_output(errors.replace("\0", ""), "grader_errors")
             submission.save()
-    except Exception:  # pylint: disable=broad-except
+    except Exception:  # pylint: disable=broad-except  # noqa: BLE001
         submission.grader_output = "[Internal error]"
         submission.grader_errors = truncate_output(
             traceback.format_exc().replace("\0", ""), "grader_errors"

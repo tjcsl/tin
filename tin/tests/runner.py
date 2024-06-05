@@ -4,7 +4,7 @@ from __future__ import annotations
 class PytestRunner:
     """Runs pytest to discover and run tests."""
 
-    def __init__(self, verbosity=1, failfast=False, keepdb=False, **kwargs):
+    def __init__(self, verbosity=1, *, failfast=False, keepdb=False, **kwargs):
         self.verbosity = verbosity
         self.failfast = failfast
         self.keepdb = keepdb
