@@ -111,6 +111,10 @@ extend-ignore-names = [
   "F403",
 ]
 
+"*test*" = [
+  "FBT",
+]
+
 [tool.ruff.format]
 docstring-code-format = true
 line-ending = "lf"
