@@ -193,8 +193,8 @@ anything, use it with ``pytest.usefixtures``.
       assignment.save()
 
    @pytest.usefixtures("all_assigments_quiz")
-   def test_something():
-      # test something, but now all assignments are quizzes
+   def test_something(assignment):
+      # test something, but now assignment is a quiz
       ...
 
 
