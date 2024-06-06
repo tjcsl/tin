@@ -23,3 +23,4 @@ Explore some of the technical documentation we have at our disposal!
 
   contributing
   reference_index
+  developers
