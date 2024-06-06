@@ -31,7 +31,7 @@ For a quick refresher on reST, check out the `Sphinx docs <https://www.sphinx-do
    Technically, you can write documentation in markdown. However, reST is preferred
    as it is more powerful and easier to extend than markdown
 
-When writing a docstring for a method, attribute, or a function, we use the `Google style docstrings <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>`_.
+When writing a docstring for a method, attribute, or a function, we use the `Google style docstrings <https://google.github.io/styleguide/pyguide.html#383-functions-and-methods>`_.
 Do NOT include the type of a parameter in the docstring: that's redundant and harder to maintain. Instead,
 prefer typehinting the actual typehint in the function, and sphinx will automatically parse that.
 
