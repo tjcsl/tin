@@ -56,7 +56,7 @@ def course(teacher, student):
 
     The name of the course is "Intro to OpenGL",
     and the teacher is the same teacher as given by
-    :meth:`~.teacher` and a student is from :meth:`~.student`
+    :func:`~.teacher` and a student is from :func:`~.student`
     """
     course = Course.objects.create(name="Intro to OpenGL")
     course.teacher.add(teacher)
@@ -66,7 +66,7 @@ def course(teacher, student):
 
 @pytest.fixture
 def assignment(course):
-    """Creates an assignment in :meth:`~.course`"""
+    """Creates an assignment in :func:`~.course`"""
     data = {
         "name": "Write a Shader",
         "description": "See https://learnopengl.com/Getting-started/Shaders",
@@ -78,7 +78,7 @@ def assignment(course):
 
 @pytest.fixture
 def quiz(assignment):
-    """Creates a quiz in :meth:`~.course`"""
+    """Creates a quiz in :func:`~.course`"""
     assignment.is_quiz = True
     assignment.save()
     return assignment
@@ -88,7 +88,7 @@ def quiz(assignment):
 def admin_login(client):
     """Convenience fixture for logging in as admin.
 
-    Use the decorator :meth:`.admin` to save writing
+    Use the decorator :func:`.admin` to save writing
 
     .. code-block:: python
 
@@ -104,7 +104,7 @@ def admin_login(client):
 def teacher_login(client):
     """Convenience fixture for logging in as a teacher
 
-    Use the decorator :meth:`.teacher` to save writing
+    Use the decorator :func:`.teacher` to save writing
 
     .. code-block:: python
 
@@ -120,7 +120,7 @@ def teacher_login(client):
 def student_login(client):
     """Convenience decorator for logging in as a teacher
 
-    Use the decorator :meth:`.student` to save writing
+    Use the decorator :func:`.student` to save writing
 
     .. code-block:: python
 
