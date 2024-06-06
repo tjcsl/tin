@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import logging
-import os
 import subprocess
 from datetime import timedelta
+from pathlib import Path
 
 from celery.canvas import Signature
 from django.conf import settings
@@ -180,12 +180,11 @@ class Submission(models.Model):
 
     @property
     def file_text(self):
-        if self.file is None:
+        if self.file is None or self.backup_file_path is None:
             return None
 
         try:
-            with open(self.backup_file_path) as f:
-                file_text = f.read()
+            file_text = self.backup_file_path.read_text()
         except OSError:
             file_text = "[Error accessing submission file]"
 
@@ -193,36 +192,32 @@ class Submission(models.Model):
 
     @property
     def file_text_with_header(self):
-        if self.file is None:
+        if self.file is None or self.file_text is None:
             return None
 
         return self.file_header + "\n\n" + self.file_text
 
     @property
-    def file_path(self) -> str | None:
+    def file_path(self) -> Path | None:
         if self.file is None:
             return None
 
-        return os.path.join(settings.MEDIA_ROOT, self.file.name)
+        return settings.MEDIA_ROOT / self.file.name
 
     @property
-    def wrapper_file_path(self) -> str | None:
+    def wrapper_file_path(self) -> Path | None:
         if self.file is None:
             return None
 
-        return os.path.join(
-            settings.MEDIA_ROOT,
-            os.path.dirname(self.file.name),
-            "wrappers",
-            os.path.basename(self.file.name),
-        )
+        filename = self.file.name
+        return settings.MEDIA_ROOT / filename.parent / "wrappers" / filename.name
 
     @property
-    def backup_file_path(self) -> str | None:
+    def backup_file_path(self) -> Path | None:
         if self.file is None:
             return None
 
-        return os.path.join(settings.MEDIA_ROOT, "submission-backups", self.file.name)
+        return settings.MEDIA_ROOT / "submission-backups" / self.file.name
 
     def save_file(self, submission_text: str) -> None:
         # Writing to files in directories not controlled by us without some
@@ -239,12 +234,15 @@ class Submission(models.Model):
 
         fpath = self.file_path
 
-        os.makedirs(os.path.dirname(fpath), exist_ok=True)
+        if fpath is None:
+            raise ValueError("Cannot save file if file_path is not found")
+
+        fpath.parent.mkdir(parents=True, exist_ok=True)
 
         args = get_assignment_sandbox_args(
             ["sh", "-c", 'cat >"$1"', "sh", fpath],
             network_access=False,
-            whitelist=[os.path.dirname(fpath)],
+            whitelist=[fpath.parent],
         )
 
         try:
@@ -267,10 +265,8 @@ class Submission(models.Model):
         if backup_fpath is None:
             raise ValueError
 
-        os.makedirs(os.path.dirname(backup_fpath), mode=0o755, exist_ok=True)
-
-        with open(backup_fpath, "w", encoding="utf-8") as f_obj:
-            f_obj.write(submission_text)
+        backup_fpath.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+        backup_fpath.write_text(submission_text)
 
     def rerun(self) -> Signature:
         from .tasks import run_submission  # pylint: disable=import-outside-toplevel
@@ -280,6 +276,7 @@ class Submission(models.Model):
         self.last_run = timezone.now()
         self.save()
 
+        # Is this correct?
         return run_submission.s(self.id)
 
     @property

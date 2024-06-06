@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import datetime
 import logging
-import os
 import subprocess
+from pathlib import Path
 from typing import Literal
 
 from django.conf import settings
@@ -154,8 +154,8 @@ class Assignment(models.Model):
         return self.name
 
     def make_assignment_dir(self) -> None:
-        assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
-        os.makedirs(assignment_path, exist_ok=True)
+        assignment_path = settings.MEDIA_ROOT / f"assignment-{self.id}"
+        assignment_path.mkdir(parents=True, exist_ok=True)
 
     def save_grader_file(self, grader_text: str) -> None:
         # Writing to files in directories not controlled by us without some
@@ -170,14 +170,14 @@ class Assignment(models.Model):
         self.grader_file.name = fname
         self.save()
 
-        fpath = os.path.join(settings.MEDIA_ROOT, self.grader_file.name)
+        fpath = settings.MEDIA_ROOT / self.grader_file.name
 
-        os.makedirs(os.path.dirname(fpath), exist_ok=True)
+        fpath.parent.mkdir(parents=True, exist_ok=True)
 
         args = get_assignment_sandbox_args(
             ["sh", "-c", 'cat >"$1"', "sh", fpath],
             network_access=False,
-            whitelist=[os.path.dirname(fpath)],
+            whitelist=[fpath.parent],
         )
 
         try:
@@ -197,19 +197,19 @@ class Assignment(models.Model):
     def list_files(self) -> list[tuple[int, str, str, int, datetime.datetime]]:
         self.make_assignment_dir()
 
-        assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
+        assignment_path = settings.MEDIA_ROOT / f"assignment-{self.id}"
 
         files = []
         grader_file = upload_grader_file_path(self, "")
         grader_log_file = self.grader_log_filename
 
-        for i, item in enumerate(os.scandir(assignment_path)):
+        for i, item in enumerate(assignment_path.iterdir()):
             if item.is_file():
                 stat = item.stat(follow_symlinks=False)
                 item_details = (
                     i,
                     item.name,
-                    item.path,
+                    str(item),
                     stat.st_size,
                     datetime.datetime.fromtimestamp(stat.st_mtime),
                 )
@@ -221,14 +221,14 @@ class Assignment(models.Model):
     def save_file(self, file_text: str, file_name: str) -> None:
         self.make_assignment_dir()
 
-        fpath = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}", file_name)
+        fpath = settings.MEDIA_ROOT / f"assignment-{self.id}" / file_name
 
-        os.makedirs(os.path.dirname(fpath), exist_ok=True)
+        fpath.parent.mkdir(parents=True, exist_ok=True)
 
         args = get_assignment_sandbox_args(
             ["sh", "-c", 'cat >"$1"', "sh", fpath],
             network_access=False,
-            whitelist=[os.path.dirname(fpath)],
+            whitelist=[fpath.parent],
         )
 
         try:
@@ -248,21 +248,17 @@ class Assignment(models.Model):
     def get_file(self, file_id: int) -> tuple[str, str]:
         self.make_assignment_dir()
 
-        for i, item in enumerate(
-            os.scandir(os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}"))
-        ):
-            if i == file_id and os.path.exists(item.path) and item.is_file():
-                return item.name, item.path
+        for i, path in enumerate((settings.MEDIA_ROOT / f"assignment-{self.id}").iterdir()):
+            if i == file_id and path.exists() and path.is_file():
+                return path.name, str(path)
         return "", ""
 
     def delete_file(self, file_id: int) -> None:
         self.make_assignment_dir()
 
-        for i, item in enumerate(
-            os.scandir(os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}"))
-        ):
-            if i == file_id and os.path.exists(item.path) and item.is_file():
-                os.remove(item.path)
+        for i, path in enumerate((settings.MEDIA_ROOT / f"assignment-{self.id}").iterdir()):
+            if i == file_id and path.is_file():  # why shouldn't we remove symbolic links?
+                path.unlink(missing_ok=True)
                 return
 
     def check_rate_limit(self, student) -> None:
@@ -492,12 +488,12 @@ class MossResult(models.Model):
         return f"Moss result for {self.assignment}"
 
     @property
-    def extension(self):
+    def extension(self) -> str:
         return "java" if self.language == "java" else "py"
 
     @property
-    def download_folder(self):
-        return os.path.join(settings.MEDIA_ROOT, "moss-runs", f"moss-{self.id}")
+    def download_folder(self) -> Path:
+        return settings.MEDIA_ROOT / "moss-runs" / f"moss-{self.id}"
 
     def __repr__(self):
         return f"Moss result for {self.assignment}"

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 
 import mosspy
 from celery import shared_task
@@ -23,7 +22,7 @@ def run_moss(moss_result_id):
         students = assignment.course.students.all()
 
     download_folder = moss_result.download_folder
-    os.makedirs(download_folder, mode=0o755, exist_ok=True)
+    download_folder.mkdir(mode=0o755, parents=True, exist_ok=True)
 
     extension = moss_result.extension
 
@@ -42,10 +41,11 @@ def run_moss(moss_result_id):
         published_submission = publishes.latest().submission if publishes else latest_submission
         if published_submission is not None:
             file_with_header = published_submission.file_text_with_header
-            with open(os.path.join(download_folder, f"{student.username}.{extension}"), "w") as f:
-                f.write(file_with_header)
+            assert isinstance(file_with_header, str)
+            temp_path = download_folder / f"{student.username}.{extension}"
+            temp_path.write_text(file_with_header)
             runner.addFile(
-                os.path.join(download_folder, f"{student.username}.{extension}"),
+                download_folder / f"{student.username}.{extension}",
                 f"{student.first_name}_{student.last_name}",
             )
 

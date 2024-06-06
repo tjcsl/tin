@@ -58,14 +58,14 @@ class Venv(models.Model):
 
     @property
     def path(self):
-        return os.path.join(settings.MEDIA_ROOT, "venvs", f"venv-{self.id}")
+        return settings.MEDIA_ROOT / "venvs" / f"venv-{self.id}"
 
     def get_activation_env(self):
         venv_path = self.path
 
         return {
             "VIRTUAL_ENV": venv_path,
-            "PATH": os.path.join(venv_path, "bin") + os.pathsep + os.environ["PATH"],
+            "PATH": str(venv_path / "bin") + os.pathsep + os.environ["PATH"],
         }
 
     def list_packages(self):
