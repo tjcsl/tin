@@ -23,6 +23,9 @@ dependencies = { file = "requirements.txt" }
 DJANGO_SETTINGS_MODULE="tin.settings"
 python_files="tests.py test_*.py *_tests.py"
 norecursedirs = ["media"]
+testpaths = "tin"
+addopts = "--doctest-modules tin -n logical"
+doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER"
 
 [tool.black]
 line-length = 100
@@ -115,6 +118,8 @@ ignore = [
   "E114",
   "E117",
   "E501",
+  "D206",
+  "D300",
 ]
 
 [tool.ruff.lint.pydocstyle]
