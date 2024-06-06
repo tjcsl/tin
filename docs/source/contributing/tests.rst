@@ -201,4 +201,4 @@ anything, use it with ``pytest.usefixtures``.
 .. admonition:: Implementation Detail
 
     This is actually how :func:`.login` works, it's simply a wrapper around
-    the ``admin_login``, ``student_login`` and ``teacher_login`` fixtures.
+    the :func:`.admin_login`, :func:`.student_login` and :func:`.teacher_login` fixtures.
