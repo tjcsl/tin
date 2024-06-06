@@ -91,10 +91,14 @@ select = [
     "PL",
     # Pytest
     "PT",
+    # flake8-use-pathlib
+    "PTH",
     # pygrep hooks
     "PGH",
     # ruff
     "RUF",
+    # flake8-print
+    "T20",
     # pyupgrade
     "UP",
 ]

@@ -64,7 +64,7 @@ class Venv(models.Model):
         venv_path = self.path
 
         return {
-            "VIRTUAL_ENV": venv_path,
+            "VIRTUAL_ENV": str(venv_path),
             "PATH": str(venv_path / "bin") + os.pathsep + os.environ["PATH"],
         }
 

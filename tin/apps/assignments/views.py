@@ -392,11 +392,13 @@ def download_file_view(request, assignment_id, file_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
 
-    file_name, file_path = assignment.get_file(file_id)
+    file = assignment.get_file(file_id)
 
-    with open(file_path, "rb") as f_obj:
-        response = http.HttpResponse(f_obj.read(), content_type="text/plain")
-    response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+    if file is None:
+        raise http.Http404
+
+    response = http.HttpResponse(file.read_bytes(), content_type="text/plain")
+    response["Content-Disposition"] = f'attachment; filename="{file.name}"'
 
     return response
 

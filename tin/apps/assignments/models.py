@@ -194,7 +194,19 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
-    def list_files(self) -> list[tuple[int, str, str, int, datetime.datetime]]:
+    def list_files(self) -> list[tuple[int, Path, int, datetime.datetime]]:
+        """List out every file in an assignment
+
+        This excludes grader files and grader log files.
+
+        Returns:
+            A list where each element is a tuple of
+
+            * The file index
+            * The file path
+            * The size of the file
+            * The files last modification time
+        """
         self.make_assignment_dir()
 
         assignment_path = settings.MEDIA_ROOT / f"assignment-{self.id}"
@@ -203,17 +215,16 @@ class Assignment(models.Model):
         grader_file = upload_grader_file_path(self, "")
         grader_log_file = self.grader_log_filename
 
-        for i, item in enumerate(assignment_path.iterdir()):
-            if item.is_file():
-                stat = item.stat(follow_symlinks=False)
+        for i, path in enumerate(assignment_path.iterdir()):
+            if path.is_file():
+                stat = path.stat(follow_symlinks=False)
                 item_details = (
                     i,
-                    item.name,
-                    str(item),
+                    path,
                     stat.st_size,
                     datetime.datetime.fromtimestamp(stat.st_mtime),
                 )
-                if not grader_file.endswith(item.name) and not grader_log_file.endswith(item.name):
+                if not grader_file.endswith(path.name) and not grader_log_file.endswith(path.name):
                     files.append(item_details)
 
         return files
@@ -223,6 +234,7 @@ class Assignment(models.Model):
 
         fpath = settings.MEDIA_ROOT / f"assignment-{self.id}" / file_name
 
+        # Is this needed?
         fpath.parent.mkdir(parents=True, exist_ok=True)
 
         args = get_assignment_sandbox_args(
@@ -245,13 +257,13 @@ class Assignment(models.Model):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
-    def get_file(self, file_id: int) -> tuple[str, str]:
+    def get_file(self, file_id: int) -> Path | None:
         self.make_assignment_dir()
 
         for i, path in enumerate((settings.MEDIA_ROOT / f"assignment-{self.id}").iterdir()):
             if i == file_id and path.exists() and path.is_file():
-                return path.name, str(path)
-        return "", ""
+                return path
+        return None
 
     def delete_file(self, file_id: int) -> None:
         self.make_assignment_dir()
@@ -546,13 +558,12 @@ class FileAction(models.Model):
         ):
             filepaths = []
 
-            for file in assignment.list_files():
-                if self.case_sensitive_match:
-                    filename = file[1]
-                    match = self.match_value
-                else:
-                    filename = file[1].lower()
-                    match = self.match_value.lower()
+            for _, file, _, _ in assignment.list_files():
+                filename = file.name
+                match = self.match_value
+                if not self.case_sensitive_match:
+                    filename = filename.lower()
+                    match = match.lower()
 
                 is_match = (
                     (self.match_type == "S" and filename.startswith(match))
@@ -560,7 +571,7 @@ class FileAction(models.Model):
                     or (self.match_type == "C" and match in filename)
                 )
                 if is_match:
-                    filepaths.append(f"{file[2]}")
+                    filepaths.append(f"{file}")
 
             if "$FILES" in command:
                 new_command = []
