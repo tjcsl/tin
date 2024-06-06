@@ -91,11 +91,33 @@ You can pass arguments to ``pytest`` by passing in ``--``
 after ``python3 manage.py test``. For example, to see the stdout
 for all tests, run
 
-.. code-block:: bash
+.. code-block::
 
    python3 manage.py test -- -rP
 
+Or to run specific sets of tests:
+
+.. code-block::
+
+   # run all tests in this file
+   python3 manage.py test -- tin/apps/courses/courses/tests.py
+
+   # run all tests in this directory
+   python3 manage.py test -- tin/apps/courses/assignments/tests/
+
+   # run test_redirect in courses/tests.py
+   python3 manage.py test -- tin/apps/courses/courses/tests.py::test_redirect
+
 For more details, check out the `pytest documentation <https://docs.pytest.org/en/stable/>`_.
+
+.. admonition:: Implementation Detail
+
+   As of the last time this page was updated,
+   ``python3 manage.py test`` is a wrapper around the raw ``pytest``
+   executable. As such, you can replace ``python3 manage.py test --`` with just ``pytest``.
+
+   Note that this may not stay the same in the future, so if you encounter any problems
+   try using ``python3 manage.py test`` as a first step.
 
 Parameterization
 ~~~~~~~~~~~~~~~~
