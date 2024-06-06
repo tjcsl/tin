@@ -123,7 +123,7 @@ html_theme_options = {
         "color-foreground-secondary": "#ffffffd9",
     },
 }
-html_title = "Tin"
+html_title = "Tin: Turn-In"
 
 # This specifies any additional css files that will override the theme's
 html_css_files = []

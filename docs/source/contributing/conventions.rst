@@ -35,7 +35,7 @@ Will likely be reviewed faster than a PR with a single commit like
 Syncing with master
 ~~~~~~~~~~~~~~~~~~~
 At some point in your PR, it's likely your branch and the master branch will diverge,
-and at this point you'll have to either master into your branch, or rebase your changes
+and at this point you'll have to either merge master into your branch, or rebase your changes
 on top of master. *Tin prefers that you rebase*, in order to preserve linear history.
 
 As a quick review on how to rebase with upstream, you can do
