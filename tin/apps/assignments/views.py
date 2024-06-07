@@ -209,8 +209,9 @@ def create_view(request, course_id):
         {
             "assignment_form": assignment_form,
             "course": course,
-            "action": "add",
             "nav_item": "Create assignment",
+            "action": "add",
+            "imgbb_api_key": settings.IMGBB_API_KEY,
         },
     )
 
@@ -239,9 +240,9 @@ def edit_view(request, assignment_id):
             "course": assignment.course,
             "folder": assignment.folder,
             "assignment": assignment,
-            "imgbb_api_key": settings.IMGBB_API_KEY,
-            "action": "edit",
             "nav_item": "Edit",
+            "action": "edit",
+            "imgbb_api_key": settings.IMGBB_API_KEY,
         },
     )
 
