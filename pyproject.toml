@@ -1,3 +1,24 @@
+[project]
+name = "tin"
+description = "An autograder for Computer Science Classes"
+readme = "README.md"
+authors = [
+    {name = "The TJHSST Computer Systems Lab", email = "tin@tjhsst.edu"},
+]
+requires-python = ">=3.8"
+version = "1.0"
+dynamic = ["dependencies"]
+license = { file = "LICENSE" }
+
+[project.urls]
+Repository = "https://github.com/tjcsl/tin"
+
+[tool.setuptools]
+packages = ["tin"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = "requirements.txt" }
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE="tin.settings"
 python_files="tests.py test_*.py *_tests.py"
