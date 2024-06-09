@@ -364,10 +364,17 @@ class CooldownPeriod(models.Model):
         )
 
 
-# WARNING: This model is deprecated and will be removed in the future.
-# It is kept for backwards compatibility with existing data.
-# All fields and methods have been migrated to the Assignment model.
 class Quiz(models.Model):
+    """A Quiz Model
+
+    .. warning::
+
+        This model is deprecated and will be removed in the future.
+        It is kept for backwards compatibility with existing data.
+        All fields and methods have been migrated to the :class:`.Assignment` model
+
+    """
+
     QUIZ_ACTIONS = (("0", "Log only"), ("1", "Color Change"), ("2", "Lock"))
 
     assignment = models.OneToOneField(

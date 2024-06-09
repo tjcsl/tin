@@ -47,6 +47,8 @@ select = [
     "BLE",
     # flake8-comprehensions
     "C4",
+    # pydocstyle
+    "D",
     # flake8-django
     "DJ",
     # pycodestyle
@@ -83,6 +85,10 @@ ignore = [
   "PT004",
   # mutable class attrs annotated as typing.ClassVar
   "RUF012",
+  # missing docstring
+  "D1",
+  # periods at the end of docstrings
+  "D415",
   # as recommended by https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
   "E111",
   "E114",
@@ -90,6 +96,8 @@ ignore = [
   "E501",
 ]
 
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]

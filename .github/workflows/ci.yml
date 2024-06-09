@@ -39,3 +39,35 @@ jobs:
 
       - name: Run Tests
         run: pipenv run python3 manage.py test
+  docs:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version:
+          - 3.8
+
+    steps:
+      - name: Set up repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pipenv
+
+      - name: Install Sphinx
+        run: sudo apt-get install python3-sphinx
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Install dependencies
+        run: pipenv install --dev
+
+      - name: Build Docs
+        run: |
+
+          cd docs
+          pipenv run make html

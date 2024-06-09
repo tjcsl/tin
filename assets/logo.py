@@ -20,8 +20,8 @@ class Logo(Scene):
 
         subtext = Text("TJHSST's Code Autograder", color=BEIGE).next_to(full, DOWN, buff=2)
 
-        name.to_edge(RIGHT).shift(RIGHT*name.width)
-        full.to_edge(LEFT).shift(LEFT*full.width)
+        name.to_edge(RIGHT).shift(RIGHT * name.width)
+        full.to_edge(LEFT).shift(LEFT * full.width)
         self.play(
             name.animate(rate_func=rate_functions.ease_out_bounce).set_x(0).set_color(GREEN),
             full.animate(rate_func=rate_functions.ease_out_bounce).set_x(0).set_color(BEIGE),
@@ -29,7 +29,7 @@ class Logo(Scene):
         self.play(Create(subtext))
         self.wait(4)
         self.play(Uncreate(VGroup(name, full, subtext)), run_time=1)
-        self.wait(.1)
+        self.wait(0.1)
 
 
 def main():
@@ -40,6 +40,7 @@ def main():
         args["transparent"] = True
     with tempconfig(args):
         Logo().render()
+
 
 if __name__ == "__main__":
     main()

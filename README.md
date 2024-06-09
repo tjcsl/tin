@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/tin-logo.gif" width="500">
+  <img src="docs/source/_static/tin-logo.gif" width="500">
 </p>
 <br>
 <p align="center">

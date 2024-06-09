@@ -31,6 +31,7 @@ class AssignmentForm(forms.ModelForm):
         self.fields["description"].widget.attrs.update({"id": "description"})
 
     def get_sections(self) -> Iterable[dict[str, str | tuple[str, ...] | bool]]:
+        """This is used in templates to find which fields should be in a dropdown div."""
         for section in self.Meta.sections:
             if section["name"]:
                 # operate on copy so errors on refresh don't happen
@@ -39,6 +40,7 @@ class AssignmentForm(forms.ModelForm):
                 yield new_section
 
     def get_main_section(self) -> dict[str, str | tuple[str, ...]]:
+        """This is the section that is NOT in a dropdown"""
         for section in self.Meta.sections:
             if section["name"] == "":
                 new_section = section.copy()

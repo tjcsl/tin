@@ -1,5 +1,4 @@
-"""
-This module provides dummy, insecure versions of Tin sandboxing functions.
+"""This module provides dummy, insecure versions of Tin sandboxing functions.
 
 For production and production-like environments, the sandboxing submodule (.sandboxing/__init__.py)
 should be used. If this module is used as a fallback, running submissions will still not work due to
