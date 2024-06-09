@@ -40,7 +40,7 @@ def is_redirect(
 
 
 def not_redirect(response: HttpResponse) -> bool:
-    """Inverse of :meth:`is_redirect`"""
+    """Inverse of :func:`is_redirect`"""
     return not is_redirect(response)
 
 
@@ -60,5 +60,5 @@ def is_login_redirect(response: HttpResponse, next: str | None = None) -> bool:
 
 
 def not_login_redirect(response: HttpResponse, **kwargs: str | None) -> bool:
-    """Inverse of :meth:`is_login_redirect`"""
+    """Inverse of :func:`is_login_redirect`"""
     return not is_login_redirect(response, **kwargs)
