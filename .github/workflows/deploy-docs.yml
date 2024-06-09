@@ -23,9 +23,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pipenv
 
-      - name: Install Sphinx
-        run: sudo apt-get install python3-sphinx
-
       - name: Install pipenv
         run: pip install pipenv
 
