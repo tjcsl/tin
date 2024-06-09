@@ -88,11 +88,11 @@ def quiz(assignment):
 def admin_login(client):
     """Convenience fixture for logging in as admin.
 
-    Use the decorator :func:`.admin` to save writing
+    Use the decorator :func:`.login` to save writing
 
     .. code-block:: python
 
-        @pytest.mark.usefixtures("admin_login")
+        @login("admin")
         def test_redirect(client, course):
             response = client.get(reverse("assignments:edit", args=[course.id]))
             assert response.status_code != 302
@@ -104,11 +104,11 @@ def admin_login(client):
 def teacher_login(client):
     """Convenience fixture for logging in as a teacher
 
-    Use the decorator :func:`.teacher` to save writing
+    Use the decorator :func:`.login` to save writing
 
     .. code-block:: python
 
-        @pytest.mark.usefixtures("teacher_login")
+        @login("teacher")
         def test_redirect(client, course):
             response = client.get(reverse("assignments:edit", args=[course.id]))
             assert response.status_code != 302
@@ -120,11 +120,11 @@ def teacher_login(client):
 def student_login(client):
     """Convenience decorator for logging in as a teacher
 
-    Use the decorator :func:`.student` to save writing
+    Use the decorator :func:`.login` to save writing
 
     .. code-block:: python
 
-        @pytest.mark.usefixtures("student_login")
+        @login("student")
         def test_redirect(client, course):
             response = client.get(reverse("assignments:edit", args=[course.id]))
             assert response.status_code == 302
