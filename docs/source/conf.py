@@ -96,8 +96,9 @@ html_theme_options = {
     "source_repository": "https://github.com/tjcsl/tin/",
     "source_branch": "main",
     "source_directory": "docs/source/",
-    "light_logo": "tjcsl-logo.png",
-    "dark_logo": "tjcsl-logo.png",
+    "light_logo": "logo-full-black.svg",
+    "dark_logo": "logo-full-white.svg",
+    "sidebar_hide_name": True,
     "light_css_variables": {
         "color-content-foreground": "#000000",
         "color-background-primary": "#ffffff",
