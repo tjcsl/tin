@@ -289,12 +289,8 @@ class Assignment(models.Model):
         return self.venv and self.venv.fully_created
 
     @property
-    def grader_log_filename(self):
-        return (
-            upload_grader_file_path(self, "").rsplit(".", 1)[0] + ".log"
-            if self.grader_file
-            else None
-        )
+    def grader_log_filename(self) -> str:
+        return f"{upload_grader_file_path(self, '').rsplit('.', 1)[0]}.log"
 
     def quiz_open_for_student(self, student):
         is_teacher = self.course.teacher.filter(id=student.id).exists()
