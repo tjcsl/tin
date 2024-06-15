@@ -10,3 +10,4 @@ Tests
    ~tests.utils
    ~tests.assertions
    ~tests.fixtures
+   ~tests.html_parser

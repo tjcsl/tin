@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from tin.tests import is_login_redirect, is_redirect, login
 
-from .models import Course
+from ..models import Course
 
 
 @login("teacher")
