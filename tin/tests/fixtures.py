@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import shutil
+from pathlib import Path
+
 import pytest
 from django.utils import timezone
 
@@ -10,8 +13,20 @@ PASSWORD = "Made with <3 by 2027adeshpan"
 
 
 @pytest.fixture(autouse=True)
-def create_users():
+def tin_setup(settings):
+    # setup
+    settings.MEDIA_ROOT = Path(settings.BASE_DIR) / "tests" / "tin-media"
     users.add_users_to_database(password=PASSWORD, verbose=False)
+
+    # make sure no old/manual stuff added affects tests
+    if settings.MEDIA_ROOT.exists():
+        shutil.rmtree(settings.MEDIA_ROOT)
+    settings.MEDIA_ROOT.mkdir(parents=True)
+
+    yield
+    # cleanup the media so it doesn't cause
+    # problems elsewhere
+    shutil.rmtree(settings.MEDIA_ROOT)
 
 
 @pytest.fixture

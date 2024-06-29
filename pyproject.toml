@@ -22,7 +22,10 @@ dependencies = { file = "requirements.txt" }
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE="tin.settings"
 python_files="tests.py test_*.py *_tests.py"
-norecursedirs = ["media"]
+norecursedirs = ["media", "migrations", "sandboxing"]
+testpaths = "tin"
+addopts = "--doctest-modules tin --import-mode=importlib"
+doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER"
 
 [tool.black]
 line-length = 100
@@ -115,6 +118,8 @@ ignore = [
   "E114",
   "E117",
   "E501",
+  "D206",
+  "D300",
 ]
 
 [tool.ruff.lint.pydocstyle]
