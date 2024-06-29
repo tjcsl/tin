@@ -25,7 +25,6 @@ django-debug-toolbar = "~=4.3"
 
 [dev-packages]
 pytest-django = "~=4.8"
-pytest-xdist = { version="*", extras=["psutil"] }
 django-stubs = "*"
 pre-commit = "*"
 typing-extensions = "*"
