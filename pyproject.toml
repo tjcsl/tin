@@ -24,7 +24,7 @@ DJANGO_SETTINGS_MODULE="tin.settings"
 python_files="tests.py test_*.py *_tests.py"
 norecursedirs = ["media", "migrations", "sandboxing"]
 testpaths = "tin"
-addopts = "--doctest-modules tin -n logical"
+addopts = "--doctest-modules tin --import-mode=importlib"
 doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER"
 
 [tool.black]
