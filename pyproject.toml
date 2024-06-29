@@ -22,7 +22,7 @@ dependencies = { file = "requirements.txt" }
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE="tin.settings"
 python_files="tests.py test_*.py *_tests.py"
-norecursedirs = ["media"]
+norecursedirs = ["media", "migrations", "sandboxing"]
 testpaths = "tin"
 addopts = "--doctest-modules tin -n logical"
 doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER"
