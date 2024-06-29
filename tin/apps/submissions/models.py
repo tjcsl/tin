@@ -23,6 +23,11 @@ logger = logging.getLogger(__name__)
 
 class SubmissionQuerySet(models.query.QuerySet):
     def filter_visible(self, user):
+        """Filter who can see the submission
+
+        Admin and teachers of the course can see all submissions.
+        Students can see their own submissions if it is not a quiz.
+        """
         if user.is_superuser:
             return self.all()
         else:
@@ -31,13 +36,15 @@ class SubmissionQuerySet(models.query.QuerySet):
             ).distinct()
 
     def filter_editable(self, user):
+        """Filter submissions based on who can edit them."""
         if user.is_superuser:
             return self.all()
         else:
             return self.filter(Q(assignment__course__teacher=user) | Q(student=user)).distinct()
 
 
-def upload_submission_file_path(submission, _):  # pylint: disable=unused-argument
+def upload_submission_file_path(submission, _) -> str:  # pylint: disable=unused-argument
+    """Get the path to a submission"""
     assert submission.assignment.id is not None
     if submission.assignment.language == "P":
         return "assignment-{}/{}/submission_{}.py".format(
@@ -55,6 +62,8 @@ def upload_submission_file_path(submission, _):  # pylint: disable=unused-argume
 
 
 class Submission(models.Model):
+    """A single submission for an assignment."""
+
     assignment = models.ForeignKey(
         "assignments.Assignment", on_delete=models.CASCADE, related_name="submissions"
     )
@@ -225,13 +234,17 @@ class Submission(models.Model):
         return os.path.join(settings.MEDIA_ROOT, "submission-backups", self.file.name)
 
     def save_file(self, submission_text: str) -> None:
-        # Writing to files in directories not controlled by us without some
-        # form of sandboxing is a security risk. Most notably, users can use symbolic
-        # links to trick you into writing to another file, outside the directory.
-        # they control.
-        # This solution is very hacky, but we don't have another good way of
-        # doing this.
+        """Save some text as a submission
 
+        .. warning::
+
+            Writing to files in directories not controlled by us without some
+            form of sandboxing is a security risk. Most notably, users can use symbolic
+            links to trick you into writing to another file, outside the directory.
+            This solution is very hacky, but we don't have another good way of
+            doing this.
+
+        """
         fname = upload_submission_file_path(self, "")
 
         self.file.name = fname
@@ -262,6 +275,7 @@ class Submission(models.Model):
             raise FileNotFoundError from e
 
     def create_backup_copy(self, submission_text: str) -> None:
+        """Create a backup copy of some submission text"""
         backup_fpath = self.backup_file_path
 
         if backup_fpath is None:
@@ -328,6 +342,7 @@ class Submission(models.Model):
             )
 
     def unpublish(self):
+        """Unpublish a submission"""
         if self.is_published:
             PublishedSubmission.objects.filter(
                 assignment=self.assignment, student=self.student, submission=self
@@ -335,6 +350,8 @@ class Submission(models.Model):
 
 
 class PublishedSubmission(models.Model):
+    """A published submission."""
+
     date = models.DateTimeField(auto_now_add=True)
 
     assignment = models.ForeignKey(
@@ -359,6 +376,8 @@ class PublishedSubmission(models.Model):
 
 
 class Comment(models.Model):
+    """A comment on a submission by a user"""
+
     submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="comments")
 
