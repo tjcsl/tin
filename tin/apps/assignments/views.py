@@ -159,10 +159,7 @@ def show_view(request, assignment_id):
             "assignment": assignment,
             "students_and_submissions": students_and_submissions,
             "log_file_exists": (
-                assignment.grader_log_filename is not None
-                and os.path.exists(
-                    os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
-                )
+                os.path.exists(os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename))
             ),
             "is_student": course.is_student_in_course(request.user),
             "is_teacher": request.user in course.teacher.all(),
