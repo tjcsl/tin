@@ -234,9 +234,6 @@ class Assignment(models.Model):
 
         fpath = settings.MEDIA_ROOT / f"assignment-{self.id}" / file_name
 
-        # Is this needed?
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-
         args = get_assignment_sandbox_args(
             ["sh", "-c", 'cat >"$1"', "sh", fpath],
             network_access=False,

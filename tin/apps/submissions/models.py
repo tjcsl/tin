@@ -276,7 +276,6 @@ class Submission(models.Model):
         self.last_run = timezone.now()
         self.save()
 
-        # Is this correct?
         return run_submission.s(self.id)
 
     @property

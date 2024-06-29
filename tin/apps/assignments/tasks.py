@@ -41,9 +41,8 @@ def run_moss(moss_result_id):
         published_submission = publishes.latest().submission if publishes else latest_submission
         if published_submission is not None:
             file_with_header = published_submission.file_text_with_header
-            assert isinstance(file_with_header, str)
             temp_path = download_folder / f"{student.username}.{extension}"
-            temp_path.write_text(file_with_header)
+            temp_path.write_text(str(file_with_header))
             runner.addFile(
                 download_folder / f"{student.username}.{extension}",
                 f"{student.first_name}_{student.last_name}",
