@@ -27,39 +27,4 @@ Tin is a Django application backed by PostgreSQL and SQLite. We use Celery (with
 * Customized containers for grader scripts
 
 ## Developing
-To work on Tin, you'll need the following:
-* `pipenv`
-* `git`
-* A Github account
-
-First, [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository) Tin.
-Then you can clone Tin onto your local computer with
-```bash
-git clone https://github.com/your_github_username/tin
-```
-After that, install dependencies:
-```bash
-pipenv install --dev
-```
-
-And finally, apply the database migrations and create some users.
-
-Note: if you're on Windows, replace `python3` with `python` in the commands below
-```bash
-python3 manage.py migrate
-python3 create_debug_users.py
-```
-Now you can run the Tin development server!
-```bash
-python3 manage.py runserver
-```
-Head over to [http://127.0.0.1:8000](http://127.0.0.1:8000), and
-login with the username `admin` and the password you just entered.
-
-## Data Backup
-```bash
-python manage.py dumpdata --natural-foreign --natural-primary -e contenttypes -e admin -e auth.Permission > export_YYYY_MM_DD.json
-# copy to local machine
-iconv -f ISO-8859-1 -t UTF-8 export_YYYY_MM_DD.json > export_YYYY_MM_DD_utf8.json
-python manage.py loaddata export_YYYY_MM_DD_utf8.json
-```
+Check out the most up to date installation instructions at [Tin's Documentation](https://tjcsl.github.io/tin/)!
