@@ -40,10 +40,7 @@ class SubmissionQuerySet(models.query.QuerySet):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(
-                Q(assignment__course__teacher=user)
-                | (Q(student=user) & Q(assignment__course__archived=False))
-            ).distinct()
+            return self.filter(assignment__course__teacher=user).distinct()
 
 
 def upload_submission_file_path(submission, _):  # pylint: disable=unused-argument
