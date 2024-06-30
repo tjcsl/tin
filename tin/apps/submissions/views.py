@@ -263,7 +263,7 @@ def unpublish_view(request, submission_id):
 
 @teacher_or_superuser_required
 def filter_view(request):
-    """Creates an assignment
+    """Search through submissions based on a filter.
 
     Args:
         request: The request
