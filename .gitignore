@@ -11,3 +11,5 @@ tin/serve
 .idea/
 docs/build/
 docs/source/reference/
+
+.coverage

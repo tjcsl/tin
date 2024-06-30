@@ -33,6 +33,7 @@ furo = "*"
 myst-parser = "*"
 sphinx-copybutton = "*"
 sphinxcontrib-django = "*"
+coveralls = "*"
 
 [requires]
 python_version = "3.8"

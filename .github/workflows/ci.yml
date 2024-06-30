@@ -45,7 +45,7 @@ jobs:
         run: pipenv install --dev --deploy
 
       - name: Run Tests
-        run: pipenv run python3 manage.py test
+        run: pipenv run coverage run -m pytest
 
       - name: Run Coveralls
         uses: AndreMiras/coveralls-python-action@develop
