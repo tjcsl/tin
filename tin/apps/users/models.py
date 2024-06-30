@@ -13,10 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class UserManager(DjangoUserManager):
-    pass
+    """The Manager for :class:`~User`"""
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """A Tin user"""
+
     id = models.AutoField(primary_key=True)
     username = models.CharField(unique=True, max_length=32)
     full_name = models.CharField(max_length=105)
@@ -39,6 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     def api_request(self, url, params=None, *, refresh=True):
+        """Log in to Tin via Ion"""
         if params is None:
             params = {}
 
@@ -58,4 +61,5 @@ class User(AbstractBaseUser, PermissionsMixin):
         return res.json()
 
     def get_social_auth(self):
+        """Get social auth information from Ion"""
         return self.social_auth.get(provider="ion")

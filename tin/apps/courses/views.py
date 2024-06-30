@@ -20,7 +20,11 @@ from .models import Course, Period, StudentImport
 # Create your views here.
 @login_required
 def index_view(request):
-    """Lists all courses"""
+    """Lists all courses
+
+    Args:
+        request: The request
+    """
     visible = Course.objects.filter_visible(request.user).order_by("-created")
     courses = visible.filter(archived=False)
     archived_courses = visible.filter(archived=True)
@@ -53,7 +57,12 @@ def index_view(request):
 
 @login_required
 def show_view(request, course_id):
-    """Lists information about a course"""
+    """Lists information about a course
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
 
     is_teacher = request.user in course.teacher.all()
@@ -84,7 +93,11 @@ def show_view(request, course_id):
 
 @teacher_or_superuser_required
 def create_view(request):
-    """Creates a course"""
+    """Creates a course
+
+    Args:
+        request: The HTTP request
+    """
     if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
@@ -101,7 +114,12 @@ def create_view(request):
 
 @teacher_or_superuser_required
 def edit_view(request, course_id):
-    """Edits a course"""
+    """Edits a course
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
@@ -119,7 +137,12 @@ def edit_view(request, course_id):
 
 @teacher_or_superuser_required
 def import_select_course_view(request, course_id):
-    """Select another course to import assignments or folders from"""
+    """Select another course to import assignments or folders from
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     courses = Course.objects.filter_editable(request.user).exclude(id=course_id)
@@ -141,7 +164,13 @@ def import_select_course_view(request, course_id):
 
 @teacher_or_superuser_required
 def import_from_selected_course(request, course_id, other_course_id):
-    """Select folders and assignments to import from another course"""
+    """Select folders and assignments to import from another course
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+        other_course_id: The primary key of a difference instance of :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
     other_course = get_object_or_404(
         Course.objects.filter_editable(request.user), id=other_course_id
@@ -220,7 +249,12 @@ def import_from_selected_course(request, course_id, other_course_id):
 
 @teacher_or_superuser_required
 def students_view(request, course_id):
-    """View students enrolled in a course"""
+    """View students enrolled in a course
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     period = request.GET.get("period", "all")
@@ -272,6 +306,15 @@ def students_view(request, course_id):
 
 @teacher_or_superuser_required
 def import_students_view(request, course_id):
+    """Add students to a course
+
+    This puts students in a queue so that when they log in again,
+    they get added to the course
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     student_import = StudentImport.objects.get_or_create(course=course)[0]
@@ -295,7 +338,12 @@ def import_students_view(request, course_id):
 
 @teacher_or_superuser_required
 def manage_students_view(request, course_id):
-    """Add/remove students from a coure"""
+    """Add/remove students from a coure
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
@@ -326,7 +374,12 @@ def manage_students_view(request, course_id):
 
 @teacher_or_superuser_required
 def add_period_view(request, course_id):
-    """Creates a period and associated it with a course"""
+    """Creates a period and associated it with a course
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
@@ -347,7 +400,13 @@ def add_period_view(request, course_id):
 
 @teacher_or_superuser_required
 def edit_period_view(request, course_id, period_id):
-    """Edits a period"""
+    """Edits a period
+
+    Args:
+        request: The HTTP request
+        course_id: The primary key of an instance of :class:`.Course`
+        period_id: The primary key of an instance of :class:`.Period`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
     period = get_object_or_404(Period, id=period_id)
 

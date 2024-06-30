@@ -12,6 +12,11 @@ from .tasks import create_venv, install_packages
 # Create your views here.
 @teacher_or_superuser_required
 def index_view(request):
+    """Show all venvs visible to a user
+
+    Args:
+        request: The request
+    """
     venvs = Venv.objects.filter_visible(request.user)
 
     return render(
@@ -26,6 +31,12 @@ def index_view(request):
 
 @teacher_or_superuser_required
 def show_view(request, venv_id):
+    """Show information about a venv
+
+    Args:
+        request: The request
+        venv_id: The primary key of an instance of the :class:`.Venv` model
+    """
     venv: Venv = get_object_or_404(Venv.objects.filter_visible(request.user), id=venv_id)
 
     return render(
@@ -41,6 +52,11 @@ def show_view(request, venv_id):
 
 @teacher_or_superuser_required
 def create_view(request):
+    """Create a venv
+
+    Args:
+        request: The request
+    """
     if request.method == "POST":
         form = VenvForm(request.POST)
         if form.is_valid():
@@ -64,6 +80,12 @@ def create_view(request):
 
 @teacher_or_superuser_required
 def edit_view(request, venv_id):
+    """Edit a venv
+
+    Args:
+        request: The request
+        venv_id: The primary key of an instance of the :class:`.Venv` model
+    """
     venv = get_object_or_404(Venv.objects.filter_editable(request.user), id=venv_id)
 
     if request.method == "POST":
@@ -88,6 +110,12 @@ def edit_view(request, venv_id):
 
 @teacher_or_superuser_required
 def install_packages_view(request, venv_id):
+    """Install packages in a venv
+
+    Args:
+        request: The request
+        venv_id: The primary key of an instance of the :class:`.Venv` model
+    """
     if request.method == "POST":
         venv = get_object_or_404(
             Venv.objects.filter_editable(request.user), id=venv_id, installing_packages=False

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import subprocess
+from collections.abc import Iterable
 
 from django.conf import settings
 from django.db import models
@@ -23,17 +24,21 @@ class VenvExistsError(VenvCreationError):
 
 class VenvQuerySet(models.query.QuerySet):
     def filter_visible(self, user):
+        """Only superusers and teachers can see Venvs"""
         if user.is_superuser or user.is_teacher:
             return self.all()
         return self.none()
 
     def filter_editable(self, user):
+        """Only admin can edit a venv"""
         if user.is_superuser:
             return self.all()
         return self.none()
 
 
 class Venv(models.Model):
+    """A Python Virtual Environment."""
+
     name = models.CharField(max_length=255, null=False, blank=False)
 
     fully_created = models.BooleanField(null=False)
@@ -60,7 +65,15 @@ class Venv(models.Model):
     def path(self):
         return os.path.join(settings.MEDIA_ROOT, "venvs", f"venv-{self.id}")
 
-    def get_activation_env(self):
+    def get_activation_env(self) -> dict[str, str]:
+        """Returns information about the virtual environment.
+
+        Returns:
+            A dictionary with the keys
+
+            * ``VIRTUAL_ENV``: the path to the virtual environment
+            * ``PATH``: the modified ``$PATH`` variable
+        """
         venv_path = self.path
 
         return {
@@ -68,7 +81,14 @@ class Venv(models.Model):
             "PATH": os.path.join(venv_path, "bin") + os.pathsep + os.environ["PATH"],
         }
 
-    def list_packages(self):
+    def list_packages(self) -> list[list[str]] | None:
+        """List all packages in a virtual environment.
+
+        .. admonition:: TODO
+
+            This parses the output from ``pip freeze``.
+            Ideally, there should be a better way to do this.
+        """
         env = dict(os.environ)
         env.update(self.get_activation_env())
 
@@ -100,7 +120,8 @@ class Venv(models.Model):
 
             return pkgs
 
-    def install_packages(self, pkgs):
+    def install_packages(self, pkgs: Iterable[str]) -> None:
+        """Install packages"""
         self.installing_packages = True
         self.save()
 
