@@ -234,7 +234,7 @@ class Submission(models.Model):
         return os.path.join(settings.MEDIA_ROOT, "submission-backups", self.file.name)
 
     def save_file(self, submission_text: str) -> None:
-        """Save some text as a submission
+        """Save the student's code submission to a file
 
         .. warning::
 
@@ -275,7 +275,7 @@ class Submission(models.Model):
             raise FileNotFoundError from e
 
     def create_backup_copy(self, submission_text: str) -> None:
-        """Create a backup copy of some submission text"""
+        """Create a backup copy of the student's code submission"""
         backup_fpath = self.backup_file_path
 
         if backup_fpath is None:

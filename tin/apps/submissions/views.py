@@ -55,7 +55,7 @@ def show_view(request, submission_id):
 
 @login_required
 def show_json_view(request, submission_id):
-    """Get a Json response about the information of a submission
+    """Get a JSON response about the information of a submission
 
     Args:
         request: The request
@@ -316,7 +316,10 @@ def filter_view(request):
 
 @superuser_required
 def set_aborted_complete_view(request):
-    """Check if a submission is running
+    """Check if a submission is running.
+
+    This also marks all non-running incomplete submissions
+    as completed.
 
     Args:
         request: The request

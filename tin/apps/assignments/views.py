@@ -361,7 +361,7 @@ def download_grader_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def manage_files_view(request, assignment_id):
-    """Upload a file to the :class:`.Assignment`
+    """List current assignment files and allow uploading new ones
 
     Args:
         request: The request
@@ -460,7 +460,7 @@ def delete_file_view(request, assignment_id, file_id):
 
 @teacher_or_superuser_required
 def file_action_view(request, assignment_id, action_id):
-    """Run file actions on an assignment
+    """Run file actions on an assignment's files
 
     Args:
         request: The request
@@ -779,7 +779,7 @@ def quiz_view(request, assignment_id):
 
 @login_required
 def quiz_report_view(request, assignment_id):
-    """Get a report of the quiz progress/interruptions
+    """Allows client-side JavaScript to report quiz log messages
 
     Args:
         request: The request
@@ -953,7 +953,7 @@ def download_submissions_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def moss_view(request, assignment_id):
-    """The view for the Moss form
+    """Allows teachers to select submissions and send them to Moss.
 
     Args:
         request: The request

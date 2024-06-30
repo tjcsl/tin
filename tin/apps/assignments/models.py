@@ -92,7 +92,6 @@ class AssignmentQuerySet(models.query.QuerySet):
             return self.filter(course__teacher=user).distinct()
 
 
-# FIXME: Why is there an empty unused argument, should this be a method of assignment?
 def upload_grader_file_path(assignment, _):  # pylint: disable=unused-argument
     """Get the location of the grader file for an assignment"""
     assert assignment.id is not None
@@ -322,7 +321,7 @@ class Assignment(models.Model):
                 return
 
     def check_rate_limit(self, student) -> None:
-        """Check if a student is submitting too many submissions too fast"""
+        """Check if a student is submitting too quickly"""
         now = timezone.localtime()
 
         if (
