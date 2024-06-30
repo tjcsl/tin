@@ -157,9 +157,7 @@ def show_view(request, assignment_id):
             "folder": assignment.folder,
             "assignment": assignment,
             "students_and_submissions": students_and_submissions,
-            "log_file_exists": (
-                (settings.MEDIA_ROOT / assignment.grader_log_filename).exists()
-            ),
+            "log_file_exists": ((settings.MEDIA_ROOT / assignment.grader_log_filename).exists()),
             "is_student": course.is_student_in_course(request.user),
             "is_teacher": request.user in course.teacher.all(),
             "query": query,
