@@ -20,12 +20,23 @@ packages = ["tin"]
 dependencies = { file = "requirements.txt" }
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE="tin.settings"
-python_files="tests.py test_*.py *_tests.py"
+DJANGO_SETTINGS_MODULE = "tin.settings"
+python_files = "tests.py test_*.py *_tests.py"
 norecursedirs = ["media", "migrations", "sandboxing"]
 testpaths = "tin"
 addopts = "--doctest-modules tin --import-mode=importlib"
 doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER"
+
+[tool.coverage.run]
+branch = true
+source = ["tin"]
+omit = [
+    "*/migrations/*",
+    "*/apps.py",
+    "*/urls.py",
+    "*/wsgi.py",
+]
+relative_files = true
 
 [tool.black]
 line-length = 100

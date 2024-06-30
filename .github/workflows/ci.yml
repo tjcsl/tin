@@ -47,6 +47,22 @@ jobs:
       - name: Run Tests
         run: pipenv run python3 manage.py test
 
+      - name: Run Coveralls
+        uses: AndreMiras/coveralls-python-action@develop
+        with:
+          parallel: true
+          flag-name: Pyenv Unit Tests
+
+  test_success:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Handle Coveralls Finish
+        uses: AndreMiras/coveralls-python-action@develop
+        with:
+          github-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          parallel-finished: true
+
   docs:
     runs-on: ubuntu-latest
 
