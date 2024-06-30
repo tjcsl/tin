@@ -89,4 +89,4 @@ jobs:
       - name: Build Docs
         run: |
           cd docs
-          pipenv run make html
+          pipenv run make html SPHINXOPTS="-W --keep-going --nitpicky"
