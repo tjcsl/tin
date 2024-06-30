@@ -62,4 +62,9 @@ For example,
 Tips and Tricks
 ~~~~~~~~~~~~~~~
 Sometimes Sphinx will do some weird stuff and things will stop working nicely.
-In this case, a simple ``make clean`` (or ``make.bat clean`` for Windows) should do the trick.
+In this case, a simple ``make cleanall`` (or ``make.bat cleanall`` for Windows) should do the trick.
+
+.. warning::
+
+   ``make.bat cleanall`` is _untested_ on Windows, be careful when using it. You can alternatively
+   use ``make.bat clean`` and remove the contents of ``docs/source/reference``.
