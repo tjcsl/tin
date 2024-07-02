@@ -56,9 +56,7 @@ add_module_names = False
 napoleon_numpy_docstring = False  # force google
 napoleon_include_special_with_doc = False
 
-napoleon_custom_sections = [
-    ("Special", "params_style"),
-]
+napoleon_custom_sections = ["Examples"]
 
 templates_path = ["_templates"]
 exclude_patterns = []
