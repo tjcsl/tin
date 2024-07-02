@@ -16,9 +16,9 @@
       <th>Last Modified</th>
     </tr>
     {% if files is not None %}
-      {% for id, filename, path, size, modified in files %}
+      {% for id, file, size, modified in files %}
         <tr>
-          <td>{{ filename }}</td>
+          <td>{{ file.name }}</td>
           <td>{{ size | filesizeformat }}</td>
           <td>{{ modified }}</td>
           <td><a href="{% url 'assignments:download_file' assignment.id id %}">Download</a></td>

@@ -3,7 +3,6 @@ from __future__ import annotations
 import csv
 import datetime
 import logging
-import os
 import subprocess
 import zipfile
 from io import BytesIO
@@ -158,9 +157,7 @@ def show_view(request, assignment_id):
             "folder": assignment.folder,
             "assignment": assignment,
             "students_and_submissions": students_and_submissions,
-            "log_file_exists": (
-                os.path.exists(os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename))
-            ),
+            "log_file_exists": (settings.MEDIA_ROOT / assignment.grader_log_filename).exists(),
             "is_student": course.is_student_in_course(request.user),
             "is_teacher": request.user in course.teacher.all(),
             "query": query,
@@ -393,11 +390,13 @@ def download_file_view(request, assignment_id, file_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
 
-    file_name, file_path = assignment.get_file(file_id)
+    file = assignment.get_file(file_id)
 
-    with open(file_path, "rb") as f_obj:
-        response = http.HttpResponse(f_obj.read(), content_type="text/plain")
-    response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+    if file is None:
+        raise http.Http404
+
+    response = http.HttpResponse(file.read_bytes(), content_type="text/plain")
+    response["Content-Disposition"] = f'attachment; filename="{file.name}"'
 
     return response
 
@@ -895,14 +894,14 @@ def download_log_view(request, assignment_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
 
-    log_file_name = os.path.join(settings.MEDIA_ROOT, assignment.grader_log_filename)
+    log_file_name = settings.MEDIA_ROOT / assignment.grader_log_filename
 
     if (
         request.user not in assignment.course.teacher.all() and not request.user.is_superuser
-    ) or not os.path.exists(log_file_name):
+    ) or not log_file_name.exists():
         raise http.Http404
 
-    assigment_dir = os.path.dirname(log_file_name)
+    assigment_dir = log_file_name.parent
 
     args = sandboxing.get_assignment_sandbox_args(
         ["cat", "--", log_file_name],

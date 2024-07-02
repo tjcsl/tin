@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 
 __all__ = ("user_data", "add_users_to_database")
 
+# ruff: noqa: T201
+
 # fmt: off
 user_data = [
     #[username, is_teacher, is_student, is_staff, is_superuser]

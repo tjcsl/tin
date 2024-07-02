@@ -35,18 +35,19 @@ def run_submission(submission_id):
     submission = Submission.objects.get(id=submission_id)
 
     try:
-        grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
-        grader_log_path = os.path.join(
-            settings.MEDIA_ROOT, submission.assignment.grader_log_filename
-        )
+        grader_path = settings.MEDIA_ROOT / submission.assignment.grader_file.name
+        grader_log_path = settings.MEDIA_ROOT / submission.assignment.grader_log_filename
         submission_path = submission.file_path
 
         submission_wrapper_path = submission.wrapper_file_path
 
+        if submission_wrapper_path is None:
+            raise ValueError("File not provided")
+
         args = get_assignment_sandbox_args(
-            ["mkdir", "-p", "--", os.path.dirname(submission_wrapper_path)],
+            ["mkdir", "-p", "--", str(submission_wrapper_path.parent)],
             network_access=False,
-            whitelist=[os.path.dirname(os.path.dirname(submission_wrapper_path))],
+            whitelist=[str(submission_wrapper_path.parent.parent)],
         )
 
         try:
@@ -63,7 +64,7 @@ def run_submission(submission_id):
             raise FileNotFoundError from e
 
         python_exe = (
-            os.path.join(submission.assignment.venv.path, "bin", "python")
+            submission.assignment.venv.path / "bin" / "python"
             if submission.assignment.venv_fully_created
             else "/usr/bin/python3.10"
         )
@@ -73,16 +74,16 @@ def run_submission(submission_id):
         else:
             folder_name = "testing"
 
-        with open(
-            os.path.join(
-                settings.BASE_DIR,
-                "sandboxing",
-                "wrappers",
-                folder_name,
-                f"{submission.assignment.language}.txt",
+        wrapper_text = (
+            (
+                settings.BASE_DIR
+                / "sandboxing"
+                / "wrappers"
+                / folder_name
+                / f"{submission.assignment.language}.txt"
             )
-        ) as wrapper_file:
-            wrapper_text = wrapper_file.read().format(
+            .read_text()
+            .format(
                 has_network_access=bool(submission.assignment.has_network_access),
                 venv_path=(
                     submission.assignment.venv.path
@@ -92,11 +93,11 @@ def run_submission(submission_id):
                 submission_path=submission_path,
                 python=python_exe,
             )
+        )
 
-        with open(submission_wrapper_path, "w", encoding="utf-8") as f_obj:
-            f_obj.write(wrapper_text)
+        submission_wrapper_path.write_text(wrapper_text, encoding="utf-8")
 
-        os.chmod(submission_wrapper_path, 0o700)
+        submission_wrapper_path.chmod(0o700)
     except OSError:
         submission.grader_output = (
             "An internal error occurred. Please try again.\n"
@@ -131,8 +132,8 @@ def run_submission(submission_id):
         ]
 
         if not settings.DEBUG or shutil.which("firejail") is not None:
-            whitelist = [os.path.dirname(grader_path)]
-            read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
+            whitelist = [grader_path.parent]
+            read_only = [grader_path, submission_path, submission_wrapper_path.parent]
             if submission.assignment.venv_fully_created:
                 whitelist.append(submission.assignment.venv.path)
                 read_only.append(submission.assignment.venv.path)
@@ -155,7 +156,7 @@ def run_submission(submission_id):
             stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             bufsize=0,
-            cwd=os.path.dirname(grader_path),
+            cwd=grader_path.parent,
             preexec_fn=os.setpgrp,  # noqa: PLW1509
             env=env,
         ) as proc:
@@ -273,5 +274,4 @@ def run_submission(submission_id):
             submission.channel_group_name, {"type": "submission.updated"}
         )
 
-        if os.path.exists(submission_wrapper_path):
-            os.remove(submission_wrapper_path)
+        submission_wrapper_path.unlink(missing_ok=True)
