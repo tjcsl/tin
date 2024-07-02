@@ -27,14 +27,20 @@ class SubmissionQuerySet(models.query.QuerySet):
             return self.all()
         else:
             return self.filter(
-                Q(assignment__course__teacher=user) | Q(student=user) & Q(assignment__is_quiz=False)
+                Q(assignment__course__teacher=user)
+                | Q(student=user)
+                & Q(assignment__is_quiz=False)
+                & (
+                    Q(assignment__course__archived=False)
+                    | Q(assignment__course__permission__in="rw")
+                )
             ).distinct()
 
     def filter_editable(self, user):
         if user.is_superuser:
             return self.all()
         else:
-            return self.filter(Q(assignment__course__teacher=user) | Q(student=user)).distinct()
+            return self.filter(assignment__course__teacher=user).distinct()
 
 
 def upload_submission_file_path(submission, _):  # pylint: disable=unused-argument

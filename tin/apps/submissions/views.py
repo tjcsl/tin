@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import psutil
 from django import http
-from django.db.models import F
+from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -75,9 +75,10 @@ def download_view(request, submission_id):
 
 @login_required
 def kill_view(request, submission_id):
-    submission = get_object_or_404(
-        Submission.objects.filter_editable(request.user), id=submission_id
+    submissions_editable = Submission.objects.filter(
+        Q(assignment__course__teacher=request.user) | Q(student=request.user)
     )
+    submission = get_object_or_404(submissions_editable, id=submission_id)
 
     if request.method == "POST":
         submission.kill_requested = True

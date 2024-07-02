@@ -100,6 +100,30 @@ def quiz(assignment):
 
 
 @pytest.fixture
+def submission(assignment, student):
+    """Creates a :class:`.Submission`.
+
+    The submission is for :func:`assignment` and was submitted
+    by :func:`student`. The submission text is ``print('Hello World!')``.
+    """
+    submission = assignment.submissions.create(student=student)
+    submission.save_file("print('Hello World!')")
+    return submission
+
+
+@pytest.fixture
+def quiz_submission(quiz, student):
+    """Creates a :class:`.Submission`.
+
+    The submission is for :func:`quiz` and was submitted
+    by :func:`student`. The submission text is ``print('Hello World!')``.
+    """
+    submission = quiz.submissions.create(student=student)
+    submission.save_file("print('Hello World!')")
+    return submission
+
+
+@pytest.fixture
 def admin_login(client):
     """Convenience fixture for logging in as admin.
 
