@@ -13,10 +13,11 @@ PASSWORD = "Made with <3 by 2027adeshpan"
 
 
 @pytest.fixture(autouse=True)
-def tin_setup(settings):
+def tin_setup(settings, worker_id: str, testrun_uid: str):
     # setup
-    settings.MEDIA_ROOT = Path(settings.BASE_DIR) / "tests" / "tin-media"
-    users.add_users_to_database(password=PASSWORD, verbose=False)
+    settings.MEDIA_ROOT = (
+        Path(settings.BASE_DIR) / "tests" / "tin-media" / f"media-{worker_id}-{testrun_uid}"
+    )
 
     # make sure no old/manual stuff added affects tests
     if settings.MEDIA_ROOT.exists():
@@ -26,7 +27,13 @@ def tin_setup(settings):
     yield
     # cleanup the media so it doesn't cause
     # problems elsewhere
-    shutil.rmtree(settings.MEDIA_ROOT)
+    if settings.MEDIA_ROOT.exists():
+        shutil.rmtree(settings.MEDIA_ROOT)
+
+
+@pytest.fixture(autouse=True)
+def create_users():
+    users.add_users_to_database(password=PASSWORD, verbose=False)
 
 
 @pytest.fixture
