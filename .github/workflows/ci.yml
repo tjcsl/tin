@@ -42,9 +42,7 @@ jobs:
         run: pipenv verify
 
       - name: Install dependencies
-        run: |
-          pipenv install --dev --deploy
-          pipenv run pip install pytest-cov
+        run: pipenv install --categories="packages dev-packages ci" --deploy
 
       - name: Run Tests
         run: pipenv run pytest --cov=tin

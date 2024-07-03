@@ -35,5 +35,8 @@ myst-parser = "*"
 sphinx-copybutton = "*"
 sphinxcontrib-django = "*"
 
+[ci]
+pytest-cov = "*"
+
 [requires]
 python_version = "3.8"
