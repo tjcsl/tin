@@ -42,10 +42,10 @@ jobs:
         run: pipenv verify
 
       - name: Install dependencies
-        run: pipenv install --dev --deploy
+        run: pipenv install --categories="packages dev-packages ci" --deploy
 
       - name: Run Tests
-        run: pipenv run coverage run -m pytest
+        run: pipenv run pytest --cov=tin
 
       - name: Run Coveralls
         uses: AndreMiras/coveralls-python-action@develop
