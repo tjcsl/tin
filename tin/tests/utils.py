@@ -6,7 +6,7 @@ __all__ = (
     "to_html",
 )
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 import pytest
 from django.template import Context, Engine
@@ -18,7 +18,9 @@ if TYPE_CHECKING:
     P = ParamSpec("P")
 
 
-def login(user: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
+def login(
+    user: Literal["admin", "teacher", "student"],
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """Login ``client`` as a tin user type.
 
     .. code-block::
@@ -45,7 +47,7 @@ def login(user: str) -> Callable[[Callable[P, T]], Callable[P, T]]:
 
 # we define these helper functions to avoid hardcoding
 # stuff like the html escape code for '
-def to_html(s: str, ctx: dict[str, str]):
+def to_html(s: str, ctx: dict[str, Any]) -> str:
     """Convert template code to an html string
 
     .. code-block:: pycon
@@ -64,7 +66,7 @@ def to_html(s: str, ctx: dict[str, str]):
     return template.render(context)
 
 
-def str_to_html(s: str):
+def str_to_html(s: str) -> str:
     """Converts a string to it's html representation
 
     .. code-block:: pycon
