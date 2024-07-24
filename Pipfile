@@ -34,6 +34,8 @@ furo = "*"
 myst-parser = "*"
 sphinx-copybutton = "*"
 sphinxcontrib-django = "*"
+beautifulsoup4 = "~=4.12"
+lxml = "~=5.2"
 
 [ci]
 pytest-cov = "*"
