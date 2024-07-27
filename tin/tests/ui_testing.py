@@ -104,39 +104,16 @@ class Html:
             # so we have to bool() it to make typecheckers happy
             return bool(buttons or inputs or tin_btns)
 
-        if text is None or any(btn.text == text for btn in tin_btns):
+        if any(_check_tin_button(btn, text=text, href=href) for btn in tin_btns):
             return True
 
-        if any(self._check_button(btn, text=text, href=href) for btn in buttons):
+        if any(_check_button(btn, text=text, href=href) for btn in buttons):
             return True
 
-        if any(self._check_input_tag(input_, text=text, href=href) for input_ in inputs):
+        if any(_check_input_tag(input_, text=text, href=href) for input_ in inputs):
             return True
 
         return False
-
-    @staticmethod
-    def _check_button(button, *, text: str | None = None, href: str | None = None) -> bool:
-        """Check if a button has the correct properties."""
-        if text is not None and button.text != text:
-            return False
-        return (
-            href is None
-            or button.find_parent("a", href=href) is not None
-            or button.find("a", href=href) is not None
-        )
-
-    @staticmethod
-    def _check_input_tag(input, *, text: str | None = None, href: str | None = None) -> bool:
-        """Check if an input tag has the correct properties"""
-        if text is not None and input.get("value") != text:
-            return False
-
-        return (
-            href is None
-            or input.find_parent("a", href=href) is not None
-            or input.find("a", href=href) is not None
-        )
 
     def has_text(self, text: str, case_sensitive: bool = False) -> bool:
         """Check if a piece of text is present inside the html.
@@ -172,3 +149,32 @@ class Html:
             return text in s if case_sensitive else text.lower() in s.lower()
 
         return self.soup.find(string=string_filter) is not None
+
+
+def _check_tin_button(button, *, text: str | None = None, href: str | None = None) -> bool:
+    if text is not None and button.text != text:
+        return False
+    return href is None or button.get("href") == href
+
+
+def _check_button(button, *, text: str | None = None, href: str | None = None) -> bool:
+    """Check if a button has the correct properties."""
+    if text is not None and button.text != text:
+        return False
+    return (
+        href is None
+        or button.find_parent("a", href=href) is not None
+        or button.find("a", href=href) is not None
+    )
+
+
+def _check_input_tag(input, *, text: str | None = None, href: str | None = None) -> bool:
+    """Check if an input tag has the correct properties"""
+    if text is not None and input.get("value") != text:
+        return False
+
+    return (
+        href is None
+        or input.find_parent("a", href=href) is not None
+        or input.find("a", href=href) is not None
+    )

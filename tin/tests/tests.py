@@ -28,11 +28,14 @@ def test_html_has_button_with_href():
     <button><a href="https://example.com">Hi!</a></button>
     <input type="submit" value="Blame the compiler">
     <a href='https://google.com'><button>Google</button></a>
+    <a class="bob tin-btn" href="https://example.com">Bob</a>
     """
     html = Html(raw_html)
     assert html.has_button(href="https://example.com")
     assert not html.has_button(href="https://example.org")
     assert html.has_button("Google", href="https://google.com")
+    # should also search for <a class="tin-btn"
+    assert html.has_button("Bob", href="https://example.com")
     raw_html = """
     <button>Hi!</button>
     <input type="submit" value="Blame the compiler">
