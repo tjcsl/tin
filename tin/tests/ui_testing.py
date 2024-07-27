@@ -46,7 +46,7 @@ class Html:
 
     @classmethod
     def from_response(cls, response: HttpResponse):
-        """Create an Html object from a Django response.
+        """Create an Html object from a Django :class:`~django.http.HttpResponse`.
 
         Examples:
 
@@ -96,19 +96,22 @@ class Html:
         # assume <input type="submit"> is a button
         inputs = self.soup("input", type="submit")
 
+        tin_btns = self.soup("a", class_="tin-btn")
+
         # if no arguments are provided, check if any button exists
         if text is None and href is None:
             # "or" returns the first value if it's truthy otherwise the second value
             # so we have to bool() it to make typecheckers happy
-            return bool(buttons or inputs)
+            return bool(buttons or inputs or tin_btns)
 
-        for button in buttons:
-            if self._check_button(button, text=text, href=href):
-                return True
+        if text is None or any(btn.text == text for btn in tin_btns):
+            return True
 
-        for input in inputs:
-            if self._check_input_tag(input, text=href, href=href):
-                return True
+        if any(self._check_button(btn, text=text, href=href) for btn in buttons):
+            return True
+
+        if any(self._check_input_tag(input_, text=text, href=href) for input_ in inputs):
+            return True
 
         return False
 

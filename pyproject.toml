@@ -82,6 +82,7 @@ extend-exclude = [
   "migrations",
 ]
 
+fix = true
 show-fixes = false
 
 line-length = 100
