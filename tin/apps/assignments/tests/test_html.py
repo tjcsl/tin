@@ -5,6 +5,8 @@ from django.urls import reverse
 
 from tin.tests import Html, login
 
+from .. import views
+
 
 @login("student")
 @pytest.mark.parametrize(
@@ -34,3 +36,41 @@ def test_can_submit_assignment(
     )
     html = Html.from_response(response)
     assert html.has_button("Submit") is visible
+
+
+@pytest.mark.parametrize(
+    ("user", "visible"),
+    (
+        ("student", False),
+        ("teacher", True),
+    ),
+)
+def test_can_create_assignment(rf, course, student, teacher, user, visible):
+    user_map = {
+        "student": student,
+        "teacher": teacher,
+    }
+    request = rf.get(
+        reverse("assignments:add", args=[course.id]),
+    )
+    request.user = user_map[user]
+    response = views.create_view(request, course.id)
+    html = Html.from_response(response)
+    assert html.has_button("Create") is visible
+
+
+@login("student")
+def test_can_submit_assignment_from_form(client, assignment):
+    response = client.get(
+        reverse("assignments:submit", args=[assignment.id]),
+    )
+    html = Html.from_response(response)
+    # no grader has been added yet
+    assert not html.has_button("Submit")
+    assignment.save_grader_file("print('Instanced Rendering OP')")
+
+    response = client.get(
+        reverse("assignments:submit", args=[assignment.id]),
+    )
+    html = Html.from_response(response)
+    assert html.has_button("Submit")

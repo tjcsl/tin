@@ -76,10 +76,10 @@ class Html:
 
             .. code-block:: pycon
 
-                >>> raw_html = \"\"\"
+                >>> raw_html = '''
                 ... <button>Hi!</button>
                 ... <input type="submit" value="Blame the compiler">
-                ... \"\"\"
+                ... '''
                 >>> html = Html(raw_html)
                 >>> html.has_button()
                 True
