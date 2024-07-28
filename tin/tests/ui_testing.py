@@ -110,7 +110,7 @@ class Html:
             or any(_check_input_tag(input_, text=text, href=href) for input_ in inputs)
         )
 
-    def has_text(self, text: str, case_sensitive: bool = False) -> bool:
+    def has_text(self, text: str, *, case_sensitive: bool = False) -> bool:
         """Check if a piece of text is present inside the html.
 
         .. note::
