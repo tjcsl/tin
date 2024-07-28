@@ -104,16 +104,11 @@ class Html:
             # so we have to bool() it to make typecheckers happy
             return bool(buttons or inputs or tin_btns)
 
-        if any(_check_tin_button(btn, text=text, href=href) for btn in tin_btns):
-            return True
-
-        if any(_check_button(btn, text=text, href=href) for btn in buttons):
-            return True
-
-        if any(_check_input_tag(input_, text=text, href=href) for input_ in inputs):
-            return True
-
-        return False
+        return (
+            any(_check_tin_button(btn, text=text, href=href) for btn in tin_btns)
+            or any(_check_button(btn, text=text, href=href) for btn in buttons)
+            or any(_check_input_tag(input_, text=text, href=href) for input_ in inputs)
+        )
 
     def has_text(self, text: str, case_sensitive: bool = False) -> bool:
         """Check if a piece of text is present inside the html.
@@ -131,9 +126,9 @@ class Html:
 
             .. code-block:: pycon
 
-                >>> raw_html = \"\"\"
+                >>> raw_html = '''
                 ... <p class="insideTag">This is a really long sentence</p>
-                ... \"\"\"
+                ... '''
                 >>> html = Html(raw_html)
                 >>> html.has_text("REALLY long sentence")
                 True
