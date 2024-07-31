@@ -38,6 +38,18 @@ omit = [
 ]
 relative_files = true
 
+[tool.coverage.report]
+exclude_also = [
+  # Don't complain about missing debug-only code:
+  "def __repr__",
+  # Don't complain about abstract methods, they aren't run:
+  "@(abc\\.)?abstractmethod",
+  # Don't complain about code that won't run
+  "if __name__ == .__main__.:",
+  # Ignore type-checking only code
+  "if (typing.)?TYPE_CHECKING:",
+]
+
 [tool.black]
 line-length = 100
 exclude = '''
