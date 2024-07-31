@@ -47,7 +47,7 @@ exclude_also = [
   # Don't complain about code that won't run
   "if __name__ == .__main__.:",
   # Ignore type-checking only code
-  "if (typing.)?TYPE_CHECKING:",
+  "if (typing\\.)?TYPE_CHECKING:",
 ]
 
 [tool.black]
