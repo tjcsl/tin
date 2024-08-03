@@ -40,11 +40,11 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def show_view(request, assignment_id):
-    """Shows an overview of the assignment
+    """Shows an overview of the :class:`.Assignment`
 
     Args:
         request : The request
-        assignment_id : The assignment id
+        assignment_id : the :class:`.Assignment` id
     """
     assignment: Assignment = get_object_or_404(
         Assignment.objects.filter_visible(request.user), id=assignment_id
@@ -186,7 +186,12 @@ def show_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def create_view(request, course_id):
-    """Creates an assignment"""
+    """Creates an assignment
+
+    Args:
+        request: The request
+        course_id: The id of the :class:`.Course`
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
@@ -216,7 +221,12 @@ def create_view(request, course_id):
 
 @teacher_or_superuser_required
 def edit_view(request, assignment_id):
-    """Edits an assignment"""
+    """Edits an assignment
+
+    Args:
+        request: The request
+        assignment_id: The id of the :class:`.Assignment`
+    """
     assignment: Assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -247,7 +257,12 @@ def edit_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def delete_view(request, assignment_id):
-    """Deletes an assignment"""
+    """Deletes an assignment
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -261,7 +276,12 @@ def delete_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def manage_grader_view(request, assignment_id):
-    """Uploads a grader for an assignment"""
+    """Uploads a grader for an assignment
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -317,7 +337,12 @@ def manage_grader_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def download_grader_view(request, assignment_id):
-    """Downloads the grader for an assignment"""
+    """Downloads the grader for an assignment
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -336,6 +361,12 @@ def download_grader_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def manage_files_view(request, assignment_id):
+    """List current assignment files and allow uploading new ones
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -389,6 +420,13 @@ def manage_files_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def download_file_view(request, assignment_id, file_id):
+    """Download a file
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+        file_id: The id of the file
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -404,6 +442,13 @@ def download_file_view(request, assignment_id, file_id):
 
 @teacher_or_superuser_required
 def delete_file_view(request, assignment_id, file_id):
+    """Delete a file
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+        file_id: The id of the file to delete
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -415,6 +460,13 @@ def delete_file_view(request, assignment_id, file_id):
 
 @teacher_or_superuser_required
 def file_action_view(request, assignment_id, action_id):
+    """Run file actions on an assignment's files
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+        action_id: The primary key of the :class:`.FileAction`
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -427,6 +479,13 @@ def file_action_view(request, assignment_id, action_id):
 
 @teacher_or_superuser_required
 def student_submissions_view(request, assignment_id, student_id):
+    """See the submissions of a student
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+        student_id: The primary key of the student model
+    """
     assignment: Assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -461,6 +520,12 @@ def student_submissions_view(request, assignment_id, student_id):
 
 @login_required
 def submit_view(request, assignment_id):
+    """Submit an assignment
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_submittable(request.user),
         id=assignment_id,
@@ -586,6 +651,12 @@ def submit_view(request, assignment_id):
 
 
 def rerun_view(request, assignment_id):
+    """Rerun select submissions
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment`
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -618,6 +689,12 @@ def rerun_view(request, assignment_id):
 
 @login_required
 def quiz_view(request, assignment_id):
+    """The view for taking a Quiz
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment` model
+    """
     assignment: Assignment = get_object_or_404(
         Assignment.objects.filter_visible(request.user).filter(course__archived=False),
         id=assignment_id,
@@ -702,6 +779,12 @@ def quiz_view(request, assignment_id):
 
 @login_required
 def quiz_report_view(request, assignment_id):
+    """Allows client-side JavaScript to report quiz log messages
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment` model
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_visible(request.user), id=assignment_id
     )
@@ -727,6 +810,12 @@ def quiz_report_view(request, assignment_id):
 
 @login_required
 def quiz_end_view(request, assignment_id):
+    """The view for ending a quiz
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment` model
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_visible(request.user), id=assignment_id
     )
@@ -740,6 +829,15 @@ def quiz_end_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def quiz_clear_view(request, assignment_id, user_id):
+    """Clear the log messages of a user.
+
+    This effectively also restarts the quiz.
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment` model
+        user_id: The primary key of the user
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -752,6 +850,12 @@ def quiz_clear_view(request, assignment_id, user_id):
 
 @teacher_or_superuser_required
 def scores_csv_view(request, assignment_id):
+    """Get a ``.csv`` of the scores
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment` model
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -805,6 +909,12 @@ def scores_csv_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def download_submissions_view(request, assignment_id):
+    """Download the submissions as a zipped file
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment` model
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -843,6 +953,12 @@ def download_submissions_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def moss_view(request, assignment_id):
+    """Allows teachers to select submissions and send them to Moss.
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment` model
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -891,6 +1007,12 @@ def moss_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def download_log_view(request, assignment_id):
+    """Download the log messages
+
+    Args:
+        request: The request
+        assignment_id: The primary key of the :class:`.Assignment` model
+    """
     assignment = get_object_or_404(
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
@@ -934,6 +1056,13 @@ def download_log_view(request, assignment_id):
 
 @login_required
 def show_folder_view(request, course_id, folder_id):
+    """Show a folder
+
+    Args:
+        request: The request
+        course_id: The primary key of the :class:`.Course` model
+        folder_id: The primary key of the :class:`.Folder` model
+    """
     course = get_object_or_404(Course.objects.filter_visible(request.user), id=course_id)
     folder = get_object_or_404(course.folders.all(), id=folder_id)
 
@@ -959,6 +1088,12 @@ def show_folder_view(request, course_id, folder_id):
 
 @teacher_or_superuser_required
 def create_folder_view(request, course_id):
+    """Create a folder
+
+    Args:
+        request: The request
+        course_id: The primary key of the :class:`.Course` model
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
 
     if request.method == "POST":
@@ -982,6 +1117,13 @@ def create_folder_view(request, course_id):
 
 @teacher_or_superuser_required
 def edit_folder_view(request, course_id, folder_id):
+    """Edit a folder
+
+    Args:
+        request: The request
+        course_id: The primary key of the :class:`.Course` model
+        folder_id: The primary key of the :class:`.Folder` model
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
     folder = get_object_or_404(course.folders.all(), id=folder_id)
 
@@ -1005,6 +1147,13 @@ def edit_folder_view(request, course_id, folder_id):
 
 @teacher_or_superuser_required
 def delete_folder_view(request, course_id, folder_id):
+    """Delete a folder
+
+    Args:
+        request: The request
+        course_id: The primary key of the :class:`.Course` model
+        folder_id: The primary key of the :class:`.Folder` model
+    """
     course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
     folder = get_object_or_404(course.folders.all(), id=folder_id)
 

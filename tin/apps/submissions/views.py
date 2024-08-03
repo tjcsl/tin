@@ -17,6 +17,12 @@ from .utils import serialize_submission_info
 
 @login_required
 def show_view(request, submission_id):
+    """Show a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+    """
     submission = get_object_or_404(
         Submission.objects.filter_visible(request.user), id=submission_id
     )
@@ -49,6 +55,12 @@ def show_view(request, submission_id):
 
 @login_required
 def show_json_view(request, submission_id):
+    """Get a JSON response about the information of a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+    """
     try:
         submission = Submission.objects.filter_visible(request.user).get(id=submission_id)
     except Submission.DoesNotExist:
@@ -59,6 +71,12 @@ def show_json_view(request, submission_id):
 
 @login_required
 def download_view(request, submission_id):
+    """Download a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+    """
     submission = get_object_or_404(
         Submission.objects.filter_visible(request.user), id=submission_id
     )
@@ -75,6 +93,12 @@ def download_view(request, submission_id):
 
 @login_required
 def kill_view(request, submission_id):
+    """Kill a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+    """
     submissions_editable = Submission.objects.filter(
         Q(assignment__course__teacher=request.user) | Q(student=request.user)
     )
@@ -94,6 +118,12 @@ def kill_view(request, submission_id):
 
 @teacher_or_superuser_required
 def rerun_view(request, submission_id):
+    """Rerun a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+    """
     submission = get_object_or_404(
         Submission.objects.filter_visible(request.user), id=submission_id
     )
@@ -104,6 +134,12 @@ def rerun_view(request, submission_id):
 
 @teacher_or_superuser_required
 def comment_view(request, submission_id):
+    """Comment on a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+    """
     if request.method != "POST":
         raise http.Http404
 
@@ -133,6 +169,13 @@ def comment_view(request, submission_id):
 
 @teacher_or_superuser_required
 def edit_comment_view(request, submission_id, comment_id):
+    """Edit a comment on a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+        comment_id: An instance of the :class:`.Comment` model
+    """
     submission = get_object_or_404(
         Submission.objects.filter_editable(request.user), id=submission_id
     )
@@ -167,6 +210,13 @@ def edit_comment_view(request, submission_id, comment_id):
 
 @teacher_or_superuser_required
 def delete_comment_view(request, submission_id, comment_id):
+    """Delete a comment
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+        comment_id: An instance of the :class:`.Comment` model
+    """
     submission = get_object_or_404(
         Submission.objects.filter_editable(request.user), id=submission_id
     )
@@ -182,6 +232,12 @@ def delete_comment_view(request, submission_id, comment_id):
 
 @teacher_or_superuser_required
 def publish_view(request, submission_id):
+    """Publish a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+    """
     submission = get_object_or_404(
         Submission.objects.filter_editable(request.user), id=submission_id
     )
@@ -192,6 +248,12 @@ def publish_view(request, submission_id):
 
 @teacher_or_superuser_required
 def unpublish_view(request, submission_id):
+    """Unpublish a submission
+
+    Args:
+        request: The request
+        submission_id: An instance of the :class:`.Submission` model
+    """
     submission = get_object_or_404(
         Submission.objects.filter_editable(request.user), id=submission_id
     )
@@ -202,7 +264,11 @@ def unpublish_view(request, submission_id):
 
 @teacher_or_superuser_required
 def filter_view(request):
-    """Creates an assignment"""
+    """Search through submissions based on a filter.
+
+    Args:
+        request: The request
+    """
     if request.method == "POST":
         filter_form = FilterForm(request.POST)
         if filter_form.is_valid():
@@ -251,6 +317,14 @@ def filter_view(request):
 
 @superuser_required
 def set_aborted_complete_view(request):
+    """Check if a submission is running.
+
+    This also marks all non-running incomplete submissions
+    as completed.
+
+    Args:
+        request: The request
+    """
     if request.method == "POST":
         submissions = Submission.objects.filter(complete=False, grader_pid__isnull=False)
 
@@ -266,6 +340,13 @@ def set_aborted_complete_view(request):
 
 @superuser_required
 def set_past_timeout_complete_view(request):
+    """Update submissions based off the time limit
+
+    If it has exceeded its time limit, marks it as complete
+
+    Args:
+        request: The request
+    """
     if request.method == "POST":
         Submission.objects.filter(
             complete=False,

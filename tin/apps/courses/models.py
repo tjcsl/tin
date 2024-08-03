@@ -7,7 +7,15 @@ from django.urls import reverse
 
 
 class CourseQuerySet(models.query.QuerySet):
+    """Provide filtering utilities for courses."""
+
     def filter_visible(self, user):
+        """Filters if a course is visible to a user.
+
+        Admins can see all courses, teachers can only
+        see course they teach, and students can only see non-archived
+        courses OR courses that have permission "r" or "w"
+        """
         if user.is_superuser:
             return self.all()
         else:
@@ -17,6 +25,7 @@ class CourseQuerySet(models.query.QuerySet):
             ).distinct()
 
     def filter_editable(self, user):
+        """Filter courses a user can edit."""
         if user.is_superuser:
             return self.all()
         else:
@@ -24,6 +33,11 @@ class CourseQuerySet(models.query.QuerySet):
 
 
 class Course(models.Model):
+    """A TJHSST Course
+
+    e.g. Foundations of Computer Science
+    """
+
     SORT_BY = (("due_date", "Due Date"), ("name", "Name"))
     PERMISSIONS = (
         ("w", "view and submit assignments"),
@@ -57,17 +71,27 @@ class Course(models.Model):
     def __repr__(self):
         return self.name
 
-    def get_teacher_str(self):
+    def get_teacher_str(self) -> str:
+        """Get a string of the last names of all teachers in a course"""
         return ", ".join(t.last_name for t in self.teacher.all())
 
-    def is_student_in_course(self, user):
-        return user in self.students.all()
+    def is_student_in_course(self, user) -> bool:
+        """Check if a student is registered in the course"""
+        return self.students.contains(user)
 
-    def is_only_student_in_course(self, user):
-        return user in self.students.all() and not (user.is_superuser or user in self.teacher.all())
+    def is_only_student_in_course(self, user) -> bool:
+        """Check if a user is the only student in a course"""
+        return self.is_student_in_course(user) and not (
+            user.is_superuser or user in self.teacher.all()
+        )
 
 
 class Period(models.Model):
+    """A Period, or a Block
+
+    e.g. Period 7
+    """
+
     name = models.CharField(max_length=50, blank=False)
     course = models.ForeignKey(
         Course, null=True, on_delete=models.CASCADE, related_name="period_set"
@@ -96,6 +120,8 @@ class Period(models.Model):
 
 
 class StudentImportUser(models.Model):
+    """A student that is to be added to a course when they log in"""
+
     user = models.CharField(max_length=15, unique=True)
 
     class Meta:
@@ -125,6 +151,7 @@ class StudentImport(models.Model):
         return f"Import into {self.course.name}"
 
     def queue_users(self, usernames):
+        """Add usernames to a queue of students to add to a course"""
         for username in usernames:
             import_user_object = StudentImportUser.objects.get_or_create(user=username)[0]
             self.students.add(import_user_object)

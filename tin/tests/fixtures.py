@@ -14,6 +14,7 @@ PASSWORD = "Made with <3 by 2027adeshpan"
 
 @pytest.fixture(autouse=True)
 def tin_setup(settings, worker_id: str, testrun_uid: str):
+    """Set up the users and MEDIA_ROOTs for each test."""
     # setup
     settings.MEDIA_ROOT = (
         Path(settings.BASE_DIR) / "tests" / "tin-media" / f"media-{worker_id}-{testrun_uid}"
@@ -74,7 +75,7 @@ def student(django_user_model):
 
 @pytest.fixture
 def course(teacher, student):
-    """Fixture containing a course object
+    """Fixture containing a :class:`.Course` object
 
     The name of the course is "Intro to OpenGL",
     and the teacher is the same teacher as given by
@@ -88,7 +89,7 @@ def course(teacher, student):
 
 @pytest.fixture
 def assignment(course):
-    """Creates an assignment in :func:`~.course`"""
+    """Creates an :class:`.Assignment` in :func:`~.course`"""
     data = {
         "name": "Write a Shader",
         "description": "See https://learnopengl.com/Getting-started/Shaders",

@@ -23,6 +23,12 @@ logger = logging.getLogger(__name__)
 
 
 class Folder(models.Model):
+    """A folder for assignments.
+
+    Each course can have multiple folders, and each
+    assignment can be in a folder.
+    """
+
     name = models.CharField(max_length=50)
 
     course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="folders")
@@ -39,6 +45,17 @@ class Folder(models.Model):
 
 class AssignmentQuerySet(models.query.QuerySet):
     def filter_permissions(self, user, *perms: Literal["-", "r", "w"]):
+        """Filters based off of the permissions of the user and the course.
+
+        An admin can always see everything. A teacher can only see courses they
+        are the teachers for. Otherwise it filters it based off the course being archived
+        and/or the permission of the course after archiving.
+
+        Args:
+            user: The user executing the query (``request.user``)
+            *perms: Every permission listed is or-ed together.
+                Each value can be - (hidden), r (read-only), or w (read-write)
+        """
         if user.is_superuser:
             return self.all()
         else:
@@ -50,12 +67,25 @@ class AssignmentQuerySet(models.query.QuerySet):
             return self.filter(q).distinct()
 
     def filter_visible(self, user):
+        r"""Filters assignments that are visible to a user
+
+        Alias for calling :meth:`filter_permissions` with the permissions
+        "r" and "w"
+        """
         return self.filter_permissions(user, "r", "w")
 
     def filter_submittable(self, user):
+        """Filters by assignments that can be submitted.
+
+        .. warning::
+
+            Do NOT use this if :attr:`~Assignment.is_quiz` is ``True``.
+            In that case, the check should be done manually.
+        """
         return self.filter_permissions(user, "w")
 
     def filter_editable(self, user):
+        """Filters assignments if they're editable by the user"""
         if user.is_superuser:
             return self.all()
         else:
@@ -63,6 +93,7 @@ class AssignmentQuerySet(models.query.QuerySet):
 
 
 def upload_grader_file_path(assignment, _):  # pylint: disable=unused-argument
+    """Get the location of the grader file for an assignment"""
     assert assignment.id is not None
     if assignment.language == "P":
         return f"assignment-{assignment.id}/grader.py"
@@ -71,6 +102,14 @@ def upload_grader_file_path(assignment, _):  # pylint: disable=unused-argument
 
 
 class Assignment(models.Model):
+    """An assignment (or quiz) for a student.
+
+    If :attr:`~.Assignment.is_quiz` is ``True``, this
+    model doubles as a quiz.
+
+    The manager for this model is :class:`.AssignmentQuerySet`.
+    """
+
     name = models.CharField(max_length=50)
     folder = models.ForeignKey(
         Folder,
@@ -154,17 +193,22 @@ class Assignment(models.Model):
         return self.name
 
     def make_assignment_dir(self) -> None:
+        """Creates the directory where the assignment grader scripts go."""
         assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
         os.makedirs(assignment_path, exist_ok=True)
 
     def save_grader_file(self, grader_text: str) -> None:
-        # Writing to files in directories not controlled by us without some
-        # form of sandboxing is a security risk. Most notably, users can use symbolic
-        # links to trick you into writing to another file, outside the directory.
-        # they control.
-        # This solution is very hacky, but we don't have another good way of
-        # doing this.
+        """Save the grader file to the correct location.
 
+        .. warning::
+
+            Writing to files in directories not controlled by us without some
+            form of sandboxing is a security risk. Most notably, users can use symbolic
+            links to trick you into writing to another file, outside the directory.
+            they control.
+            This solution is very hacky, but we don't have another good way of
+            doing this.
+        """
         fname = upload_grader_file_path(self, "")
 
         self.grader_file.name = fname
@@ -195,6 +239,15 @@ class Assignment(models.Model):
             raise FileNotFoundError from e
 
     def list_files(self) -> list[tuple[int, str, str, int, datetime.datetime]]:
+        """List all files in the assignments directory
+
+        Returns:
+            - The index of the assignment
+            - The name of the assignment submission
+            - The full path to the assignment submission
+            - The size of the submission
+            - The time at which it was submitted
+        """
         self.make_assignment_dir()
 
         assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
@@ -219,6 +272,7 @@ class Assignment(models.Model):
         return files
 
     def save_file(self, file_text: str, file_name: str) -> None:
+        """Save some text as a file"""
         self.make_assignment_dir()
 
         fpath = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}", file_name)
@@ -256,6 +310,7 @@ class Assignment(models.Model):
         return "", ""
 
     def delete_file(self, file_id: int) -> None:
+        """Delete a file by id"""
         self.make_assignment_dir()
 
         for i, item in enumerate(
@@ -266,6 +321,7 @@ class Assignment(models.Model):
                 return
 
     def check_rate_limit(self, student) -> None:
+        """Check if a student is submitting too quickly"""
         now = timezone.localtime()
 
         if (
@@ -293,18 +349,22 @@ class Assignment(models.Model):
         return f"{upload_grader_file_path(self, '').rsplit('.', 1)[0]}.log"
 
     def quiz_open_for_student(self, student):
+        """Check if a quiz is open for a specific student"""
         is_teacher = self.course.teacher.filter(id=student.id).exists()
         if is_teacher or student.is_superuser:
             return True
         return not (self.quiz_ended_for_student(student) or self.quiz_locked_for_student(student))
 
-    def quiz_ended_for_student(self, student):
+    def quiz_ended_for_student(self, student) -> bool:
+        """Check if the quiz has ended for a student"""
         return self.log_messages.filter(student=student, content="Ended quiz").exists()
 
-    def quiz_locked_for_student(self, student):
+    def quiz_locked_for_student(self, student) -> bool:
+        """Check if the quiz has been locked (e.g. due to leaving the tab)"""
         return self.quiz_issues_for_student(student) and self.quiz_action == "2"
 
-    def quiz_issues_for_student(self, student):
+    def quiz_issues_for_student(self, student) -> bool:
+        """Check if the student has exceeded the maximum amount of issues they can have with a quiz."""
         return (
             sum(lm.severity for lm in self.log_messages.filter(student=student))
             >= settings.QUIZ_ISSUE_THRESHOLD
@@ -411,6 +471,8 @@ class Quiz(models.Model):
 
 
 class QuizLogMessage(models.Model):
+    """A log message for an :class:`Assignment` (with :attr:`~.Assignment.is_quiz` set to ``True``)"""
+
     assignment = models.ForeignKey(
         Assignment, on_delete=models.CASCADE, related_name="log_messages"
     )
@@ -504,6 +566,11 @@ class MossResult(models.Model):
 
 
 def run_action(command: list[str]) -> str:
+    """Runs a command.
+
+    If the command cannot find a file, raises an exception.
+    Otherwise, returns the stdout of the command.
+    """
     try:
         res = subprocess.run(
             command,
@@ -521,6 +588,8 @@ def run_action(command: list[str]) -> str:
 
 
 class FileAction(models.Model):
+    """Runs a user uploaded script on files uploaded to an assignment."""
+
     MATCH_TYPES = (("S", "Start with"), ("E", "End with"), ("C", "Contain"))
 
     name = models.CharField(max_length=50)
@@ -541,6 +610,7 @@ class FileAction(models.Model):
         return self.name
 
     def run(self, assignment: Assignment):
+        """Runs the command on the input assignment"""
         command = self.command.split(" ")
 
         if (
