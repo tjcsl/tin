@@ -25,11 +25,21 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 
+if "%1" == "cleanall" goto cleanall
+
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end
 
 :help
 %SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+
+:cleanall
+REM This is untested, please fix if broken
+%SPHINXBUILD% -M clean %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+cd %SOURCEDIR%
+cd reference
+del .*.
+goto end
 
 :end
 popd
