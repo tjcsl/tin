@@ -10,6 +10,14 @@ Deploying Tin
 
 Backing Up Data
 ---------------
+You can back up media with
+
+.. code-block:: bash
+
+    rsync -ah root@tin.csl.tjhsst.edu:/home/tin/tin/tin/media/ /path/to/backup/
+
+You can then back up the database with
+
 .. code-block:: bash
 
     python manage.py dumpdata --natural-foreign --natural-primary -e contenttypes -e admin -e auth.Permission > export_YYYY_MM_DD.json
