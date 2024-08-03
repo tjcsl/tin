@@ -21,7 +21,7 @@ dependencies = { file = "requirements.txt" }
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tin.settings"
-python_files = "tests.py test_*.py *_tests.py"
+python_files = "tests.py test_*.py"
 norecursedirs = ["media", "migrations", "sandboxing"]
 testpaths = "tin"
 addopts = "--doctest-modules tin --import-mode=importlib -n 8"
@@ -35,8 +35,22 @@ omit = [
     "*/apps.py",
     "*/urls.py",
     "*/wsgi.py",
+    "*/tests.py",
+    "*/test_*.py",
 ]
 relative_files = true
+
+[tool.coverage.report]
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+    # Don't complain about code that won't run
+    "if __name__ == .__main__.:",
+    # Ignore type-checking only code
+    "if (typing\\.)?TYPE_CHECKING:",
+]
 
 [tool.black]
 line-length = 100
