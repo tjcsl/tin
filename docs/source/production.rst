@@ -13,6 +13,7 @@ Backing Up Data
 You can back up media with
 
 .. code-block:: bash
+
     rsync -ah root@tin.csl.tjhsst.edu:/home/tin/tin/tin/media/ /path/to/backup/
 
 You can then back up the database with
