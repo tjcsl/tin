@@ -295,7 +295,7 @@ def filter_view(request):
                     "submissions/filter.html",
                     {
                         "form": filter_form,
-                        "submissions": list(zip(queryset, submission_texts)),
+                        "submissions": list(zip(queryset, submission_texts, strict=False)),
                         "action": "show_code",
                         "nav_item": "Filter submissions",
                     },
