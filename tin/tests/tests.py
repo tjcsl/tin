@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from .ui_testing import Html
 
 
@@ -9,10 +11,12 @@ def test_html_has_button_no_href():
     <input type="submit" value="Blame the compiler">
     """
     html = Html(raw_html)
-    # with no arguments it should return True because
-    # a button exists
-    assert html.has_button()
+    # with no arguments it should raise a ValueError
+    with pytest.raises(ValueError, match="At least one of text or href must be provided"):
+        html.has_button()
     assert html.has_button("Hi!")
+    # has button is case insensitive
+    assert html.has_button("hi!")
     assert html.has_button("Blame the compiler")
 
     raw_html = """
@@ -20,7 +24,7 @@ def test_html_has_button_no_href():
     <input type="list" value="Blame the compiler">
     """
     html = Html(raw_html)
-    assert not html.has_button()
+    assert not html.has_button("Blame the compiler")
 
 
 def test_html_has_button_with_href():
@@ -48,8 +52,7 @@ def test_has_text():
     raw_html = '<p class="insideTag">This is a really long sentence</p>'
     html = Html(raw_html)
 
-    # it should be case sensitive by default
-    # to avoid false positives (e.g. "hi" in "This")
+    # it should be case insensitive by default
     assert html.has_text("REALLY long sentence")
 
     assert not html.has_text("REALLY long sentence", case_sensitive=True)

@@ -10,7 +10,7 @@ from .. import views
 
 @login("student")
 @pytest.mark.parametrize(
-    ("course_perm", "is_archived", "visible"),
+    ("course_perm", "is_archived", "is_visible"),
     (
         ("-", False, True),
         ("r", False, True),
@@ -26,7 +26,7 @@ def test_can_submit_assignment(
     assignment,
     course_perm: str,
     is_archived: bool,
-    visible: bool,
+    is_visible: bool,
 ):
     course.archived = is_archived
     course.permission = course_perm
@@ -35,17 +35,17 @@ def test_can_submit_assignment(
         reverse("assignments:show", args=[assignment.id]),
     )
     html = Html.from_response(response)
-    assert html.has_button("Submit") is visible
+    assert html.has_button("Submit") is is_visible
 
 
 @pytest.mark.parametrize(
-    ("user", "visible"),
+    ("user", "is_visible"),
     (
         ("student", False),
         ("teacher", True),
     ),
 )
-def test_can_create_assignment(rf, course, student, teacher, user, visible):
+def test_can_create_assignment(rf, course, student, teacher, user, is_visible):
     user_map = {
         "student": student,
         "teacher": teacher,
@@ -56,7 +56,7 @@ def test_can_create_assignment(rf, course, student, teacher, user, visible):
     request.user = user_map[user]
     response = views.create_view(request, course.id)
     html = Html.from_response(response)
-    assert html.has_button("Create") is visible
+    assert html.has_button("Create") is is_visible
 
 
 @login("student")

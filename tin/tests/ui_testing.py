@@ -20,12 +20,12 @@ class Html:
 
         .. code-block:: pycon
 
-            >>> raw_html = \"\"\"
+            >>> raw_html = '''
             ... <button><a href='example.org'>Hi!</a></button>
             ... <input type="submit" value="Blame the compiler">
             ... <p>switch your major to PHYSICS!</p>
             ... <a href="example.org"><button>Rust Forever!</button></a>
-            ... \"\"\"
+            ... '''
             >>> html = Html(raw_html)
             >>> html.has_button("Hi!")
             True
@@ -69,7 +69,7 @@ class Html:
             This will not match against ``<input type="not submit">`` tags.
 
         Args:
-            text: The text of the button. If not provided, it will not be checked.
+            text: The text of the button. If not provided, it will not be checked. This is case insensitive.
             href: The url the button links to. If not provided, it will not be checked.
 
         Examples:
@@ -81,8 +81,6 @@ class Html:
                 ... <input type="submit" value="Blame the compiler">
                 ... '''
                 >>> html = Html(raw_html)
-                >>> html.has_button()
-                True
                 >>> html.has_button("Hi!")
                 True
                 >>> html.has_button("Blame the compiler")
@@ -92,22 +90,18 @@ class Html:
                 >>> html.has_button(href="https://example.com")
                 False
         """
-        buttons = self.soup("button")
-        # assume <input type="submit"> is a button
-        inputs = self.soup("input", type="submit")
-
-        tin_btns = self.soup("a", class_="tin-btn")
-
-        # if no arguments are provided, check if any button exists
         if text is None and href is None:
-            # "or" returns the first value if it's truthy otherwise the second value
-            # so we have to bool() it to make typecheckers happy
-            return bool(buttons or inputs or tin_btns)
+            raise ValueError("At least one of text or href must be provided")
+        elif text is not None:
+            text = text.lower()
 
-        return (
-            any(_check_tin_button(btn, text=text, href=href) for btn in tin_btns)
-            or any(_check_button(btn, text=text, href=href) for btn in buttons)
-            or any(_check_input_tag(input_, text=text, href=href) for input_ in inputs)
+        if any(_check_tin_button(btn, text=text, href=href) for btn in self.soup(class_="tin-btn")):
+            return True
+
+        btns = self.soup("button")
+        inputs = self.soup("input", type="submit")
+        return any(_check_button(btn, text=text, href=href) for btn in btns) or any(
+            _check_input_tag(inp, text=text, href=href) for inp in inputs
         )
 
     def has_text(self, text: str, *, case_sensitive: bool = False) -> bool:
@@ -147,29 +141,36 @@ class Html:
 
 
 def _check_tin_button(button, *, text: str | None = None, href: str | None = None) -> bool:
-    if text is not None and button.text != text:
+    if text is not None and button.text.lower() != text:
         return False
-    return href is None or button.get("href") == href
+    return (
+        href is None
+        or button.get("href") == href
+        or button.find("a", href=href) is not None
+        or button.find_parent("a", href=href) is not None
+    )
 
 
 def _check_button(button, *, text: str | None = None, href: str | None = None) -> bool:
     """Check if a button has the correct properties."""
-    if text is not None and button.text != text:
+    if text is not None and button.text.lower() != text:
         return False
     return (
         href is None
-        or button.find_parent("a", href=href) is not None
         or button.find("a", href=href) is not None
+        or button.find_parent("a", href=href) is not None
     )
 
 
 def _check_input_tag(input, *, text: str | None = None, href: str | None = None) -> bool:
     """Check if an input tag has the correct properties"""
-    if text is not None and input.get("value") != text:
+    # note that this means text = "" & href=None will always make this function return True
+    # but we trust the user to not do that
+    if text is not None and input.get("value", "").lower() != text:
         return False
 
     return (
         href is None
-        or input.find_parent("a", href=href) is not None
         or input.find("a", href=href) is not None
+        or input.find_parent("a", href=href) is not None
     )
