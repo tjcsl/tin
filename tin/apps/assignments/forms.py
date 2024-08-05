@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from logging import getLogger
-from typing import Iterable
 
 from django import forms
 from django.conf import settings

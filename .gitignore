@@ -13,3 +13,6 @@ docs/build/
 docs/source/reference/
 
 .coverage
+
+# from prettier
+node_modules/

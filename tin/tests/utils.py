@@ -6,7 +6,8 @@ __all__ = (
     "to_html",
 )
 
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Literal
 
 import pytest
 from django.template import Context, Engine
