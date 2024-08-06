@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
+
+from __future__ import annotations
+
 import os
-import subprocess
-import sys
+from getpass import getpass
 
-if not __file__.endswith("shell.py"):
-    subprocess.call(
-        [
-            sys.executable,
-            os.path.join(os.path.dirname(__file__), "manage.py"),
-            "shell",
-            "-c",
-            open(__file__).read(),
-        ]
-    )
-    exit()
+import django
+
+import tin.tests.create_users as users
 
 
-from tin.tests.create_users import add_users_to_database
+def main():
+    # hide user password from showing on terminal
+    password = getpass("Enter password for all users: ")
+    users.add_users_to_database(password=password, verbose=True)
 
-password = input("Enter password for all users: ")
 
-add_users_to_database(password=password, verbose=True)
+if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tin.settings")
+    django.setup()
+    main()
