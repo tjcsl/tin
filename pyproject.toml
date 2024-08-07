@@ -180,4 +180,7 @@ line-ending = "lf"
 
 [tool.codespell]
 write-changes = true
-ignore-words-list = ["num", "ans"]
+# this has to be a string of the form a,b,c
+# ignore-words-list = ""
+# ignore comments like: # codespell: ignore
+ignore-regex=".+# *codespell: *ignore.*"
