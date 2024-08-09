@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 
 import pytest
@@ -13,23 +12,9 @@ PASSWORD = "Made with <3 by 2027adeshpan"
 
 
 @pytest.fixture(autouse=True)
-def tin_setup(settings, worker_id: str, testrun_uid: str):
-    """Set up the users and MEDIA_ROOTs for each test."""
-    # setup
-    settings.MEDIA_ROOT = (
-        Path(settings.BASE_DIR) / "tests" / "tin-media" / f"media-{worker_id}-{testrun_uid}"
-    )
-
-    # make sure no old/manual stuff added affects tests
-    if settings.MEDIA_ROOT.exists():
-        shutil.rmtree(settings.MEDIA_ROOT)
-    settings.MEDIA_ROOT.mkdir(parents=True)
-
-    yield
-    # cleanup the media so it doesn't cause
-    # problems elsewhere
-    if settings.MEDIA_ROOT.exists():
-        shutil.rmtree(settings.MEDIA_ROOT)
+def tin_setup(settings, tmp_path: Path):
+    """Set up the ``settings.MEDIA_ROOT`` for each test."""
+    settings.MEDIA_ROOT = tmp_path
 
 
 @pytest.fixture(autouse=True)
