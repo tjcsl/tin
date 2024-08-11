@@ -18,10 +18,12 @@ In order to solve this problem, Tin was invented to safely run student code subm
 Explore some of the technical documentation we have at our disposal!
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
   :caption: Contents:
 
+  usage
   contributing
   reference_index
   developers
   production
+  contact
