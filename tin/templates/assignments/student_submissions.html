@@ -111,4 +111,29 @@
     {% endif %}
   </table>
 
+
+  <h2>Edit Submission Cap</h2>
+  To change the submission cap for this student, enter a new cap below.
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.errors }}
+    <div class="tbl">
+      {% for field in form.visible_fields %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="padding-right:5px;min-width:200px;">{{ field.label }}</span>
+          <span class="tbl-cell form-input">
+            {{ field }}
+            {% if field.help_text %}
+              <br>{{ field.help_text }}
+            {% endif %}
+          </span>
+        </div>
+      {% endfor %}
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+    </div>
+    <input class="tin-btn" type="submit" value="Save">
+  </form>
+
 {% endblock %}
