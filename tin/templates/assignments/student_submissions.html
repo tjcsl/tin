@@ -111,4 +111,36 @@
     {% endif %}
   </table>
 
+
+  <h2>Edit Submission Cap</h2>
+  <p style="padding: 5px 0">
+    To change the submission cap for this student, enter a new cap below.
+    <br>
+    {% with sub_count=submissions.count %}
+      This student has <strong>{{ sub_count }} {% if cap is not None %} / {{ cap }} {% endif %}</strong>
+      submission{{ sub_count|pluralize }} on this assignment.
+    {% endwith %}
+  </p>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.errors }}
+    <div class="tbl">
+      {% for field in form.visible_fields %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="padding-right:5px;min-width:200px;">{{ field.label }}</span>
+          <span class="tbl-cell form-input">
+            {{ field }}
+            {% if field.help_text %}
+              <br>{{ field.help_text }}
+            {% endif %}
+          </span>
+        </div>
+      {% endfor %}
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+    </div>
+    <input class="tin-btn" type="submit" value="Save">
+  </form>
+
 {% endblock %}
