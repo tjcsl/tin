@@ -12,6 +12,7 @@ from .models import (
     MossResult,
     Quiz,
     QuizLogMessage,
+    SubmissionCap,
 )
 
 
@@ -140,3 +141,9 @@ class FileActionAdmin(admin.ModelAdmin):
         elif obj.match_type == "C":
             return f"*{obj.match_value}*"
         return ""
+
+
+@admin.register(SubmissionCap)
+class SubmissionCapAdmin(admin.ModelAdmin):
+    list_display = ("assignment", "submission_cap", "student")
+    save_as = True

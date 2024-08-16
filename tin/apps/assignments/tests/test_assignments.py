@@ -24,6 +24,8 @@ def test_create_assignment(client, course) -> None:
         "submission_limit_cooldown": "30",
         "is_quiz": False,
         "quiz_action": "2",
+        "submission_cap": "100",
+        "submission_cap_after_due": "100",
     }
     response = client.post(
         reverse("assignments:add", args=[course.id]),

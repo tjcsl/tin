@@ -7,13 +7,16 @@ from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
-from .models import Assignment, Folder, MossResult
+from .models import Assignment, Folder, MossResult, SubmissionCap
 
 logger = getLogger(__name__)
 
 
 class AssignmentForm(forms.ModelForm):
     due = forms.DateTimeInput()
+
+    submission_cap = forms.IntegerField(min_value=1)
+    submission_cap_after_due = forms.IntegerField(min_value=1, required=False)
 
     def __init__(self, course, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -136,6 +139,8 @@ class AssignmentForm(forms.ModelForm):
                     "submission_limit_count",
                     "submission_limit_interval",
                     "submission_limit_cooldown",
+                    "submission_cap",
+                    "submission_cap_after_due",
                 ),
                 "collapsed": True,
             },
@@ -150,6 +155,8 @@ class AssignmentForm(forms.ModelForm):
             'internet access" below. If set, it increases the amount '
             "of time it takes to start up the grader (to about 1.5 "
             "seconds). This is not recommended unless necessary.",
+            "submission_cap": "The maximum number of submissions that can be made, or empty for unlimited.",
+            "submission_cap_after_due": "The maximum number of submissions that can be made after the due date, or empty for unlimited.",
             "submission_limit_count": "",
             "submission_limit_interval": "Tin sets rate limits on submissions. If a student tries "
             "to submit too many submissions in a given interval, "
@@ -178,7 +185,22 @@ class AssignmentForm(forms.ModelForm):
         }
 
     def __str__(self) -> str:
-        return f"AssignmentForm(\"{self['name'].value()}\")"
+        return f'AssignmentForm("{self["name"].value()}")'
+
+    def save(self) -> Assignment:
+        assignment = super().save()
+        sub_cap = self.cleaned_data.get("submission_cap")
+        sub_cap_after_due = self.cleaned_data.get("submission_cap_after_due")
+        if sub_cap is not None or sub_cap_after_due is not None:
+            SubmissionCap.objects.update_or_create(
+                assignment=assignment,
+                student=None,
+                defaults={
+                    "submission_cap": sub_cap,
+                    "submission_cap_after_due": sub_cap_after_due,
+                },
+            )
+        return assignment
 
 
 class GraderScriptUploadForm(forms.Form):
@@ -241,3 +263,24 @@ class FolderForm(forms.ModelForm):
             "name",
         ]
         help_texts = {"name": "Note: Folders are ordered alphabetically."}
+
+
+class SubmissionCapForm(forms.ModelForm):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+        nonrequired = ("submission_cap", "submission_cap_after_due")
+        for f in nonrequired:
+            self.fields[f].required = False
+
+    class Meta:
+        model = SubmissionCap
+        fields = ["submission_cap", "submission_cap_after_due"]
+        help_texts = {
+            "submission_cap_after_due": (
+                "The submission cap after the due date (or empty for unlimited). "
+                "By default, this is the same as the submission cap."
+            ),
+            "student": "The student to apply the cap to.",
+        }
+        labels = {"submission_cap_after_due": "Submission cap after due date"}
