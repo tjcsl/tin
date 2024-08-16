@@ -36,12 +36,13 @@
         <a class="right tin-btn" href="{% url 'assignments:manage_grader' assignment.id %}" style="color:#EF1010;">Upload grader</a>
       {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage files</a>
+      <a class="right tin-btn" href="{% url 'assignments:manage_students' assignment.id %}">Manage Students</a>
       {% if log_file_exists %}
         <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
       {% endif %}
     {% endif %}
     {% if not course.archived or course.permission == "w" or is_teacher or request.user.is_superuser %}
-      {% if assignment.is_quiz %}
+      {% if assignment.is_quiz and within_submission_limit %}
         {% if quiz_accessible or is_teacher or request.user.is_superuser %}
           <a class="right tin-btn"
             onclick="return confirm('You are about to begin an assessment. All activity on your device will be monitored. If you open any other tabs or attempt to use any other applications, your quiz might be stopped and your teacher will be notified.')"

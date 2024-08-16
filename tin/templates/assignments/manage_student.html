@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block main %}
+  <h2>Managing {{ request.user.username }}</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" class="tin-btn" value="Save Changes">
+  </form>
+{% endblock %}

@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
-from .models import Assignment, Folder, MossResult
+from .models import Assignment, Folder, MossResult, PerStudentData
 
 logger = getLogger(__name__)
 
@@ -66,6 +66,7 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout",
             "grader_has_network_access",
             "has_network_access",
+            "submission_cap",
             "submission_limit_count",
             "submission_limit_interval",
             "submission_limit_cooldown",
@@ -136,6 +137,7 @@ class AssignmentForm(forms.ModelForm):
                     "submission_limit_count",
                     "submission_limit_interval",
                     "submission_limit_cooldown",
+                    "submission_cap",
                 ),
                 "collapsed": True,
             },
@@ -171,6 +173,7 @@ class AssignmentForm(forms.ModelForm):
             "instructions that need to be hidden until the student enters the monitored quiz environment.",
             "quiz_description_markdown": "This allows adding images, code blocks, or hyperlinks to the quiz "
             "description.",
+            "submission_cap": "The maximum number of submissions that can be made. It can be overridden on a per-student basis.",
         }
         widgets = {
             "description": forms.Textarea(attrs={"cols": 30, "rows": 8}),
@@ -241,3 +244,12 @@ class FolderForm(forms.ModelForm):
             "name",
         ]
         help_texts = {"name": "Note: Folders are ordered alphabetically."}
+
+
+class PerStudentDataForm(forms.ModelForm):
+    class Meta:
+        model = PerStudentData
+        fields = [
+            "submission_cap",
+        ]
+        help_texts = {"submission_cap": "The maximum number of submissions that can be made."}

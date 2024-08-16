@@ -10,6 +10,7 @@ from .models import (
     FileAction,
     Folder,
     MossResult,
+    PerStudentData,
     Quiz,
     QuizLogMessage,
 )
@@ -140,3 +141,6 @@ class FileActionAdmin(admin.ModelAdmin):
         elif obj.match_type == "C":
             return f"*{obj.match_value}*"
         return ""
+
+
+admin.site.register(PerStudentData)

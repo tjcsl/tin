@@ -24,6 +24,7 @@ def test_create_assignment(client, course) -> None:
         "submission_limit_cooldown": "30",
         "is_quiz": False,
         "quiz_action": "2",
+        "submission_cap": "100",
     }
     response = client.post(
         reverse("assignments:add", args=[course.id]),
@@ -103,3 +104,57 @@ def test_csv_of_missing_assignment_graded(client, assignment, student):
     assert float(raw) == max_points
     assert float(final) == max_points
     assert formatted == "150 / 300 (50.00%)"
+
+
+@login("student")
+@pytest.mark.parametrize("is_quiz", (True, False))
+def test_submission_cap(client, assignment, student, is_quiz):
+    assignment.is_quiz = is_quiz
+    assignment.submission_cap = 1
+    assignment.save()
+    code = "print('hello, world')"
+    assignment.save_grader_file(code)
+
+    def submit():
+        url = "assignments:quiz" if is_quiz else "assignments:submit"
+        return client.post(
+            reverse(url, args=[assignment.id]),
+            {"text": "print('I hate fun')"},
+        )
+
+    response = submit()
+    assert response.status_code == 302, f"Expected status code 302, got {response}"
+
+    # but now we've passed the cap
+    response = submit()
+    assert response.status_code == 403, f"Expected status code 403, got {response}"
+
+
+@login("student")
+@pytest.mark.parametrize("is_quiz", (True, False))
+def test_submission_cap_with_override(client, assignment, student, is_quiz):
+    assignment.is_quiz = is_quiz
+    assignment.submission_cap = 1
+    assignment.save()
+    code = "print('hello, world')"
+    assignment.save_grader_file(code)
+
+    # add student override
+    assignment.student_data.create(student=student, submission_cap=2)
+
+    def submit():
+        url = "assignments:quiz" if is_quiz else "assignments:submit"
+        return client.post(
+            reverse(url, args=[assignment.id]),
+            {"text": "print('I hate fun')"},
+        )
+
+    # first and second submission should be fine
+    response = submit()
+    assert response.status_code == 302, f"Expected status code 302, got {response}"
+    response = submit()
+    assert response.status_code == 302, f"Expected status code 302, got {response}"
+
+    # but now we've passed the cap for the student
+    response = submit()
+    assert response.status_code == 403, f"Expected status code 403, got {response}"

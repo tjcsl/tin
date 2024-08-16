@@ -30,6 +30,7 @@ from .forms import (
     FolderForm,
     GraderScriptUploadForm,
     MossForm,
+    PerStudentDataForm,
     TextSubmissionForm,
 )
 from .models import Assignment, CooldownPeriod, QuizLogMessage
@@ -71,6 +72,7 @@ def show_view(request, assignment_id):
                 "is_student": course.is_student_in_course(request.user),
                 "is_teacher": request.user in course.teacher.all(),
                 "quiz_accessible": quiz_accessible,
+                "within_submission_limit": assignment.within_submission_limit(request.user),
             },
         )
     else:
@@ -272,6 +274,38 @@ def delete_view(request, assignment_id):
     if folder:
         return redirect(reverse("assignments:show_folder", args=(course.id, folder.id)))
     return redirect(reverse("courses:show", args=(course.id,)))
+
+
+@teacher_or_superuser_required
+def manage_students_view(request, assignment_id):
+    assignment = Assignment.objects.get(id=assignment_id)
+    course = assignment.course
+    return render(
+        request,
+        "assignments/manage_students.html",
+        {"students": course.students.all(), "assignment": assignment},
+    )
+
+
+@teacher_or_superuser_required
+def manage_student(request, assignment_id, student_id):
+    student = get_object_or_404(
+        get_user_model().objects.filter(is_student=True),
+        id=student_id,
+    )
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    data = assignment.find_student_data(student=student)
+    form = PerStudentDataForm(instance=data)
+    if request.method == "POST":
+        form = PerStudentDataForm(data=request.POST, instance=data)
+        if form.is_valid():
+            form.save()
+            return redirect("assignments:manage_students", assignment_id)
+    return render(
+        request,
+        "assignments/manage_student.html",
+        {"form": form, "user": student, "assignment": assignment},
+    )
 
 
 @teacher_or_superuser_required
@@ -535,6 +569,8 @@ def submit_view(request, assignment_id):
         raise http.Http404
 
     student = request.user
+    if not assignment.within_submission_limit(student):
+        return http.HttpResponseForbidden("Submission limit exceeded")
 
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None
@@ -704,6 +740,8 @@ def quiz_view(request, assignment_id):
         raise http.Http404
 
     student = request.user
+    if not assignment.within_submission_limit(student):
+        return http.HttpResponseForbidden("Submission limit exceeded")
 
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None
@@ -756,8 +794,9 @@ def quiz_view(request, assignment_id):
 
                     run_submission.delay(submission.id)
                     return redirect("assignments:quiz", assignment.id)
-                else:
-                    text_errors = "Submission too large"
+
+            else:
+                text_errors = "Submission too large"
 
     quiz_color = assignment.quiz_issues_for_student(request.user) and assignment.quiz_action == "1"
 

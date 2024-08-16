@@ -150,7 +150,8 @@ ul.no-list {
 ul#course-list,
 ul#assignment-list,
 ul#venv-list,
-ul#archive-list {
+ul#archive-list,
+ul.linebreak-list {
   padding-left: 0px;
   margin-left: 0px;
 }
@@ -158,7 +159,8 @@ ul#archive-list {
 ul#course-list > li,
 ul#assignment-list > li,
 ul#venv-list > li,
-ul#archive-list > li {
+ul#archive-list > li,
+ul.linebreak-list > li {
   display: flex;
   padding: 10px 0px;
   border-top: 1px solid lightgray;
@@ -166,7 +168,8 @@ ul#archive-list > li {
 
 ul#course-list > li:last-child,
 ul#assignment-list > li:last-child,
-ul#venv-list > li:last-child {
+ul#venv-list > li:last-child,
+ul.linebreak-last > li:last-child {
   border-bottom: 1px solid lightgray;
 }
 
@@ -204,7 +207,8 @@ ul#venv-list > li .left {
 ul#course-list > li .right,
 ul#assignment-list > li .right,
 ul#venv-list > li .right,
-ul#archive-list > li .right {
+ul#archive-list > li .right,
+ul.linebreak-list > li .right {
   margin-left: auto;
   flex: 0 0 auto;
   text-align: right;
