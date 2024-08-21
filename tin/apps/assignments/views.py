@@ -794,9 +794,8 @@ def quiz_view(request, assignment_id):
 
                     run_submission.delay(submission.id)
                     return redirect("assignments:quiz", assignment.id)
-
-            else:
-                text_errors = "Submission too large"
+                else:
+                    text_errors = "Submission too large"
 
     quiz_color = assignment.quiz_issues_for_student(request.user) and assignment.quiz_action == "1"
 
