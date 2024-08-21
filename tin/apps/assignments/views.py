@@ -278,7 +278,7 @@ def delete_view(request, assignment_id):
 
 @teacher_or_superuser_required
 def manage_students_view(request, assignment_id):
-    assignment = Assignment.objects.get(id=assignment_id)
+    assignment = get_object_or_404(Assignment, id=assignment_id)
     course = assignment.course
     return render(
         request,
