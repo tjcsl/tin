@@ -115,6 +115,7 @@
       {% if assignment.is_quiz %}
         <table id="submission-list" class="has-border">
           <tr>
+            <th style="min-width:20px"></th>
             <th style="min-width:125px">Student</th>
             {% if not active_period.name %}
               <th style="min-width:65px;">Period</th>
@@ -127,6 +128,7 @@
           </tr>
           {% for student, period, latest_submission, graded_submission, ended, quiz_issues in students_and_submissions %}
             <tr>
+              <td>{{ forloop.counter }}</tr>
               <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
                 ({{ student.username }})</a></td>
               {% if not active_period.name %}
@@ -155,6 +157,7 @@
       {% else %}
         <table id="submission-list" class="has-border">
           <tr>
+            <th style="min-width:20px"></th>
             <th style="min-width:125px">Student</th>
             {% if not active_period.name %}
               <th style="min-width:65px;">Period</th>
@@ -168,6 +171,7 @@
           </tr>
           {% for student, period, latest_submission, graded_submission, new_login, new_24 in students_and_submissions %}
             <tr>
+              <td>{{ forloop.counter }}</td>
               <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
                 ({{ student.username }})</a></td>
               {% if not active_period.name %}
