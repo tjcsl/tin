@@ -150,7 +150,11 @@ def comment_view(request, submission_id):
         raise http.Http404
 
     comment = request.POST.get("comment", "")
-    point_override = request.POST.get("point_override", "")
+    point_override = request.POST.get("point_override")
+
+    if point_override is None:
+        return http.HttpResponseBadRequest("Missing point_override")
+
     comment = Comment(
         submission=submission,
         author=request.user,
@@ -328,11 +332,10 @@ def set_aborted_complete_view(request):
         submissions = Submission.objects.filter(complete=False, grader_pid__isnull=False)
 
         for submission in submissions:
-            try:
-                psutil.Process(submission.grader_pid)
-            except psutil.NoSuchProcess:
+            if not psutil.pid_exists(submission.grader_pid):
                 submission.complete = True
-                submission.save(update_fields=["complete"])
+                submission.grader_pid = None
+                submission.save(update_fields=["complete", "grader_pid"])
 
     return redirect("auth:index")
 
