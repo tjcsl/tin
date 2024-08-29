@@ -1,0 +1,27 @@
+#nav {
+  color: white;
+  background: #4fab4f;
+}
+
+body {
+  background-color: #182c25;
+}
+
+#footer {
+  background-color: #182c25;
+  border-top: #182c25;
+  color: white;
+}
+
+#main {
+  color: white;
+}
+
+ul#course-list > li a:not(.tin-btn),
+ul#assignment-list > li a {
+  color: white;
+}
+
+a:not(.tin-btn) {
+  color: white;
+}
