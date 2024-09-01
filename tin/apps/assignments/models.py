@@ -588,11 +588,20 @@ def run_action(command: list[str]) -> str:
 
 
 class FileAction(models.Model):
-    """Runs a user uploaded script on files uploaded to an assignment."""
+    """Runs a user uploaded script on files uploaded to an assignment.
+
+    This can also take (fake) environment variables like ``$FILE``/``$FILES``,
+    which are replaced with their actual value.
+
+    ``$FILES`` is expanded to a space separated list of paths that match the filter.
+
+    ``$FILE`` means the command will be called once with each file that matches the filter.
+    """
 
     MATCH_TYPES = (("S", "Start with"), ("E", "End with"), ("C", "Contain"))
 
     name = models.CharField(max_length=50)
+    description = models.CharField(max_length=100, blank=True)
 
     courses = models.ManyToManyField(Course, related_name="file_actions")
     command = models.CharField(max_length=1024)
