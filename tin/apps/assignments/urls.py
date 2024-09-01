@@ -25,6 +25,21 @@ urlpatterns = [
         name="delete_file",
     ),
     path(
+        "<int:course_id>/files/actions/choose",
+        views.choose_file_action,
+        name="choose_file_action",
+    ),
+    path(
+        "<int:course_id>/files/actions/choose/new",
+        views.create_file_action,
+        name="create_file_action",
+    ),
+    path(
+        "<int:course_id>/files/actions/delete/",
+        views.delete_file_action_view,
+        name="delete_file_action",
+    ),
+    path(
         "<int:assignment_id>/files/action/<int:action_id>",
         views.file_action_view,
         name="file_action",
