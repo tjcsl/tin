@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from logging import getLogger
+from typing import Literal, Self
 
 from django import forms
 from django.conf import settings
+from django.core.validators import ValidationError
+from typing_extensions import TypedDict
 
 from ..submissions.models import Submission
-from .models import Assignment, Folder, MossResult
+from .models import Assignment, Course, FileAction, Folder, MossResult
 
 logger = getLogger(__name__)
 
@@ -241,3 +244,99 @@ class FolderForm(forms.ModelForm):
             "name",
         ]
         help_texts = {"name": "Note: Folders are ordered alphabetically."}
+
+
+class FileActionArgs(TypedDict):
+    name: str
+    command: str
+    match_type: Literal["", "S", "E", "C"]
+    match_value: str
+    case_sensitive_match: bool
+
+
+class FileActionForm(forms.ModelForm):
+    def __init__(self, user, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.fields["courses"] = forms.ModelMultipleChoiceField(
+            queryset=Course.objects.filter_editable(user),
+            required=True,
+        )
+
+    class Meta:
+        model = FileAction
+        fields = [
+            "name",
+            "command",
+            "courses",
+            "match_type",
+            "match_value",
+            "case_sensitive_match",
+        ]
+        help_texts = {
+            "command": "You can use $FILE to reference the file that matches the below criteria."
+        }
+
+    JAVAC: FileActionArgs = {
+        "name": "Compile Java Files",
+        "command": "javac $FILE",
+        "match_type": "E",
+        "match_value": "java",
+        "case_sensitive_match": True,
+    }
+
+    RANDOM_TEXT_FILES: FileActionArgs = {
+        "name": "Generate text files with random content",
+        "command": "base64 /dev/urandom | head -c 500 > file.txt",
+        "match_type": "",
+        "match_value": "",
+        "case_sensitive_match": False,
+    }
+
+    # TODO: add others
+
+    TEMPLATES: dict[str, FileActionArgs] = {
+        "javac": JAVAC,
+        "random_text_files": RANDOM_TEXT_FILES,
+    }
+
+    @classmethod
+    def from_template(cls, template: str, user) -> Self:
+        """Takes in a template name and returns a :class:`.FileActionForm`.
+
+        Args:
+            template: The name of the template to use.
+            user: ``request.user``, which is needed to filter the courses.
+        """
+        if config := cls.TEMPLATES.get(template):
+            return cls(user, data=config)
+        raise ValueError(f"Invalid template: {template!r}")
+
+
+class ChooseFileActionForm(forms.Form):
+    def __init__(self, *args, user, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        choices = [
+            (k, v["name"])  # type: ignore[arg-type]
+            for k, v in FileActionForm.TEMPLATES.items()
+        ] + [("custom", "Custom")]
+
+        self.fields["actions"] = forms.ChoiceField(
+            choices=choices,
+            required=True,
+            widget=forms.widgets.RadioSelect(),
+            label="File Action Template",
+        )
+
+        self.fields["courses"] = forms.ModelMultipleChoiceField(
+            queryset=Course.objects.filter_editable(user),
+            required=False,
+            help_text="Which courses to add the file action too. Only required if using a template.",
+        )
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get("actions") != "custom" and not self.cleaned_data.get("courses"):
+            error = ValidationError("Must select courses if using a template", code="invalid")
+            self.add_error("courses", error)
