@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
-from .models import Assignment, Folder, MossResult
+from .models import Assignment, FileAction, Folder, MossResult
 
 logger = getLogger(__name__)
 
@@ -241,3 +241,58 @@ class FolderForm(forms.ModelForm):
             "name",
         ]
         help_texts = {"name": "Note: Folders are ordered alphabetically."}
+
+
+class FileActionForm(forms.ModelForm):
+    """A form to create (or edit) a :class:`.FileAction`."""
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data is None:
+            cleaned_data = self.cleaned_data
+        cmd = cleaned_data.get("command", "")
+
+        if "$FILE" in cmd or "$FILES" in cmd:
+            if not cleaned_data.get("match_type"):
+                self.add_error("match_type", "required if command uses $FILE or $FILES")
+            if not cleaned_data.get("match_value"):
+                self.add_error("match_value", "required if command uses $FILE or $FILES")
+
+        return cleaned_data
+
+    class Meta:
+        model = FileAction
+        fields = [
+            "name",
+            "description",
+            "command",
+            "match_type",
+            "match_value",
+            "case_sensitive_match",
+        ]
+        widgets = {
+            "description": forms.Textarea(attrs={"cols": 32, "rows": 2}),
+        }
+
+
+class ChooseFileActionForm(forms.Form):
+    """A form to choose a file action.
+
+    .. warning::
+
+        This will allow a user to modify any file action,
+        including file actions that are added to a course the user
+        is not a teacher in.
+
+    This form is primarily intended for use with Javascript,
+    where the file action id cannot be determined at template rendering
+    time.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["file_action"] = forms.ModelChoiceField(
+            queryset=FileAction.objects.all(),
+            widget=forms.HiddenInput(),
+        )

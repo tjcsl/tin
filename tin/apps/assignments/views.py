@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import now
+from django.views.decorators.http import require_POST
 
 from ... import sandboxing
 from ..auth.decorators import login_required, teacher_or_superuser_required
@@ -25,6 +26,8 @@ from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import (
     AssignmentForm,
+    ChooseFileActionForm,
+    FileActionForm,
     FileSubmissionForm,
     FileUploadForm,
     FolderForm,
@@ -32,7 +35,7 @@ from .forms import (
     MossForm,
     TextSubmissionForm,
 )
-from .models import Assignment, CooldownPeriod, QuizLogMessage
+from .models import Assignment, CooldownPeriod, FileAction, QuizLogMessage
 from .tasks import run_moss
 
 logger = logging.getLogger(__name__)
@@ -497,6 +500,99 @@ def file_action_view(request, assignment_id, action_id):
     action.run(assignment)
 
     return redirect("assignments:manage_files", assignment.id)
+
+
+@teacher_or_superuser_required
+def choose_file_action(request, course_id: int):
+    """Choose a file action template."""
+    course = get_object_or_404(
+        Course.objects.filter_editable(request.user),
+        id=course_id,
+    )
+
+    if request.method == "POST":
+        form = ChooseFileActionForm(request.POST)
+        if form.is_valid():
+            file_action = form.cleaned_data["file_action"]
+            file_action.courses.add(course)
+            return http.JsonResponse({"success": True})
+        return http.JsonResponse({"success": False, "errors": form.errors.as_json()}, status=400)
+
+    actions = FileAction.objects.exclude(courses=course)
+    course_actions = course.file_actions.all()
+    return render(
+        request,
+        "assignments/choose_file_action.html",
+        {
+            "actions": actions,
+            "course_actions": course_actions,
+            "course": course,
+            "nav_item": "Choose file action",
+        },
+    )
+
+
+@teacher_or_superuser_required
+def create_file_action(request, course_id: int):
+    """Creates or edits a :class:`.FileAction`
+
+    If the ``GET`` request has a ``action`` parameter,
+    the view will action as an edit view.
+
+    Args:
+        request: The request
+        course_id: The primary key of the :class:`.Course`
+    """
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+    if (action_id := request.GET.get("action", "")).isdigit():
+        action = get_object_or_404(course.file_actions, id=action_id)
+    else:
+        action = None
+
+    if request.method == "POST":
+        form = FileActionForm(request.POST, instance=action)
+        if form.is_valid():
+            action = form.save(commit=False)
+            if request.POST.get("copy"):
+                action.pk = None
+                action._state.adding = True
+            action.save()
+            action.courses.add(course)
+            return redirect("courses:show", course.id)
+    else:
+        form = FileActionForm(instance=action)
+
+    return render(
+        request,
+        "assignments/custom_file_action.html",
+        {
+            "form": form,
+            "action": action,
+            "course": course,
+            "nav_item": "Create file action",
+        },
+    )
+
+
+@teacher_or_superuser_required
+@require_POST
+def delete_file_action_view(request, course_id: int):
+    """Removes a :class:`.FileAction` from a :class:`.Course`.
+
+    This does NOT permanently delete the :class:`.FileAction`.
+
+    Args:
+        request: The request
+        course_id: The primary key of the :class:`.Course`
+        action_id: The primary key of the :class:`.FileAction`
+    """
+    course = get_object_or_404(Course.objects.filter_editable(request.user), id=course_id)
+    form = ChooseFileActionForm(request.POST)
+    if form.is_valid():
+        action = form.cleaned_data["file_action"]
+        action.courses.remove(course)
+        return http.JsonResponse({"success": True})
+    return http.JsonResponse({"success": False, "errors": form.errors.as_json()}, status=400)
 
 
 @teacher_or_superuser_required

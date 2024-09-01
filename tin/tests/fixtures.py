@@ -6,6 +6,7 @@ import pytest
 from django.utils import timezone
 
 import tin.tests.create_users as users
+from tin.apps.assignments.models import FileAction
 from tin.apps.courses.models import Course
 
 PASSWORD = "Made with <3 by 2027adeshpan"
@@ -92,6 +93,18 @@ def quiz(assignment):
     assignment.is_quiz = True
     assignment.save()
     return assignment
+
+
+@pytest.fixture
+def file_action(course):
+    """Creates a :class:`.FileAction`"""
+    fa = FileAction.objects.create(
+        name="Say hi!",
+        description="Says hi, very important!",
+        command="echo hi",
+    )
+    fa.courses.add(course)
+    return fa
 
 
 @pytest.fixture
