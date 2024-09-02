@@ -25,6 +25,7 @@ from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import (
     AssignmentForm,
+    AssignmentOverrideForm,
     FileSubmissionForm,
     FileUploadForm,
     FolderForm,
@@ -32,7 +33,7 @@ from .forms import (
     MossForm,
     TextSubmissionForm,
 )
-from .models import Assignment, AssignmentOverride, CooldownPeriod, QuizLogMessage
+from .models import Assignment, CooldownPeriod, QuizLogMessage
 from .tasks import run_moss
 
 logger = logging.getLogger(__name__)
@@ -299,11 +300,14 @@ def manage_student(request, assignment_id, student_id):
     )
     assignment = get_object_or_404(Assignment, id=assignment_id)
     data = assignment.find_student_override(student)
-    form = AssignmentOverride(instance=data)
+    form = AssignmentOverrideForm(instance=data)
     if request.method == "POST":
-        form = AssignmentOverride(data=request.POST, instance=data)
+        form = AssignmentOverrideForm(data=request.POST, instance=data)
         if form.is_valid():
-            form.save()
+            override = form.save(commit=False)
+            override.assignment = assignment
+            override.student = student
+            override.save()
             return redirect("assignments:manage_students", assignment_id)
     return render(
         request,
