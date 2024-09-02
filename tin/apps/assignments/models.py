@@ -212,15 +212,22 @@ class Assignment(models.Model):
         # note that this doesn't care about killed/incomplete submissions
         submission_count = self.submissions.filter(student=student).count()
 
-        data = self.find_student_override(student)
-        inf = float("inf")
-        if data is not None:
-            cap = data.submission_cap
-        elif timezone.localtime() > self.due:
-            cap = self.submission_cap_after_due or inf
-        else:
-            cap = self.submission_cap or inf
+        cap = self.find_submission_cap(student)
         return submission_count < cap
+
+    def find_submission_cap(self, student) -> float:
+        """Given a student, find the submission cap.
+
+        This takes into account student overrides, and due dates.
+        """
+        if student.is_superuser or student.is_teacher:
+            return float("inf")
+        data = self.find_student_override(student)
+        if data is not None:
+            return data.submission_cap
+        elif timezone.localtime() > self.due:
+            return self.submission_cap_after_due or float("inf")
+        return self.submission_cap or float("inf")
 
     def find_student_override(self, student) -> AssignmentOverride | None:
         """Find an :class:`.AssignmentOverride` for a student.

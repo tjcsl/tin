@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import datetime
 import logging
+import math
 import os
 import subprocess
 import zipfile
@@ -59,6 +60,9 @@ def show_view(request, assignment_id):
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
         graded_submission = publishes.latest().submission if publishes else latest_submission
 
+        submissions_left = assignment.find_submission_cap(request.user) - len(submissions)
+        submissions_left = max(submissions_left, 0)
+
         return render(
             request,
             "assignments/show.html",
@@ -73,6 +77,7 @@ def show_view(request, assignment_id):
                 "is_teacher": request.user in course.teacher.all(),
                 "quiz_accessible": quiz_accessible,
                 "within_submission_limit": assignment.within_submission_limit(request.user),
+                "submissions_left": submissions_left,
             },
         )
     else:
@@ -175,11 +180,20 @@ def show_view(request, assignment_id):
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
         latest_submission = submissions.latest() if submissions else None
         graded_submission = publishes.latest().submission if publishes else latest_submission
+
+        submissions_left = assignment.find_submission_cap(request.user) - len(submissions)
+        # render properly after submission cap is lowered (such as when the due date is passed)
+        submissions_left = max(submissions_left, 0)
+        if math.isinf(submissions_left):
+            submissions_left = None
+
         context.update(
             {
                 "submissions": submissions.order_by("-date_submitted"),
                 "latest_submission": latest_submission,
                 "graded_submission": graded_submission,
+                "within_submission_limit": assignment.within_submission_limit(request.user),
+                "submissions_left": submissions_left,
             }
         )
 
@@ -312,7 +326,7 @@ def manage_student(request, assignment_id, student_id):
     return render(
         request,
         "assignments/manage_student.html",
-        {"form": form, "user": student, "assignment": assignment},
+        {"form": form, "user": student, "assignment": assignment, "override": data},
     )
 
 

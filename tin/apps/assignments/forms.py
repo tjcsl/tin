@@ -30,6 +30,10 @@ class AssignmentForm(forms.ModelForm):
         # prevent description from getting too big
         self.fields["description"].widget.attrs.update({"id": "description"})
 
+        # these fields aren't required
+        for field in ("submission_cap", "submission_cap_after_due"):
+            self.fields[field].required = False
+
     def get_sections(self) -> Iterable[dict[str, str | tuple[str, ...] | bool]]:
         """This is used in templates to find which fields should be in a dropdown div."""
         for section in self.Meta.sections:
@@ -157,8 +161,9 @@ class AssignmentForm(forms.ModelForm):
             'internet access" below. If set, it increases the amount '
             "of time it takes to start up the grader (to about 1.5 "
             "seconds). This is not recommended unless necessary.",
-            "use_submission_cap": "This sets a limit on the number of submissions that can be made on assignments."
+            "use_submission_cap": "This enables setting a limit on the number of submissions that can be made on assignments."
             "It has no effect on quizzes",
+            "submission_cap": "The maximum number of submissions that can be made. It can be overridden on a per-student basis.",
             "submission_limit_count": "",
             "submission_limit_interval": "Tin sets rate limits on submissions. If a student tries "
             "to submit too many submissions in a given interval, "
@@ -180,7 +185,6 @@ class AssignmentForm(forms.ModelForm):
             "instructions that need to be hidden until the student enters the monitored quiz environment.",
             "quiz_description_markdown": "This allows adding images, code blocks, or hyperlinks to the quiz "
             "description.",
-            "submission_cap": "The maximum number of submissions that can be made. It can be overridden on a per-student basis.",
         }
         widgets = {
             "description": forms.Textarea(attrs={"cols": 30, "rows": 8}),

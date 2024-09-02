@@ -1,11 +1,19 @@
 {% extends "base.html" %}
 
 {% block main %}
-  <h2>Managing {{ request.user.username }}</h2>
+  <h2>Managing Student {{ user.username }}</h2>
 
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" class="tin-btn" value="Save Changes">
+    <div class="tbl">
+      {% for field in form %}
+        <div class="tbl-row">
+          <span class="tbl-cell bold" style="padding-right:5px;min-width:200px;">{{ field.label_tag }}</span>
+          <span class="tbl-cell form-input">{{ field }}{% if field.help_text %}<br>{{ field.help_text }}{% endif %}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <input class="tin-btn" type="submit" value="{% if override %}Save{% else %}Create{% endif %}">
+    <a class="tin-btn" href="{% url 'assignments:manage_students' assignment.id %}">Back</a>
   </form>
 {% endblock %}

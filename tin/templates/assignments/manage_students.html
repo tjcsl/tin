@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  Manage Students
+  Turn-In: Manage Students
 {% endblock %}
 
 
@@ -17,11 +17,11 @@
           {{ student.last_name }}, {{ student.first_name }}
           </div>
           <div class="right">
-            <a href="{% url "assignments:edit_student_data" assignment.id student.id %}" class="tin-btn">Manage Student</a>
+            <a href="{% url "assignments:create_student_override" assignment.id student.id %}" class="tin-btn">Manage Student</a>
           </div>
         </li>
-
       {% endfor %}
     </ul>
   </div>
+  <a href="{% url 'assignments:show' assignment.id %}" class="tin-btn">Back</a>
 {% endblock %}
