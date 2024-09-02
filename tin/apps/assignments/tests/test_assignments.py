@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import io
+from datetime import datetime, timedelta
 
 import pytest
 from django.urls import reverse
@@ -25,6 +26,8 @@ def test_create_assignment(client, course) -> None:
         "is_quiz": False,
         "quiz_action": "2",
         "submission_cap": "100",
+        "submission_cap_after_due": "100",
+        "use_submission_cap": False,
     }
     response = client.post(
         reverse("assignments:add", args=[course.id]),
@@ -107,16 +110,17 @@ def test_csv_of_missing_assignment_graded(client, assignment, student):
 
 
 @login("student")
-@pytest.mark.parametrize("is_quiz", (True, False))
-def test_submission_cap(client, assignment, student, is_quiz):
-    assignment.is_quiz = is_quiz
+def test_submission_cap(client, assignment):
+    assignment.use_submission_cap = True
     assignment.submission_cap = 1
+    assignment.submission_cap_after_due = 1
+    assignment.due = datetime.today() + timedelta(days=1)
     assignment.save()
     code = "print('hello, world')"
     assignment.save_grader_file(code)
 
     def submit():
-        url = "assignments:quiz" if is_quiz else "assignments:submit"
+        url = "assignments:submit"
         return client.post(
             reverse(url, args=[assignment.id]),
             {"text": "print('I hate fun')"},
@@ -131,19 +135,52 @@ def test_submission_cap(client, assignment, student, is_quiz):
 
 
 @login("student")
-@pytest.mark.parametrize("is_quiz", (True, False))
-def test_submission_cap_with_override(client, assignment, student, is_quiz):
-    assignment.is_quiz = is_quiz
+def test_submission_cap_overdue(client, assignment):
+    assignment.use_submission_cap = True
+    assignment.submission_cap = 10000
+    assignment.submission_cap_after_due = 1
+    assignment.due = datetime.today() - timedelta(days=1)
+    assignment.save()
+    code = "print('hello, world')"
+    assignment.save_grader_file(code)
+
+    def submit():
+        url = "assignments:submit"
+        return client.post(
+            reverse(url, args=[assignment.id]),
+            {"text": "print('I hate fun')"},
+        )
+
+    response = submit()
+    assert response.status_code == 302, f"Expected status code 302, got {response}"
+
+    # but now we've passed the cap
+    response = submit()
+    assert response.status_code == 403, f"Expected status code 403, got {response}"
+
+
+@login("student")
+@pytest.mark.parametrize(
+    "due", (datetime.today() - timedelta(days=1), datetime.today() + timedelta(days=1))
+)
+def test_submission_cap_with_override(client, assignment, student, due):
+    """Test the submission cap with a per student override.
+
+    The override should take place regardless of the due date of the :class:`.Assignment`.
+    """
+    assignment.due = due
+    assignment.use_submission_cap = True
     assignment.submission_cap = 1
+    assignment.submission_cap_after_due = 1
     assignment.save()
     code = "print('hello, world')"
     assignment.save_grader_file(code)
 
     # add student override
-    assignment.student_data.create(student=student, submission_cap=2)
+    assignment.student_overrides.create(student=student, submission_cap=2)
 
     def submit():
-        url = "assignments:quiz" if is_quiz else "assignments:submit"
+        url = "assignments:submit"
         return client.post(
             reverse(url, args=[assignment.id]),
             {"text": "print('I hate fun')"},
@@ -158,3 +195,27 @@ def test_submission_cap_with_override(client, assignment, student, is_quiz):
     # but now we've passed the cap for the student
     response = submit()
     assert response.status_code == 403, f"Expected status code 403, got {response}"
+
+
+@login("student")
+def test_submission_cap_on_quiz(client, quiz):
+    quiz.use_submission_cap = True
+    quiz.submission_cap = 1
+    quiz.submission_cap_after_due = 1
+    quiz.save()
+    code = "print('hello, world')"
+    quiz.save_grader_file(code)
+
+    def submit():
+        url = "assignments:quiz"
+        return client.post(
+            reverse(url, args=[quiz.id]),
+            {"text": "print('I hate fun')"},
+        )
+
+    response = submit()
+    assert response.status_code == 302, f"Expected status code 302, got {response}"
+    response = submit()
+    assert (
+        response.status_code == 302
+    ), f"Expected submission cap to not affect quizzes (got {response})"

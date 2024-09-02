@@ -173,7 +173,12 @@ class Assignment(models.Model):
         validators=[MinValueValidator(10)],
     )
 
+    use_submission_cap = models.BooleanField(default=False)
     submission_cap = models.PositiveSmallIntegerField(
+        null=True,
+        validators=[MinValueValidator(1)],
+    )
+    submission_cap_after_due = models.PositiveSmallIntegerField(
         null=True,
         validators=[MinValueValidator(1)],
     )
@@ -200,20 +205,29 @@ class Assignment(models.Model):
 
     def within_submission_limit(self, student) -> bool:
         """Check if a student is within the submission limit for an assignment."""
-        # assignments can have infinite submissions, and so can teachers.
-        if not student.is_student:
+        # teachers should have infinite submissions
+        if not student.is_student or not self.use_submission_cap:
             return True
-        data, created = self.student_data.get_or_create(student=student)
-        if created:
-            data.submission_cap = self.submission_cap
-            data.save()
 
         # note that this doesn't care about killed/incomplete submissions
         submission_count = self.submissions.filter(student=student).count()
-        return submission_count < (data.submission_cap or float("inf"))
 
-    def find_student_data(self, student) -> PerStudentData:
-        return self.student_data.get_or_create(student=student)[0]
+        data = self.find_student_override(student)
+        inf = float("inf")
+        if data is not None:
+            cap = data.submission_cap
+        elif timezone.localtime() > self.due:
+            cap = self.submission_cap_after_due or inf
+        else:
+            cap = self.submission_cap or inf
+        return submission_count < cap
+
+    def find_student_override(self, student) -> AssignmentOverride | None:
+        """Find an :class:`.AssignmentOverride` for a student.
+
+        Returns ``None`` if no override exists.
+        """
+        return self.student_overrides.filter(student=student).first()
 
     def make_assignment_dir(self) -> None:
         """Creates the directory where the assignment grader scripts go."""
@@ -394,13 +408,13 @@ class Assignment(models.Model):
         )
 
 
-class PerStudentData(models.Model):
-    """A collection of per-student data for each :class:`.Assignment`."""
+class AssignmentOverride(models.Model):
+    """A collection of per-student overrides for each :class:`.Assignment`."""
 
     assignment = models.ForeignKey(
         Assignment,
         on_delete=models.CASCADE,
-        related_name="student_data",
+        related_name="student_overrides",
     )
 
     student = models.ForeignKey(
@@ -408,10 +422,10 @@ class PerStudentData(models.Model):
         on_delete=models.CASCADE,
     )
 
-    submission_cap = models.PositiveSmallIntegerField(null=True, default=None)
+    submission_cap = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return f"Override for {self.student} @ Assignment {self.assignment}"
+        return f"Override for {self.student!r} @ Assignment {self.assignment!r}"
 
 
 class CooldownPeriod(models.Model):

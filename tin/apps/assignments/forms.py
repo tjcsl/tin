@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
-from .models import Assignment, Folder, MossResult, PerStudentData
+from .models import Assignment, AssignmentOverride, Folder, MossResult
 
 logger = getLogger(__name__)
 
@@ -66,7 +66,9 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout",
             "grader_has_network_access",
             "has_network_access",
+            "use_submission_cap",
             "submission_cap",
+            "submission_cap_after_due",
             "submission_limit_count",
             "submission_limit_interval",
             "submission_limit_cooldown",
@@ -84,6 +86,7 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout": "Grader timeout (seconds):",
             "grader_has_network_access": "Give the grader internet access?",
             "has_network_access": "Give submissions internet access?",
+            "use_submission_cap": "Cap submissions?",
             "submission_limit_count": "Rate limit count",
             "submission_limit_interval": "Rate limit interval (minutes)",
             "submission_limit_cooldown": "Rate limit cooldown period (minutes)",
@@ -137,7 +140,9 @@ class AssignmentForm(forms.ModelForm):
                     "submission_limit_count",
                     "submission_limit_interval",
                     "submission_limit_cooldown",
+                    "use_submission_cap",
                     "submission_cap",
+                    "submission_cap_after_due",
                 ),
                 "collapsed": True,
             },
@@ -152,6 +157,8 @@ class AssignmentForm(forms.ModelForm):
             'internet access" below. If set, it increases the amount '
             "of time it takes to start up the grader (to about 1.5 "
             "seconds). This is not recommended unless necessary.",
+            "use_submission_cap": "This sets a limit on the number of submissions that can be made on assignments."
+            "It has no effect on quizzes",
             "submission_limit_count": "",
             "submission_limit_interval": "Tin sets rate limits on submissions. If a student tries "
             "to submit too many submissions in a given interval, "
@@ -246,9 +253,9 @@ class FolderForm(forms.ModelForm):
         help_texts = {"name": "Note: Folders are ordered alphabetically."}
 
 
-class PerStudentDataForm(forms.ModelForm):
+class AssignmentOverrideForm(forms.ModelForm):
     class Meta:
-        model = PerStudentData
+        model = AssignmentOverride
         fields = [
             "submission_cap",
         ]

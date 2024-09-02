@@ -30,10 +30,9 @@ from .forms import (
     FolderForm,
     GraderScriptUploadForm,
     MossForm,
-    PerStudentDataForm,
     TextSubmissionForm,
 )
-from .models import Assignment, CooldownPeriod, QuizLogMessage
+from .models import Assignment, AssignmentOverride, CooldownPeriod, QuizLogMessage
 from .tasks import run_moss
 
 logger = logging.getLogger(__name__)
@@ -201,6 +200,11 @@ def create_view(request, course_id):
         if assignment_form.is_valid():
             assignment = assignment_form.save(commit=False)
             assignment.course = course
+            if (
+                assignment.submission_cap is not None
+                and assignment.submission_cap_after_due is None
+            ):
+                assignment.submission_cap_after_due = assignment.submission_cap
             assignment.save()
 
             assignment.make_assignment_dir()
@@ -294,10 +298,10 @@ def manage_student(request, assignment_id, student_id):
         id=student_id,
     )
     assignment = get_object_or_404(Assignment, id=assignment_id)
-    data = assignment.find_student_data(student=student)
-    form = PerStudentDataForm(instance=data)
+    data = assignment.find_student_override(student)
+    form = AssignmentOverride(instance=data)
     if request.method == "POST":
-        form = PerStudentDataForm(data=request.POST, instance=data)
+        form = AssignmentOverride(data=request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect("assignments:manage_students", assignment_id)
@@ -740,8 +744,6 @@ def quiz_view(request, assignment_id):
         raise http.Http404
 
     student = request.user
-    if not assignment.within_submission_limit(student):
-        return http.HttpResponseForbidden("Submission limit exceeded")
 
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None

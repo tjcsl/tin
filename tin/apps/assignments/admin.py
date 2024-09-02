@@ -6,11 +6,11 @@ from django.contrib import admin
 
 from .models import (
     Assignment,
+    AssignmentOverride,
     CooldownPeriod,
     FileAction,
     Folder,
     MossResult,
-    PerStudentData,
     Quiz,
     QuizLogMessage,
 )
@@ -143,4 +143,4 @@ class FileActionAdmin(admin.ModelAdmin):
         return ""
 
 
-admin.site.register(PerStudentData)
+admin.site.register(AssignmentOverride)
