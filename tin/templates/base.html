@@ -8,6 +8,10 @@
   {% include "meta.html" %}
 
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  {% if request.user.dark_mode == 1 %}
+    <link rel="stylesheet" href="{% static 'css/dark/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dark/edit.css' %}">
+  {% endif %}
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
   <link rel="stylesheet" type="text/css"
         href="https://fonts.googleapis.com/css?family=Open+Sans:100italic,400italic,700italic,100,400,700"/>
@@ -44,8 +48,56 @@
           $(".continuous-progress").css({height: "15px"}).progressbar({value: false})
       });
   </script>
+  <script>
+      function changeTheme() {
+      const $themeToggle = $('#theme-toggle use');
+      const isDarkMode = $themeToggle.attr('href') === '#svg-moon';
+
+      $themeToggle.attr('href', isDarkMode ? '#svg-sun' : '#svg-moon');
+
+      $.post(
+          "{% url 'users:theme' %}",
+          {
+              dark_mode: isDarkMode ? 1 : 0,
+              csrfmiddlewaretoken: "{{ csrf_token }}"
+          },
+          function () {
+              location.reload();
+          }
+       );
+    }
+  </script>
   {% block head %}{% endblock %}
 </head>
+<div style="display: none">
+    <svg>
+        <symbol id="svg-sun" viewBox="0 0 24 24">
+            <title>Light mode</title>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white"
+              stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+        </symbol>
+    </svg>
+    <svg>
+        <symbol id="svg-moon" viewBox="0 0 24 24">
+        <title>Dark mode</title>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white"
+          stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+        </svg>
+  </symbol>
+    </svg>
+</div>
 
 <body>
 
@@ -90,6 +142,13 @@
       {% endif %}
       <li class="right"><i class="fa fa-sign-out"></i><a href="{% url 'auth:logout' %}">Logout
         ({{ request.user.username }})</a></li>
+      <li class="right">
+        <button class="theme-toggle-button" onclick="changeTheme()">
+            <svg id="theme-toggle">
+                <use href="{% if request.user.dark_mode == 1 %}#svg-sun{% else %}#svg-moon{% endif %}"></use>
+            </svg>
+        </button>
+      </li>
     {% endif %}
   </ul>
 </div>

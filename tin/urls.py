@@ -32,6 +32,7 @@ urlpatterns = [
     path("docs/", include("tin.apps.docs.urls", namespace="docs")),
     path("", include("tin.apps.auth.urls", namespace="auth")),
     path("", include("social_django.urls", namespace="social")),
+    path("", include("tin.apps.users.urls", namespace="users")),
 ]
 
 handler404 = handle_404_view
