@@ -8,7 +8,7 @@
   {% include "meta.html" %}
 
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  {% if request.user.dark_mode == 1 %}
+  {% if request.user.dark_mode %}
     <link rel="stylesheet" href="{% static 'css/dark/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/dark/edit.css' %}">
   {% endif %}

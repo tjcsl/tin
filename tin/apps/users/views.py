@@ -8,6 +8,7 @@ from tin.apps.users.forms import ThemeForm
 
 @login_required
 def change_theme(request):
+    """Sets the color theme"""
     if request.method == "POST":
         form = ThemeForm(request.POST)
         if form.is_valid():

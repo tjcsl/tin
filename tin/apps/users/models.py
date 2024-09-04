@@ -5,6 +5,7 @@ import logging
 import requests
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import UserManager as DjangoUserManager
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils import timezone
 from social_django.utils import load_strategy
@@ -30,7 +31,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
-    dark_mode = models.IntegerField(default=0)
+    # 0 = Light mode, 1 = Dark Mode
+    dark_mode = models.PositiveIntegerField(default=0, validators=[MaxValueValidator(1)])
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
