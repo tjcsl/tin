@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'tjcsl/tin'
     runs-on: ubuntu-latest
 
     strategy:
