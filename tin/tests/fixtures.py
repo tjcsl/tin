@@ -12,7 +12,7 @@ PASSWORD = "Made with <3 by 2027adeshpan"
 
 
 @pytest.fixture(autouse=True)
-def tin_setup(settings, tmp_path: Path):
+def media_root_path(settings, tmp_path: Path):
     """Set up the ``settings.MEDIA_ROOT`` for each test."""
     settings.MEDIA_ROOT = tmp_path
 
