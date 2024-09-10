@@ -30,7 +30,7 @@ def create_wrappers(file_name: str, wrapper_text: str) -> None:
         wrapper = wrappers / dir
         wrapper.mkdir(parents=True, exist_ok=True)
 
-        path = wrapper.joinpath(f"{file_name}.txt")
+        path = wrapper / f"{file_name}.txt"
         # prevent possible overwriting
         if path.exists() and not args.force:
             print(f"Skipping file {path}")
