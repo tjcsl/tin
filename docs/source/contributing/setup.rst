@@ -52,9 +52,7 @@ Submissions
 ~~~~~~~~~~~
 
 In order to actually create a submission, there are some more steps. First,
-you'll need to install `redis <https://redis.io/download>`_. This is platform dependent:
-for example, on macOS you can use `homebrew <https://brew.sh/>`_ and run ``brew install redis``,
-but on archlinux you'll need to run ``pacman -Syu redis``.
+you'll need to install `redis <https://redis.io/download>`_.
 
 You'll also need to run some scripts to emulate the sandboxing process that goes on in production.
 Run the following script::
