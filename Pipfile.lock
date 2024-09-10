@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "57a23744dc8e1c6d5023f27ade81f29f61158588c2c3cb5d7d4618576bcda067"
+            "sha256": "5410ff6426e75fdd5ae19df9aab1b8deac5474fb40c798e9a7a04ca2e153a3d5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -1677,12 +1677,12 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:d4051d623a2e0b7e51960ba963193b09ce6daeb9759a451844a21e4ddedfc1bd",
-                "sha256:edfaaef32ce5172d5466b5127b42e0d6d35ebbe4453f0e3505d96afd93f6b096"
+                "sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820",
+                "sha256:f4efe70cc14e511565ac476b57c279e12a855b11f48f212af1080ef2263d3845"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==8.0.2"
+            "version": "==8.3.5"
         },
         "pytest-django": {
             "hashes": [
