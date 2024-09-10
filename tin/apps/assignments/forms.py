@@ -34,6 +34,16 @@ class AssignmentForm(forms.ModelForm):
         for field in ("submission_cap", "submission_cap_after_due"):
             self.fields[field].required = False
 
+    def clean(self) -> dict:
+        super().clean()
+        if self.cleaned_data["submission_cap"] is None and self.cleaned_data["use_submission_cap"]:
+            self.add_error(
+                "submission_cap", "this field is required if use submission cap is enabled."
+            )
+        elif self.cleaned_data["submission_cap_after_due"] is None:
+            self.cleaned_data["submission_cap_after_due"] = self.cleaned_data["submission_cap"]
+        return self.cleaned_data
+
     def get_sections(self) -> Iterable[dict[str, str | tuple[str, ...] | bool]]:
         """This is used in templates to find which fields should be in a dropdown div."""
         for section in self.Meta.sections:

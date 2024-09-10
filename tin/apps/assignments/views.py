@@ -215,11 +215,6 @@ def create_view(request, course_id):
         if assignment_form.is_valid():
             assignment = assignment_form.save(commit=False)
             assignment.course = course
-            if (
-                assignment.submission_cap is not None
-                and assignment.submission_cap_after_due is None
-            ):
-                assignment.submission_cap_after_due = assignment.submission_cap
             assignment.save()
 
             assignment.make_assignment_dir()
