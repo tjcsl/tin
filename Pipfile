@@ -24,9 +24,7 @@ mosspy = "~=1.0"
 django-debug-toolbar = "~=4.4"
 
 [dev-packages]
-# https://github.com/pytest-dev/pytest/issues/12659
-# Remove this cap after pytest 8.3.3 is released, it fixes the issue.
-pytest = "<8.1.1"
+pytest = ">=8.3.3"
 pytest-django = "~=4.8"
 pytest-xdist = "~=3.6"
 django-stubs = "*"
