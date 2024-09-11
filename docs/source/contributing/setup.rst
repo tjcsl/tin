@@ -72,7 +72,7 @@ Now you can try making a submission, and as long as your submission doesn't thro
 should get a 100%! Congrats on your brand new 5.0 GPA!
 
 Docker
-------
+~~~~~~
 If you prefer, you can also run the development setup with `Docker <https://www.docker.com/>`_. To do so,
 ``cd`` into the project directory and run::
 
