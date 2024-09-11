@@ -8,10 +8,9 @@ TIN_ROOT = Path(__file__).parent.parent / "tin"
 
 PYTHON_WRAPPER = """
 import subprocess
-import sys
 
 submission = "{submission_path}"
-subprocess.run([sys.executable, submission])
+subprocess.run(["{python}", submission])
 """
 
 # TODO
