@@ -8,9 +8,22 @@ TIN_ROOT = Path(__file__).parent.parent / "tin"
 
 PYTHON_WRAPPER = """
 import subprocess
+import sys
 
-submission = "{submission_path}"
-subprocess.run(["{python}", submission])
+def main():
+    output = subprocess.run(
+        ["{python}", "{submission_path}"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    print(output.stdout)
+    print(output.stderr, file=sys.stderr)
+    return output.returncode
+
+
+if __name__ == "__main__":
+    sys.exit(main())
 """
 
 # TODO
