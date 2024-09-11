@@ -7,6 +7,7 @@ import select
 import shutil
 import signal
 import subprocess
+import sys
 import time
 import traceback
 from decimal import Decimal
@@ -65,8 +66,8 @@ def run_submission(submission_id):
         if submission.assignment.venv_fully_created:
             python_exe = os.path.join(submission.assignment.venv.path, "bin", "python")
         elif settings.DEBUG:
-            python_exe = shutil.which("python") or shutil.which("python3")
-        else:
+            python_exe = sys.executable
+        else:  # pragma: no cover
             python_exe = "/usr/bin/python3.10"
 
         if not settings.DEBUG or shutil.which("bwrap") is not None:
