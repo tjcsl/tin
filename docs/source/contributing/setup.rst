@@ -70,6 +70,12 @@ by running the following command in a separate terminal::
 Now you can try making a submission, and as long as your submission doesn't throw an error you
 should get a 100%! Congrats on your brand new 5.0 GPA!
 
+.. tip::
+
+  If you're on a Unix-like system, you can use the ``&`` operator to run the celery worker in the background::
+
+    pipenv run celery -A tin worker --loglevel=info & pipenv run python3 manage.py runserver
+
 
 NixOS Setup
 -----------
@@ -87,4 +93,3 @@ You can then install dependencies, setup the database, and run the development s
 .. tip::
 
    You may also need to set ``nix.settings.experimental-features = ["nix-command" "flakes"];`` in your ``configuration.nix``.
-
