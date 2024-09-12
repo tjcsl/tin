@@ -16,5 +16,7 @@ def change_theme(request):
             request.user.save()
             return http.JsonResponse({"success": True})
         else:
-            return http.JsonResponse({"success": False, "errors": form.errors.as_json()}, status=400)
+            return http.JsonResponse(
+                {"success": False, "errors": form.errors.as_json()}, status=400
+            )
     raise http.Http404
