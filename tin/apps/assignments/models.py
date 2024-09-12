@@ -588,7 +588,11 @@ def run_action(command: list[str]) -> str:
 
 
 class FileAction(models.Model):
-    """Runs a user uploaded script on files uploaded to an assignment."""
+    """Runs a user uploaded script on files uploaded to an assignment.
+
+    This can also take (fake) environment variables like ``$FILE``/``$FILES``,
+    which are replaced with their actual value.
+    """
 
     MATCH_TYPES = (("S", "Start with"), ("E", "End with"), ("C", "Contain"))
 

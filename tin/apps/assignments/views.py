@@ -25,6 +25,8 @@ from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import (
     AssignmentForm,
+    ChooseFileActionForm,
+    FileActionForm,
     FileSubmissionForm,
     FileUploadForm,
     FolderForm,
@@ -32,7 +34,7 @@ from .forms import (
     MossForm,
     TextSubmissionForm,
 )
-from .models import Assignment, CooldownPeriod, QuizLogMessage
+from .models import Assignment, CooldownPeriod, FileAction, QuizLogMessage
 from .tasks import run_moss
 
 logger = logging.getLogger(__name__)
@@ -475,6 +477,72 @@ def file_action_view(request, assignment_id, action_id):
     action.run(assignment)
 
     return redirect("assignments:manage_files", assignment.id)
+
+
+@teacher_or_superuser_required
+def choose_file_action(request):
+    if request.method == "POST":
+        form = ChooseFileActionForm(request.POST, user=request.user)
+        if form.is_valid():
+            if form.cleaned_data["actions"] == "custom":
+                return http.HttpResponseRedirect(reverse("assignments:create_file_action"))
+
+            # this should not raise an error because the options are generated from the valid options
+            file_action_form = FileActionForm.from_template(
+                form.cleaned_data["actions"],
+                user=request.user,
+            )
+            if not file_action_form.is_valid():
+                print(file_action_form.errors)
+            return redirect("courses:index")
+    else:
+        form = ChooseFileActionForm(user=request.user)
+    return render(request, "assignments/choose_file_action.html", {"form": form})
+
+
+@teacher_or_superuser_required
+def create_file_action(request):
+    """Creates or edits a :class:`.FileAction`
+
+    Args:
+        request: The request
+        action_id: The primary key of the :class:`.FileAction`. If not provided,
+            it will try to create a new :class:`.FileAction`.
+    """
+    if request.method == "POST":
+        form = FileActionForm(request.user, data=request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect("courses:index")
+    else:
+        form = FileActionForm(request.user)
+
+    return render(
+        request,
+        "assignments/custom_file_action.html",
+        {
+            "form": form,
+            "nav_item": "Create file action",
+        },
+    )
+
+
+@teacher_or_superuser_required
+def delete_file_action_view(request, action_id: int):
+    """Delete a :class:`.FileAction`
+
+    Args:
+        request: The request
+        action_id: The primary key of the :class:`.FileAction`
+    """
+    if request.user.is_superuser:
+        obj = FileAction
+    else:
+        obj = FileAction.objects.filter(course__teacher=request.user)
+    action = get_object_or_404(obj, id=action_id)
+    action.delete()
+    return redirect("courses:index")
 
 
 @teacher_or_superuser_required
