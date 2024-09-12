@@ -3,7 +3,6 @@ from __future__ import annotations
 import csv
 import datetime
 import logging
-import math
 import os
 import subprocess
 import zipfile
@@ -184,7 +183,7 @@ def show_view(request, assignment_id):
         submissions_left = assignment.find_submission_cap(request.user) - len(submissions)
         # render properly after submission cap is lowered (such as when the due date is passed)
         submissions_left = max(submissions_left, 0)
-        if math.isinf(submissions_left):
+        if submissions_left == float("inf"):
             submissions_left = None
 
         context.update(
