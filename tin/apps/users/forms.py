@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from django import forms
 
+from tin.apps.users.models import User
+
 
 class UserMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, user):  # pylint: disable=arguments-differ
