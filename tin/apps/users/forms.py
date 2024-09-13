@@ -8,5 +8,7 @@ class UserMultipleChoiceField(forms.ModelMultipleChoiceField):
         return f"{user.full_name} ({user.username})"
 
 
-class ThemeForm(forms.Form):
-    dark_mode = forms.IntegerField()
+class ThemeForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["dark_mode"]
