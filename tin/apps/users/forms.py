@@ -2,11 +2,15 @@ from __future__ import annotations
 
 from django import forms
 
+from tin.apps.users.models import User
+
 
 class UserMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, user):  # pylint: disable=arguments-differ
         return f"{user.full_name} ({user.username})"
 
 
-class ThemeForm(forms.Form):
-    dark_mode = forms.IntegerField()
+class ThemeForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["dark_mode"]
