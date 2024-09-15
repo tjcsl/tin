@@ -24,8 +24,13 @@ DJANGO_SETTINGS_MODULE = "tin.settings"
 python_files = "tests.py test_*.py"
 norecursedirs = ["media", "migrations", "sandboxing"]
 testpaths = "tin"
-addopts = "--doctest-modules tin --import-mode=importlib -n 8"
+addopts = "--doctest-modules tin --import-mode=importlib -n auto"
 doctest_optionflags = "NORMALIZE_WHITESPACE NUMBER"
+filterwarnings = [
+    "error",
+    'ignore:.*Tin is using the dummy sandboxing module. This is insecure.:',
+    "ignore::DeprecationWarning:twisted.*:",
+]
 
 [tool.coverage.run]
 branch = true
@@ -82,6 +87,7 @@ extend-exclude = [
   "migrations",
 ]
 
+fix = true
 show-fixes = false
 
 line-length = 100
