@@ -24,7 +24,13 @@ secret_test_cases = (
 
 
 def import_module(modname: str = "student_submission", func_name="add_num") -> Callable:
-    """Imports the student submission and returns the function with the given name."""
+    """Imports the student submission and returns the function with the given name.
+
+    It accomplishes this by utilizing a lot of the machinery provided by the python module
+    ``importlib``. If you don't understand how it works, feel free to just copy paste this
+    function and pass a different value for the ``func_name`` parameter.
+    """
+
     spec = importlib.util.spec_from_file_location(modname, student_code_path)
 
     # these are probably grader errors and not student errors, so we raise an
@@ -62,7 +68,7 @@ def import_module(modname: str = "student_submission", func_name="add_num") -> C
 def run_submission(func: Callable) -> None:
     # grade submissions
     failing_cases = 0
-    tol = 1e8
+    tol = 1e-8
     for x, y in test_cases:
         try:
             # take into account floating point error
