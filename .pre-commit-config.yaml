@@ -1,4 +1,4 @@
-default_stages: [Nonepre-commitNone, Nonepre-pushNone]
+default_stages: [pre-commit, pre-push]
 fail_fast: false
 exclude: ^tin/(static/.*vendor|.*migrations)
 
