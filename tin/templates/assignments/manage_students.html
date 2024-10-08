@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  Turn-In: Manage Students
+{% endblock %}
+
+
+{% block main %}
+  <h2>Manage Students</h2>
+
+  <div class="student-list">
+    <ul class="linebreak-list linebreak-last">
+      {% for student in students %}
+        <li>
+          <div class="left">
+          {{ student.last_name }}, {{ student.first_name }}
+          </div>
+          <div class="right">
+            <a href="{% url "assignments:create_student_override" assignment.id student.id %}" class="tin-btn">Manage Student</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <a href="{% url 'assignments:show' assignment.id %}" class="tin-btn">Back</a>
+{% endblock %}
