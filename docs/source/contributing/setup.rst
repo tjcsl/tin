@@ -36,7 +36,7 @@ After that, install dependencies and follow standard django procedures
 
    pipenv install --dev
    pipenv run python3 manage.py migrate
-   pipenv run python3 scripts/create_debug_users.py
+   pipenv run python3 manage.py create_debug_users
 
 
 Now you're all set! Try running the development server
