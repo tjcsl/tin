@@ -7,6 +7,7 @@ import select
 import shutil
 import signal
 import subprocess
+import sys
 import time
 import traceback
 from decimal import Decimal
@@ -62,11 +63,12 @@ def run_submission(submission_id):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
-        python_exe = (
-            os.path.join(submission.assignment.venv.path, "bin", "python")
-            if submission.assignment.venv_fully_created
-            else "/usr/bin/python3.10"
-        )
+        if submission.assignment.venv_fully_created:
+            python_exe = os.path.join(submission.assignment.venv.path, "bin", "python")
+        elif settings.DEBUG:
+            python_exe = sys.executable
+        else:  # pragma: no cover
+            python_exe = "/usr/bin/python3.10"
 
         if not settings.DEBUG or shutil.which("bwrap") is not None:
             folder_name = "sandboxed"
