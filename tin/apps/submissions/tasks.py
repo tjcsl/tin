@@ -4,13 +4,13 @@ import logging
 import os
 import re
 import select
-import shutil
 import signal
 import subprocess
 import sys
 import time
 import traceback
 from decimal import Decimal
+from pathlib import Path
 
 import psutil
 from asgiref.sync import async_to_sync
@@ -42,12 +42,12 @@ def run_submission(submission_id):
         )
         submission_path = submission.file_path
 
-        submission_wrapper_path = submission.wrapper_file_path
+        submission_wrapper_path = Path(submission.wrapper_file_path)
 
         args = get_assignment_sandbox_args(
-            ["mkdir", "-p", "--", os.path.dirname(submission_wrapper_path)],
+            ["mkdir", "-p", "--", str(submission_wrapper_path.parent)],
             network_access=False,
-            whitelist=[os.path.dirname(os.path.dirname(submission_wrapper_path))],
+            whitelist=[str(submission_wrapper_path.parent.parent)],
         )
 
         try:
@@ -70,35 +70,38 @@ def run_submission(submission_id):
         else:  # pragma: no cover
             python_exe = "/usr/bin/python3.10"
 
-        if not settings.DEBUG or shutil.which("bwrap") is not None:
-            folder_name = "sandboxed"
+        if settings.USE_SANDBOXING:
+            wrapper_text = (
+                Path(settings.BASE_DIR)
+                .joinpath(
+                    "sandboxing",
+                    "wrappers",
+                    "sandboxed",
+                    f"{submission.assignment.language}.txt",
+                )
+                .read_text("utf-8")
+            )
+
+        elif submission.assignment.language == "P":
+            wrapper_text = settings.DEBUG_GRADER_WRAPPER_SCRIPT.read_text("utf-8")
         else:
-            folder_name = "testing"
-
-        with open(
-            os.path.join(
-                settings.BASE_DIR,
-                "sandboxing",
-                "wrappers",
-                folder_name,
-                f"{submission.assignment.language}.txt",
-            )
-        ) as wrapper_file:
-            wrapper_text = wrapper_file.read().format(
-                has_network_access=bool(submission.assignment.has_network_access),
-                venv_path=(
-                    submission.assignment.venv.path
-                    if submission.assignment.venv_fully_created
-                    else None
-                ),
-                submission_path=submission_path,
-                python=python_exe,
+            raise NotImplementedError(
+                f"Unsupported language {submission.assignment.language} in DEBUG"
             )
 
-        with open(submission_wrapper_path, "w", encoding="utf-8") as f_obj:
-            f_obj.write(wrapper_text)
+        wrapper_text = wrapper_text.format(
+            has_network_access=bool(submission.assignment.has_network_access),
+            venv_path=(
+                submission.assignment.venv.path
+                if submission.assignment.venv_fully_created
+                else None
+            ),
+            submission_path=submission_path,
+            python=python_exe,
+        )
 
-        os.chmod(submission_wrapper_path, 0o700)
+        submission_wrapper_path.write_text(wrapper_text, "utf-8")
+        submission_wrapper_path.chmod(0o700)
     except OSError:
         submission.grader_output = (
             "An internal error occurred. Please try again.\n"
@@ -126,15 +129,15 @@ def run_submission(submission_id):
             python_exe,
             "-u",
             grader_path,
-            submission_wrapper_path,
+            str(submission_wrapper_path),
             submission_path,
             submission.student.username,
             grader_log_path,
         ]
 
-        if not settings.DEBUG or shutil.which("firejail") is not None:
+        if settings.USE_SANDBOXING:
             whitelist = [os.path.dirname(grader_path)]
-            read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
+            read_only = [grader_path, submission_path, str(submission_wrapper_path.parent)]
             if submission.assignment.venv_fully_created:
                 whitelist.append(submission.assignment.venv.path)
                 read_only.append(submission.assignment.venv.path)
@@ -147,7 +150,7 @@ def run_submission(submission_id):
                 read_only=read_only,
             )
 
-        env = dict(os.environ)
+        env = os.environ.copy()
         if submission.assignment.venv_fully_created:
             env.update(submission.assignment.venv.get_activation_env())
 
@@ -275,5 +278,4 @@ def run_submission(submission_id):
             submission.channel_group_name, {"type": "submission.updated"}
         )
 
-        if os.path.exists(submission_wrapper_path):
-            os.remove(submission_wrapper_path)
+        submission_wrapper_path.unlink(missing_ok=True)

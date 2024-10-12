@@ -180,6 +180,10 @@ extend-ignore-names = [
   "INP001",
 ]
 
+"**/management/*" = [
+  "INP001",
+]
+
 [tool.ruff.format]
 docstring-code-format = true
 line-ending = "lf"

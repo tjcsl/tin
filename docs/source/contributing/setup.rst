@@ -54,11 +54,6 @@ Submissions
 In order to actually create a submission, there are some more steps. First,
 you'll need to install `redis <https://redis.io/download>`_.
 
-You'll also need to run some scripts to emulate the sandboxing process that goes on in production.
-Run the following script::
-
-  pipenv run python3 scripts/create_wrappers.py
-
 After that, you'll want to start up the development server and create a course,
 and an assignment in the course. After saving the assignment, you can hit "Upload grader"
 to add a grader - the simplest example of a grader is located in ``scripts/sample_grader.py``.
