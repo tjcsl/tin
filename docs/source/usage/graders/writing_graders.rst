@@ -157,9 +157,9 @@ Each submission has a "Score" field that can be set by the grader. If this field
 you will be able to see a list of each student's scores on the assignment's page,
 which is designed to make entering grades into the gradebook easier.
 
-To set this field, simply print ``Source: <score>`` at the very end, to :obj:`sys.stdout`. For example::
+To set this field, simply print ``Score: <score>`` at the very end, to :obj:`sys.stdout`. For example::
 
-  print("Source: 10%")
+  print("Score: 10%")
 
 Note that the score can be printed as a percent (``10%``) or as a number of points. In both cases,
 they are interpreted as being out of the "Points possible" value set on the assignment "Edit" page.
