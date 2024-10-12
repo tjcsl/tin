@@ -4,11 +4,16 @@ import subprocess
 import sys
 from pathlib import Path
 
-DIR = Path(__file__).parent
-INPUT_FILE = DIR / "input.txt"
-OUTPUT_FILE = DIR / "output.txt"
-
 submission = sys.argv[1]
+student_submission = Path(sys.argv[2])
+
+# input file is in the same directory as our grader (this file)
+INPUT_FILE = Path(__file__).parent / "input.txt"
+# output file is in the same directory as the student submission
+# This way we can avoid multiple submissions trying to write to
+# the same file.
+OUTPUT_FILE = student_submission.parent / "output.txt"
+
 
 command = [
     sys.executable,
@@ -25,13 +30,14 @@ command = [
     OUTPUT_FILE,
 ]
 
-try:
-    resp = subprocess.run(
-        command,
-        capture_output=True,
-        check=True,
-    )
-except Exception as e:
-    print(f"Error in submission: {e}")
+resp = subprocess.run(
+    command,
+    stdout=sys.stdout,
+    stderr=subprocess.STDOUT,
+    check=False,
+)
+
+if resp.returncode == 0:
+    print(f"Score: {100 if OUTPUT_FILE.read_text() == INPUT_FILE.read_text() else 0}%")
 else:
-    print(f"Score: {100 if OUTPUT_FILE.read_text() == '2' else 0}%")
+    print("Score: 0%")
