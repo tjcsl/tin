@@ -31,7 +31,7 @@ def truncate_output(text, field_name):
 
 
 @shared_task
-def run_submission(submission_id):
+def run_submission(submission_id: int) -> None:
     submission = Submission.objects.get(id=submission_id)
 
     try:
@@ -80,7 +80,8 @@ def run_submission(submission_id):
                 "wrappers",
                 folder_name,
                 f"{submission.assignment.language}.txt",
-            )
+            ),
+            encoding="utf-8",
         ) as wrapper_file:
             wrapper_text = wrapper_file.read().format(
                 has_network_access=bool(submission.assignment.has_network_access),

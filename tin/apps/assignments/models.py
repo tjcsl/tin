@@ -159,6 +159,7 @@ class Assignment(models.Model):
 
     has_network_access = models.BooleanField(default=False)
 
+    # WARNING: this is the rate limit
     submission_limit_count = models.PositiveIntegerField(
         default=90,
         validators=[MinValueValidator(10)],
@@ -170,6 +171,16 @@ class Assignment(models.Model):
     submission_limit_cooldown = models.PositiveIntegerField(
         default=30,
         validators=[MinValueValidator(10)],
+    )
+
+    use_submission_cap = models.BooleanField(default=False)
+    submission_cap = models.PositiveSmallIntegerField(
+        null=True,
+        validators=[MinValueValidator(1)],
+    )
+    submission_cap_after_due = models.PositiveSmallIntegerField(
+        null=True,
+        validators=[MinValueValidator(1)],
     )
 
     last_action_output = models.CharField(max_length=16 * 1024, default="", null=False, blank=True)
@@ -191,6 +202,39 @@ class Assignment(models.Model):
 
     def __repr__(self):
         return self.name
+
+    def within_submission_limit(self, student) -> bool:
+        """Check if a student is within the submission limit for an assignment."""
+        # teachers should have infinite submissions
+        if not student.is_student or not self.use_submission_cap:
+            return True
+
+        # note that this doesn't care about killed/incomplete submissions
+        submission_count = self.submissions.filter(student=student).count()
+
+        cap = self.find_submission_cap(student)
+        return submission_count < cap
+
+    def find_submission_cap(self, student) -> float:
+        """Given a student, find the submission cap.
+
+        This takes into account student overrides, and due dates.
+        """
+        if student.is_superuser or student.is_teacher:
+            return float("inf")
+        data = self.find_student_override(student)
+        if data is not None:
+            return data.submission_cap
+        elif timezone.localtime() > self.due:
+            return self.submission_cap_after_due or float("inf")
+        return self.submission_cap or float("inf")
+
+    def find_student_override(self, student) -> AssignmentOverride | None:
+        """Find an :class:`.AssignmentOverride` for a student.
+
+        Returns ``None`` if no override exists.
+        """
+        return self.student_overrides.filter(student=student).first()
 
     def make_assignment_dir(self) -> None:
         """Creates the directory where the assignment grader scripts go."""
@@ -369,6 +413,26 @@ class Assignment(models.Model):
             sum(lm.severity for lm in self.log_messages.filter(student=student))
             >= settings.QUIZ_ISSUE_THRESHOLD
         )
+
+
+class AssignmentOverride(models.Model):
+    """A collection of per-student overrides for each :class:`.Assignment`."""
+
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="student_overrides",
+    )
+
+    student = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+    )
+
+    submission_cap = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return f"Override for {self.student!r} @ Assignment {self.assignment!r}"
 
 
 class CooldownPeriod(models.Model):

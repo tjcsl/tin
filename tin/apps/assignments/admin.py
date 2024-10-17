@@ -6,6 +6,7 @@ from django.contrib import admin
 
 from .models import (
     Assignment,
+    AssignmentOverride,
     CooldownPeriod,
     FileAction,
     Folder,
@@ -140,3 +141,6 @@ class FileActionAdmin(admin.ModelAdmin):
         elif obj.match_type == "C":
             return f"*{obj.match_value}*"
         return ""
+
+
+admin.site.register(AssignmentOverride)

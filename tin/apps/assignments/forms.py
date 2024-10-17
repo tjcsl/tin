@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
-from .models import Assignment, Folder, MossResult
+from .models import Assignment, AssignmentOverride, Folder, MossResult
 
 logger = getLogger(__name__)
 
@@ -29,6 +29,20 @@ class AssignmentForm(forms.ModelForm):
 
         # prevent description from getting too big
         self.fields["description"].widget.attrs.update({"id": "description"})
+
+        # these fields aren't required
+        for field in ("submission_cap", "submission_cap_after_due"):
+            self.fields[field].required = False
+
+    def clean(self) -> dict:
+        super().clean()
+        if self.cleaned_data["submission_cap"] is None and self.cleaned_data["use_submission_cap"]:
+            self.add_error(
+                "submission_cap", "this field is required if use submission cap is enabled."
+            )
+        elif self.cleaned_data["submission_cap_after_due"] is None:
+            self.cleaned_data["submission_cap_after_due"] = self.cleaned_data["submission_cap"]
+        return self.cleaned_data
 
     def get_sections(self) -> Iterable[dict[str, str | tuple[str, ...] | bool]]:
         """This is used in templates to find which fields should be in a dropdown div."""
@@ -66,6 +80,9 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout",
             "grader_has_network_access",
             "has_network_access",
+            "use_submission_cap",
+            "submission_cap",
+            "submission_cap_after_due",
             "submission_limit_count",
             "submission_limit_interval",
             "submission_limit_cooldown",
@@ -83,6 +100,7 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout": "Grader timeout (seconds):",
             "grader_has_network_access": "Give the grader internet access?",
             "has_network_access": "Give submissions internet access?",
+            "use_submission_cap": "Cap submissions?",
             "submission_limit_count": "Rate limit count",
             "submission_limit_interval": "Rate limit interval (minutes)",
             "submission_limit_cooldown": "Rate limit cooldown period (minutes)",
@@ -136,6 +154,9 @@ class AssignmentForm(forms.ModelForm):
                     "submission_limit_count",
                     "submission_limit_interval",
                     "submission_limit_cooldown",
+                    "use_submission_cap",
+                    "submission_cap",
+                    "submission_cap_after_due",
                 ),
                 "collapsed": True,
             },
@@ -150,6 +171,9 @@ class AssignmentForm(forms.ModelForm):
             'internet access" below. If set, it increases the amount '
             "of time it takes to start up the grader (to about 1.5 "
             "seconds). This is not recommended unless necessary.",
+            "use_submission_cap": "This enables setting a limit on the number of submissions that can be made on assignments."
+            "It has no effect on quizzes",
+            "submission_cap": "The maximum number of submissions that can be made. It can be overridden on a per-student basis.",
             "submission_limit_count": "",
             "submission_limit_interval": "Tin sets rate limits on submissions. If a student tries "
             "to submit too many submissions in a given interval, "
@@ -241,3 +265,12 @@ class FolderForm(forms.ModelForm):
             "name",
         ]
         help_texts = {"name": "Note: Folders are ordered alphabetically."}
+
+
+class AssignmentOverrideForm(forms.ModelForm):
+    class Meta:
+        model = AssignmentOverride
+        fields = [
+            "submission_cap",
+        ]
+        help_texts = {"submission_cap": "The maximum number of submissions that can be made."}

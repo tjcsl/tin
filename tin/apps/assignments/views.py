@@ -25,6 +25,7 @@ from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import (
     AssignmentForm,
+    AssignmentOverrideForm,
     FileSubmissionForm,
     FileUploadForm,
     FolderForm,
@@ -58,6 +59,9 @@ def show_view(request, assignment_id):
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
         graded_submission = publishes.latest().submission if publishes else latest_submission
 
+        submissions_left = assignment.find_submission_cap(request.user) - len(submissions)
+        submissions_left = max(submissions_left, 0)
+
         return render(
             request,
             "assignments/show.html",
@@ -71,6 +75,8 @@ def show_view(request, assignment_id):
                 "is_student": course.is_student_in_course(request.user),
                 "is_teacher": request.user in course.teacher.all(),
                 "quiz_accessible": quiz_accessible,
+                "within_submission_limit": assignment.within_submission_limit(request.user),
+                "submissions_left": submissions_left,
             },
         )
     else:
@@ -173,11 +179,20 @@ def show_view(request, assignment_id):
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
         latest_submission = submissions.latest() if submissions else None
         graded_submission = publishes.latest().submission if publishes else latest_submission
+
+        submissions_left = assignment.find_submission_cap(request.user) - len(submissions)
+        # render properly after submission cap is lowered (such as when the due date is passed)
+        submissions_left = max(submissions_left, 0)
+        if submissions_left == float("inf"):
+            submissions_left = None
+
         context.update(
             {
                 "submissions": submissions.order_by("-date_submitted"),
                 "latest_submission": latest_submission,
                 "graded_submission": graded_submission,
+                "within_submission_limit": assignment.within_submission_limit(request.user),
+                "submissions_left": submissions_left,
             }
         )
 
@@ -272,6 +287,41 @@ def delete_view(request, assignment_id):
     if folder:
         return redirect(reverse("assignments:show_folder", args=(course.id, folder.id)))
     return redirect(reverse("courses:show", args=(course.id,)))
+
+
+@teacher_or_superuser_required
+def manage_students_view(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    course = assignment.course
+    return render(
+        request,
+        "assignments/manage_students.html",
+        {"students": course.students.all(), "assignment": assignment},
+    )
+
+
+@teacher_or_superuser_required
+def manage_student(request, assignment_id, student_id):
+    student = get_object_or_404(
+        get_user_model().objects.filter(is_student=True),
+        id=student_id,
+    )
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    data = assignment.find_student_override(student)
+    form = AssignmentOverrideForm(instance=data)
+    if request.method == "POST":
+        form = AssignmentOverrideForm(data=request.POST, instance=data)
+        if form.is_valid():
+            override = form.save(commit=False)
+            override.assignment = assignment
+            override.student = student
+            override.save()
+            return redirect("assignments:manage_students", assignment_id)
+    return render(
+        request,
+        "assignments/manage_student.html",
+        {"form": form, "user": student, "assignment": assignment, "override": data},
+    )
 
 
 @teacher_or_superuser_required
@@ -535,6 +585,8 @@ def submit_view(request, assignment_id):
         raise http.Http404
 
     student = request.user
+    if not assignment.within_submission_limit(student):
+        return http.HttpResponseForbidden("Submission limit exceeded")
 
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None
