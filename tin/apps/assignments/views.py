@@ -503,8 +503,13 @@ def file_action_view(request, assignment_id, action_id):
 
 
 @teacher_or_superuser_required
-def choose_file_action(request, course_id: int):
-    """Choose a file action template."""
+def manage_file_actions(request, course_id: int):
+    """Add, remove and edit :class:`.FileAction`s for a :class:`.Course`
+
+    Args:
+        request: The request
+        course_id: The primary key of the :class:`.Course`
+    """
     course = get_object_or_404(
         Course.objects.filter_editable(request.user),
         id=course_id,
@@ -522,12 +527,12 @@ def choose_file_action(request, course_id: int):
     course_actions = course.file_actions.all()
     return render(
         request,
-        "assignments/choose_file_action.html",
+        "assignments/manage_file_actions.html",
         {
             "actions": actions,
             "course_actions": course_actions,
             "course": course,
-            "nav_item": "Choose file action",
+            "nav_item": "Manage file actions",
         },
     )
 
