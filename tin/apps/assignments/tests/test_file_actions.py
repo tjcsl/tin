@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 from django.urls import reverse
 
 from tin.tests import login, model_to_dict
@@ -20,7 +18,6 @@ def test_choose_file_action_view(client, course, file_action) -> None:
         reverse("assignments:choose_file_action", args=[course.id]),
         {"file_action": file_action.id},
     )
-    assert json.loads(response.content.decode("utf-8")).get("success") is True
     assert file_action.courses.filter(id=course.id).exists()
 
 
@@ -44,7 +41,7 @@ def test_create_file_action_view(client, course) -> None:
     fa_data = model_to_dict(file_action)
 
     # try copying the data
-    response = client.post(f"{url}?action={file_action.id}", {**fa_data, "copy": True})
+    response = client.post(f"{url}?action={file_action.id}", fa_data | {"copy": True})
     assert (
         course.file_actions.count() == 2
     ), "Passing copy as a POST parameter should copy the file action"
@@ -54,15 +51,18 @@ def test_create_file_action_view(client, course) -> None:
     file_action.refresh_from_db()
     assert file_action.name == "New name!"
 
+    response = client.post(f"{url}?copy=1", fa_data | {"copy": True})
+    assert (
+        course.file_actions.count() == 3
+    ), f"Passing copy without an action should create a file action (got {response})"
+
 
 @login("teacher")
 def test_delete_file_action_view(client, course, file_action) -> None:
-    response = client.post(
+    client.post(
         f"{reverse('assignments:delete_file_action', args=[course.id])}",
         {"file_action": file_action.id},
     )
-    assert json.loads(response.content.decode("utf-8")).get("success") is True
-
     # it should be removed from the course, but should still exist
     assert not course.file_actions.filter(id=file_action.id).exists()
     assert FileAction.objects.filter(id=file_action.id).exists()
