@@ -246,20 +246,6 @@ class FolderForm(forms.ModelForm):
 class FileActionForm(forms.ModelForm):
     """A form to create (or edit) a :class:`.FileAction`."""
 
-    def clean(self):
-        cleaned_data = super().clean()
-        if cleaned_data is None:
-            cleaned_data = self.cleaned_data
-        cmd = cleaned_data.get("command", "")
-
-        if "$FILE" in cmd or "$FILES" in cmd:
-            if not cleaned_data.get("match_type"):
-                self.add_error("match_type", "required if command uses $FILE or $FILES")
-            if not cleaned_data.get("match_value"):
-                self.add_error("match_value", "required if command uses $FILE or $FILES")
-
-        return cleaned_data
-
     class Meta:
         model = FileAction
         fields = [
@@ -273,6 +259,20 @@ class FileActionForm(forms.ModelForm):
         widgets = {
             "description": forms.Textarea(attrs={"cols": 32, "rows": 2}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data is None:
+            cleaned_data = self.cleaned_data
+        cmd = cleaned_data.get("command", "")
+
+        if "$FILE" in cmd or "$FILES" in cmd:
+            if not cleaned_data.get("match_type"):
+                self.add_error("match_type", "required if command uses $FILE or $FILES")
+            if not cleaned_data.get("match_value"):
+                self.add_error("match_value", "required if command uses $FILE or $FILES")
+
+        return cleaned_data
 
 
 class ChooseFileActionForm(forms.Form):
