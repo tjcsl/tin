@@ -13,10 +13,8 @@
         },
         function() {
           const url = `{% url 'assignments:create_file_action' course.id %}?action=${actionId}`;
-          $("#id_" + actionId).fadeOut(200).promise().done((action) => {
+          $("#id_" + actionId).fadeOut(200).promise().done(action => {
             action.find("button").replaceWith(`<a class="tin-btn card-btn" href="${url}">Edit File Action</a>`);
-            // whether to show the remove button on hover
-            action.find(".card-topright").removeClass("other-courses");
             $("#course-actions").append(action);
             action.fadeIn(200);
           });
@@ -32,9 +30,8 @@
           file_action: actionId,
         },
         function() {
-          $("#id_" + actionId).fadeOut(300).promise().done((action) => {
+          $("#id_" + actionId).fadeOut(300).promise().done(action => {
             action.find("a.tin-btn").replaceWith(`<button class="tin-btn card-btn" onclick="addFileAction(${actionId})">Add to course</button>`);
-            action.find(".card-topright").addClass("hidden other-courses");
             $("#new-actions").append(action);
             action.fadeIn(200);
           });
@@ -44,7 +41,7 @@
 
     $(function() {
       $(".card").on("mouseenter", function() {
-        $(this).find(".card-topright").not(".other-courses").removeClass("hidden");
+        $(this).find(".card-topright").removeClass("hidden");
       }).on("mouseleave", function() {
         $(this).find(".card-topright").addClass("hidden");
       });
@@ -104,7 +101,7 @@
       <div class="col" id="id_{{ action.id }}">
         <div class="card">
           <div class="card-content">
-            <div class="card-topright hidden other-courses">
+            <div class="card-topright hidden">
               <span onclick="removeFileAction({{ action.id }})">
                 <i class="fa-solid fa-trash-can red fake-btn" title="Remove from course"></i>
               </span>

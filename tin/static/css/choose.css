@@ -74,6 +74,10 @@
   padding: 10px;
 }
 
+#new-actions .card-topright > *:not(.show-on-hover) {
+  display: none;
+}
+
 .card-title {
   font-size: 1.25rem;
   margin-top: 0;
