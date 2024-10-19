@@ -52,7 +52,11 @@
 
 
   {% if actions or assignment.last_action_output %}
-    <h2 style="border-top:1px solid lightgray;padding-top:15px;">File actions</h2>
+    <h2 style="border-top:1px solid lightgray;padding-top:15px;">
+      File actions
+      <a href="{% url 'assignments:manage_file_actions' assignment.course.id %}" class="fa-solid fa-gear"></a>
+    </h2>
+
     {% for action in actions %}
       <a class="left tin-btn" href="{% url 'assignments:file_action' assignment.id action.id %}">{{ action.name }}</a>
     {% empty %}
@@ -63,7 +67,4 @@
       <pre><code class="nohljsln">{{ assignment.last_action_output }}</code></pre>
     {% endif %}
   {% endif %}
-
-  <a class="left tin-btn" href="{% url 'assignments:choose_file_action' assignment.course.id %}">Explore File Actions</a>
-
 {% endblock %}
