@@ -8,16 +8,14 @@ from ..models import FileAction
 
 
 @login("teacher")
-def test_choose_file_action_view(client, course, file_action) -> None:
+def test_manage_file_actions_view(client, course, file_action) -> None:
     # make sure the view works
-    response = client.get(reverse("assignments:choose_file_action", args=[course.id]))
+    url = reverse("assignments:manage_file_actions", args=[course.id])
+    response = client.get(url)
     assert response.status_code == 200
 
     file_action.courses.clear()
-    response = client.post(
-        reverse("assignments:choose_file_action", args=[course.id]),
-        {"file_action": file_action.id},
-    )
+    response = client.post(url, {"file_action": file_action.id})
     assert file_action.courses.filter(id=course.id).exists()
 
 

@@ -6,7 +6,7 @@
   <script type="text/javascript">
     function addFileAction(actionId) {
       $.post(
-        "{% url 'assignments:choose_file_action' course.id %}",
+        "{% url 'assignments:manage_file_actions' course.id %}",
         {
           csrfmiddlewaretoken: "{{ csrf_token }}",
           file_action: actionId,
@@ -75,8 +75,7 @@
         <div class="card">
           <div class="card-content">
             <div class="card-topright hidden">
-              <span onclick="removeFileAction({{ action.id }})">
-                <i class="fa-solid fa-trash-can red fake-btn" title="Remove from course"></i>
+              <span onclick="removeFileAction({{ action.id }})" class="fa-solid fa-trash-can red fake-btn" title="Remove from course">
               </span>
             </div>
             <h5 class="card-title">{{ action.name }}</h5>
@@ -102,8 +101,7 @@
         <div class="card">
           <div class="card-content">
             <div class="card-topright hidden">
-              <span onclick="removeFileAction({{ action.id }})">
-                <i class="fa-solid fa-trash-can red fake-btn" title="Remove from course"></i>
+              <span onclick="removeFileAction({{ action.id }})" class="fa-solid fa-trash-can red fake-btn" title="Remove from course">
               </span>
             </div>
             <h5 class="card-title">{{ action.name }}</h5>
