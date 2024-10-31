@@ -7,6 +7,7 @@
   color: white;
   line-height: 40px;
   background: #4fab4f;
+  position: relative;
 }
 
 #nav ul {
@@ -412,4 +413,20 @@ ul.errors {
   pre {
     white-space: pre-wrap;
   }
+}
+
+#theme-toggle {
+  width: 30px;
+  height: 30px;
+}
+
+.theme-toggle-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-85%, 12%);
 }
