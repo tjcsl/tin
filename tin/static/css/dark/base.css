@@ -25,3 +25,8 @@ ul#assignment-list > li a {
 a:not(.tin-btn) {
   color: white;
 }
+
+table.has-border th,
+table.has-border td {
+  border: 1px solid #ffffff;
+}
