@@ -42,3 +42,18 @@ Now you're all set! Try running the development server
 
 Head on over to `http://127.0.0.1:8000 <http://127.0.0.1:8000>`_, and login
 as ``admin`` and the password you just entered.
+
+
+
+NixOS Setup
+-----------
+A ``flake.nix`` file is provided for NixOS users. To use it, first enable the redis service globally.
+Place the following in your ``/etc/nixos/configuration.nix``::
+
+  services.redis.server."".enable = true
+
+After that, you can run the flake with::
+
+  nix develop
+
+You can then run the development server as stated above.
