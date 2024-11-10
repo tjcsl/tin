@@ -101,8 +101,9 @@ def run_submission(submission_id):
             python=python_exe,
         )
 
-        with open(submission_wrapper_path, "w", encoding="utf-8") as f:
-            f.write(wrapper_text)
+        with open(submission_wrapper_path, "w", encoding="utf-8") as f_obj:
+            f_obj.write(wrapper_text)
+
         os.chmod(submission_wrapper_path, 0o700)
     except OSError:
         submission.grader_output = (
@@ -281,4 +282,4 @@ def run_submission(submission_id):
         )
 
         with contextlib.suppress(FileNotFoundError):
-            os.unlink(submission_wrapper_path)
+            os.remove(submission_wrapper_path)
