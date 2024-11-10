@@ -11,13 +11,12 @@ import sys
 
 process = subprocess.run(
     [sys.executable, sys.argv[1]],
-    capture_output=True,
+    stdout=sys.stdout,
+    stderr=subprocess.STDOUT,
     check=False,
 )
 
 if process.returncode != 0:
-    # let the student see the error
-    print(process.stderr)
     print("Score: 0%")
 else:
     print("Score: 100%")
