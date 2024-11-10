@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 @shared_task
 def create_venv(venv_id):
     venv = Venv.objects.get(id=venv_id)
+    python = settings.SUBMISSION_PYTHON
+    if settings.DEBUG:
+        python = sys.executable
 
     success = False
     try:
@@ -25,7 +28,7 @@ def create_venv(venv_id):
                     "-m",
                     "virtualenv",
                     "-p",
-                    settings.SUBMISSION_PYTHON,
+                    python,
                     "--",
                     venv.path,
                 ],
