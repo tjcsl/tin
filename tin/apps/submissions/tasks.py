@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import logging
 import os
 import re
@@ -42,12 +43,12 @@ def run_submission(submission_id):
         )
         submission_path = submission.file_path
 
-        submission_wrapper_path = Path(submission.wrapper_file_path)
+        submission_wrapper_path = submission.wrapper_file_path
 
         args = get_assignment_sandbox_args(
-            ["mkdir", "-p", "--", str(submission_wrapper_path.parent)],
+            ["mkdir", "-p", "--", os.path.dirname(submission_wrapper_path)],
             network_access=False,
-            whitelist=[str(submission_wrapper_path.parent.parent)],
+            whitelist=[os.path.dirname(os.path.dirname(submission_wrapper_path))],
         )
 
         try:
@@ -100,8 +101,9 @@ def run_submission(submission_id):
             python=python_exe,
         )
 
-        submission_wrapper_path.write_text(wrapper_text, "utf-8")
-        submission_wrapper_path.chmod(0o700)
+        with open(submission_wrapper_path, "w", encoding="utf-8") as f:
+            f.write(wrapper_text)
+        os.chmod(submission_wrapper_path, 0o700)
     except OSError:
         submission.grader_output = (
             "An internal error occurred. Please try again.\n"
@@ -129,7 +131,7 @@ def run_submission(submission_id):
             python_exe,
             "-u",
             grader_path,
-            str(submission_wrapper_path),
+            submission_wrapper_path,
             submission_path,
             submission.student.username,
             grader_log_path,
@@ -137,7 +139,7 @@ def run_submission(submission_id):
 
         if settings.USE_SANDBOXING:
             whitelist = [os.path.dirname(grader_path)]
-            read_only = [grader_path, submission_path, str(submission_wrapper_path.parent)]
+            read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
             if submission.assignment.venv_fully_created:
                 whitelist.append(submission.assignment.venv.path)
                 read_only.append(submission.assignment.venv.path)
@@ -278,4 +280,5 @@ def run_submission(submission_id):
             submission.channel_group_name, {"type": "submission.updated"}
         )
 
-        submission_wrapper_path.unlink(missing_ok=True)
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(submission_wrapper_path)
