@@ -57,3 +57,7 @@ After that, you can run the flake with::
   nix develop
 
 You can then run the development server as stated above.
+
+.. tip::
+
+   You may also need to set ``nix.settings.experimental-features = ["nix-command" "flakes"];`` in your ``configuration.nix``.
