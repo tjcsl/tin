@@ -7,13 +7,9 @@ Writing a Grader
    It isn't as simple as it sounds - there are certain traps
    that are easy to fall into. Read the full page before writing a grader script.
 
-Tin allows you to use the full flexibility of Python (or Java)
+Tin allows you to use the full flexibility of Python
 to write a grader script. This script is responsible for evaluating
 the output of a student submission, and returning a score to Tin.
-
-.. note::
-
-  In this guide, we will use Python, but the same principles apply to Java.
 
 ----------------------
 How do I do write one?
