@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import datetime
 
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.utils.translation import ngettext
 
 from .models import (
     Assignment,
     CooldownPeriod,
     FileAction,
     Folder,
+    Language,
     MossResult,
     Quiz,
     QuizLogMessage,
@@ -32,8 +34,16 @@ class FolderAdmin(admin.ModelAdmin):
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
     date_hierarchy = "due"
-    list_display = ("name", "course_name", "folder", "due", "visible", "quiz_icon")
-    list_filter = ("language", "course", "due")
+    list_display = (
+        "name",
+        "course_name",
+        "folder",
+        "due",
+        "visible",
+        "quiz_icon",
+        "language_details",
+    )
+    list_filter = ("language_details", "course", "due")
     ordering = ("-due",)
     save_as = True
     search_fields = ("name",)
@@ -50,6 +60,36 @@ class AssignmentAdmin(admin.ModelAdmin):
     @admin.display(description="Quiz", boolean=True)
     def quiz_icon(self, obj):
         return bool(obj.is_quiz)
+
+
+@admin.register(Language)
+class LanguageAdmin(admin.ModelAdmin):
+    list_display = ("name", "language", "executable", "is_deprecated")
+    search_fields = ("name", "executable")
+    ordering = ("-language", "is_deprecated", "name")
+    save_as = True
+    list_filter = ("language",)
+    actions = ["make_deprecated"]
+
+    @admin.action(description="Mark languages as deprecated")
+    def make_deprecated(self, request, queryset) -> None:
+        changed = 0
+        for language in queryset:
+            language.is_deprecated = True
+            language.name = f"{language.name} (Deprecated)"
+            language.save()
+            changed += 1
+
+        self.message_user(
+            request,
+            ngettext(
+                "Successfully marked %d language as deprecated.",
+                "Successfully marked %d languages as deprecated.",
+                changed,
+            )
+            % changed,
+            messages.SUCCESS,
+        )
 
 
 @admin.register(CooldownPeriod)

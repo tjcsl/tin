@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import logging
 import subprocess
-import sys
 
 from celery import shared_task
-from django.conf import settings
 
 from .models import Venv, VenvCreationError
 
@@ -18,14 +16,15 @@ def create_venv(venv_id):
 
     success = False
     try:
+        python = venv.language.executable
+        if python is None:
+            raise VenvCreationError("No Python executable found")
         try:
             res = subprocess.run(
                 [
-                    sys.executable,
+                    python,
                     "-m",
-                    "virtualenv",
-                    "-p",
-                    settings.SUBMISSION_PYTHON,
+                    "venv",
                     "--",
                     venv.path,
                 ],

@@ -305,11 +305,6 @@ REPO_URL = "https://github.com/tjcsl/tin"
 
 VENV_FILE_SIZE_LIMIT = 1 * 1000 * 1000 * 1000  # 1 GB
 
-# Spaces and special characters may not be handled correctly
-# Not importing correctly - specified directly in apps/submissions/tasks.py
-# as of 8/3/2022, 2022ldelwich
-SUBMISSION_PYTHON = "/usr/bin/python3.10"
-
 SUBMISSION_NAMESERVERS = ["198.38.16.40", "198.38.16.41"]
 
 # Users may only have this many submissions running

@@ -32,7 +32,9 @@ def truncate_output(text, field_name):
 
 @shared_task
 def run_submission(submission_id):
-    submission = Submission.objects.get(id=submission_id)
+    submission = Submission.objects.select_related(
+        "assignment", "assignment__language_details"
+    ).get(id=submission_id)
 
     try:
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
@@ -65,8 +67,10 @@ def run_submission(submission_id):
         python_exe = (
             os.path.join(submission.assignment.venv.path, "bin", "python")
             if submission.assignment.venv_fully_created
-            else "/usr/bin/python3.10"
+            else submission.assignment.language_details.executable
         )
+        if python_exe is None:
+            return
 
         if not settings.DEBUG or shutil.which("bwrap") is not None:
             folder_name = "sandboxed"
@@ -79,7 +83,7 @@ def run_submission(submission_id):
                 "sandboxing",
                 "wrappers",
                 folder_name,
-                f"{submission.assignment.language}.txt",
+                f"{submission.assignment.grader_language}.txt",
             )
         ) as wrapper_file:
             wrapper_text = wrapper_file.read().format(
