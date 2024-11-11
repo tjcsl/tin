@@ -50,6 +50,13 @@ class Venv(models.Model):
         max_length=OUTPUT_MAX_LENGTH, default="", null=False, blank=True
     )
 
+    language = models.ForeignKey(
+        "assignments.Language",
+        on_delete=models.CASCADE,
+        related_name="venv_set",
+        null=False,
+    )
+
     objects = VenvQuerySet.as_manager()
 
     def __str__(self):

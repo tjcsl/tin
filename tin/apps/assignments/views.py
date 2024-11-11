@@ -286,8 +286,9 @@ def edit_view(request, assignment_id):
     )
 
     course = assignment.course
+    initial = {"language_details": assignment.language_details}
 
-    assignment_form = AssignmentForm(course, instance=assignment)
+    assignment_form = AssignmentForm(course, instance=assignment, initial=initial)
     if request.method == "POST":
         assignment_form = AssignmentForm(course, data=request.POST, instance=assignment)
         if assignment_form.is_valid():
