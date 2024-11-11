@@ -52,11 +52,11 @@ Place the following in your ``/etc/nixos/configuration.nix``::
 
   services.redis.server."".enable = true
 
-After that, you can run the flake with::
+This will start a systemd service called ``redis``. After that, you can start the flake with::
 
   nix develop
 
-You can then run the development server as stated above.
+You can then install dependencies, setup the database, and run the development server as described above.
 
 .. tip::
 
