@@ -15,11 +15,22 @@ Previously, teachers in TJHSST CS classes had to manually run student code.
 As you can imagine, this was both time consuming, and dangerous.
 In order to solve this problem, Tin was invented to safely run student code submissions.
 
-Explore some of the technical documentation we have at our disposal!
+Explore some of the documentation we have at our disposal!
 
 .. toctree::
   :maxdepth: 2
-  :caption: Contents:
+  :caption: Usage Guide
+
+  usage
+  contact
+
+
+If you're interested in contributing a fix or a feature to Tin,
+the following documents might be useful:
+
+.. toctree::
+  :maxdepth: 1
+  :caption: Development
 
   contributing
   reference_index

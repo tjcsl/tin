@@ -29,7 +29,6 @@ urlpatterns = [
     path("assignments/", include("tin.apps.assignments.urls", namespace="assignments")),
     path("submissions/", include("tin.apps.submissions.urls", namespace="submissions")),
     path("venvs/", include("tin.apps.venvs.urls", namespace="venvs")),
-    path("docs/", include("tin.apps.docs.urls", namespace="docs")),
     path("", include("tin.apps.auth.urls", namespace="auth")),
     path("", include("social_django.urls", namespace="social")),
 ]
