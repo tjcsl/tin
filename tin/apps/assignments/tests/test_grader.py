@@ -48,3 +48,8 @@ def test_download_grader(client, assignment):
 
     assert response.status_code == 200
     assert response.content.decode("utf-8") == code
+
+
+def test_grader_save_file(assignment):
+    assignment.save_grader_file("print('hello, world')")
+    assert assignment.grader_exists()
