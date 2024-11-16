@@ -685,12 +685,7 @@ class FileAction(models.Model):
 
 
 class Language(models.Model):
-    """Which version of a language is used for an assignment.
-
-    .. tip::
-
-        Use :attr:`executable` over :attr:`path`.
-    """
+    """Which version of a language is used for an assignment."""
 
     LANGUAGES = (
         ("P", "Python 3"),
@@ -703,9 +698,7 @@ class Language(models.Model):
     is_deprecated = models.BooleanField(default=False)
 
     # for decimals like 3.10, use 310
-    version = models.PositiveSmallIntegerField(
-        help_text="The version of the executable. 0 if executable is /dev/null."
-    )
+    version = models.PositiveSmallIntegerField(help_text="The version of the executable.")
 
     # This is deprecated, new models should NOT use this attribute.
     use_java_folder = models.BooleanField(

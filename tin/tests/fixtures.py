@@ -92,12 +92,12 @@ def course(teacher, student):
 
 @pytest.fixture
 def python():
-    major, minor, micro = platform.python_version_tuple()
+    major, minor, _micro = platform.python_version_tuple()
     return Language.objects.create(
         name=f"Python {platform.python_version()}",
         executable=sys.executable,
         language="P",
-        version=int(f"{major}{minor}{micro}"),
+        version=int(f"{major}{minor}"),
     )
 
 

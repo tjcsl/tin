@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(help_text='The name of the language', max_length=50)),
                 ('executable', models.CharField(help_text='The path to the language executable', max_length=100)),
                 ('use_java_folder', models.BooleanField(default=False, help_text="Store the assignment grader in the Java folder, regardless of language")),
-                ('version', models.PositiveSmallIntegerField(help_text="The version of the executable. 0 if executable is /dev/null.")),
+                ('version', models.PositiveSmallIntegerField(help_text="The version of the executable.")),
             ],
             options={'ordering': ['-language', '-version']},
         ),

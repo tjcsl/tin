@@ -34,6 +34,7 @@ def delete_python_310_from_venvs(apps, schema_editor):
             executable="/usr/bin/python3.10",
             language="P",
             version=310,
+            is_deprecated=False,
         )
         .first()
     )

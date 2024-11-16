@@ -71,6 +71,9 @@ class LanguageAdmin(admin.ModelAdmin):
     list_filter = ("language",)
     actions = ["make_deprecated"]
 
+    # prevent someone from accidentally using this
+    exclude = ("use_java_folder",)
+
     @admin.action(description="Mark languages as deprecated")
     def make_deprecated(self, request, queryset) -> None:
         changed = 0

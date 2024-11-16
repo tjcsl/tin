@@ -69,8 +69,6 @@ def run_submission(submission_id):
             if submission.assignment.venv_fully_created
             else submission.assignment.language_details.executable
         )
-        if python_exe is None:
-            return
 
         if not settings.DEBUG or shutil.which("bwrap") is not None:
             folder_name = "sandboxed"

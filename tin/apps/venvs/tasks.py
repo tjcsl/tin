@@ -17,8 +17,6 @@ def create_venv(venv_id):
     success = False
     try:
         python = venv.language.executable
-        if python is None:
-            raise VenvCreationError("No Python executable found")
         try:
             res = subprocess.run(
                 [
