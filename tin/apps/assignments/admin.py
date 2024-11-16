@@ -34,15 +34,7 @@ class FolderAdmin(admin.ModelAdmin):
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
     date_hierarchy = "due"
-    list_display = (
-        "name",
-        "course_name",
-        "folder",
-        "due",
-        "visible",
-        "quiz_icon",
-        "language_details",
-    )
+    list_display = ("name", "course_name", "folder", "due", "visible", "quiz_icon")
     list_filter = ("language_details", "course", "due")
     ordering = ("-due",)
     save_as = True
