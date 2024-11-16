@@ -19,13 +19,13 @@ def replace_language_with_default_language(apps, schema_editor):
     )
 
     # Keep backwards compatibility with Java assignments by making them
-    # use python.
+    # use python. Note that we cannot deprecate it yet until we have
+    # Java support, and figure out how to migrate the media.
     java, java_created = Language.objects.using(db_alias).get_or_create(
-        name="Java/Python 3.10 (Deprecated)",
+        name="Java/Python 3.10",
         executable="/usr/bin/python3.10",
         language="P",
         version=310,
-        is_deprecated=True,
         use_java_folder=True,
     )
 
@@ -53,9 +53,8 @@ def revert_default_language(apps, schema_editor):
         Language.objects.using(db_alias)
         .filter(
             language="P",
-            is_deprecated=True,
             use_java_folder=True,
-            name="Java/Python 3.10 (Deprecated)",
+            name="Java/Python 3.10",
         )
         .first()
     )
