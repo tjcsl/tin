@@ -96,7 +96,7 @@ class AssignmentQuerySet(models.query.QuerySet):
 def upload_grader_file_path(assignment, _):  # pylint: disable=unused-argument
     """Get the location of the grader file for an assignment"""
     assert assignment.id is not None
-    if assignment.grader_language == "J" or assignment.language_details.use_java_folder:
+    if assignment.grader_language == "J":
         return f"assignment-{assignment.id}/Grader.java"
     else:
         return f"assignment-{assignment.id}/grader.py"
@@ -699,12 +699,6 @@ class Language(models.Model):
 
     # for decimals like 3.10, use 310
     version = models.PositiveSmallIntegerField(help_text="The version of the executable.")
-
-    # This is deprecated, new models should NOT use this attribute.
-    use_java_folder = models.BooleanField(
-        default=False,
-        help_text="Store the assignment grader in the Java folder, regardless of language",
-    )
 
     class Meta:
         ordering = ["-language", "-version"]

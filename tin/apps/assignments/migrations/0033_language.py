@@ -24,9 +24,8 @@ def replace_language_with_default_language(apps, schema_editor):
     java, java_created = Language.objects.using(db_alias).get_or_create(
         name="Java/Python 3.10",
         executable="/usr/bin/python3.10",
-        language="P",
+        language="J",
         version=310,
-        use_java_folder=True,
     )
 
     Assignment = apps.get_model("assignments", "Assignment")
@@ -52,8 +51,7 @@ def revert_default_language(apps, schema_editor):
     java = (
         Language.objects.using(db_alias)
         .filter(
-            language="P",
-            use_java_folder=True,
+            language="J",
             name="Java/Python 3.10",
         )
         .first()
@@ -82,7 +80,6 @@ class Migration(migrations.Migration):
                 ('language', models.CharField(choices=[('P', 'Python 3'), ('J', 'Java')], max_length=1)),
                 ('name', models.CharField(help_text='The name of the language', max_length=50)),
                 ('executable', models.CharField(help_text='The path to the language executable', max_length=100)),
-                ('use_java_folder', models.BooleanField(default=False, help_text="Store the assignment grader in the Java folder, regardless of language")),
                 ('version', models.PositiveSmallIntegerField(help_text="The version of the executable.")),
             ],
             options={'ordering': ['-language', '-version']},
