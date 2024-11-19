@@ -44,6 +44,7 @@ def delete_python_310_from_venvs(apps, schema_editor):
         Venv.objects.filter(language=python_310).update(language=None)
 
 
+# fmt: off
 class Migration(migrations.Migration):
     dependencies = [
         ("assignments", "0033_language"),

@@ -3,7 +3,7 @@
 from django.db import migrations, models
 
 
-def replace_language_with_default_language(apps, schema_editor):
+def migrate_to_foreignkey(apps, schema_editor):
     """Creates a default :class:`.Language` model for each assignment.
 
     This converts the old language field to a foreign key to the new language model.
@@ -32,10 +32,9 @@ def replace_language_with_default_language(apps, schema_editor):
     for assignment in Assignment.objects.using(db_alias).all():
         if assignment.language == "P":
             assignment.language_details = python_310
-            assignment.save()
         elif assignment.language == "J":
             assignment.language_details = java
-            assignment.save()
+        assignment.save()
 
     # avoid creating empty models
     if py_created and not python_310.assignment_set.exists():
@@ -45,6 +44,8 @@ def replace_language_with_default_language(apps, schema_editor):
 
 
 def revert_default_language(apps, schema_editor):
+    """Converts the foreign key :class:`.Language` back to the old ``language`` field."""
+
     Assignment = apps.get_model("assignments", "Assignment")
     Language = apps.get_model("assignments", "Language")
     db_alias = schema_editor.connection.alias
@@ -94,7 +95,7 @@ class Migration(migrations.Migration):
                 to="assignments.language",
             ),
         ),
-        migrations.RunPython(replace_language_with_default_language, revert_default_language),
+        migrations.RunPython(migrate_to_foreignkey, revert_default_language),
         migrations.AlterField(
             model_name="assignment",
             name="language_details",
