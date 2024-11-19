@@ -29,8 +29,8 @@ class AssignmentForm(forms.ModelForm):
                 # just nicer UI to show the deprecated language choice
                 | Q(id=instance.language_details.id)
             )
-
-        self.fields["language_details"].queryset = Language.objects.filter(is_deprecated=False)
+        else:
+            self.fields["language_details"].queryset = Language.objects.filter(is_deprecated=False)
         self.fields["language_details"].help_text = (
             "Keep in mind you cannot swap between languages after "
             "the assignment has been created."
