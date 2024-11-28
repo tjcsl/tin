@@ -36,6 +36,7 @@
         <a class="right tin-btn" href="{% url 'assignments:manage_grader' assignment.id %}" style="color:#EF1010;">Upload grader</a>
       {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage files</a>
+      <a class="right tin-btn" href="{% url 'assignments:manage_students' assignment.id %}">Manage Students</a>
       {% if log_file_exists %}
         <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
       {% endif %}
@@ -47,7 +48,7 @@
             onclick="return confirm('You are about to begin an assessment. All activity on your device will be monitored. If you open any other tabs or attempt to use any other applications, your quiz might be stopped and your teacher will be notified.')"
             href="{% url 'assignments:quiz' assignment.id %}">Begin quiz</a>
         {% endif %}
-      {% else %}
+      {% elif within_submission_limit %}
         <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
       {% endif %}
     {% endif %}
@@ -86,6 +87,12 @@
           </td>
         </tr>
       {% endif %}
+    {% endif %}
+    {% if assignment.use_submission_cap and submissions_left is not None %}
+      <tr>
+        <th>Submissions left:</th>
+        <td>{{ submissions_left }}</td>
+      </tr>
     {% endif %}
   </table>
 

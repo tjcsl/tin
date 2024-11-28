@@ -13,6 +13,12 @@ urlpatterns = [
     path("<int:assignment_id>/delete", views.delete_view, name="delete"),
     path("<int:assignment_id>/grader", views.manage_grader_view, name="manage_grader"),
     path("<int:assignment_id>/grader/download", views.download_grader_view, name="download_grader"),
+    path("<int:assignment_id>/manage_students", views.manage_students_view, name="manage_students"),
+    path(
+        "<int:assignment_id>/manage_students/<int:student_id>",
+        views.manage_student,
+        name="create_student_override",
+    ),
     path("<int:assignment_id>/files", views.manage_files_view, name="manage_files"),
     path(
         "<int:assignment_id>/files/download/<int:file_id>",
