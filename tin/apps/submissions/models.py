@@ -133,7 +133,7 @@ class Submission(models.Model):
 
     @property
     def point_override(self):
-        return sum(c.point_override for c in self.comments.all())
+        return sum(c.point_override for c in self.comments.all() if c.point_override)
 
     @property
     def points(self):
