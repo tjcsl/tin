@@ -7,10 +7,10 @@ from typing import Literal
 from django.http import HttpResponse, HttpResponseRedirect
 
 __all__ = (
-    "is_redirect",
-    "not_redirect",
     "is_login_redirect",
+    "is_redirect",
     "not_login_redirect",
+    "not_redirect",
 )
 
 
