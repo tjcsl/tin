@@ -88,7 +88,7 @@ def show_view(request, assignment_id):
         if query:
             active_period = "query"
             student_list = course.students.filter(full_name__icontains=query).order_by(
-                "periods", "last_name"
+                "periods", "last_name", "first_name"
             )
         elif course.period_set.exists():
             if period == "":
@@ -104,7 +104,7 @@ def show_view(request, assignment_id):
 
             if period == "all":
                 active_period = "all"
-                student_list = course.students.all().order_by("periods", "last_name")
+                student_list = course.students.all().order_by("periods", "last_name", "first_name")
             elif period == "none":
                 active_period = "none"
                 student_list = []
@@ -112,10 +112,10 @@ def show_view(request, assignment_id):
                 active_period = get_object_or_404(
                     Period.objects.filter(course=course), id=int(period)
                 )
-                student_list = active_period.students.all().order_by("last_name")
+                student_list = active_period.students.all().order_by("last_name", "first_name")
         elif period == "all":
             active_period = "all"
-            student_list = course.students.all().order_by("last_name")
+            student_list = course.students.all().order_by("last_name", "first_name")
         else:
             active_period = "none"
             student_list = []
@@ -880,7 +880,7 @@ def scores_csv_view(request, assignment_id):
     writer = csv.writer(response)
     writer.writerow(["Name", "Username", "Period", "Raw Score", "Final Score", "Formatted Grade"])
 
-    for student in students.order_by("periods", "last_name"):
+    for student in students.order_by("periods", "last_name", "first_name"):
         row = [student.full_name, student.username]
         periods = ", ".join([p.name for p in student.periods.filter(course=assignment.course)])
         row.append(periods)
