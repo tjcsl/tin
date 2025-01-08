@@ -128,7 +128,7 @@
           </tr>
           {% for student, period, latest_submission, graded_submission, ended, quiz_issues in students_and_submissions %}
             <tr>
-              <td style="text-align: center">{{ forloop.counter }}</tr>
+              <td style="text-align: center">{{ forloop.counter }}</td>
               <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
                 ({{ student.username }})</a></td>
               {% if not active_period.name %}
