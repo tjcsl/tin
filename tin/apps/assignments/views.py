@@ -82,6 +82,8 @@ def show_view(request, assignment_id):
 
         query = request.GET.get("query", "")
 
+        filter = request.GET.get("filter", "")
+
         period = request.GET.get("period", "")
         period_set = course.period_set.order_by("teacher", "name")
 
@@ -90,6 +92,22 @@ def show_view(request, assignment_id):
             student_list = course.students.filter(full_name__icontains=query).order_by(
                 "last_name", "first_name"
             )
+        elif filter:
+            active_period = "filter"
+            if filter == "no_submissions":
+                student_list = (
+                    course.students.exclude(submissions__assignment=assignment)
+                    .order_by("last_name", "first_name")
+                    .distinct()
+                )
+            elif filter == "with_submissions":
+                student_list = (
+                    course.students.filter(submissions__assignment=assignment)
+                    .order_by("last_name", "first_name")
+                    .distinct()
+                )
+            else:
+                student_list = course.students.all().order_by("last_name", "first_name")
         elif course.period_set.exists():
             if period == "":
                 if request.user in course.teacher.all():
@@ -164,6 +182,7 @@ def show_view(request, assignment_id):
             "is_student": course.is_student_in_course(request.user),
             "is_teacher": request.user in course.teacher.all(),
             "query": query,
+            "filter": filter,
             "period_set": period_set,
             "active_period": active_period,
             "quiz_accessible": quiz_accessible,

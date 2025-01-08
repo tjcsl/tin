@@ -91,25 +91,39 @@
 
   {% if is_teacher or request.user.is_superuser %}
     <h2 style="border-top:1px solid lightgray;padding-top:15px;">Filter Submissions</h2>
-    <a class="right tin-btn" {% if active_period == "none" %}style="color:#4fab4f !important"{% endif %}
+    <a class="right tin-btn" {% if active_period == "none" %}style="color:#4fab4f;"{% endif %}
        href="{% url 'assignments:show' assignment.id %}?period=none">None</a>
-    <a class="right tin-btn" {% if active_period == "all" %}style="color:#4fab4f !important"{% endif %}
+    <a class="right tin-btn" {% if active_period == "all" %}style="color:#4fab4f;"{% endif %}
        href="{% url 'assignments:show' assignment.id %}?period=all">All</a>
     &ensp;
+    {% for period in period_set %}
+      <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f;"{% endif %}
+         href="{% url 'assignments:show' assignment.id %}?period={{ period.id }}">{{ period }}</a>
+    {% endfor %}
+    <br><br>
     <form method="GET" action="{% url 'assignments:show' assignment.id %}" style="display: inline-block;">
       <label>
         <b>Matches:</b>
         <input type="text" name="query" value="{{ query }}" placeholder="part of a name">
       </label>
-      <button type="submit" class="tin-btn" style="cursor: pointer;{% if active_period == "query" %}color:#4fab4f !important;{% endif %}">
-        <i class="fa fa-search"></i>
+      <button type="submit" class="tin-btn" style="cursor: pointer;{% if active_period == "query" %}color:#4fab4f;{% endif %}">
+        <i class="fa fa-search fa-fw fa-fh"></i>
       </button>
     </form>
-    <br><br>
-    {% for period in period_set %}
-      <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f !important"{% endif %}
-         href="{% url 'assignments:show' assignment.id %}?period={{ period.id }}">{{ period }}</a>
-    {% endfor %}
+    &emsp;
+    <form method="GET" action="{% url 'assignments:show' assignment.id %}" style="display: inline-block;">
+      <label>
+        <b>Filter:</b>
+        <select name="filter">
+          <option value="" {% if not filter %}selected{% endif %}>Select a filter</option>
+          <option value="no_submissions" {% if filter == "no_submissions" %}selected{% endif %}>Students with no submissions</option>
+          <option value="with_submissions" {% if filter == "with_submissions" %}selected{% endif %}>Students with at least one submission</option>
+        </select>
+      </label>
+      <button type="submit" class="tin-btn" style="cursor: pointer;{% if active_period == "filter" %}color:#4fab4f;{% endif %}">
+        <i class="fa fa-check fa-fw fa-fh"></i>
+      </button>
+    </form>
     <br><br>
     {% if active_period != "none" %}
       {% if assignment.is_quiz %}
