@@ -8,9 +8,8 @@
   {% include "meta.html" %}
 
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  {% if request.user.dark_mode %}
+  {% if dark_mode_enabled %}
     <link rel="stylesheet" href="{% static 'css/dark/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dark/edit.css' %}">
   {% endif %}
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
   <link rel="stylesheet" type="text/css"

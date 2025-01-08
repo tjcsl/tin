@@ -8,3 +8,8 @@ def response_footer(_request):
         "DEVELOPER_EMAIL": settings.DEVELOPER_EMAIL,
         "REPO_URL": settings.REPO_URL,
     }
+
+def dark_mode(request):
+    return {
+        'dark_mode_enabled': getattr(request.user, 'dark_mode', False)
+    }
