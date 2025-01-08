@@ -88,7 +88,7 @@ def show_view(request, assignment_id):
         if query:
             active_period = "query"
             student_list = course.students.filter(full_name__icontains=query).order_by(
-                "periods", "last_name", "first_name"
+                "last_name", "first_name"
             )
         elif course.period_set.exists():
             if period == "":
@@ -104,7 +104,7 @@ def show_view(request, assignment_id):
 
             if period == "all":
                 active_period = "all"
-                student_list = course.students.all().order_by("periods", "last_name", "first_name")
+                student_list = course.students.all().order_by("last_name", "first_name")
             elif period == "none":
                 active_period = "none"
                 student_list = []
