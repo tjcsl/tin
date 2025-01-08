@@ -9,7 +9,6 @@ def response_footer(_request):
         "REPO_URL": settings.REPO_URL,
     }
 
+
 def dark_mode(request):
-    return {
-        'dark_mode_enabled': getattr(request.user, 'dark_mode', False)
-    }
+    return {"dark_mode_enabled": getattr(request.user, "dark_mode", False)}
