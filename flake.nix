@@ -17,6 +17,7 @@
             pkgs.pyenv
             pkgs.pipenv
             pkgs.python3
+            pkgs.ruff
           ];
         };
       });
