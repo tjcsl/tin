@@ -129,7 +129,7 @@
       {% if assignment.is_quiz %}
         <table id="submission-list" class="has-border">
           <tr>
-            <th style="min-width:20px"></th>
+            <th style="min-width:20px; text-align: center;">#</th>
             <th style="min-width:125px">Student</th>
             {% if not active_period.name %}
               <th style="min-width:65px;">Period</th>
@@ -142,7 +142,7 @@
           </tr>
           {% for student, period, latest_submission, graded_submission, ended, quiz_issues in students_and_submissions %}
             <tr>
-              <td style="text-align: center">{{ forloop.counter }}</td>
+              <td style="text-align: center;">{{ forloop.counter }}</td>
               <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
                 ({{ student.username }})</a></td>
               {% if not active_period.name %}
@@ -164,14 +164,14 @@
 
           {% if not students_and_submissions %}
             <tr>
-              <td colspan="{% if not active_period.name %}7{% else %}6{% endif %}" class="italic center">No students in class</td>
+              <td colspan="{% if not active_period.name %}8{% else %}7{% endif %}" class="italic center">No matching students in class</td>
             </tr>
           {% endif %}
         </table>
       {% else %}
         <table id="submission-list" class="has-border">
           <tr>
-            <th style="min-width:20px"></th>
+            <th style="min-width:20px; text-align:center;">#</th>
             <th style="min-width:125px">Student</th>
             {% if not active_period.name %}
               <th style="min-width:65px;">Period</th>
@@ -185,7 +185,7 @@
           </tr>
           {% for student, period, latest_submission, graded_submission, new_login, new_24 in students_and_submissions %}
             <tr>
-              <td style="text-align:center">{{ forloop.counter }}</td>
+              <td style="text-align:center;">{{ forloop.counter }}</td>
               <td><a href="{% url 'assignments:student_submission' assignment.id student.id %}">{{ student.full_name }}
                 ({{ student.username }})</a></td>
               {% if not active_period.name %}
@@ -213,7 +213,7 @@
 
           {% if not students_and_submissions %}
             <tr>
-              <td colspan="{% if not active_period.name %}8{% else %}7{% endif %}" class="italic center">No students in class</td>
+              <td colspan="{% if not active_period.name %}9{% else %}8{% endif %}" class="italic center">No matching students in class</td>
             </tr>
           {% endif %}
         </table>
