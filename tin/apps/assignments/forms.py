@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 
 from ..submissions.models import Submission
-from .models import Assignment, AssignmentOverride, Folder, MossResult
+from .models import Assignment, Folder, MossResult, SubmissionCap
 
 logger = getLogger(__name__)
 
@@ -29,20 +29,6 @@ class AssignmentForm(forms.ModelForm):
 
         # prevent description from getting too big
         self.fields["description"].widget.attrs.update({"id": "description"})
-
-        # these fields aren't required
-        for field in ("submission_cap", "submission_cap_after_due"):
-            self.fields[field].required = False
-
-    def clean(self) -> dict:
-        super().clean()
-        if self.cleaned_data["submission_cap"] is None and self.cleaned_data["use_submission_cap"]:
-            self.add_error(
-                "submission_cap", "this field is required if use submission cap is enabled."
-            )
-        elif self.cleaned_data["submission_cap_after_due"] is None:
-            self.cleaned_data["submission_cap_after_due"] = self.cleaned_data["submission_cap"]
-        return self.cleaned_data
 
     def get_sections(self) -> Iterable[dict[str, str | tuple[str, ...] | bool]]:
         """This is used in templates to find which fields should be in a dropdown div."""
@@ -80,9 +66,6 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout",
             "grader_has_network_access",
             "has_network_access",
-            "use_submission_cap",
-            "submission_cap",
-            "submission_cap_after_due",
             "submission_limit_count",
             "submission_limit_interval",
             "submission_limit_cooldown",
@@ -100,7 +83,6 @@ class AssignmentForm(forms.ModelForm):
             "grader_timeout": "Grader timeout (seconds):",
             "grader_has_network_access": "Give the grader internet access?",
             "has_network_access": "Give submissions internet access?",
-            "use_submission_cap": "Cap submissions?",
             "submission_limit_count": "Rate limit count",
             "submission_limit_interval": "Rate limit interval (minutes)",
             "submission_limit_cooldown": "Rate limit cooldown period (minutes)",
@@ -154,9 +136,6 @@ class AssignmentForm(forms.ModelForm):
                     "submission_limit_count",
                     "submission_limit_interval",
                     "submission_limit_cooldown",
-                    "use_submission_cap",
-                    "submission_cap",
-                    "submission_cap_after_due",
                 ),
                 "collapsed": True,
             },
@@ -267,10 +246,39 @@ class FolderForm(forms.ModelForm):
         help_texts = {"name": "Note: Folders are ordered alphabetically."}
 
 
-class AssignmentOverrideForm(forms.ModelForm):
+class SubmissionCapForm(forms.ModelForm):
+    def __init__(self, assignment: Assignment, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+        nonrequired = ("student", "submission_cap", "submission_cap_after_due")
+        for f in nonrequired:
+            self.fields[f].required = False
+
+        self._assignment = assignment
+
     class Meta:
-        model = AssignmentOverride
-        fields = [
-            "submission_cap",
-        ]
-        help_texts = {"submission_cap": "The maximum number of submissions that can be made."}
+        model = SubmissionCap
+        fields = ["submission_cap", "submission_cap_after_due", "student"]
+        help_texts = {
+            "submission_cap_after_due": "The submission cap after the due date (or empty for unlimited)",
+            "student": (
+                "The student to apply the cap to, or leave empty to apply to all students."
+            ),
+        }
+        labels = {"submission_cap_after_due": "Submission cap after due date"}
+
+    # In Django 5.0+, this should be handled by django
+    # with the nulls_distinct=False argument to the student UniqueConstraint
+    def clean_student(self):
+        student = self.cleaned_data["student"]
+        if student is not None:
+            return student
+        default_cap = self._assignment.submission_caps.filter(student__isnull=True).first()
+        if default_cap is None:
+            return student
+
+        if self.instance.id != default_cap.id:
+            raise forms.ValidationError(
+                "To edit the submission cap for all students please use the existing default submission cap."
+            )
+        return student

@@ -25,12 +25,12 @@ from ..submissions.tasks import run_submission
 from ..users.models import User
 from .forms import (
     AssignmentForm,
-    AssignmentOverrideForm,
     FileSubmissionForm,
     FileUploadForm,
     FolderForm,
     GraderScriptUploadForm,
     MossForm,
+    SubmissionCapForm,
     TextSubmissionForm,
 )
 from .models import Assignment, CooldownPeriod, QuizLogMessage
@@ -59,8 +59,14 @@ def show_view(request, assignment_id):
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
         graded_submission = publishes.latest().submission if publishes else latest_submission
 
-        submissions_left = assignment.find_submission_cap(request.user) - len(submissions)
+        submission_limit = assignment.find_submission_cap(request.user)
+        submissions_left = submission_limit - len(submissions)
         submissions_left = max(submissions_left, 0)
+
+        if submissions_left == float("inf"):
+            submissions_left = None
+        if submission_limit == float("inf"):
+            submission_limit = None
 
         return render(
             request,
@@ -77,6 +83,7 @@ def show_view(request, assignment_id):
                 "quiz_accessible": quiz_accessible,
                 "within_submission_limit": assignment.within_submission_limit(request.user),
                 "submissions_left": submissions_left,
+                "submission_limit": submission_limit,
             },
         )
     else:
@@ -180,8 +187,12 @@ def show_view(request, assignment_id):
         latest_submission = submissions.latest() if submissions else None
         graded_submission = publishes.latest().submission if publishes else latest_submission
 
-        submissions_left = assignment.find_submission_cap(request.user) - len(submissions)
+        submission_limit = assignment.find_submission_cap(request.user)
+        submissions_left = submission_limit - len(submissions)
+
         # render properly after submission cap is lowered (such as when the due date is passed)
+        if submission_limit == float("inf"):
+            submission_limit = None
         submissions_left = max(submissions_left, 0)
         if submissions_left == float("inf"):
             submissions_left = None
@@ -193,6 +204,7 @@ def show_view(request, assignment_id):
                 "graded_submission": graded_submission,
                 "within_submission_limit": assignment.within_submission_limit(request.user),
                 "submissions_left": submissions_left,
+                "submission_limit": submission_limit,
             }
         )
 
@@ -290,37 +302,43 @@ def delete_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
-def manage_students_view(request, assignment_id):
+def choose_submission_cap(request, assignment_id):
     assignment = get_object_or_404(Assignment, id=assignment_id)
-    course = assignment.course
+    caps = assignment.submission_caps.all()
     return render(
         request,
-        "assignments/manage_students.html",
-        {"students": course.students.all(), "assignment": assignment},
+        "assignments/choose_submission_cap.html",
+        {"assignment": assignment, "caps": caps},
     )
 
 
 @teacher_or_superuser_required
-def manage_student(request, assignment_id, student_id):
-    student = get_object_or_404(
-        get_user_model().objects.filter(is_student=True),
-        id=student_id,
+def create_submission_cap(request, assignment_id, submission_cap_id: int | None = None):
+    assignment = get_object_or_404(
+        Assignment.objects.prefetch_related("course__students"),
+        id=assignment_id,
     )
-    assignment = get_object_or_404(Assignment, id=assignment_id)
-    data = assignment.find_student_override(student)
-    form = AssignmentOverrideForm(instance=data)
+    cap = (
+        get_object_or_404(assignment.submission_caps, id=submission_cap_id)
+        if submission_cap_id is not None
+        else None
+    )
+
+    form = SubmissionCapForm(assignment, instance=cap)
     if request.method == "POST":
-        form = AssignmentOverrideForm(data=request.POST, instance=data)
+        form = SubmissionCapForm(assignment, data=request.POST, instance=cap)
         if form.is_valid():
-            override = form.save(commit=False)
-            override.assignment = assignment
-            override.student = student
-            override.save()
-            return redirect("assignments:manage_students", assignment_id)
+            form.instance.assignment = assignment
+            form.save()
+            return redirect("assignments:show", assignment_id)
     return render(
         request,
-        "assignments/manage_student.html",
-        {"form": form, "user": student, "assignment": assignment, "override": data},
+        "assignments/edit_create_submission_cap.html",
+        {
+            "form": form,
+            "assignment": assignment,
+            "cap": cap,
+        },
     )
 
 

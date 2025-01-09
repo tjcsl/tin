@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <style>
+    .border-collapse {
+      border-collapse: collapse;
+    }
+
+    .w-60 {
+      width: 60%;
+    }
+
+    .p-8 {
+      padding: 8px;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .overflow-x-auto {
+      overflow-x: auto;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-col {
+      flex-direction: column;
+    }
+
+    .items-start {
+      align-items: start;
+    }
+
+    .row-gap-5 {
+      row-gap: 5px;
+    }
+
+    table, th, td {
+      border:1px solid black;
+    }
+  </style>
+{% endblock head %}
+
+{% block main %}
+  <h2>Submission Caps</h2>
+
+  <div class="overflow-x-auto p-8">
+    <table class="border-collapse w-60">
+      <tr>
+        <th class="text-center">Max Submissions before Due Date</th>
+        <th class="text-center">Max Submissions after Due Date</th>
+        <th class="text-center">Applicable to:</th>
+        {% if caps %}
+          <th></th>
+        {% endif %}
+      </tr>
+      {% for cap in caps %}
+        <tr>
+          <td class="text-center">{{ cap.submission_cap }}</td>
+          <td class="text-center">{{ cap.submission_cap_after_due }}</td>
+          <td class="text-center">{{ cap.student | default:"All" }}</td>
+          <td class="text-center">
+            <a href="{% url 'assignments:edit_submission_cap' assignment.id cap.id %}">
+              Edit
+            </a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="text-center">Unlimited</td>
+          <td class="text-center">Unlimited</td>
+          <td class="text-center">All</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="flex flex-col items-start row-gap-5">
+    <a href="{% url 'assignments:create_submission_cap' assignment.id %}" class="tin-btn">
+      Create submission cap
+    </a>
+    <a href="{% url 'assignments:show' assignment.id %}" class="tin-btn">Back</a>
+  </div>
+{% endblock %}

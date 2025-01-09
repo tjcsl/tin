@@ -6,13 +6,13 @@ from django.contrib import admin
 
 from .models import (
     Assignment,
-    AssignmentOverride,
     CooldownPeriod,
     FileAction,
     Folder,
     MossResult,
     Quiz,
     QuizLogMessage,
+    SubmissionCap,
 )
 
 
@@ -143,4 +143,7 @@ class FileActionAdmin(admin.ModelAdmin):
         return ""
 
 
-admin.site.register(AssignmentOverride)
+@admin.register(SubmissionCap)
+class SubmissionCapAdmin(admin.ModelAdmin):
+    list_display = ("assignment", "submission_cap", "student")
+    save_as = True
