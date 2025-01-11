@@ -13,17 +13,6 @@ urlpatterns = [
     path("<int:assignment_id>/delete", views.delete_view, name="delete"),
     path("<int:assignment_id>/grader", views.manage_grader_view, name="manage_grader"),
     path("<int:assignment_id>/grader/download", views.download_grader_view, name="download_grader"),
-    path("<int:assignment_id>/submission-cap", views.choose_submission_cap, name="submission_cap"),
-    path(
-        "<int:assignment_id>/submission-cap/create",
-        views.create_submission_cap,
-        name="create_submission_cap",
-    ),
-    path(
-        "<int:assignment_id>/submission-cap/<int:submission_cap_id>",
-        views.create_submission_cap,
-        name="edit_submission_cap",
-    ),
     path("<int:assignment_id>/files", views.manage_files_view, name="manage_files"),
     path(
         "<int:assignment_id>/files/download/<int:file_id>",

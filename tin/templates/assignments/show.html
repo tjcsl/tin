@@ -36,7 +36,6 @@
         <a class="right tin-btn" href="{% url 'assignments:manage_grader' assignment.id %}" style="color:#EF1010;">Upload grader</a>
       {% endif %}
       <a class="right tin-btn" href="{% url 'assignments:manage_files' assignment.id %}">Manage files</a>
-      <a class="right tin-btn" href="{% url 'assignments:submission_cap' assignment.id %}">Submission cap</a>
       {% if log_file_exists %}
         <a class="right tin-btn" href="{% url 'assignments:download_log' assignment.id %}">Download log</a>
       {% endif %}

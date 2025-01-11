@@ -15,6 +15,9 @@ logger = getLogger(__name__)
 class AssignmentForm(forms.ModelForm):
     due = forms.DateTimeInput()
 
+    submission_cap = forms.IntegerField(min_value=1)
+    submission_cap_after_due = forms.IntegerField(min_value=1, required=False)
+
     def __init__(self, course, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["folder"].queryset = Folder.objects.filter(course=course)
@@ -136,6 +139,8 @@ class AssignmentForm(forms.ModelForm):
                     "submission_limit_count",
                     "submission_limit_interval",
                     "submission_limit_cooldown",
+                    "submission_cap",
+                    "submission_cap_after_due",
                 ),
                 "collapsed": True,
             },
@@ -152,7 +157,8 @@ class AssignmentForm(forms.ModelForm):
             "seconds). This is not recommended unless necessary.",
             "use_submission_cap": "This enables setting a limit on the number of submissions that can be made on assignments."
             "It has no effect on quizzes",
-            "submission_cap": "The maximum number of submissions that can be made. It can be overridden on a per-student basis.",
+            "submission_cap": "The maximum number of submissions that can be made, or empty for unlimited.",
+            "submission_cap_after_due": "The maximum number of submissions that can be made after the due date, or empty for unlimited.",
             "submission_limit_count": "",
             "submission_limit_interval": "Tin sets rate limits on submissions. If a student tries "
             "to submit too many submissions in a given interval, "
@@ -182,6 +188,21 @@ class AssignmentForm(forms.ModelForm):
 
     def __str__(self) -> str:
         return f"AssignmentForm(\"{self['name'].value()}\")"
+
+    def save(self, **kwargs) -> Assignment:
+        assignment = super().save(**kwargs)
+        sub_cap = self.cleaned_data.get("submission_cap")
+        sub_cap_after_due = self.cleaned_data.get("submission_cap_after_due")
+        if sub_cap is not None or sub_cap_after_due is not None:
+            SubmissionCap.objects.update_or_create(
+                assignment=assignment,
+                student=None,
+                defaults={
+                    "submission_cap": sub_cap,
+                    "submission_cap_after_due": sub_cap_after_due,
+                },
+            )
+        return assignment
 
 
 class GraderScriptUploadForm(forms.Form):
@@ -247,38 +268,18 @@ class FolderForm(forms.ModelForm):
 
 
 class SubmissionCapForm(forms.ModelForm):
-    def __init__(self, assignment: Assignment, **kwargs) -> None:
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-        nonrequired = ("student", "submission_cap", "submission_cap_after_due")
+        nonrequired = ("submission_cap", "submission_cap_after_due")
         for f in nonrequired:
             self.fields[f].required = False
 
-        self._assignment = assignment
-
     class Meta:
         model = SubmissionCap
-        fields = ["submission_cap", "submission_cap_after_due", "student"]
+        fields = ["submission_cap", "submission_cap_after_due"]
         help_texts = {
             "submission_cap_after_due": "The submission cap after the due date (or empty for unlimited)",
-            "student": (
-                "The student to apply the cap to, or leave empty to apply to all students."
-            ),
+            "student": "The student to apply the cap to.",
         }
         labels = {"submission_cap_after_due": "Submission cap after due date"}
-
-    # In Django 5.0+, this should be handled by django
-    # with the nulls_distinct=False argument to the student UniqueConstraint
-    def clean_student(self):
-        student = self.cleaned_data["student"]
-        if student is not None:
-            return student
-        default_cap = self._assignment.submission_caps.filter(student__isnull=True).first()
-        if default_cap is None:
-            return student
-
-        if self.instance.id != default_cap.id:
-            raise forms.ValidationError(
-                "To edit the submission cap for all students please use the existing default submission cap."
-            )
-        return student

@@ -302,47 +302,6 @@ def delete_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
-def choose_submission_cap(request, assignment_id):
-    assignment = get_object_or_404(Assignment, id=assignment_id)
-    caps = assignment.submission_caps.all()
-    return render(
-        request,
-        "assignments/choose_submission_cap.html",
-        {"assignment": assignment, "caps": caps},
-    )
-
-
-@teacher_or_superuser_required
-def create_submission_cap(request, assignment_id, submission_cap_id: int | None = None):
-    assignment = get_object_or_404(
-        Assignment.objects.prefetch_related("course__students"),
-        id=assignment_id,
-    )
-    cap = (
-        get_object_or_404(assignment.submission_caps, id=submission_cap_id)
-        if submission_cap_id is not None
-        else None
-    )
-
-    form = SubmissionCapForm(assignment, instance=cap)
-    if request.method == "POST":
-        form = SubmissionCapForm(assignment, data=request.POST, instance=cap)
-        if form.is_valid():
-            form.instance.assignment = assignment
-            form.save()
-            return redirect("assignments:show", assignment_id)
-    return render(
-        request,
-        "assignments/edit_create_submission_cap.html",
-        {
-            "form": form,
-            "assignment": assignment,
-            "cap": cap,
-        },
-    )
-
-
-@teacher_or_superuser_required
 def manage_grader_view(request, assignment_id):
     """Uploads a grader for an assignment
 
@@ -559,6 +518,15 @@ def student_submissions_view(request, assignment_id, student_id):
     )
     student = get_object_or_404(User, id=student_id)
 
+    cap = assignment.submission_caps.filter(student=student).first()
+    form = SubmissionCapForm(instance=cap)
+    if request.method == "POST":
+        form = SubmissionCapForm(data=request.POST, instance=cap)
+        if form.is_valid():
+            form.instance.assignment = assignment
+            form.instance.student = student
+            form.save()
+
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None
@@ -582,6 +550,7 @@ def student_submissions_view(request, assignment_id, student_id):
             "latest_submission": latest_submission,
             "published_submission": published_submission,
             "log_messages": log_messages,
+            "form": form,
         },
     )
 
