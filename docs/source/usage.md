@@ -10,4 +10,5 @@ the pages below:
 usage/graders/writing_graders
 usage/graders/examples
 usage/submission-cap
+usage/file-actions
 ```
