@@ -7,6 +7,7 @@ import select
 import shutil
 import signal
 import subprocess
+import sys
 import time
 import traceback
 from decimal import Decimal
@@ -31,7 +32,7 @@ def truncate_output(text, field_name):
 
 
 @shared_task
-def run_submission(submission_id):
+def run_submission(submission_id: int) -> None:
     submission = Submission.objects.get(id=submission_id)
 
     try:
@@ -65,7 +66,7 @@ def run_submission(submission_id):
         python_exe = (
             os.path.join(submission.assignment.venv.path, "bin", "python")
             if submission.assignment.venv_fully_created
-            else "/usr/bin/python3.10"
+            else sys.executable
         )
 
         if not settings.DEBUG or shutil.which("bwrap") is not None:
@@ -80,7 +81,8 @@ def run_submission(submission_id):
                 "wrappers",
                 folder_name,
                 f"{submission.assignment.language}.txt",
-            )
+            ),
+            encoding="utf-8",
         ) as wrapper_file:
             wrapper_text = wrapper_file.read().format(
                 has_network_access=bool(submission.assignment.has_network_access),

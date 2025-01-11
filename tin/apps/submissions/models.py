@@ -199,7 +199,7 @@ class Submission(models.Model):
             return None
 
         try:
-            with open(self.backup_file_path) as f:
+            with open(self.backup_file_path, encoding="utf-8") as f:
                 file_text = f.read()
         except OSError:
             file_text = "[Error accessing submission file]"
