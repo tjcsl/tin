@@ -352,6 +352,11 @@ IS_FIREJAIL_PRESENT = shutil.which("firejail") is not None
 
 IS_BUBBLEWRAP_PRESENT = shutil.which("bwrap") is not None
 
+if not DEBUG:
+    assert IS_SANDBOXING_MODULE_PRESENT, "Sandboxing module not present in production"
+    assert IS_FIREJAIL_PRESENT, "Firejail not present in production"
+    assert IS_BUBBLEWRAP_PRESENT, "Bubblewrap not present in production"
+
 try:
     from .secret import *
 except ImportError:
