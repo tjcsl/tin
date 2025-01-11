@@ -2,9 +2,9 @@ from __future__ import annotations
 
 __all__ = (
     "login",
+    "model_to_dict",
     "str_to_html",
     "to_html",
-    "model_to_dict",
 )
 
 from collections.abc import Callable
