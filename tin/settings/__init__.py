@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     "tin.apps.courses",
     "tin.apps.assignments",
     "tin.apps.submissions",
-    "tin.apps.docs",
     "tin.apps.venvs",
 ]
 

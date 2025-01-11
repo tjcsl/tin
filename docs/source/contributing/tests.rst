@@ -183,7 +183,7 @@ For example, if you find yourself needing to create a second student often, you 
 
 
 If a fixture only sets up something, and does not return
-anything, use it with ``pytest.usefixtures``.
+anything, use it with ``pytest.mark.usefixtures``.
 
 .. code-block:: python
 
@@ -192,7 +192,7 @@ anything, use it with ``pytest.usefixtures``.
       assignment.is_quiz = True
       assignment.save()
 
-   @pytest.usefixtures("all_assigments_quiz")
+   @pytest.mark.usefixtures("all_assigments_quiz")
    def test_something(assignment):
       # test something, but now assignment is a quiz
       ...
