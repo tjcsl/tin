@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import logging
 import os
+import shlex
 import subprocess
 from typing import Literal
 
@@ -620,7 +621,9 @@ class FileAction(models.Model):
 
     def run(self, assignment: Assignment):
         """Runs the command on the input assignment"""
-        command = self.command.split(" ")
+        # shlex.split splits it with POSIX-style shell syntax
+        # This handles e.g. echo "Hello World" correctly
+        command = shlex.split(self.command)
 
         if (
             ("$FILE" in self.command or "$FILES" in self.command)
