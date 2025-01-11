@@ -71,7 +71,7 @@ def run_submission(submission_id):
         else:  # pragma: no cover
             python_exe = "/usr/bin/python3.10"
 
-        if settings.USE_SANDBOXING:
+        if settings.IS_BUBBLEWRAP_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
             wrapper_text = (
                 Path(settings.BASE_DIR)
                 .joinpath(
@@ -138,7 +138,7 @@ def run_submission(submission_id):
             grader_log_path,
         ]
 
-        if settings.USE_SANDBOXING:
+        if settings.IS_FIREJAIL_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
             whitelist = [os.path.dirname(grader_path)]
             read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
             if submission.assignment.venv_fully_created:
