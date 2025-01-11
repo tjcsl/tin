@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from __future__ import annotations
 
 import os
+import shutil
 from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -342,6 +343,14 @@ QUIZ_ISSUE_THRESHOLD = 5
 
 # ImgBB API key (set in secret.py)
 IMGBB_API_KEY = ""
+
+# Sandboxing
+
+IS_SANDBOXING_MODULE_PRESENT = (Path(BASE_DIR) / "sandboxing" / "__init__.py").exists()
+
+IS_FIREJAIL_PRESENT = shutil.which("firejail") is not None
+
+IS_BUBBLEWRAP_PRESENT = shutil.which("bwrap") is not None
 
 try:
     from .secret import *

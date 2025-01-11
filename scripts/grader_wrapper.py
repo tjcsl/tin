@@ -1,7 +1,6 @@
 """A sample wrapper script for running python submissions.
 
-The text in this file is read in :func:`run_submission` and
-executed if ``settings.USE_SANDBOXING`` is not ``True``.
+This is only used when sandboxing is disabled.
 """
 
 from __future__ import annotations
