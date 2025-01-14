@@ -3,6 +3,9 @@ on:
   - push
   - pull_request
 
+env:
+  CI: 1
+
 defaults:
   run:
     shell: bash
@@ -21,7 +24,6 @@ jobs:
         image: redis
         ports:
           - 6379:6379
-        options: --entrypoint redis-server
 
     steps:
       - name: Set up repo

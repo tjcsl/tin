@@ -28,6 +28,8 @@ SECRET_KEY = "naxigo(w3=$1&!-t4vbb9)g^8#lnt6ygr)(2qfi1z(h(r_cjhy"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+CI = "CI" in os.environ
+
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
@@ -106,7 +108,11 @@ ASGI_APPLICATION = "tin.asgi.application"
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [("localhost", 6379)]},
+        "CONFIG": {
+            "hosts": [
+                ("redis" if not CI and DEBUG else "localhost", 6379),
+            ]
+        },
     },
 }
 
@@ -234,7 +240,13 @@ LOGGING = {
 CELERY_RESULT_BACKEND = "django-db"
 
 
-CELERY_BROKER_URL = "redis://localhost:6379/1"
+if not CI and DEBUG:
+    CELERY_BROKER_URL = "redis://redis:6379/0"
+else:
+    CELERY_BROKER_URL = "redis://localhost:6379/1"
+
+
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 
 # Markdown
