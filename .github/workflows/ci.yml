@@ -3,9 +3,6 @@ on:
   - push
   - pull_request
 
-env:
-  CI: 1
-
 defaults:
   run:
     shell: bash

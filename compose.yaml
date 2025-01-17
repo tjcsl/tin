@@ -20,21 +20,8 @@ services:
       - django
     volumes:
       - .:/app
-
-  celerybeat:
-    container_name: tin_celerybeat
-    image: tin-base
-    entrypoint:
-      - celery
-      - -A
-      - tin
-      - beat
-    networks:
-      - tin-network
-    volumes:
-      - .:/app
-    depends_on:
-      - django
+    environment:
+      IN_DOCKER: true
 
   django:
     container_name: tin_django
@@ -55,6 +42,8 @@ services:
       - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://0.0.0.0:8000"]
+    environment:
+      IN_DOCKER: true
 
 networks:
   tin-network:

@@ -28,7 +28,7 @@ SECRET_KEY = "naxigo(w3=$1&!-t4vbb9)g^8#lnt6ygr)(2qfi1z(h(r_cjhy"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-CI = "CI" in os.environ
+IN_DOCKER = os.environ.get("IN_DOCKER", False)
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -110,7 +110,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [
-                ("redis" if not CI and DEBUG else "localhost", 6379),
+                ("redis" if IN_DOCKER else "localhost", 6379),
             ]
         },
     },
@@ -240,7 +240,7 @@ LOGGING = {
 CELERY_RESULT_BACKEND = "django-db"
 
 
-if not CI and DEBUG:
+if IN_DOCKER:
     CELERY_BROKER_URL = "redis://redis:6379/0"
 else:
     CELERY_BROKER_URL = "redis://localhost:6379/1"
