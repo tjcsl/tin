@@ -9,7 +9,7 @@ COPY Pipfile .
 COPY Pipfile.lock .
 
 RUN pip install pipenv && \
-  pipenv install
+  pipenv install --dev
 
 ENV PATH="/.venv/bin:$PATH"
 

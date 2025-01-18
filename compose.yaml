@@ -10,14 +10,15 @@ services:
     image: tin-base
     user: celery
     entrypoint:
-      - celery
-      - -A
-      - tin
-      - worker
+      - watchfiles
+      - --filter
+      - python
+      - celery -A tin worker
+      - /app/tin
     networks:
       - tin-network
     depends_on:
-      - django
+      - redis
     volumes:
       - .:/app
     environment:
@@ -38,8 +39,6 @@ services:
       - ./manage.py
       - runserver
       - 0.0.0.0:8080
-    depends_on:
-      - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://0.0.0.0:8000"]
     environment:
