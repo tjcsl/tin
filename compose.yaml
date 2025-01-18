@@ -1,0 +1,50 @@
+services:
+  redis:
+    image: redis:latest
+    networks:
+      - tin-network
+    expose:
+      - "6379"
+
+  celery:
+    image: tin-base
+    user: celery
+    entrypoint:
+      - watchfiles
+      - --filter
+      - python
+      - celery -A tin worker
+      - /app/tin
+    networks:
+      - tin-network
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    environment:
+      IN_DOCKER: true
+
+  django:
+    container_name: tin_django
+    build: .
+    image: tin-base
+    restart: on-failure
+    networks:
+      - tin-network
+    ports:
+      - 8000:8080
+    volumes:
+      - .:/app
+    entrypoint:
+      - ./manage.py
+      - runserver
+      - 0.0.0.0:8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:8000"]
+    environment:
+      IN_DOCKER: true
+
+networks:
+  tin-network:
+    driver: bridge
+    name: tin-dev-network

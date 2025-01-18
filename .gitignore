@@ -16,3 +16,5 @@ docs/source/reference/
 
 # from prettier
 node_modules/
+
+celerybeat-schedule

@@ -34,6 +34,7 @@ furo = "*"
 myst-parser = "*"
 sphinx-copybutton = "*"
 sphinxcontrib-django = "*"
+watchfiles = "*"
 
 [ci]
 pytest-cov = "*"
