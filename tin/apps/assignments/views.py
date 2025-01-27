@@ -372,7 +372,7 @@ def download_grader_view(request, assignment_id):
 
     with grader_file.open() as f_obj:
         response = http.HttpResponse(f_obj.read(), content_type="text/plain")
-    filename = f'{assignment.name.replace(" ", "_")}_{grader_file.name.split("/")[-1]}'
+    filename = f"{assignment.name.replace(' ', '_')}_{grader_file.name.split('/')[-1]}"
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
     return response
