@@ -145,5 +145,7 @@ class FileActionAdmin(admin.ModelAdmin):
 
 @admin.register(SubmissionCap)
 class SubmissionCapAdmin(admin.ModelAdmin):
-    list_display = ("assignment", "submission_cap", "student")
+    list_display = ("assignment", "submission_cap", "submission_cap_after_due", "student")
+    search_fields = ("assignment__name", "student__username")
+    list_filter = ("assignment",)
     save_as = True

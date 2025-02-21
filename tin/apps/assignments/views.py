@@ -556,6 +556,10 @@ def student_submissions_view(request, assignment_id, student_id):
         else None
     )
 
+    submission_cap = cap.calculate_submission_cap() if cap is not None else None
+    if submission_cap == float("inf"):
+        submission_cap = None
+
     return render(
         request,
         "assignments/student_submissions.html",
@@ -569,6 +573,7 @@ def student_submissions_view(request, assignment_id, student_id):
             "published_submission": published_submission,
             "log_messages": log_messages,
             "form": form,
+            "submission_cap": submission_cap,
         },
     )
 
