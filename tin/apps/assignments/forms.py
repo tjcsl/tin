@@ -30,6 +30,11 @@ class AssignmentForm(forms.ModelForm):
                 "issues."
             )
 
+            cap = instance.submission_caps.filter(student__isnull=True).first()
+            if cap is not None:
+                self.fields["submission_cap"].initial = cap.submission_cap
+                self.fields["submission_cap_after_due"].initial = cap.submission_cap_after_due
+
         # prevent description from getting too big
         self.fields["description"].widget.attrs.update({"id": "description"})
 
@@ -266,13 +271,6 @@ class FolderForm(forms.ModelForm):
 
 
 class SubmissionCapForm(forms.ModelForm):
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-
-        nonrequired = ("submission_cap", "submission_cap_after_due")
-        for f in nonrequired:
-            self.fields[f].required = False
-
     class Meta:
         model = SubmissionCap
         fields = ["submission_cap", "submission_cap_after_due"]

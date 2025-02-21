@@ -434,6 +434,7 @@ class SubmissionCap(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
     )
 
     assignment = models.ForeignKey(
@@ -442,8 +443,12 @@ class SubmissionCap(models.Model):
         related_name="submission_caps",
     )
 
-    submission_cap = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1)])
-    submission_cap_after_due = models.PositiveSmallIntegerField(null=True)
+    submission_cap = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)],
+    )
+    submission_cap_after_due = models.PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:
         constraints = [
