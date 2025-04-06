@@ -32,7 +32,7 @@ To do this, we can create a file action with
 ```{note}
 For security reasons, the command does not have the same capabilities
 as a full shell. For example, redirections, heredocs, or command substitutions
-are not possible. Instead, think of the command is being run in a subprocess.
+are not possible. Instead, think of the command as being run as a subprocess.
 ```
 
 ## `$FILE` vs `$FILES`
