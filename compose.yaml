@@ -10,7 +10,12 @@ services:
   celery:
     container_name: tin_celery
     image: tin-base
-    entrypoint: [ "watchfiles", "--filter", "python", "celery -A tin worker", "/app/tin" ]
+    entrypoint:
+      - watchfiles
+      - --filter
+      - python
+      - celery -A tin worker
+      - /app/tin
     networks:
       - tin-network
     depends_on:
@@ -34,9 +39,12 @@ services:
       - redis
     volumes:
       - .:/app
-    entrypoint: [ "./manage.py", "runserver", "0.0.0.0:8080" ]
+    entrypoint:
+      - ./manage.py
+      - runserver
+      - 0.0.0.0:8080
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://0.0.0.0:8080" ]
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:8080"]
     environment:
       IN_DOCKER: true
 
