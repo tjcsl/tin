@@ -1,5 +1,7 @@
 FROM python:3.11-slim-bookworm
 
+RUN apt-get update -y && apt-get install -y --no-install-recommends curl
+
 # reduce the number of celery warnings
 RUN useradd celery
 
