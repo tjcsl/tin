@@ -1,5 +1,6 @@
 services:
   redis:
+    container_name: tin_redis
     image: redis:latest
     networks:
       - tin-network
@@ -7,6 +8,7 @@ services:
       - "6379"
 
   celery:
+    container_name: tin_celery
     image: tin-base
     entrypoint:
       - watchfiles
