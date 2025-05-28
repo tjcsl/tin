@@ -33,6 +33,7 @@ IN_DOCKER = os.environ.get("IN_DOCKER", False)
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
+    "0.0.0.0",
     "tin",
     "tin.tjhsst.edu",
     "tin.csl.tjhsst.edu",
@@ -42,6 +43,7 @@ ALLOWED_HOSTS = [
 INTERNAL_IPS = [
     "127.0.0.1",
     "localhost",
+    "0.0.0.0",
 ]
 
 
