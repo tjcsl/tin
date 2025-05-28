@@ -5,7 +5,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends curl
 # reduce the number of celery warnings
 RUN useradd celery
 
-ENV PIPENV_VENV_IN_PROJECT=1
+ENV PYTHONUNBUFFERED=1 PIPENV_VENV_IN_PROJECT=1
 
 COPY Pipfile .
 COPY Pipfile.lock .
