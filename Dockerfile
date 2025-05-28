@@ -1,8 +1,5 @@
 FROM python:3.11-slim-bookworm
 
-# reduce the number of celery warnings
-RUN useradd celery
-
 ENV PYTHONUNBUFFERED=1 PIPENV_VENV_IN_PROJECT=1
 
 COPY Pipfile .

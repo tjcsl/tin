@@ -8,7 +8,6 @@ services:
 
   celery:
     image: tin-base
-    user: celery
     entrypoint:
       - watchfiles
       - --filter
@@ -33,6 +32,9 @@ services:
       - tin-network
     ports:
       - 8000:8080
+    depends_on:
+      - celery
+      - redis
     volumes:
       - .:/app
     entrypoint:
