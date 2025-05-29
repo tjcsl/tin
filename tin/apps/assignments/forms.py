@@ -178,7 +178,7 @@ class AssignmentForm(forms.ModelForm):
         }
 
     def __str__(self) -> str:
-        return f"AssignmentForm(\"{self['name'].value()}\")"
+        return f'AssignmentForm("{self["name"].value()}")'
 
 
 class GraderScriptUploadForm(forms.Form):

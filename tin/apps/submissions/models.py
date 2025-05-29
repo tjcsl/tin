@@ -111,9 +111,6 @@ class Submission(models.Model):
             (self.grade_percent if self.has_been_graded else "not graded"),
         )
 
-    def get_absolute_url(self):
-        return reverse("submissions:show", args=[self.id])
-
     def __repr__(self):
         return "{}{} [{}]: {} ({})".format(
             ("[INCOMPLETE] " if not self.complete else ""),
@@ -122,6 +119,9 @@ class Submission(models.Model):
             self.assignment.name,
             (self.grade_percent if self.has_been_graded else "not graded"),
         )
+
+    def get_absolute_url(self):
+        return reverse("submissions:show", args=[self.id])
 
     @property
     def is_on_time(self):

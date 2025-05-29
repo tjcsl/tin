@@ -36,11 +36,11 @@ class Folder(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("assignments:show_folder", args=[self.course.id, self.id])
-
     def __repr__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("assignments:show_folder", args=[self.course.id, self.id])
 
 
 class AssignmentQuerySet(models.query.QuerySet):
@@ -186,11 +186,11 @@ class Assignment(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("assignments:show", args=(self.id,))
-
     def __repr__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("assignments:show", args=(self.id,))
 
     def make_assignment_dir(self) -> None:
         """Creates the directory where the assignment grader scripts go."""
@@ -445,11 +445,11 @@ class Quiz(models.Model):
     def __str__(self):
         return f"Quiz for {self.assignment}"
 
-    def get_absolute_url(self):
-        return reverse("assignments:show", args=(self.assignment.id,))
-
     def __repr__(self):
         return f"Quiz for {self.assignment}"
+
+    def get_absolute_url(self):
+        return reverse("assignments:show", args=(self.assignment.id,))
 
     def issues_for_student(self, student):
         return (
@@ -487,11 +487,11 @@ class QuizLogMessage(models.Model):
     def __str__(self):
         return f"{self.content} for {self.assignment} by {self.student}"
 
-    def get_absolute_url(self):
-        return reverse("assignments:student_submission", args=(self.assignment.id, self.student.id))
-
     def __repr__(self):
         return f"{self.content} for {self.assignment} by {self.student}"
+
+    def get_absolute_url(self):
+        return reverse("assignments:student_submission", args=(self.assignment.id, self.student.id))
 
 
 def moss_base_file_path(obj, _):  # pylint: disable=unused-argument
@@ -553,6 +553,9 @@ class MossResult(models.Model):
     def __str__(self):
         return f"Moss result for {self.assignment}"
 
+    def __repr__(self):
+        return f"Moss result for {self.assignment}"
+
     @property
     def extension(self):
         return "java" if self.language == "java" else "py"
@@ -560,9 +563,6 @@ class MossResult(models.Model):
     @property
     def download_folder(self):
         return os.path.join(settings.MEDIA_ROOT, "moss-runs", f"moss-{self.id}")
-
-    def __repr__(self):
-        return f"Moss result for {self.assignment}"
 
 
 def run_action(command: list[str]) -> str:

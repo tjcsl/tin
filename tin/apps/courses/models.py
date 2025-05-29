@@ -65,11 +65,11 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("courses:show", args=[self.id])
-
     def __repr__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("courses:show", args=[self.id])
 
     def get_teacher_str(self) -> str:
         """Get a string of the last names of all teachers in a course"""
@@ -112,11 +112,11 @@ class Period(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("courses:students", args=[self.course.id]) + f"?period={self.id}"
-
     def __repr__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("courses:students", args=[self.course.id]) + f"?period={self.id}"
 
 
 class StudentImportUser(models.Model):
@@ -144,11 +144,11 @@ class StudentImport(models.Model):
     def __str__(self):
         return f"Import into {self.course.name}"
 
-    def get_absolute_url(self):
-        return reverse("courses:import_students", args=[self.course.id])
-
     def __repr__(self):
         return f"Import into {self.course.name}"
+
+    def get_absolute_url(self):
+        return reverse("courses:import_students", args=[self.course.id])
 
     def queue_users(self, usernames):
         """Add usernames to a queue of students to add to a course"""
