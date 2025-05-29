@@ -28,7 +28,7 @@ SECRET_KEY = "naxigo(w3=$1&!-t4vbb9)g^8#lnt6ygr)(2qfi1z(h(r_cjhy"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-IN_DOCKER = os.environ.get("IN_DOCKER", False)
+IN_DOCKER = bool(os.environ.get("IN_DOCKER"))
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
