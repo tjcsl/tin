@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -334,6 +335,8 @@ DEBUG_GRADER_WRAPPER_SCRIPT = Path(BASE_DIR).parent / "scripts" / "grader_wrappe
 SUBMISSION_PYTHON = "/usr/bin/python3.10"
 
 SUBMISSION_NAMESERVERS = ["198.38.16.40", "198.38.16.41"]
+
+VENV_BASE_PYTHON = sys.executable if DEBUG else SUBMISSION_PYTHON
 
 # Users may only have this many submissions running
 CONCURRENT_USER_SUBMISSION_LIMIT = 2
