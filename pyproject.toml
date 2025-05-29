@@ -130,8 +130,6 @@ ignore = [
   "PLR09",
   # magic number comparison
   "PLR2004",
-  # fixtures not returning anything should have leading underscore
-  "PT004",
   # mutable class attrs annotated as typing.ClassVar
   "RUF012",
   # missing docstring

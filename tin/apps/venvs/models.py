@@ -55,11 +55,11 @@ class Venv(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse("venvs:show", args=[self.id])
-
     def __repr__(self):
         return f"<Virtualenv: {self.name}>"
+
+    def get_absolute_url(self):
+        return reverse("venvs:show", args=[self.id])
 
     @property
     def path(self):
