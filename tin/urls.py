@@ -31,6 +31,7 @@ urlpatterns = [
     path("venvs/", include("tin.apps.venvs.urls", namespace="venvs")),
     path("", include("tin.apps.auth.urls", namespace="auth")),
     path("", include("social_django.urls", namespace="social")),
+    path("", include("tin.apps.users.urls", namespace="users")),
 ]
 
 handler404 = handle_404_view
