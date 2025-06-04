@@ -14,7 +14,7 @@ user_data = [
 # fmt: on
 
 
-def add_users_to_database(password: str, *, verbose: bool = True) -> None:
+def add_users_to_database(password: str, *, force: bool = False, verbose: bool = True) -> None:
     User = get_user_model()
 
     for (
@@ -26,7 +26,7 @@ def add_users_to_database(password: str, *, verbose: bool = True) -> None:
     ) in user_data:
         user, created = User.objects.get_or_create(username=username)
 
-        if not created:
+        if not created and not force:
             if verbose:
                 print(f"User {username} already exists, skipping...")
             continue

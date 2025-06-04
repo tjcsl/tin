@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from __future__ import annotations
 
 import os
+import shutil
+import sys
+from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,6 +32,10 @@ SECRET_KEY = "naxigo(w3=$1&!-t4vbb9)g^8#lnt6ygr)(2qfi1z(h(r_cjhy"
 DEBUG = True
 
 IN_DOCKER = bool(os.environ.get("IN_DOCKER"))
+
+USE_SANDBOXING = (
+    not DEBUG or Path(BASE_DIR).joinpath("sandboxing", "wrappers", "sandboxed", "P.txt").exists()
+)
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -318,12 +325,18 @@ REPO_URL = "https://github.com/tjcsl/tin"
 
 VENV_FILE_SIZE_LIMIT = 1 * 1000 * 1000 * 1000  # 1 GB
 
+# The wrapper script to use when running submissions outside of production
+# We still need this so that it can handle cli arguments to the wrapper script
+DEBUG_GRADER_WRAPPER_SCRIPT = Path(BASE_DIR).parent / "scripts" / "grader_wrapper.py"
+
 # Spaces and special characters may not be handled correctly
 # Not importing correctly - specified directly in apps/submissions/tasks.py
 # as of 8/3/2022, 2022ldelwich
 SUBMISSION_PYTHON = "/usr/bin/python3.10"
 
 SUBMISSION_NAMESERVERS = ["198.38.16.40", "198.38.16.41"]
+
+VENV_BASE_PYTHON = sys.executable if DEBUG else SUBMISSION_PYTHON
 
 # Users may only have this many submissions running
 CONCURRENT_USER_SUBMISSION_LIMIT = 2
@@ -333,6 +346,19 @@ QUIZ_ISSUE_THRESHOLD = 5
 
 # ImgBB API key (set in secret.py)
 IMGBB_API_KEY = ""
+
+# Sandboxing
+
+IS_SANDBOXING_MODULE_PRESENT = (Path(BASE_DIR) / "sandboxing" / "__init__.py").exists()
+
+IS_FIREJAIL_PRESENT = shutil.which("firejail") is not None
+
+IS_BUBBLEWRAP_PRESENT = shutil.which("bwrap") is not None
+
+if not DEBUG:
+    assert IS_SANDBOXING_MODULE_PRESENT, "Sandboxing module not present in production"
+    assert IS_FIREJAIL_PRESENT, "Firejail not present in production"
+    assert IS_BUBBLEWRAP_PRESENT, "Bubblewrap not present in production"
 
 try:
     from .secret import *

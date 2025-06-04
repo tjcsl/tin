@@ -25,7 +25,7 @@ def create_venv(venv_id):
                     "-m",
                     "virtualenv",
                     "-p",
-                    settings.SUBMISSION_PYTHON,
+                    settings.VENV_BASE_PYTHON,
                     "--",
                     venv.path,
                 ],

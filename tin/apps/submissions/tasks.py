@@ -1,15 +1,17 @@
 from __future__ import annotations
 
+import contextlib
 import logging
 import os
 import re
 import select
-import shutil
 import signal
 import subprocess
+import sys
 import time
 import traceback
 from decimal import Decimal
+from pathlib import Path
 
 import psutil
 from asgiref.sync import async_to_sync
@@ -62,36 +64,42 @@ def run_submission(submission_id):
             logger.error("Cannot run processes: %s", e)
             raise FileNotFoundError from e
 
-        python_exe = (
-            os.path.join(submission.assignment.venv.path, "bin", "python")
-            if submission.assignment.venv_fully_created
-            else "/usr/bin/python3.10"
-        )
+        if submission.assignment.venv_fully_created:
+            python_exe = os.path.join(submission.assignment.venv.path, "bin", "python")
+        elif settings.DEBUG:
+            python_exe = sys.executable
+        else:  # pragma: no cover
+            python_exe = "/usr/bin/python3.10"
 
-        if not settings.DEBUG or shutil.which("bwrap") is not None:
-            folder_name = "sandboxed"
+        if settings.IS_BUBBLEWRAP_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
+            wrapper_text = (
+                Path(settings.BASE_DIR)
+                .joinpath(
+                    "sandboxing",
+                    "wrappers",
+                    "sandboxed",
+                    f"{submission.assignment.language}.txt",
+                )
+                .read_text("utf-8")
+            )
+
+        elif submission.assignment.language == "P":
+            wrapper_text = settings.DEBUG_GRADER_WRAPPER_SCRIPT.read_text("utf-8")
         else:
-            folder_name = "testing"
+            raise NotImplementedError(
+                f"Unsupported language {submission.assignment.language} in DEBUG"
+            )
 
-        with open(
-            os.path.join(
-                settings.BASE_DIR,
-                "sandboxing",
-                "wrappers",
-                folder_name,
-                f"{submission.assignment.language}.txt",
-            )
-        ) as wrapper_file:
-            wrapper_text = wrapper_file.read().format(
-                has_network_access=bool(submission.assignment.has_network_access),
-                venv_path=(
-                    submission.assignment.venv.path
-                    if submission.assignment.venv_fully_created
-                    else None
-                ),
-                submission_path=submission_path,
-                python=python_exe,
-            )
+        wrapper_text = wrapper_text.format(
+            has_network_access=bool(submission.assignment.has_network_access),
+            venv_path=(
+                submission.assignment.venv.path
+                if submission.assignment.venv_fully_created
+                else None
+            ),
+            submission_path=submission_path,
+            python=python_exe,
+        )
 
         with open(submission_wrapper_path, "w", encoding="utf-8") as f_obj:
             f_obj.write(wrapper_text)
@@ -130,7 +138,7 @@ def run_submission(submission_id):
             grader_log_path,
         ]
 
-        if not settings.DEBUG or shutil.which("firejail") is not None:
+        if settings.IS_FIREJAIL_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
             whitelist = [os.path.dirname(grader_path)]
             read_only = [grader_path, submission_path, os.path.dirname(submission_wrapper_path)]
             if submission.assignment.venv_fully_created:
@@ -145,7 +153,7 @@ def run_submission(submission_id):
                 read_only=read_only,
             )
 
-        env = dict(os.environ)
+        env = os.environ.copy()
         if submission.assignment.venv_fully_created:
             env.update(submission.assignment.venv.get_activation_env())
 
@@ -273,5 +281,5 @@ def run_submission(submission_id):
             submission.channel_group_name, {"type": "submission.updated"}
         )
 
-        if os.path.exists(submission_wrapper_path):
+        with contextlib.suppress(FileNotFoundError):
             os.remove(submission_wrapper_path)

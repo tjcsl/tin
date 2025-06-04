@@ -33,8 +33,10 @@ def tin_setup(settings, worker_id: str, testrun_uid: str):
 
 
 @pytest.fixture(autouse=True)
-def create_users():
-    users.add_users_to_database(password=PASSWORD, verbose=False)
+def create_users(request):
+    marker = request.node.get_closest_marker("no_autocreate_users")
+    if marker is None:
+        users.add_users_to_database(password=PASSWORD, verbose=False)
 
 
 @pytest.fixture
