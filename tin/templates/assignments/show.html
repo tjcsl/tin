@@ -95,6 +95,8 @@
        href="{% url 'assignments:show' assignment.id %}?period=none">None</a>
     <a class="right tin-btn" {% if active_period == "all" %}style="color:#4fab4f;"{% endif %}
        href="{% url 'assignments:show' assignment.id %}?period=all">All</a>
+    <a class="right tin-btn" {% if active_period == "teachers" %}style="color:#4fab4f;"{% endif %}
+       href="{% url 'assignments:show' assignment.id %}?period=teachers">Teachers</a>
     &ensp;
     {% for period in period_set %}
       <a class="right tin-btn" {% if active_period.id == period.id %}style="color:#4fab4f;"{% endif %}
@@ -130,7 +132,7 @@
         <table id="submission-list" class="has-border">
           <tr>
             <th style="min-width:20px; text-align: center;">#</th>
-            <th style="min-width:125px">Student</th>
+            <th style="min-width:125px">{% if active_period == "teachers" %}Teacher{% else %}Student{% endif %}</th>
             {% if not active_period.name %}
               <th style="min-width:65px;">Period</th>
             {% endif %}
@@ -172,7 +174,7 @@
         <table id="submission-list" class="has-border">
           <tr>
             <th style="min-width:20px; text-align:center;">#</th>
-            <th style="min-width:125px">Student</th>
+            <th style="min-width:125px">{% if active_period == "teachers" %}Teacher{% else %}Student{% endif %}</th>
             {% if not active_period.name %}
               <th style="min-width:65px;">Period</th>
             {% endif %}
