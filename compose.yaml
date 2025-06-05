@@ -40,11 +40,14 @@ services:
     volumes:
       - .:/app
     entrypoint:
-      - ./manage.py
+      - python
+      - manage.py
       - runserver
       - 0.0.0.0:8080
     healthcheck:
       test: ["CMD", "curl", "-f", "http://0.0.0.0:8080"]
+      start_period: 15s
+      start_interval: 5s
     environment:
       IN_DOCKER: true
 
