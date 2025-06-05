@@ -24,6 +24,7 @@ mosspy = "~=1.0"
 django-debug-toolbar = "~=4.4"
 
 [dev-packages]
+pytest = ">=8.3.3"
 pytest-django = "~=4.8"
 pytest-xdist = "~=3.6"
 django-stubs = "*"
