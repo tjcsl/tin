@@ -73,8 +73,8 @@ by running the following command in a separate terminal::
 
 Final Steps
 ~~~~~~~~~~~
-After that, you'll want to create a course and an assignment in the course. 
-After saving the assignment, you can hit "Upload grader" to add a grader - 
+After that, you'll want to create a course and an assignment in the course.
+After saving the assignment, you can hit "Upload grader" to add a grader -
 the simplest example of a grader is located in ``scripts/sample_grader.py``.
 
 Now you can try making a submission, and as long as your submission doesn't throw an error you
