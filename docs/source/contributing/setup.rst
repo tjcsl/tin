@@ -3,12 +3,7 @@
 Setting up a development environment
 ------------------------------------
 
-First, you will need to install the following:
-
-* ``python``
-* ``pipenv``
-* ``git``
-
+To begin with, you will need to have `git <https://git-scm.com/>`_ installed on your computer.
 You will also need a GitHub account.
 
 First, `fork <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository>`_
@@ -23,24 +18,29 @@ relevant sections.
 
 Docker
 ~~~~~~
-If you prefer, you can also run the development setup with `Docker <https://www.docker.com/>`_. To do so,
+If you prefer, you can run the development setup with `Docker <https://www.docker.com/>`_. To do so,
 ``cd`` into the project directory and run::
+
+.. code-block:: bash
 
     docker compose build
     docker compose up
 
-The latter command will start up the django development server, as well as celery tasks for submissions.
+To create testing users and apply migrations, run the below command in a separate terminal::
+
+.. code-block:: bash
+
+    ./scripts/docker_setup.sh
 
 Local Setup
 ~~~~~~~~~~~
 
-After that, install dependencies and follow standard django procedures
+To set up your environment locally, you will need to install the following:
 
-.. note::
+* `python <https://www.python.org/downloads/>`_ (3.11)
+* `pipenv <https://pipenv.pypa.io/en/latest/installation.html>`_
 
-    If you're on windows and get errors about ``python3`` not existing,
-    try using ``python`` instead of ``python3``.
-
+Then, run these commands::
 
 .. code-block:: bash
 
@@ -48,6 +48,10 @@ After that, install dependencies and follow standard django procedures
    pipenv run python3 manage.py migrate
    pipenv run python3 manage.py create_debug_users
 
+.. note::
+
+    If you're on windows and get errors about ``python3`` not existing,
+    try using ``python`` instead of ``python3``.
 
 Now you're all set! Try running the development server
 
@@ -58,7 +62,7 @@ Now you're all set! Try running the development server
 Head on over to `http://127.0.0.1:8000 <http://127.0.0.1:8000>`_, and login
 as ``admin`` and the password you just entered.
 
-In order to actually create a submission, there are some more steps. First,
+In order to actually submit code, there are some more steps. First,
 you'll need to install `redis <https://redis.io/download>`_.
 
 You'll also need to start the celery worker. This can be done
@@ -69,9 +73,9 @@ by running the following command in a separate terminal::
 
 Final Steps
 ~~~~~~~~~~~
-After that, you'll want to start up the development server and create a course,
-and an assignment in the course. After saving the assignment, you can hit "Upload grader"
-to add a grader - the simplest example of a grader is located in ``scripts/sample_grader.py``.
+After that, you'll want to create a course and an assignment in the course.
+After saving the assignment, you can hit "Upload grader" to add a grader -
+the simplest example of a grader is located in ``scripts/sample_grader.py``.
 
 Now you can try making a submission, and as long as your submission doesn't throw an error you
 should get a 100%! Congrats on your brand new 5.0 GPA!
