@@ -50,7 +50,7 @@ ALLOWED_HOSTS = [
 INTERNAL_IPS = [
     "127.0.0.1",
     "localhost",
-    "0.0.0.0",
+    "172.18.0.1",  # Gateway IP for Docker's tin-dev-network (assuming no other networks)
 ]
 
 
