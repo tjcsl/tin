@@ -30,9 +30,9 @@ def test_create_file_action_view(client, course) -> None:
     assert course.file_actions.count() == 1
 
     response = client.post(url, {"name": "Hi", "command": "echo $FILES"})
-    assert (
-        course.file_actions.count() == 1
-    ), f"Creation form should error if $FILES is a command without a match value (got {response})"
+    assert course.file_actions.count() == 1, (
+        f"Creation form should error if $FILES is a command without a match value (got {response})"
+    )
 
     file_action = course.file_actions.first()
     assert file_action is not None
@@ -40,9 +40,9 @@ def test_create_file_action_view(client, course) -> None:
 
     # try copying the data
     response = client.post(f"{url}?action={file_action.id}", fa_data | {"copy": True})
-    assert (
-        course.file_actions.count() == 2
-    ), "Passing copy as a POST parameter should copy the file action"
+    assert course.file_actions.count() == 2, (
+        "Passing copy as a POST parameter should copy the file action"
+    )
 
     # or modifying the original instance
     client.post(f"{url}?action={file_action.id}", fa_data | {"name": "New name!"})
@@ -50,9 +50,9 @@ def test_create_file_action_view(client, course) -> None:
     assert file_action.name == "New name!"
 
     response = client.post(f"{url}?copy=1", fa_data | {"copy": True})
-    assert (
-        course.file_actions.count() == 3
-    ), f"Passing copy without an action should create a file action (got {response})"
+    assert course.file_actions.count() == 3, (
+        f"Passing copy without an action should create a file action (got {response})"
+    )
 
 
 @login("teacher")
