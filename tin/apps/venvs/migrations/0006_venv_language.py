@@ -30,9 +30,8 @@ def delete_python_310_from_venvs(apps, schema_editor):
         Language.objects.using(db_alias)
         .filter(
             name="Python 3.10",
-            executable="/usr/bin/python3.10",
+            info={"python3": "/usr/bin/python3.10", "version": 3.10},
             language="P",
-            version=310,
             is_deprecated=False,
         )
         .first()
