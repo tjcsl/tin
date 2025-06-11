@@ -13,56 +13,24 @@ def migrate_to_foreignkey(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     python_310, py_created = Language.objects.using(db_alias).get_or_create(
         name="Python 3.10",
-        executable="/usr/bin/python3.10",
+        info={"python3": "/usr/bin/python3.10", "version": 3.10},
         language="P",
-        version=310,
-    )
-
-    # Keep backwards compatibility with Java assignments by making them
-    # use python. Note that we cannot deprecate it yet until we have
-    # Java support, and figure out how to migrate the media.
-    java, java_created = Language.objects.using(db_alias).get_or_create(
-        name="Java/Python 3.10",
-        executable="/usr/bin/python3.10",
-        language="J",
-        version=310,
     )
 
     Assignment = apps.get_model("assignments", "Assignment")
-    for assignment in Assignment.objects.using(db_alias).all():
-        if assignment.language == "P":
-            assignment.language_details = python_310
-        elif assignment.language == "J":
-            assignment.language_details = java
-        assignment.save()
+    Assignment.objects.using(db_alias).update(language_details=python_310)
 
     # avoid creating empty models
     if py_created and not python_310.assignment_set.exists():
         python_310.delete()
-    if java_created and not java.assignment_set.exists():
-        java.delete()
 
 
 def revert_default_language(apps, schema_editor):
     """Converts the foreign key :class:`.Language` back to the old ``language`` field."""
 
     Assignment = apps.get_model("assignments", "Assignment")
-    Language = apps.get_model("assignments", "Language")
     db_alias = schema_editor.connection.alias
-    java = (
-        Language.objects.using(db_alias)
-        .filter(
-            language="J",
-            name="Java/Python 3.10",
-        )
-        .first()
-    )
-    for assignment in Assignment.objects.using(db_alias).all():
-        if java and assignment.language_details == java:
-            assignment.language = "J"
-        else:
-            assignment.language = "P"
-        assignment.save()
+    Assignment.objects.using(db_alias).update(language="P")
 
 
 # fmt: off
@@ -80,10 +48,10 @@ class Migration(migrations.Migration):
                 ('is_deprecated', models.BooleanField(default=False)),
                 ('language', models.CharField(choices=[('P', 'Python 3'), ('J', 'Java')], max_length=1)),
                 ('name', models.CharField(help_text='The name of the language', max_length=50)),
-                ('executable', models.CharField(help_text='The path to the language executable', max_length=100)),
-                ('version', models.PositiveSmallIntegerField(help_text="The version of the executable.")),
+                ('info', models.JSONField()),
             ],
-            options={'ordering': ['-language', '-version']},
+            options={'ordering': ['-language', "-info__version"]},
+
         ),
         migrations.AddField(
             model_name="assignment",
@@ -110,5 +78,4 @@ class Migration(migrations.Migration):
             model_name='assignment',
             name='language',
         ),
-
     ]

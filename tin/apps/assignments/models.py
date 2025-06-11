@@ -9,6 +9,7 @@ from typing import Literal
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
@@ -693,18 +694,26 @@ class Language(models.Model):
     )
 
     name = models.CharField(max_length=50, help_text="The name of the language")
-    executable = models.CharField(max_length=100, help_text="The path to the language executable")
+    info = models.JSONField()
     language = models.CharField(max_length=1, choices=LANGUAGES)
     is_deprecated = models.BooleanField(default=False)
 
-    # for decimals like 3.10, use 310
-    version = models.PositiveSmallIntegerField(help_text="The version of the executable.")
-
     class Meta:
-        ordering = ["-language", "-version"]
+        ordering = ["-language", "-info__version"]
 
     def __str__(self) -> str:
         return self.name
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: {self.name} ({self.language}) >"
+
+    def clean(self) -> None:
+        super().clean()
+        if not isinstance(self.info, dict):
+            raise ValidationError("Info must be a dictionary")
+        if self.language == "P" and (
+            "python3" not in self.info or not isinstance(self.info["version"], float)
+        ):
+            raise ValidationError(
+                "Python 3 language must have a 'python3' key and a (float) version key!"
+            )

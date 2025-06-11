@@ -11,9 +11,8 @@ def venv_default_to_python310(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     python_310, created = Language.objects.using(db_alias).get_or_create(
         name="Python 3.10",
-        executable="/usr/bin/python3.10",
+        info={"python3": "/usr/bin/python3.10", "version": 3.10},
         language="P",
-        version=310,
     )
 
     Venv = apps.get_model("venvs", "Venv")

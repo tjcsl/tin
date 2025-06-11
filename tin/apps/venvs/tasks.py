@@ -16,7 +16,7 @@ def create_venv(venv_id):
 
     success = False
     try:
-        python = venv.language.executable
+        python = venv.language.info["python3"]
         try:
             res = subprocess.run(
                 [

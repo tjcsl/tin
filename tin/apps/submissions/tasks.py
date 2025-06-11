@@ -71,7 +71,7 @@ def run_submission(submission_id):
         elif settings.DEBUG:
             python_exe = sys.executable
         else:  # pragma: no cover
-            python_exe = submission.assignment.language_details.executable
+            python_exe = submission.assignment.language_details.info["python3"]
 
         if settings.IS_BUBBLEWRAP_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
             wrapper_text = (

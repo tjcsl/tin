@@ -56,8 +56,8 @@ class AssignmentAdmin(admin.ModelAdmin):
 
 @admin.register(Language)
 class LanguageAdmin(admin.ModelAdmin):
-    list_display = ("name", "language", "executable", "is_deprecated")
-    search_fields = ("name", "executable")
+    list_display = ("name", "language", "info", "is_deprecated")
+    search_fields = ("name",)
     ordering = ("-language", "is_deprecated", "name")
     save_as = True
     list_filter = ("language",)
