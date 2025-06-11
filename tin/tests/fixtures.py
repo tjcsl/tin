@@ -82,9 +82,8 @@ def python():
     major, minor, _micro = platform.python_version_tuple()
     return Language.objects.create(
         name=f"Python {platform.python_version()}",
-        executable=sys.executable,
+        info={"python3": sys.executable, "version": float(f"{major}.{minor}")},
         language="P",
-        version=int(f"{major}{minor}"),
     )
 
 

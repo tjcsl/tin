@@ -14,7 +14,6 @@ def test_create_assignment(client, course, python) -> None:
     data = {
         "name": "Write a Vertex Shader",
         "description": "See https://learnopengl.com/Getting-started/Shaders",
-        "language": "P",
         "filename": "vertex.glsl",
         "points_possible": "300",
         "due": "04/16/2025",
