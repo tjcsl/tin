@@ -159,6 +159,7 @@ class Assignment(models.Model):
 
     has_network_access = models.BooleanField(default=False)
 
+    # WARNING: this is the rate limit
     submission_limit_count = models.PositiveIntegerField(
         default=90,
         validators=[MinValueValidator(10)],
@@ -183,6 +184,8 @@ class Assignment(models.Model):
 
     objects = AssignmentQuerySet.as_manager()
 
+    submission_caps: models.QuerySet[SubmissionCap]
+
     def __str__(self):
         return self.name
 
@@ -191,6 +194,59 @@ class Assignment(models.Model):
 
     def get_absolute_url(self):
         return reverse("assignments:show", args=(self.id,))
+
+    def within_submission_limit(self, student) -> bool:
+        """Check if a student is within the submission limit for an assignment."""
+        # teachers should have infinite submissions
+        if not student.is_student or self.is_quiz or not self.submission_caps.exists():
+            return True
+
+        # note that this doesn't care about killed/incomplete submissions
+        submission_count = self.submissions.filter(student=student).count()
+
+        cap = self.find_submission_cap(student)
+        return submission_count < cap
+
+    def find_submission_cap(self, student) -> float:
+        """Given a student, find the submission cap.
+
+        This takes into account student overrides, and due dates.
+        """
+        if student.is_superuser or student.is_teacher:
+            return float("inf")
+        cap = self.find_student_override(student)
+        if cap is not None:
+            return cap.calculate_submission_cap()
+        elif timezone.localtime() > self.due:
+            return self.submission_cap_after_due()
+        return self.before_submission_cap()
+
+    def find_student_override(self, student) -> SubmissionCap | None:
+        """Find an :class:`.SubmissionCap` for a student.
+
+        Returns ``None`` if no override exists.
+        """
+        return self.submission_caps.filter(student=student).first()
+
+    def before_submission_cap(self) -> float:
+        """Get the submission cap for an assignment before the due date.
+
+        Returns ``float("inf")`` if no cap is found.
+        """
+        cap = self.submission_caps.filter(student__isnull=True).first()
+        if cap is not None and cap.submission_cap is not None:
+            return cap.submission_cap
+        return float("inf")
+
+    def submission_cap_after_due(self) -> float:
+        """Get the submission cap after the due date.
+
+        Returns ``float("inf")`` if no cap is found.
+        """
+        cap = self.submission_caps.filter(student__isnull=True).first()
+        if cap is not None and cap.submission_cap_after_due is not None:
+            return cap.submission_cap_after_due
+        return float("inf")
 
     def make_assignment_dir(self) -> None:
         """Creates the directory where the assignment grader scripts go."""
@@ -369,6 +425,53 @@ class Assignment(models.Model):
             sum(lm.severity for lm in self.log_messages.filter(student=student))
             >= settings.QUIZ_ISSUE_THRESHOLD
         )
+
+
+class SubmissionCap(models.Model):
+    """Submission cap information"""
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="submission_caps",
+    )
+
+    submission_cap = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)],
+    )
+    submission_cap_after_due = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            # TODO: In django 5.0+ add nulls_distinct=False
+            models.UniqueConstraint(fields=["student", "assignment"], name="unique_type"),
+            models.CheckConstraint(
+                check=Q(submission_cap__isnull=False) | Q(submission_cap_after_due__isnull=False),
+                violation_error_message="Either the submission cap before or after the due date has to be set",
+                name="has_submission_cap",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{type(self).__name__}(submission_cap={self.submission_cap})"
+
+    def calculate_submission_cap(self) -> float:
+        """Get the submission cap for a given due date"""
+        if timezone.localtime() > self.assignment.due and self.submission_cap_after_due is not None:
+            return self.submission_cap_after_due
+        # This is the case where only submission_cap_after_due is set
+        if self.submission_cap is not None:
+            return self.submission_cap
+        return float("inf")
 
 
 class CooldownPeriod(models.Model):
