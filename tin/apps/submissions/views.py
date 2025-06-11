@@ -150,10 +150,7 @@ def comment_view(request, submission_id):
         raise http.Http404
 
     comment = request.POST.get("comment", "")
-    point_override = request.POST.get("point_override")
-
-    if point_override is None:
-        return http.HttpResponseBadRequest("Missing point_override")
+    point_override = request.POST.get("point_override", "")
 
     comment = Comment(
         submission=submission,

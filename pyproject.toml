@@ -31,6 +31,9 @@ filterwarnings = [
     'ignore:.*Tin is using the dummy sandboxing module. This is insecure.:',
     "ignore::DeprecationWarning:twisted.*:",
 ]
+markers = [
+  "no_autocreate_users: don't automatically create users for this test",
+]
 
 [tool.coverage.run]
 branch = true
