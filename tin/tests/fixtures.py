@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import platform
+import sys
 from pathlib import Path
 
 import pytest
 from django.utils import timezone
 
 import tin.tests.create_users as users
+from tin.apps.assignments.models import Language
 from tin.apps.courses.models import Course
 
 PASSWORD = "Made with <3 by 2027adeshpan"
@@ -75,13 +78,24 @@ def course(teacher, student):
 
 
 @pytest.fixture
-def assignment(course):
+def python():
+    major, minor, _micro = platform.python_version_tuple()
+    return Language.objects.create(
+        name=f"Python {platform.python_version()}",
+        info={"python3": sys.executable, "version": float(f"{major}.{minor}")},
+        language="P",
+    )
+
+
+@pytest.fixture
+def assignment(course, python):
     """Creates an :class:`.Assignment` in :func:`~.course`"""
     data = {
         "name": "Write a Shader",
         "description": "See https://learnopengl.com/Getting-started/Shaders",
         "points_possible": "300",
         "due": timezone.now(),
+        "language_details": python,
     }
     return course.assignments.create(**data)
 

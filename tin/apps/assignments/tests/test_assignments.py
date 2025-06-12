@@ -10,11 +10,10 @@ from tin.tests import is_redirect, login
 
 
 @login("teacher")
-def test_create_assignment(client, course) -> None:
+def test_create_assignment(client, course, python) -> None:
     data = {
         "name": "Write a Vertex Shader",
         "description": "See https://learnopengl.com/Getting-started/Shaders",
-        "language": "P",
         "filename": "vertex.glsl",
         "points_possible": "300",
         "due": "04/16/2025",
@@ -24,6 +23,7 @@ def test_create_assignment(client, course) -> None:
         "submission_limit_cooldown": "30",
         "is_quiz": False,
         "quiz_action": "2",
+        "language_details": python.id,
     }
     response = client.post(
         reverse("assignments:add", args=[course.id]),
