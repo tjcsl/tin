@@ -293,7 +293,7 @@ class Submission(models.Model):
             f_obj.write(submission_text)
 
     def rerun(self) -> Signature:
-        from .tasks import run_submission  # pylint: disable=import-outside-toplevel
+        from .tasks import run_submission  # noqa: PLC0415
 
         self.complete = False
         self.has_been_graded = False
