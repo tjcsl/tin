@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 
 class PytestRunner:
     """Runs pytest to discover and run tests."""
@@ -20,8 +22,6 @@ class PytestRunner:
 
         It translates some of Django's test command option to pytest's.
         """
-        import pytest
-
         argv = []
         if self.verbosity == 0:
             argv.append("--quiet")
