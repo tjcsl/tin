@@ -5,7 +5,7 @@ readme = "README.md"
 authors = [
     {name = "The TJHSST Computer Systems Lab", email = "tin@tjhsst.edu"},
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 version = "1.0"
 dynamic = ["dependencies"]
 license = { file = "LICENSE" }
