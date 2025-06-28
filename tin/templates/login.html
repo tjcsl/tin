@@ -9,12 +9,12 @@
 
   <div class="login-box">
     <a href="{% url 'social:begin' 'ion' %}{% if request.GET.next %}?next={{ request.GET.next | urlencode }}{% endif %}"
-       class="btn btn-ion">Log in with Ion</a>
+       class="btn-ion">Log in with Ion</a>
     {% if debug %}
       <br/>
       <a href="
         {% url 'auth:password_login' %}{% if request.GET.next %}?next={{ request.GET.next | urlencode }}{% endif %}"
-         class="btn btn-ion">Password login</a>
+         class="btn-ion">Password login</a>
     {% endif %}
   </div>
 

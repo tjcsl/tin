@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import logging
 import os
+import shlex
 import subprocess
 from typing import Literal
 
@@ -588,11 +589,20 @@ def run_action(command: list[str]) -> str:
 
 
 class FileAction(models.Model):
-    """Runs a user uploaded script on files uploaded to an assignment."""
+    """Runs a user uploaded script on files uploaded to an assignment.
+
+    This can also take (fake) environment variables like ``$FILE``/``$FILES``,
+    which are replaced with their actual value.
+
+    ``$FILES`` is expanded to a space separated list of paths that match the filter.
+
+    ``$FILE`` means the command will be called once with each file that matches the filter.
+    """
 
     MATCH_TYPES = (("S", "Start with"), ("E", "End with"), ("C", "Contain"))
 
     name = models.CharField(max_length=50)
+    description = models.CharField(max_length=100, blank=True)
 
     courses = models.ManyToManyField(Course, related_name="file_actions")
     command = models.CharField(max_length=1024)
@@ -611,7 +621,9 @@ class FileAction(models.Model):
 
     def run(self, assignment: Assignment):
         """Runs the command on the input assignment"""
-        command = self.command.split(" ")
+        # shlex.split splits it with POSIX-style shell syntax
+        # This handles e.g. echo "Hello World" correctly
+        command = shlex.split(self.command)
 
         if (
             ("$FILE" in self.command or "$FILES" in self.command)

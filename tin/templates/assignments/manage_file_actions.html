@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static "css/choose.css" %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
+  <script type="text/javascript">
+    function addFileAction(actionId) {
+      $.post(
+        "{% url 'assignments:manage_file_actions' course.id %}",
+        {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+          file_action: actionId,
+        },
+        function() {
+          const url = `{% url 'assignments:create_file_action' course.id %}?action=${actionId}`;
+          $("#id_" + actionId).fadeOut(200).promise().done(action => {
+            action.find("button").replaceWith(`<a class="tin-btn card-btn" href="${url}">Edit File Action</a>`);
+            $("#course-actions").append(action);
+            action.fadeIn(200);
+          });
+        }
+      );
+    }
+
+    function removeFileAction(actionId) {
+      $.post(
+        "{% url 'assignments:delete_file_action' course.id %}",
+        {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+          file_action: actionId,
+        },
+        function() {
+          $("#id_" + actionId).fadeOut(300).promise().done(action => {
+            action.find("a.tin-btn").replaceWith(`<button class="tin-btn card-btn" onclick="addFileAction(${actionId})">Add to course</button>`);
+            $("#new-actions").append(action);
+            action.fadeIn(200);
+          });
+        }
+      );
+    }
+
+    $(function() {
+      $(".card").on("mouseenter", function() {
+        $(this).find(".card-topright").removeClass("hidden");
+      }).on("mouseleave", function() {
+        $(this).find(".card-topright").addClass("hidden");
+      });
+
+      $("#search").on("keyup", function() {
+        const query = $(this).val();
+        $("#new-actions > .col").each(function() {
+          if($(this).is(`:contains("${query}")`)) {
+            if($(this).is(":hidden")) {
+              $(this).fadeIn(200);
+            }
+          } else {
+            $(this).fadeOut(200);
+          }
+        })
+      })
+    })
+  </script>
+{% endblock %}
+
+{% block main %}
+  <div class="multi-part-container" id="course-actions-title">
+    <h2>Your File Actions</h2>
+    <a class="tin-btn" href="{% url 'assignments:create_file_action' course.id %}">Create new file action</a>
+  </div>
+
+
+  <div class="row" id="course-actions">
+    {% for action in course_actions %}
+      <div class="col" id="id_{{ action.id }}">
+        <div class="card">
+          <div class="card-content">
+            <div class="card-topright hidden">
+              <span onclick="removeFileAction({{ action.id }})" class="fa-solid fa-trash-can red fake-btn" title="Remove from course">
+              </span>
+            </div>
+            <h5 class="card-title">{{ action.name }}</h5>
+            <p class="card-description">{{ action.description }}</p>
+            <a class="tin-btn card-btn" href="{% url 'assignments:create_file_action' course.id %}?action={{ action.id }}">
+              Edit File Action
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+
+  <div class="multi-part-container">
+    <h2>Choose a File Action</h2>
+    <input type="search" id="search" autocomplete="off" placeholder="Search file actions">
+  </div>
+
+  <div class="row" id="new-actions">
+    {% for action in actions %}
+      <div class="col" id="id_{{ action.id }}">
+        <div class="card">
+          <div class="card-content">
+            <div class="card-topright hidden">
+              <span onclick="removeFileAction({{ action.id }})" class="fa-solid fa-trash-can red fake-btn" title="Remove from course">
+              </span>
+            </div>
+            <h5 class="card-title">{{ action.name }}</h5>
+            <p class="card-description">{{ action.description }}</p>
+            <button id="btn-{{ action.id}}" class="tin-btn card-btn" onclick="addFileAction({{ action.id }})">Add to course</button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+{% endblock %}
