@@ -52,7 +52,7 @@ class SubmissionQuerySet(models.query.QuerySet):
 def upload_submission_file_path(submission, _) -> str:  # pylint: disable=unused-argument
     """Get the path to a submission"""
     assert submission.assignment.id is not None
-    if submission.assignment.language == "P":
+    if submission.assignment.grader_language == "P":
         return "assignment-{}/{}/submission_{}.py".format(
             submission.assignment.id,
             slugify(submission.student.username),

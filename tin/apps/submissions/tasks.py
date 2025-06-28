@@ -34,7 +34,9 @@ def truncate_output(text, field_name):
 
 @shared_task
 def run_submission(submission_id):
-    submission = Submission.objects.get(id=submission_id)
+    submission = Submission.objects.select_related(
+        "assignment", "assignment__language_details"
+    ).get(id=submission_id)
 
     try:
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
@@ -69,7 +71,7 @@ def run_submission(submission_id):
         elif settings.DEBUG:
             python_exe = sys.executable
         else:  # pragma: no cover
-            python_exe = "/usr/bin/python3.10"
+            python_exe = submission.assignment.language_details.info["python3"]
 
         if settings.IS_BUBBLEWRAP_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
             wrapper_text = (
