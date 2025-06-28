@@ -47,7 +47,7 @@
             onclick="return confirm('You are about to begin an assessment. All activity on your device will be monitored. If you open any other tabs or attempt to use any other applications, your quiz might be stopped and your teacher will be notified.')"
             href="{% url 'assignments:quiz' assignment.id %}">Begin quiz</a>
         {% endif %}
-      {% else %}
+      {% elif within_submission_limit %}
         <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
       {% endif %}
     {% endif %}
@@ -86,6 +86,12 @@
           </td>
         </tr>
       {% endif %}
+    {% endif %}
+    {% if submissions_left is not None %}
+      <tr>
+        <th>Submissions:</th>
+        <td>{{ submissions_left }} out of {{ submission_limit }}</td>
+      </tr>
     {% endif %}
   </table>
 
