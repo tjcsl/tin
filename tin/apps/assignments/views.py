@@ -5,8 +5,10 @@ import datetime
 import logging
 import os
 import subprocess
+import uuid
 import zipfile
 from io import BytesIO
+from pathlib import Path
 
 import celery
 from django import http
@@ -16,6 +18,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import now
+from django.views.decorators.http import require_POST
 
 from ... import sandboxing
 from ..auth.decorators import login_required, teacher_or_superuser_required
@@ -29,6 +32,7 @@ from .forms import (
     FileUploadForm,
     FolderForm,
     GraderScriptUploadForm,
+    ImageForm,
     MossForm,
     TextSubmissionForm,
 )
@@ -236,7 +240,6 @@ def create_view(request, course_id):
             "course": course,
             "nav_item": "Create assignment",
             "action": "add",
-            "imgbb_api_key": settings.IMGBB_API_KEY,
         },
     )
 
@@ -272,7 +275,6 @@ def edit_view(request, assignment_id):
             "assignment": assignment,
             "nav_item": "Edit",
             "action": "edit",
-            "imgbb_api_key": settings.IMGBB_API_KEY,
         },
     )
 
@@ -1181,3 +1183,30 @@ def delete_folder_view(request, course_id, folder_id):
 
     folder.delete()
     return redirect("courses:show", course.id)
+
+
+@require_POST
+@teacher_or_superuser_required
+def upload_image(request):
+    form = ImageForm(request.POST, request.FILES)
+    if form.is_valid():
+        image = form.cleaned_data["image"]
+        image_name = Path(image.name)
+        uuid_image_name = image_name.with_stem(f"{image_name.stem}-{uuid.uuid4()}")
+        static_location = Path("uploaded-media") / uuid_image_name
+        dest = (
+            Path(settings.STATICFILES_DIRS[0]) if settings.DEBUG else Path(settings.STATIC_ROOT)
+        ) / static_location
+        dest.parent.mkdir(exist_ok=True)
+        with dest.open("wb+") as f:
+            for chunk in image.chunks():
+                f.write(chunk)
+        return http.JsonResponse(
+            {
+                "url": request.build_absolute_uri(
+                    f"{settings.STATIC_URL.removesuffix('/')}/{static_location}"
+                ),
+                "title": image_name.stem,
+            }
+        )
+    return http.JsonResponse(form.errors, status=400)

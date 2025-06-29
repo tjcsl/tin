@@ -56,4 +56,5 @@ urlpatterns = [
         views.delete_folder_view,
         name="delete_folder",
     ),
+    path("upload", views.upload_image, name="upload_image"),
 ]

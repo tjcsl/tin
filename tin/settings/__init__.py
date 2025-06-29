@@ -344,8 +344,8 @@ CONCURRENT_USER_SUBMISSION_LIMIT = 2
 # Threshold for log messages being issues
 QUIZ_ISSUE_THRESHOLD = 5
 
-# ImgBB API key (set in secret.py)
-IMGBB_API_KEY = ""
+# Maximum size of uploaded images in bytes
+MAX_UPLOADED_IMAGE_SIZE = float("inf")
 
 # Sandboxing
 

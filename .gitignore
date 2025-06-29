@@ -7,6 +7,7 @@ media/
 
 tin/settings/secret.py
 tin/serve
+tin/static/uploaded-media
 
 .idea/
 docs/build/
