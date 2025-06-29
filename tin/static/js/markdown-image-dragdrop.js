@@ -75,7 +75,7 @@ $(function () {
           data.append('csrfmiddlewaretoken', Cookies.get('csrftoken'));
 
           $.ajax({
-            url: 'assignments/upload-image/',
+            url: '/assignments/upload',
             method: 'POST',
             data: data,
             processData: false,
@@ -138,7 +138,7 @@ $(function () {
           data.append('csrfmiddlewaretoken', Cookies.get('csrftoken'));
 
           $.ajax({
-            url: 'assignments/upload',
+            url: '/assignments/upload',
             method: 'POST',
             data: data,
             processData: false,
