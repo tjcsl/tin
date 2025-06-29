@@ -5,6 +5,7 @@ from logging import getLogger
 
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from ..submissions.models import Submission
 from .models import Assignment, Folder, MossResult
@@ -241,3 +242,13 @@ class FolderForm(forms.ModelForm):
             "name",
         ]
         help_texts = {"name": "Note: Folders are ordered alphabetically."}
+
+
+class ImageForm(forms.Form):
+    image = forms.FileField()
+
+    def clean_image(self):
+        image = self.cleaned_data.get("image")
+        if image and image.size > settings.MAX_UPLOADED_IMAGE_SIZE:
+            raise ValidationError("Image size exceeds the maximum limit")
+        return image
