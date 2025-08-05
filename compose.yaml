@@ -10,7 +10,10 @@ services:
   celery:
     container_name: tin_celery
     image: tin-base
+    stop_grace_period: 3s
     entrypoint:
+      - uv
+      - run
       - watchfiles
       - --filter
       - python
@@ -18,7 +21,7 @@ services:
       - /app/tin/media
       - --sigint-timeout
       - "30"
-      - celery -A tin worker
+      - uv run celery -A tin worker
       - /app/tin
     networks:
       - tin-network
@@ -44,6 +47,8 @@ services:
     volumes:
       - .:/app
     entrypoint:
+      - uv
+      - run
       - python
       - manage.py
       - runserver
