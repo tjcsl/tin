@@ -186,6 +186,7 @@ def import_from_selected_course(request, course_id, other_course_id):
                 for folder in form.cleaned_data["folders"]:
                     assignments = list(folder.assignments.all())
                     folder.pk = None
+                    folder._state.adding = True
                     folder.course = course
                     folder.save()
                     for assignment in assignments:
@@ -201,6 +202,7 @@ def import_from_selected_course(request, course_id, other_course_id):
 
                 # Save as new
                 assignment.pk = None
+                assignment._state.adding = True
 
                 # Update course, folder, assigned date, and grader file
                 assignment.course = course
