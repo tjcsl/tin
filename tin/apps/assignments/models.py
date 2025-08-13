@@ -336,7 +336,7 @@ class Assignment(models.Model):
 
         return files
 
-    def save_file(self, file_text: str, file_name: str) -> None:
+    def save_file(self, file_text: str | bytes, file_name: str) -> None:
         """Save some text as a file"""
         self.make_assignment_dir()
 
@@ -349,6 +349,10 @@ class Assignment(models.Model):
             network_access=False,
             whitelist=[os.path.dirname(fpath)],
         )
+        kwargs = {}
+        if isinstance(file_text, str):
+            kwargs["text"] = True
+            kwargs["encoding"] = "utf-8"
 
         try:
             subprocess.run(
@@ -356,9 +360,8 @@ class Assignment(models.Model):
                 input=file_text,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
-                encoding="utf-8",
-                text=True,
                 check=True,
+                **kwargs,
             )
         except FileNotFoundError as e:
             logger.error("Cannot run processes: %s", e)
