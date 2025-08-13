@@ -34,9 +34,10 @@ from .forms import (
     GraderScriptUploadForm,
     ImageForm,
     MossForm,
+    SubmissionCapForm,
     TextSubmissionForm,
 )
-from .models import Assignment, CooldownPeriod, QuizLogMessage
+from .models import Assignment, CooldownPeriod, QuizLogMessage, SubmissionCap
 from .tasks import run_moss
 
 logger = logging.getLogger(__name__)
@@ -62,6 +63,15 @@ def show_view(request, assignment_id):
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
         graded_submission = publishes.latest().submission if publishes else latest_submission
 
+        submission_limit = assignment.find_submission_cap(request.user)
+        submissions_left = submission_limit - len(submissions)
+        submissions_left = max(submissions_left, 0)
+
+        if submissions_left == float("inf"):
+            submissions_left = None
+        if submission_limit == float("inf"):
+            submission_limit = None
+
         return render(
             request,
             "assignments/show.html",
@@ -75,6 +85,10 @@ def show_view(request, assignment_id):
                 "is_student": course.is_student_in_course(request.user),
                 "is_teacher": request.user in course.teacher.all(),
                 "quiz_accessible": quiz_accessible,
+                "within_submission_limit": assignment.within_submission_limit(request.user),
+                "submissions_used": len(submissions),
+                "submissions_left": submissions_left,
+                "submission_limit": submission_limit,
             },
         )
     else:
@@ -199,11 +213,27 @@ def show_view(request, assignment_id):
         publishes = PublishedSubmission.objects.filter(student=request.user, assignment=assignment)
         latest_submission = submissions.latest() if submissions else None
         graded_submission = publishes.latest().submission if publishes else latest_submission
+
+        submission_limit = assignment.find_submission_cap(request.user)
+        num_submissions = len(submissions)
+        submissions_left = submission_limit - num_submissions
+        submissions_left = max(submissions_left, 0)
+
+        # render properly after submission cap is lowered (such as when the due date is passed)
+        if submissions_left == float("inf"):
+            submissions_left = None
+        if submission_limit == float("inf"):
+            submission_limit = None
+
         context.update(
             {
                 "submissions": submissions.order_by("-date_submitted"),
                 "latest_submission": latest_submission,
                 "graded_submission": graded_submission,
+                "within_submission_limit": assignment.within_submission_limit(request.user),
+                "submissions_used": num_submissions,
+                "submissions_left": submissions_left,
+                "submission_limit": submission_limit,
             }
         )
 
@@ -223,9 +253,8 @@ def create_view(request, course_id):
     if request.method == "POST":
         assignment_form = AssignmentForm(course, request.POST)
         if assignment_form.is_valid():
-            assignment = assignment_form.save(commit=False)
-            assignment.course = course
-            assignment.save()
+            assignment_form.instance.course = course
+            assignment = assignment_form.save()
 
             assignment.make_assignment_dir()
 
@@ -515,6 +544,29 @@ def student_submissions_view(request, assignment_id, student_id):
     )
     student = get_object_or_404(User, id=student_id)
 
+    cap = assignment.submission_caps.filter(student=student).first()
+    form = SubmissionCapForm(instance=cap)
+    # the following code is a bit of a hack so that POST-ing an empty form deletes the submission cap.
+    if request.method == "POST":
+        delete_cap = (
+            request.POST.get("submission_cap", object()) == ""
+            and request.POST.get("submission_cap_after_due", object()) == ""
+            and cap is not None
+        )
+        if delete_cap:
+            SubmissionCap.objects.filter(id=cap.id).delete()
+            # ensure the initial cap values don't show up in the form
+            form = SubmissionCapForm()
+
+        # for whatever reason instantiating the form autoadds errors even if we delete
+        if (
+            not delete_cap
+            and (form := SubmissionCapForm(data=request.POST, instance=cap)).is_valid()
+        ):
+            form.instance.assignment = assignment
+            form.instance.student = student
+            form.save()
+
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     publishes = PublishedSubmission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None
@@ -525,6 +577,10 @@ def student_submissions_view(request, assignment_id, student_id):
         if assignment.is_quiz
         else None
     )
+
+    submission_cap = assignment.find_submission_cap(student)
+    if submission_cap == float("inf"):
+        submission_cap = None
 
     return render(
         request,
@@ -538,6 +594,8 @@ def student_submissions_view(request, assignment_id, student_id):
             "latest_submission": latest_submission,
             "published_submission": published_submission,
             "log_messages": log_messages,
+            "form": form,
+            "submission_cap": submission_cap,
         },
     )
 
@@ -559,6 +617,8 @@ def submit_view(request, assignment_id):
         raise http.Http404
 
     student = request.user
+    if not assignment.within_submission_limit(student):
+        return http.HttpResponseForbidden("Submission limit exceeded")
 
     submissions = Submission.objects.filter(student=student, assignment=assignment)
     latest_submission = submissions.latest() if submissions else None

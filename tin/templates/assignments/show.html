@@ -48,7 +48,25 @@
             href="{% url 'assignments:quiz' assignment.id %}">Begin quiz</a>
         {% endif %}
       {% else %}
-        <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">Submit</a>
+        {% if submission_limit is None or submissions_used < submission_limit %}
+          <a class="right tin-btn" href="{% url 'assignments:submit' assignment.id %}">
+            Submit
+            {% if submission_limit is not None and submissions_used < submission_limit %}
+              ({{ submissions_left }} submission{{ submissions_left|pluralize }} left)
+            {% elif submission_limit is not None %}
+              (no more submissions allowed)
+            {% endif %}
+          </a>
+        {% else %}
+          <a class="right tin-btn disabled" style="text-decoration: none; color: gray;">
+            Submit
+            {% if submission_limit is not None and submissions_used < submission_limit %}
+              ({{ submissions_left }} submission{{ submissions_left|pluralize }} left)
+            {% elif submission_limit is not None %}
+              (no more submissions allowed)
+            {% endif %}
+          </a>
+        {% endif %}
       {% endif %}
     {% endif %}
   </div>
@@ -86,6 +104,19 @@
           </td>
         </tr>
       {% endif %}
+    {% endif %}
+    {% if submission_limit is not None %}
+      <tr>
+        <th>Submissions used:</th>
+        <td>
+          <b>{{ submissions_used }}</b> / {{ submission_limit }}
+          {% if submissions_left == 0 %}
+            <i class="fa fa-exclamation" style="color: red" data-toggle="tooltip" title="You've used up all your submissions for this assignment! Please ask your teacher if you need more."></i>
+          {% elif submissions_left == 1 %}
+            <i class="fa fa-exclamation" style="color: orange" data-toggle="tooltip" title="You have one submission left for this assignment! Please ask your teacher if you need more."></i>
+          {% endif %}
+        </td>
+      </tr>
     {% endif %}
   </table>
 
