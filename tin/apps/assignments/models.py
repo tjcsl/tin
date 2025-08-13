@@ -244,8 +244,13 @@ class Assignment(models.Model):
         Returns ``float("inf")`` if no cap is found.
         """
         student_cap = self.find_student_override(student)
-        if student_cap is not None and student_cap.submission_cap_after_due is not None:
-            return student_cap.submission_cap_after_due
+        if student_cap is not None:
+            # at least one of these must be set because of the model constraints
+            return (
+                student_cap.submission_cap_after_due
+                if student_cap.submission_cap_after_due is not None
+                else student_cap.submission_cap
+            )
         cap = self.submission_caps.filter(student__isnull=True).first()
         if cap is not None and cap.submission_cap_after_due is not None:
             return cap.submission_cap_after_due

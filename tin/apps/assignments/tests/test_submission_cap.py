@@ -80,6 +80,29 @@ def test_submission_cap_only_after_due(client, assignment):
 
 
 @login("student")
+def test_submission_cap_only_before(client, assignment):
+    """Test the submission cap when due date has passed but submission_cap_after_due is not set."""
+    assignment.submission_caps.create(submission_cap=1)
+    assignment.due = yesterday
+    assignment.save()
+    code = "print('hello, world')"
+    assignment.save_grader_file(code)
+
+    def submit():
+        url = "assignments:submit"
+        return client.post(
+            reverse(url, args=[assignment.id]),
+            {"text": "print('I hate fun')"},
+        )
+
+    response = submit()
+    assert is_redirect(response), f"Expected redirect, got {response}"
+    # should fall back to submission cap before due date
+    response = submit()
+    assert response.status_code == 403, f"Expected status code 403, got {response}"
+
+
+@login("student")
 @pytest.mark.parametrize("due", (yesterday, tomorrow))
 def test_submission_cap_with_override(client, assignment, student, due):
     """Test the submission cap with a per student override.
@@ -114,22 +137,13 @@ def test_submission_cap_with_override(client, assignment, student, due):
 
 
 @login("student")
-@pytest.mark.parametrize(
-    ("due", "sub_cap", "sub_cap_after"),
-    (
-        (yesterday, 10, None),
-        (tomorrow, None, 10),
-    ),
-)
-def test_student_override_fallbacks(client, assignment, student, due, sub_cap, sub_cap_after):
-    assignment.due = due
-    assignment.submission_caps.create(submission_cap=1, submission_cap_after_due=1)
+def test_student_override_fallbacks_before(client, assignment, student):
+    assignment.due = tomorrow
+    assignment.submission_caps.create(submission_cap=1, submission_cap_after_due=2)
     assignment.save()
     assignment.save_grader_file("print('hello, world')")
     assignment.submission_caps.create(
-        student=student,
-        submission_cap=sub_cap,
-        submission_cap_after_due=sub_cap_after,
+        student=student, submission_cap=None, submission_cap_after_due=3
     )
 
     def submit():
@@ -142,6 +156,34 @@ def test_student_override_fallbacks(client, assignment, student, due, sub_cap, s
     response = submit()
     assert is_redirect(response), f"Expected redirect, got {response}"
     # should fall back to the assignment cap since the override is None
+    response = submit()
+    assert response.status_code == 403, f"Expected status code 403, got {response}"
+
+
+@login("student")
+def test_student_override_fallbacks_after(client, assignment, student):
+    assignment.due = tomorrow
+    assignment.submission_caps.create(submission_cap=1, submission_cap_after_due=1)
+    assignment.save()
+    assignment.save_grader_file("print('hello, world')")
+    assignment.submission_caps.create(
+        student=student, submission_cap=2, submission_cap_after_due=None
+    )
+
+    def submit():
+        url = "assignments:submit"
+        return client.post(
+            reverse(url, args=[assignment.id]),
+            {"text": "print('I hate fun')"},
+        )
+
+    response = submit()
+    assert is_redirect(response), f"Expected redirect, got {response}"
+    # should fall back to the normal student cap, not assignment cap
+    # because for overdue it should fall back to the normal
+    response = submit()
+    assert is_redirect(response), f"Expected redirect, got {response}"
+    # but now we've passed the cap for the student
     response = submit()
     assert response.status_code == 403, f"Expected status code 403, got {response}"
 
