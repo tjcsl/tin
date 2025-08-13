@@ -561,7 +561,7 @@ def student_submissions_view(request, assignment_id, student_id):
         else None
     )
 
-    submission_cap = cap.calculate_submission_cap() if cap is not None else None
+    submission_cap = assignment.find_submission_cap(student)
     if submission_cap == float("inf"):
         submission_cap = None
 

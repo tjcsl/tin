@@ -8,11 +8,14 @@ from django.utils import timezone
 
 from tin.tests import is_redirect, login
 
+yesterday = timezone.now() - timedelta(days=1)
+tomorrow = timezone.now() + timedelta(days=1)
+
 
 @login("student")
 def test_submission_cap(client, assignment):
     assignment.submission_caps.create(submission_cap=1)
-    assignment.due = timezone.now() + timedelta(days=1)
+    assignment.due = tomorrow
     assignment.save()
     code = "print('hello, world')"
     assignment.save_grader_file(code)
@@ -34,7 +37,7 @@ def test_submission_cap(client, assignment):
 @login("student")
 def test_submission_cap_overdue(client, assignment):
     assignment.submission_caps.create(submission_cap_after_due=1)
-    assignment.due = timezone.now() - timedelta(days=1)
+    assignment.due = yesterday
     assignment.save()
     code = "print('hello, world')"
     assignment.save_grader_file(code)
@@ -57,7 +60,7 @@ def test_submission_cap_overdue(client, assignment):
 @login("student")
 def test_submission_cap_only_after_due(client, assignment):
     assignment.submission_caps.create(submission_cap_after_due=1)
-    assignment.due = timezone.now() + timedelta(days=1)
+    assignment.due = tomorrow
     assignment.save()
     code = "print('hello, world')"
     assignment.save_grader_file(code)
@@ -77,9 +80,7 @@ def test_submission_cap_only_after_due(client, assignment):
 
 
 @login("student")
-@pytest.mark.parametrize(
-    "due", (timezone.now() - timedelta(days=1), timezone.now() + timedelta(days=1))
-)
+@pytest.mark.parametrize("due", (yesterday, tomorrow))
 def test_submission_cap_with_override(client, assignment, student, due):
     """Test the submission cap with a per student override.
 
@@ -108,6 +109,39 @@ def test_submission_cap_with_override(client, assignment, student, due):
     assert is_redirect(response), f"Expected redirect, got {response}"
 
     # but now we've passed the cap for the student
+    response = submit()
+    assert response.status_code == 403, f"Expected status code 403, got {response}"
+
+
+@login("student")
+@pytest.mark.parametrize(
+    ("due", "sub_cap", "sub_cap_after"),
+    (
+        (yesterday, 10, None),
+        (tomorrow, None, 10),
+    ),
+)
+def test_student_override_fallbacks(client, assignment, student, due, sub_cap, sub_cap_after):
+    assignment.due = due
+    assignment.submission_caps.create(submission_cap=1, submission_cap_after_due=1)
+    assignment.save()
+    assignment.save_grader_file("print('hello, world')")
+    assignment.submission_caps.create(
+        student=student,
+        submission_cap=sub_cap,
+        submission_cap_after_due=sub_cap_after,
+    )
+
+    def submit():
+        url = "assignments:submit"
+        return client.post(
+            reverse(url, args=[assignment.id]),
+            {"text": "print('I hate fun')"},
+        )
+
+    response = submit()
+    assert is_redirect(response), f"Expected redirect, got {response}"
+    # should fall back to the assignment cap since the override is None
     response = submit()
     assert response.status_code == 403, f"Expected status code 403, got {response}"
 

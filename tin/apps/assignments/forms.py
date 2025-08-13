@@ -16,7 +16,7 @@ logger = getLogger(__name__)
 class AssignmentForm(forms.ModelForm):
     due = forms.DateTimeInput()
 
-    submission_cap = forms.IntegerField(min_value=1)
+    submission_cap = forms.IntegerField(min_value=1, required=False)
     submission_cap_after_due = forms.IntegerField(min_value=1, required=False)
 
     def __init__(self, course, *args, **kwargs):

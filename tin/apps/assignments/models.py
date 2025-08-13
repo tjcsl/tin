@@ -214,12 +214,9 @@ class Assignment(models.Model):
         """
         if student.is_superuser or student.is_teacher:
             return float("inf")
-        cap = self.find_student_override(student)
-        if cap is not None:
-            return cap.calculate_submission_cap()
-        elif timezone.localtime() > self.due:
-            return self.submission_cap_after_due()
-        return self.before_submission_cap()
+        if timezone.localtime() > self.due:
+            return self.submission_cap_after_due(student)
+        return self.before_submission_cap(student)
 
     def find_student_override(self, student) -> SubmissionCap | None:
         """Find an :class:`.SubmissionCap` for a student.
@@ -228,25 +225,32 @@ class Assignment(models.Model):
         """
         return self.submission_caps.filter(student=student).first()
 
-    def before_submission_cap(self) -> float:
+    def before_submission_cap(self, student) -> float:
         """Get the submission cap for an assignment before the due date.
 
         Returns ``float("inf")`` if no cap is found.
         """
+        student_cap = self.find_student_override(student)
+        if student_cap is not None and student_cap.submission_cap is not None:
+            return student_cap.submission_cap
         cap = self.submission_caps.filter(student__isnull=True).first()
         if cap is not None and cap.submission_cap is not None:
             return cap.submission_cap
         return float("inf")
 
-    def submission_cap_after_due(self) -> float:
+    def submission_cap_after_due(self, student) -> float:
         """Get the submission cap after the due date.
 
         Returns ``float("inf")`` if no cap is found.
         """
+        student_cap = self.find_student_override(student)
+        if student_cap is not None and student_cap.submission_cap_after_due is not None:
+            return student_cap.submission_cap_after_due
         cap = self.submission_caps.filter(student__isnull=True).first()
         if cap is not None and cap.submission_cap_after_due is not None:
             return cap.submission_cap_after_due
-        return float("inf")
+        # fall back to the submission cap before the due date
+        return self.before_submission_cap(student)
 
     def make_assignment_dir(self) -> None:
         """Creates the directory where the assignment grader scripts go."""
@@ -463,15 +467,6 @@ class SubmissionCap(models.Model):
 
     def __str__(self) -> str:
         return f"{type(self).__name__}(submission_cap={self.submission_cap})"
-
-    def calculate_submission_cap(self) -> float:
-        """Get the submission cap for a given due date"""
-        if timezone.localtime() > self.assignment.due and self.submission_cap_after_due is not None:
-            return self.submission_cap_after_due
-        # This is the case where only submission_cap_after_due is set
-        if self.submission_cap is not None:
-            return self.submission_cap
-        return float("inf")
 
 
 class CooldownPeriod(models.Model):
