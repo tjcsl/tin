@@ -214,14 +214,11 @@ def show_view(request, assignment_id):
         graded_submission = publishes.latest().submission if publishes else latest_submission
 
         submission_limit = assignment.find_submission_cap(request.user)
-        submissions_left = submission_limit - len(submissions)
+        num_submissions = len(submissions)
 
         # render properly after submission cap is lowered (such as when the due date is passed)
         if submission_limit == float("inf"):
             submission_limit = None
-        submissions_left = max(submissions_left, 0)
-        if submissions_left == float("inf"):
-            submissions_left = None
 
         context.update(
             {
@@ -229,7 +226,7 @@ def show_view(request, assignment_id):
                 "latest_submission": latest_submission,
                 "graded_submission": graded_submission,
                 "within_submission_limit": assignment.within_submission_limit(request.user),
-                "submissions_left": submissions_left,
+                "submissions_used": num_submissions,
                 "submission_limit": submission_limit,
             }
         )

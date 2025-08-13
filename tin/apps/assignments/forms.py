@@ -162,7 +162,7 @@ class AssignmentForm(forms.ModelForm):
             "of time it takes to start up the grader (to about 1.5 "
             "seconds). This is not recommended unless necessary.",
             "submission_cap": "The maximum number of submissions that can be made, or empty for unlimited.",
-            "submission_cap_after_due": "The maximum number of submissions that can be made after the due date, or empty for unlimited.",
+            "submission_cap_after_due": "The maximum number of submissions that can be made after the due date.",
             "submission_limit_count": "",
             "submission_limit_interval": "Tin sets rate limits on submissions. If a student tries "
             "to submit too many submissions in a given interval, "
@@ -287,7 +287,7 @@ class SubmissionCapForm(forms.ModelForm):
         fields = ["submission_cap", "submission_cap_after_due"]
         help_texts = {
             "submission_cap_after_due": (
-                "The submission cap after the due date (or empty for unlimited). "
+                "The submission cap after the due date. "
                 "By default, this is the same as the submission cap."
             ),
             "student": "The student to apply the cap to.",

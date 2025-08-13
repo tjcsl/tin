@@ -117,7 +117,7 @@
     To change the submission cap for this student, enter a new cap below.
     <br>
     {% with sub_count=submissions.count %}
-      This student has <strong>{{ sub_count }} {% if submission_cap is not None %} / {{ submission_cap }} {% endif %}</strong>
+      This student has used <strong>{{ sub_count }} {% if submission_cap is not None %} / {{ submission_cap }} {% endif %}</strong>
       submission{{ sub_count|pluralize }} on this assignment.
     {% endwith %}
   </p>
