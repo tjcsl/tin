@@ -37,7 +37,7 @@ from .forms import (
     SubmissionCapForm,
     TextSubmissionForm,
 )
-from .models import Assignment, CooldownPeriod, QuizLogMessage
+from .models import Assignment, CooldownPeriod, QuizLogMessage, SubmissionCap
 from .tasks import run_moss
 
 logger = logging.getLogger(__name__)
@@ -546,9 +546,23 @@ def student_submissions_view(request, assignment_id, student_id):
 
     cap = assignment.submission_caps.filter(student=student).first()
     form = SubmissionCapForm(instance=cap)
+    # the following code is a bit of a hack so that POST-ing an empty form deletes the submission cap.
     if request.method == "POST":
-        form = SubmissionCapForm(data=request.POST, instance=cap)
-        if form.is_valid():
+        delete_cap = (
+            request.POST.get("submission_cap", object()) == ""
+            and request.POST.get("submission_cap_after_due", object()) == ""
+            and cap is not None
+        )
+        if delete_cap:
+            SubmissionCap.objects.filter(id=cap.id).delete()
+            # ensure the initial cap values don't show up in the form
+            form = SubmissionCapForm()
+
+        # for whatever reason instantiating the form autoadds errors even if we delete
+        if (
+            not delete_cap
+            and (form := SubmissionCapForm(data=request.POST, instance=cap)).is_valid()
+        ):
             form.instance.assignment = assignment
             form.instance.student = student
             form.save()

@@ -206,6 +206,8 @@ class AssignmentForm(forms.ModelForm):
                     "submission_cap_after_due": sub_cap_after_due,
                 },
             )
+        elif sub_cap is None and sub_cap_after_due is None:
+            SubmissionCap.objects.filter(assignment=assignment, student=None).delete()
         return assignment
 
 
