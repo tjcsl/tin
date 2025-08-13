@@ -86,6 +86,7 @@ def show_view(request, assignment_id):
                 "is_teacher": request.user in course.teacher.all(),
                 "quiz_accessible": quiz_accessible,
                 "within_submission_limit": assignment.within_submission_limit(request.user),
+                "submissions_used": len(submissions),
                 "submissions_left": submissions_left,
                 "submission_limit": submission_limit,
             },
@@ -215,8 +216,12 @@ def show_view(request, assignment_id):
 
         submission_limit = assignment.find_submission_cap(request.user)
         num_submissions = len(submissions)
+        submissions_left = submission_limit - num_submissions
+        submissions_left = max(submissions_left, 0)
 
         # render properly after submission cap is lowered (such as when the due date is passed)
+        if submissions_left == float("inf"):
+            submissions_left = None
         if submission_limit == float("inf"):
             submission_limit = None
 
@@ -227,6 +232,7 @@ def show_view(request, assignment_id):
                 "graded_submission": graded_submission,
                 "within_submission_limit": assignment.within_submission_limit(request.user),
                 "submissions_used": num_submissions,
+                "submissions_left": submissions_left,
                 "submission_limit": submission_limit,
             }
         )
