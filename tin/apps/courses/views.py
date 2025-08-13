@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+from pathlib import Path
 
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -235,8 +236,8 @@ def import_from_selected_course(request, course_id, other_course_id):
 
                 if form.cleaned_data["copy_files"]:
                     for _, filename, path, _, _ in old_assignment.list_files():
-                        with open(path) as f:
-                            assignment.save_file(f.read(), filename)
+                        content = Path(path).read_bytes()
+                        assignment.save_file(content, filename)
 
             return redirect("courses:show", course.id)
     else:
