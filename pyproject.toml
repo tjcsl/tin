@@ -7,17 +7,53 @@ authors = [
 ]
 requires-python = ">=3.11"
 version = "1.0"
-dynamic = ["dependencies"]
 license = { file = "LICENSE" }
+dependencies = [
+  "django>=4.2<5.0",
+  "channels>=4.1",
+  "daphne>=4.1",
+  "gunicorn>=22.0",
+  "social-auth-app-django>=5.4",
+  "requests>=2.32",
+  "psutil>=5.9",
+  "celery>=5.4.0",
+  "django-celery-results>=2.5",
+  "django-markdownify>=0.9",
+  "psycopg>=3.1",
+  "virtualenv>=20.26",
+  "redis>=5.0",
+  "channels-redis>=4.2",
+  "django-extensions>=3.2",
+  "ipython>=8.24.0",
+  "mosspy>=1.0",
+  "django-debug-toolbar>=4.4",
+]
+
+[dependency-groups]
+dev = [
+  "django-stubs>=5.2.2",
+  "furo>=2025.7.19",
+  "myst-parser>=4.0.1",
+  "pre-commit>=4.2.0",
+  "pytest>=8.3.3",
+  "pytest-django>=4.8",
+  "pytest-xdist>=3.6",
+  "sphinx>=8.2.3",
+  "sphinx-copybutton>=0.5.2",
+  "sphinxcontrib-django>=2.5",
+  "typing-extensions>=4.14.1",
+  "watchfiles>=1.1.0",
+]
+
+ci = [
+  "pytest-cov>=6.2.1",
+]
 
 [project.urls]
 Repository = "https://github.com/tjcsl/tin"
 
-[tool.setuptools]
-packages = ["tin"]
-
-[tool.setuptools.dynamic]
-dependencies = { file = "requirements.txt" }
+[tool.uv]
+required-version = ">=0.8.0"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tin.settings"

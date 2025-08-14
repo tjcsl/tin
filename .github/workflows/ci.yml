@@ -7,6 +7,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  UV_LOCKED: 1
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,21 +33,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pipenv
 
-      - name: Install pipenv
-        run: pip install pipenv
-
-      # we have to check this first because
-      # installing autofixes the lock
-      - name: Check Pipfile.lock
-        run: pipenv verify
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
 
       - name: Install dependencies
-        run: pipenv install --categories="packages dev-packages ci" --deploy
+        run: uv sync --group ci
 
       - name: Run Tests
-        run: pipenv run pytest --cov=tin
+        run: uv run pytest --cov=tin
 
       - name: Run Coveralls
         uses: AndreMiras/coveralls-python-action@develop
@@ -77,15 +74,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pipenv
 
-      - name: Install pipenv
-        run: pip install pipenv
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
 
       - name: Install dependencies
-        run: pipenv install --dev
+        run: uv sync
 
       - name: Build Docs
-        run: |
-          cd docs
-          pipenv run make html SPHINXOPTS="-W --keep-going"
+        run: uv run make html SPHINXOPTS="-W --keep-going"
+        working-directory: docs
