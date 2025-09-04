@@ -7,7 +7,6 @@ import re
 import select
 import signal
 import subprocess
-import sys
 import time
 import traceback
 from decimal import Decimal
@@ -34,7 +33,9 @@ def truncate_output(text, field_name):
 
 @shared_task
 def run_submission(submission_id):
-    submission = Submission.objects.get(id=submission_id)
+    submission = Submission.objects.select_related(
+        "assignment", "assignment__language_details"
+    ).get(id=submission_id)
 
     try:
         grader_path = os.path.join(settings.MEDIA_ROOT, submission.assignment.grader_file.name)
@@ -66,10 +67,8 @@ def run_submission(submission_id):
 
         if submission.assignment.venv_fully_created:
             python_exe = os.path.join(submission.assignment.venv.path, "bin", "python")
-        elif settings.DEBUG:
-            python_exe = sys.executable
         else:  # pragma: no cover
-            python_exe = "/usr/bin/python3.10"
+            python_exe = submission.assignment.language_details.info["python3"]
 
         if settings.IS_BUBBLEWRAP_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
             wrapper_text = (
@@ -78,16 +77,16 @@ def run_submission(submission_id):
                     "sandboxing",
                     "wrappers",
                     "sandboxed",
-                    f"{submission.assignment.language}.txt",
+                    f"{submission.assignment.grader_language}.txt",
                 )
                 .read_text("utf-8")
             )
 
-        elif submission.assignment.language == "P":
+        elif submission.assignment.grader_language == "P":
             wrapper_text = settings.DEBUG_GRADER_WRAPPER_SCRIPT.read_text("utf-8")
         else:
             raise NotImplementedError(
-                f"Unsupported language {submission.assignment.language} in DEBUG"
+                f"Unsupported language {submission.assignment.grader_language} in DEBUG"
             )
 
         wrapper_text = wrapper_text.format(

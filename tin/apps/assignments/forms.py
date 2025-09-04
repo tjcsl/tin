@@ -6,9 +6,10 @@ from logging import getLogger
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from ..submissions.models import Submission
-from .models import Assignment, Folder, MossResult, SubmissionCap
+from .models import Assignment, Folder, Language, MossResult, SubmissionCap
 
 logger = getLogger(__name__)
 
@@ -23,18 +24,28 @@ class AssignmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["folder"].queryset = Folder.objects.filter(course=course)
 
-        # Prevent changing the language of an assignment after it has been created
         instance = getattr(self, "instance", None)
         if instance and instance.pk:
-            self.fields["language"].help_text = (
-                "Changing this after uploading a grader script is not recommended and will cause "
-                "issues."
+            # allow them to change from a deprecated language to a non-deprecated one
+            # but it must be the same (e.g. python -> python, or java -> java)
+            self.fields["language_details"].queryset = Language.objects.filter(
+                Q(is_deprecated=False) & Q(language=instance.language_details.language)
+                # just nicer UI to show the deprecated language choice
+                | Q(id=instance.language_details.id)
             )
 
             cap = instance.submission_caps.filter(student__isnull=True).first()
             if cap is not None:
                 self.fields["submission_cap"].initial = cap.submission_cap
                 self.fields["submission_cap_after_due"].initial = cap.submission_cap_after_due
+
+        else:
+            self.fields["language_details"].queryset = Language.objects.filter(is_deprecated=False)
+        self.fields[
+            "language_details"
+        ].help_text = (
+            "Keep in mind you cannot swap between languages after the assignment has been created."
+        )
 
         # prevent description from getting too big
         self.fields["description"].widget.attrs.update({"id": "description"})
@@ -65,7 +76,7 @@ class AssignmentForm(forms.ModelForm):
             "description",
             "markdown",
             "folder",
-            "language",
+            "language_details",
             "filename",
             "venv",
             "points_possible",
@@ -98,6 +109,7 @@ class AssignmentForm(forms.ModelForm):
             "is_quiz": "Is this a quiz?",
             "quiz_autocomplete_enabled": "Enable code autocompletion?",
             "quiz_description_markdown": "Use markdown?",
+            "language_details": "Grader language",
         }
         sections = (
             {
@@ -116,7 +128,7 @@ class AssignmentForm(forms.ModelForm):
                 "description": "",
                 "fields": (
                     "folder",
-                    "language",
+                    "language_details",
                     "filename",
                     "venv",
                 ),

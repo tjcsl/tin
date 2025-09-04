@@ -4,10 +4,12 @@ import datetime
 import logging
 import os
 import subprocess
+from pathlib import Path
 from typing import Literal
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
@@ -95,10 +97,10 @@ class AssignmentQuerySet(models.query.QuerySet):
 def upload_grader_file_path(assignment, _):  # pylint: disable=unused-argument
     """Get the location of the grader file for an assignment"""
     assert assignment.id is not None
-    if assignment.language == "P":
-        return f"assignment-{assignment.id}/grader.py"
-    else:
+    if assignment.grader_language == "J":
         return f"assignment-{assignment.id}/Grader.java"
+    else:
+        return f"assignment-{assignment.id}/grader.py"
 
 
 class Assignment(models.Model):
@@ -122,11 +124,12 @@ class Assignment(models.Model):
     description = models.CharField(max_length=4096)
     markdown = models.BooleanField(default=False)
 
-    LANGUAGES = (
-        ("P", "Python 3"),
-        ("J", "Java"),
+    language_details = models.ForeignKey(
+        "Language",
+        on_delete=models.CASCADE,
+        related_name="assignment_set",
+        null=False,
     )
-    language = models.CharField(max_length=1, choices=LANGUAGES, default="P")
 
     filename = models.CharField(max_length=50, default="main.py")
 
@@ -195,6 +198,11 @@ class Assignment(models.Model):
     def get_absolute_url(self):
         return reverse("assignments:show", args=(self.id,))
 
+    @property
+    def grader_language(self) -> Literal["P", "J"]:
+        """The language of the assignment (Python or Java)"""
+        return self.language_details.language
+
     def within_submission_limit(self, student) -> bool:
         """Check if a student is within the submission limit for an assignment."""
         # teachers should have infinite submissions
@@ -261,6 +269,14 @@ class Assignment(models.Model):
         """Creates the directory where the assignment grader scripts go."""
         assignment_path = os.path.join(settings.MEDIA_ROOT, f"assignment-{self.id}")
         os.makedirs(assignment_path, exist_ok=True)
+
+    def grader_exists(self) -> bool:
+        """Check if a grader file exists."""
+        if self.grader_file is None or self.grader_file.name is None:
+            return False
+
+        fpath = Path(settings.MEDIA_ROOT) / self.grader_file.name
+        return fpath.exists()
 
     def save_grader_file(self, grader_text: str) -> None:
         """Save the grader file to the correct location.
@@ -773,3 +789,37 @@ class FileAction(models.Model):
 
         assignment.last_action_output = output
         assignment.save()
+
+
+class Language(models.Model):
+    """Which version of a language is used for an assignment."""
+
+    LANGUAGES = (
+        ("P", "Python 3"),
+        ("J", "Java"),
+    )
+
+    name = models.CharField(max_length=50, help_text="The name of the language")
+    info = models.JSONField()
+    language = models.CharField(max_length=1, choices=LANGUAGES)
+    is_deprecated = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-language", "-info__version"]
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __repr__(self) -> str:
+        return f"<{type(self).__name__}: {self.name} ({self.language}) >"
+
+    def clean(self) -> None:
+        super().clean()
+        if not isinstance(self.info, dict):
+            raise ValidationError("Info must be a dictionary")
+        if self.language == "P" and (
+            "python3" not in self.info or not isinstance(self.info["version"], float)
+        ):
+            raise ValidationError(
+                "Python 3 language must have a 'python3' key and a (float) version key!"
+            )
