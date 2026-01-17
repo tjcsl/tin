@@ -3,6 +3,7 @@ from __future__ import annotations
 from django import http
 from django.shortcuts import get_object_or_404, redirect, render
 
+from ..assignments.models import Language
 from ..auth.decorators import teacher_or_superuser_required
 from .forms import VenvForm
 from .models import Venv
@@ -66,7 +67,7 @@ def create_view(request):
             create_venv.delay(venv.id)
             return redirect("venvs:show", venv.id)
     else:
-        form = VenvForm()
+        form = VenvForm(initial={"language": Language.objects.filter(language="P").first()})
     return render(
         request,
         "venvs/edit_create.html",

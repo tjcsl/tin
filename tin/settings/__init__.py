@@ -329,14 +329,8 @@ VENV_FILE_SIZE_LIMIT = 1 * 1000 * 1000 * 1000  # 1 GB
 # We still need this so that it can handle cli arguments to the wrapper script
 DEBUG_GRADER_WRAPPER_SCRIPT = Path(BASE_DIR).parent / "scripts" / "grader_wrapper.py"
 
-# Spaces and special characters may not be handled correctly
-# Not importing correctly - specified directly in apps/submissions/tasks.py
-# as of 8/3/2022, 2022ldelwich
-SUBMISSION_PYTHON = "/usr/bin/python3.10"
 
 SUBMISSION_NAMESERVERS = ["198.38.16.40", "198.38.16.41"]
-
-VENV_BASE_PYTHON = sys.executable if DEBUG else SUBMISSION_PYTHON
 
 # Users may only have this many submissions running
 CONCURRENT_USER_SUBMISSION_LIMIT = 2
