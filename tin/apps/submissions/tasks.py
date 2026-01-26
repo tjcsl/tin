@@ -67,7 +67,7 @@ def run_submission(submission_id):
 
         if submission.assignment.venv_fully_created:
             python_exe = os.path.join(submission.assignment.venv.path, "bin", "python")
-        else:  # pragma: no cover
+        else:
             python_exe = submission.assignment.language_details.info["python3"]
 
         if settings.IS_BUBBLEWRAP_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
