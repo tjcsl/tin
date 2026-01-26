@@ -1,6 +1,4 @@
-##############
-Contacting Tin
-##############
+# Contacting Tin
 
 If you need to get in touch with the Tin team, you can email us at tin@tjhsst.edu
 

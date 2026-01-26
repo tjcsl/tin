@@ -1,10 +1,9 @@
-.. Tin documentation master file, created by
-   sphinx-quickstart on Sun Jun  2 22:46:38 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+% Tin documentation master file, created by
+% sphinx-quickstart on Sun Jun  2 22:46:38 2024.
+% You can adapt this file completely to your liking, but it should at least
+% contain the root `toctree` directive.
 
-Welcome to Tin
-==============
+# Welcome to Tin
 
 Welcome to Tin!
 
@@ -17,22 +16,23 @@ In order to solve this problem, Tin was invented to safely run student code subm
 
 Explore some of the documentation we have at our disposal!
 
-.. toctree::
-  :maxdepth: 2
-  :caption: Usage Guide
+```{toctree}
+:caption: Usage Guide
+:maxdepth: 2
 
-  usage
-  contact
-
+usage
+contact
+```
 
 If you're interested in contributing a fix or a feature to Tin,
 the following documents might be useful:
 
-.. toctree::
-  :maxdepth: 1
-  :caption: Development
+```{toctree}
+:caption: Development
+:maxdepth: 1
 
-  contributing
-  reference_index
-  developers
-  production
+contributing
+reference_index
+developers
+production
+```

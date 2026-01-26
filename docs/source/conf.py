@@ -43,6 +43,14 @@ extensions = [
     "sphinxcontrib_django",
 ]
 
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "dollarmath",
+    "html_admonition",
+    "linkify",
+]
+
 add_function_parentheses = False
 
 # Automatically generate stub pages when using the .. autosummary directive
