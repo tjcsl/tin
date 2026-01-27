@@ -29,6 +29,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_student = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
+    is_active = models.BooleanField(default=True)
+
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
 
