@@ -6,8 +6,6 @@ For more information on this file, see
 https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
 """
 
-from __future__ import annotations
-
 import os
 
 from channels.auth import AuthMiddlewareStack

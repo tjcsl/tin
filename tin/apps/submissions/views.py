@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import psutil
 from django import http
 from django.db.models import F

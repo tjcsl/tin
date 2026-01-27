@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from pathlib import Path
 
 from ..models import Submission, upload_submission_file_path

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from django.contrib.auth.signals import user_logged_in
 
 from ..courses.models import StudentImport, StudentImportUser

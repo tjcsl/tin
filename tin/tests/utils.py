@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 __all__ = (
     "login",
     "str_to_html",
@@ -13,7 +11,7 @@ import pytest
 from django.template import Context, Engine
 
 if TYPE_CHECKING:
-    from typing_extensions import ParamSpec, TypeVar
+    from typing import ParamSpec, TypeVar
 
     T = TypeVar("T", bound=object, default=None)
     P = ParamSpec("P")

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from getpass import getpass
 
 from django.core.management.base import BaseCommand, no_translations

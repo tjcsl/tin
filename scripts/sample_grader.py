@@ -4,8 +4,6 @@ This runs the student submission, and without checking the output
 gives them a 100%. However, if the submission crashes the student will get a 0%
 """
 
-from __future__ import annotations
-
 import subprocess
 import sys
 

@@ -3,8 +3,6 @@
 This is only used when sandboxing is disabled.
 """
 
-from __future__ import annotations
-
 import argparse
 import subprocess
 import sys
