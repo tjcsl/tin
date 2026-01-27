@@ -480,10 +480,15 @@ class SubmissionCap(models.Model):
 
     class Meta:
         constraints = [
-            # TODO: In django 5.0+ add nulls_distinct=False
-            models.UniqueConstraint(fields=["student", "assignment"], name="unique_type"),
+            models.UniqueConstraint(
+                fields=["student", "assignment"],
+                name="unique_type",
+                nulls_distinct=False,
+            ),
             models.CheckConstraint(
-                check=Q(submission_cap__isnull=False) | Q(submission_cap_after_due__isnull=False),
+                condition=(
+                    Q(submission_cap__isnull=False) | Q(submission_cap_after_due__isnull=False)
+                ),
                 violation_error_message="Either the submission cap before or after the due date has to be set",
                 name="has_submission_cap",
             ),

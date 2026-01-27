@@ -5,11 +5,11 @@ readme = "README.md"
 authors = [
     {name = "The TJHSST Computer Systems Lab", email = "tin@tjhsst.edu"},
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 version = "1.0"
 license = { file = "LICENSE" }
 dependencies = [
-  "django>=4.2<5.0",
+  "django>=5.2.8<6.0",
   "channels>=4.1",
   "daphne>=4.1",
   "gunicorn>=22.0",
@@ -191,9 +191,6 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[tool.ruff.lint.isort]
-required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false

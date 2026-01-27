@@ -30,6 +30,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='submissioncap',
-            constraint=models.CheckConstraint(check=models.Q(('submission_cap__isnull', False), ('submission_cap_after_due__isnull', False), _connector='OR'), name='has_submission_cap', violation_error_message='Either the submission cap before or after the due date has to be set'),
+            constraint=models.CheckConstraint(condition=models.Q(('submission_cap__isnull', False), ('submission_cap_after_due__isnull', False), _connector='OR'), name='has_submission_cap', violation_error_message='Either the submission cap before or after the due date has to be set'),
         ),
     ]
