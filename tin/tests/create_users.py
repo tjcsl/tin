@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from django.contrib.auth import get_user_model
 
 __all__ = ("add_users_to_database", "user_data")

@@ -1,7 +1,5 @@
 """A module containing frequently used checks throughout the tests"""
 
-from __future__ import annotations
-
 from typing import Literal
 
 from django.http import HttpResponse, HttpResponseRedirect

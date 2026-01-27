@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from social_core.backends.oauth import BaseOAuth2
 from social_core.pipeline.user import get_username as social_get_username
 
