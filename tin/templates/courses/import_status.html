@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  Turn-In: {{ course.name }}: Import Status
+{% endblock %}
+
+{% block main %}
+
+  <h2>{{ course.name }}: Import Status</h2>
+
+  <div id="status-container">
+    <p id="status-message">Checking import status...</p>
+    <div id="progress-container" style="display: none;">
+      <progress id="progress-bar" value="0" max="100" style="width: 100%;"></progress>
+      <p id="progress-text"></p>
+    </div>
+  </div>
+
+  <p id="complete-message" style="display: none;">
+    <a href="{% url 'courses:show' course.id %}">Return to course</a>
+  </p>
+
+  <script>
+    $(function() {
+      function checkStatus() {
+        $.ajax({
+          url: window.location.href,
+          headers: {
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          success: function(data) {
+            if (data.state === "PROGRESS") {
+              $("#status-message").text("Importing...");
+              $("#progress-container").show();
+              $("#progress-bar").val(data.percent || 0);
+              $("#progress-text").text("Processing " + (data.current || 0) + " of " + (data.total || 0) + " assignments");
+              setTimeout(checkStatus, 1000);
+            } else if (data.state === "PENDING") {
+              $("#status-message").text("Task pending...");
+              setTimeout(checkStatus, 1000);
+            } else if (data.ready) {
+              $("#status-message").text("Import complete!");
+              $("#progress-container").hide();
+              $("#complete-message").show();
+            } else if (data.state === "FAILURE") {
+              $("#status-message").text("Import failed. Please try again.");
+            } else {
+              setTimeout(checkStatus, 1000);
+            }
+          },
+          error: function(error) {
+            $("#status-message").text("Error checking status.");
+            console.error("Error:", error);
+          }
+        });
+      }
+
+      checkStatus();
+    });
+  </script>
+
+{% endblock %}

@@ -74,6 +74,16 @@ class ImportFromSelectedCourseForm(forms.Form):
             required=False,
         )
 
+    def serialize_for_task(self):
+        return {
+            "folder_ids": [f.id for f in self.cleaned_data["folders"]],
+            "assignment_ids": [a.id for a in self.cleaned_data["assignments"]],
+            "hide": self.cleaned_data["hide"],
+            "shift_due_dates": self.cleaned_data["shift_due_dates"],
+            "copy_graders": self.cleaned_data["copy_graders"],
+            "copy_files": self.cleaned_data["copy_files"],
+        }
+
 
 class StudentForm(forms.ModelForm):
     students = UserMultipleChoiceField(
