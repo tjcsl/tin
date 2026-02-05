@@ -20,4 +20,9 @@ urlpatterns = [
     path("<int:course_id>/students/manage", views.manage_students_view, name="manage_students"),
     path("<int:course_id>/add_period", views.add_period_view, name="add_period"),
     path("<int:course_id>/edit_period/<int:period_id>", views.edit_period_view, name="edit_period"),
+    path(
+        "<int:course_id>/import/status/<str:task_id>",
+        views.import_status_view,
+        name="import_status",
+    ),
 ]
