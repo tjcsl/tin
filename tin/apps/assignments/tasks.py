@@ -54,7 +54,7 @@ def run_moss(moss_result_id):
         url = runner.send()
         moss_result.url = url
         moss_result.status = "Done"
-    except (ConnectionResetError, BrokenPipeError):
+    except ConnectionResetError, BrokenPipeError:
         moss_result.status = "Invalid Moss User ID"
     except ConnectionError:
         moss_result.status = "Connection refused"
