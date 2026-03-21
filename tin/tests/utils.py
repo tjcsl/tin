@@ -1,20 +1,21 @@
 __all__ = (
     "login",
+    "model_to_dict",
     "str_to_html",
     "to_html",
 )
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, ParamSpec, TypeVar
 
 import pytest
 from django.template import Context, Engine
 
 if TYPE_CHECKING:
-    from typing import ParamSpec, TypeVar
+    from django.db import models
 
-    T = TypeVar("T", bound=object, default=None)
-    P = ParamSpec("P")
+T = TypeVar("T", default=None)
+P = ParamSpec("P")
 
 
 def login(
@@ -77,3 +78,28 @@ def str_to_html(s: str) -> str:
     template = "{{ var }}"
     ctx = {"var": s}
     return to_html(template, ctx)
+
+
+def model_to_dict(model: models.Model, *, remove_relations: bool = True) -> dict[str, Any]:
+    """Convert a Django model to a dictionary.
+
+    .. note::
+
+        This ignores fields that are ``None``, as that is what is usually
+        desired when POST-ing model data to a view.
+
+    Args:
+        model: the model to dictionarify
+        remove_relations: whether to exclude foreignkeys, m2m, and o2o relationships.
+    """
+    relations = model._meta.get_fields()
+    if remove_relations:
+        relations = (field for field in relations if not field.is_relation)
+
+    # todo(2027adeshpan): field.name is undocumented as of django 4.2.
+    data = {}
+    for field in relations:
+        value = getattr(model, field.name)
+        if value is not None:
+            data[field.name] = value
+    return data
