@@ -27,24 +27,21 @@ jobs:
 
     steps:
       - name: Set up repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v6
-
-      - name: Install dependencies
-        run: uv sync --group ci
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run Tests
-        run: uv run pytest --cov=tin
+        run: uv run --group=ci pytest --cov=tin
 
       - name: Run Coveralls
-        uses: AndreMiras/coveralls-python-action@develop
+        uses: coverallsapp/github-action@v2
         with:
           parallel: true
           flag-name: Pyenv Unit Tests
@@ -54,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Handle Coveralls Finish
-        uses: AndreMiras/coveralls-python-action@develop
+        uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
 
