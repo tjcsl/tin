@@ -47,7 +47,6 @@ jobs:
           flag-name: Pyenv Unit Tests
           # It is an XML file
           format: cobertura
-          debug: true
 
   test_success:
     needs: test
