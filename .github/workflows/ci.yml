@@ -45,6 +45,7 @@ jobs:
         with:
           parallel: true
           flag-name: Pyenv Unit Tests
+          debug: true
 
   test_success:
     needs: test
