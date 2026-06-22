@@ -19,7 +19,7 @@ def media_root_path(settings, tmp_path: Path):
 
 
 @pytest.fixture(autouse=True)
-def create_users(request):
+def create_users(request, db):
     marker = request.node.get_closest_marker("no_autocreate_users")
     if marker is None:
         users.add_users_to_database(password=PASSWORD, verbose=False)
