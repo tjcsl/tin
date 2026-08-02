@@ -35,7 +35,6 @@ To create testing users and apply migrations, run the below command in a separat
 
 To set up your environment locally, you will need to install the following:
 
-- [python](https://www.python.org/downloads/) (3.11)
 - [uv](https://docs.astral.sh/uv/)
 
 Then, run these commands:
