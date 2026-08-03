@@ -41,6 +41,13 @@ def test_delete_assignment(client, assignment):
         assignment.refresh_from_db()
 
 
+@login("teacher")
+@pytest.mark.parametrize("url_name", ["assignments:delete", "assignments:rerun"])
+def test_assignment_action_rejects_get(client, assignment, url_name):
+    # state-changing endpoints must be POST-only, so a cross-site GET can't fire them
+    assert client.get(reverse(url_name, args=[assignment.id])).status_code == 405
+
+
 @login("student")
 def test_submit_assignment_with_text(client, assignment):
     response = client.post(

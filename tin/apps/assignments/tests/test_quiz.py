@@ -52,6 +52,13 @@ def test_quiz_ended_has_message(client, quiz):
 
 
 @login("student")
+def test_quiz_end_rejects_get(client, quiz):
+    # quiz_end is state-changing (student-facing) -> POST only; GET must not end it
+    assert client.get(reverse("assignments:quiz_end", args=[quiz.id])).status_code == 405
+    assert not quiz.log_messages.exists()
+
+
+@login("student")
 def test_quiz_data_basic(client, quiz):
     response = client.get(reverse("assignments:report", args=[quiz.id]))
     data = json.loads(response.content.decode("utf-8"))

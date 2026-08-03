@@ -310,6 +310,7 @@ def edit_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def delete_view(request, assignment_id):
     """Deletes an assignment
 
@@ -495,6 +496,7 @@ def download_file_view(request, assignment_id, file_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def delete_file_view(request, assignment_id, file_id):
     """Delete a file
 
@@ -513,6 +515,7 @@ def delete_file_view(request, assignment_id, file_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def file_action_view(request, assignment_id, action_id):
     """Run file actions on an assignment's files
 
@@ -833,6 +836,8 @@ def submit_view(request, assignment_id):
     )
 
 
+@teacher_or_superuser_required
+@require_POST
 def rerun_view(request, assignment_id):
     """Rerun select submissions
 
@@ -844,7 +849,7 @@ def rerun_view(request, assignment_id):
         Assignment.objects.filter_editable(request.user), id=assignment_id
     )
     course = assignment.course
-    period = request.GET.get("period", "")
+    period = request.POST.get("period", "")
 
     if period == "all":
         students = course.students.all()
@@ -973,7 +978,16 @@ def quiz_report_view(request, assignment_id):
     )
 
     content = request.GET.get("content", "")
-    severity = int(request.GET.get("severity", 0))
+    # Severity is reported by the (student-controlled) quiz monitor, so it must be
+    # constrained server-side. Without clamping, a student could send a large
+    # negative severity to permanently offset the running total and neuter the
+    # lock threshold (see quiz_issues_for_student). Non-integer input previously
+    # raised and 500'd; default it to 0 instead.
+    try:
+        severity = int(request.GET.get("severity", 0))
+    except (TypeError, ValueError):
+        severity = 0
+    severity = max(0, min(severity, settings.QUIZ_ISSUE_THRESHOLD))
 
     action = "no action"
 
@@ -992,6 +1006,7 @@ def quiz_report_view(request, assignment_id):
 
 
 @login_required
+@require_POST
 def quiz_end_view(request, assignment_id):
     """The view for ending a quiz
 
@@ -1011,6 +1026,7 @@ def quiz_end_view(request, assignment_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def quiz_clear_view(request, assignment_id, user_id):
     """Clear the log messages of a user.
 
@@ -1329,6 +1345,7 @@ def edit_folder_view(request, course_id, folder_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def delete_folder_view(request, course_id, folder_id):
     """Delete a folder
 

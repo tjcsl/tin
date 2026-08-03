@@ -28,11 +28,14 @@ class SubmissionJsonConsumer(JsonWebsocketConsumer):
             self.close()
             return
 
-        if (
-            self.submission.assignment.course not in self.user.courses.all()
-            and self.user not in self.submission.assignment.course.teacher.all()
-            and not self.user.is_superuser
-        ):
+        # A user may watch a submission's live updates only if it is their own
+        # submission, or they teach the course, or they are a superuser. The
+        # previous check allowed *any* student enrolled in the course to read
+        # *any* classmate's submission (including quizzes), which the HTTP views
+        # (Submission.objects.filter_visible) never permit.
+        is_owner = self.submission.student_id == self.user.id
+        is_teacher = self.submission.assignment.course.teacher.filter(id=self.user.id).exists()
+        if not (is_owner or is_teacher or self.user.is_superuser):
             self.close()
             return
 
