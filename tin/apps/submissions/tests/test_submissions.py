@@ -199,7 +199,7 @@ def test_set_past_timeout_complete_view(
 
 @login("teacher")
 @pytest.mark.parametrize(
-    "url_name", ["submissions:publish", "submissions:unpublish", "submissions:rerun"]
+    "url_name", ("submissions:publish", "submissions:unpublish", "submissions:rerun")
 )
 def test_submission_action_rejects_get(client: Client, submission: Submission, url_name: str):
     assert client.get(reverse(url_name, args=[submission.id])).status_code == 405
@@ -248,7 +248,8 @@ def _try_ws_connect(user, submission):
 @pytest.mark.django_db(transaction=True)
 def test_ws_owner_can_watch(in_memory_channels, submission, student):
     connected, payload = _try_ws_connect(student, submission)
-    assert connected and payload is not None
+    assert connected
+    assert payload is not None
 
 
 @pytest.mark.django_db(transaction=True)
