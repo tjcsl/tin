@@ -36,7 +36,7 @@
     </div>
     <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
     {% if action == "edit" %}
-      &emsp;<a style="color:red" href="{% url 'assignments:delete_folder' course.id folder.id %}">Delete Folder</a>
+      &emsp;<a style="color:red" href="#" data-post-action="{% url 'assignments:delete_folder' course.id folder.id %}">Delete Folder</a>
     {% endif %}
   </form>
 

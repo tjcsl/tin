@@ -1,5 +1,6 @@
 from collections.abc import Iterable
 from logging import getLogger
+from pathlib import Path
 
 from django import forms
 from django.conf import settings
@@ -284,12 +285,42 @@ class FolderForm(forms.ModelForm):
 
 
 class ImageForm(forms.Form):
+    # The uploaded file is written to the served static directory under its
+    # original extension, so the extension controls the Content-Type browsers
+    # receive. Without this allowlist a teacher could upload x.svg / x.html and
+    # get script execution on Tin's own origin (stored XSS). SVG is intentionally
+    # excluded: it is an active-content image type. Pillow is not a dependency,
+    # so we cannot decode-validate; the extension allowlist is the real defense
+    # and the content-type check is defense-in-depth.
+    ALLOWED_IMAGE_EXTENSIONS = frozenset(
+        {"png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "avif"}
+    )
+    ALLOWED_CONTENT_TYPES = frozenset(
+        {
+            "image/png",
+            "image/jpeg",
+            "image/gif",
+            "image/webp",
+            "image/bmp",
+            "image/tiff",
+            "image/avif",
+        }
+    )
+
     image = forms.FileField()
 
     def clean_image(self):
         image = self.cleaned_data.get("image")
-        if image and image.size > settings.MAX_UPLOADED_IMAGE_SIZE:
+        if not image:
+            return image
+        if image.size > settings.MAX_UPLOADED_IMAGE_SIZE:
             raise ValidationError("Image size exceeds the maximum limit")
+        extension = Path(image.name).suffix.lower().lstrip(".")
+        if extension not in self.ALLOWED_IMAGE_EXTENSIONS:
+            raise ValidationError("Unsupported image type.")
+        content_type = getattr(image, "content_type", None)
+        if content_type is not None and content_type not in self.ALLOWED_CONTENT_TYPES:
+            raise ValidationError("Unsupported image type.")
         return image
 
 

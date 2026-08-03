@@ -35,7 +35,7 @@
       {% endfor %}
     </div>
     <input type="submit" value="Save">
-    &emsp;<a style="color:red" href="{% url 'submissions:delete_comment' submission.id comment.id %}">Delete Comment</a>
+    &emsp;<a style="color:red" href="#" data-post-action="{% url 'submissions:delete_comment' submission.id comment.id %}">Delete Comment</a>
   </form>
 
 {% endblock %}

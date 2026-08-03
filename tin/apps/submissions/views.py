@@ -4,6 +4,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
 
 from ..auth.decorators import login_required, superuser_required, teacher_or_superuser_required
 from .forms import CommentForm, FilterForm
@@ -114,6 +115,7 @@ def kill_view(request, submission_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def rerun_view(request, submission_id):
     """Rerun a submission
 
@@ -207,6 +209,7 @@ def edit_comment_view(request, submission_id, comment_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def delete_comment_view(request, submission_id, comment_id):
     """Delete a comment
 
@@ -229,6 +232,7 @@ def delete_comment_view(request, submission_id, comment_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def publish_view(request, submission_id):
     """Publish a submission
 
@@ -245,6 +249,7 @@ def publish_view(request, submission_id):
 
 
 @teacher_or_superuser_required
+@require_POST
 def unpublish_view(request, submission_id):
     """Unpublish a submission
 

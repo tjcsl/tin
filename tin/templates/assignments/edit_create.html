@@ -78,7 +78,7 @@
         </div>
         <input type="submit" value="{% if action == "add" %}Create{% else %}Save{% endif %}">
         {% if action == "edit" %}
-          &emsp;<a style="color:red" href="{% url 'assignments:delete' assignment.id %}">Delete Assignment</a>
+          &emsp;<a style="color:red" href="#" data-post-action="{% url 'assignments:delete' assignment.id %}">Delete Assignment</a>
         {% endif %}
         </input>
       </div>

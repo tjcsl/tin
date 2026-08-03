@@ -4,10 +4,15 @@ from typing import TYPE_CHECKING
 
 import psutil
 import pytest
+from asgiref.sync import async_to_sync
+from channels.testing import WebsocketCommunicator
 from django.urls import reverse
 from django.utils import timezone
 
 from tin.tests import is_redirect, login
+
+from ..consumers import SubmissionJsonConsumer
+from ..models import Comment
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractBaseUser
@@ -186,3 +191,86 @@ def test_set_past_timeout_complete_view(
     submission.refresh_from_db()
 
     assert not submission.complete
+
+
+# --- CSRF: state-changing endpoints must be POST-only (a cross-site GET must not
+# trigger them). POST behaviour is covered by test_public_comment / test_comments. ---
+
+
+@login("teacher")
+@pytest.mark.parametrize(
+    "url_name", ("submissions:publish", "submissions:unpublish", "submissions:rerun")
+)
+def test_submission_action_rejects_get(client: Client, submission: Submission, url_name: str):
+    assert client.get(reverse(url_name, args=[submission.id])).status_code == 405
+
+
+@login("teacher")
+def test_delete_comment_rejects_get(client: Client, submission: Submission, teacher):
+    submission.complete = True
+    submission.has_been_graded = True
+    submission.save()
+    comment = Comment.objects.create(
+        submission=submission, author=teacher, start_char=0, end_char=1, text="x"
+    )
+    response = client.get(reverse("submissions:delete_comment", args=[submission.id, comment.id]))
+    assert response.status_code == 405
+    assert Comment.objects.filter(id=comment.id).exists()  # GET did nothing
+
+
+# --- SubmissionJsonConsumer authorization: the live-update WebSocket must agree
+# with the HTTP views (owner / course teacher / superuser only), not leak a
+# classmate's submission (including quizzes). ---
+
+
+@pytest.fixture
+def in_memory_channels(settings):
+    settings.CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+
+
+def _try_ws_connect(user, submission):
+    """Drive the consumer directly with the scope the routing layer would supply."""
+
+    async def scenario():
+        communicator = WebsocketCommunicator(
+            SubmissionJsonConsumer.as_asgi(), f"/submissions/{submission.id}.json"
+        )
+        communicator.scope["user"] = user
+        communicator.scope["url_route"] = {"kwargs": {"submission_id": submission.id}}
+        connected, _ = await communicator.connect()
+        payload = await communicator.receive_json_from() if connected else None
+        await communicator.disconnect()
+        return connected, payload
+
+    return async_to_sync(scenario)()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_ws_owner_can_watch(in_memory_channels, submission, student):
+    connected, payload = _try_ws_connect(student, submission)
+    assert connected
+    assert payload is not None
+
+
+@pytest.mark.django_db(transaction=True)
+def test_ws_teacher_can_watch(in_memory_channels, submission, teacher):
+    connected, _ = _try_ws_connect(teacher, submission)
+    assert connected
+
+
+@pytest.mark.django_db(transaction=True)
+def test_ws_classmate_cannot_watch(in_memory_channels, submission, course, django_user_model):
+    classmate = django_user_model.objects.create(username="classmate", is_student=True)
+    course.students.add(classmate)  # same course, not the owner
+    connected, payload = _try_ws_connect(classmate, submission)
+    assert not connected, f"classmate must be rejected; got {payload!r}"
+
+
+@pytest.mark.django_db(transaction=True)
+def test_ws_classmate_cannot_watch_quiz(
+    in_memory_channels, quiz_submission, course, django_user_model
+):
+    classmate = django_user_model.objects.create(username="classmate2", is_student=True)
+    course.students.add(classmate)
+    connected, payload = _try_ws_connect(classmate, quiz_submission)
+    assert not connected, f"classmate must not read a quiz submission; got {payload!r}"

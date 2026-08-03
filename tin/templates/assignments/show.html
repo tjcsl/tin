@@ -265,7 +265,7 @@
       <b>:</b>
       &nbsp;
     </label>
-    <a class="left tin-btn assignment-action" data-href="{% url 'assignments:rerun' assignment.id %}">Rerun submissions</a>
+    <a class="left tin-btn" href="#" data-post-action="{% url 'assignments:rerun' assignment.id %}" data-period-from="#assignment-action-period-select">Rerun submissions</a>
     <a class="left tin-btn assignment-action" data-href="{% url 'assignments:scores_csv' assignment.id %}" target="_blank">Download scores (.csv)</a>
     <a class="left tin-btn assignment-action" data-href="{% url 'assignments:download_submissions' assignment.id %}" target="_blank">Download code (.zip)</a>
     <a class="left tin-btn assignment-action" data-href="{% url 'assignments:moss' assignment.id %}">Run Moss</a>

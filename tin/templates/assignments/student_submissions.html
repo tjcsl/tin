@@ -56,7 +56,7 @@
 
   {% if assignment.is_quiz %}
     <h2 style="border-top:1px solid lightgray;padding-top:15px;">Quiz Log Messages</h2>
-    <a class="right tin-btn" href="{% url 'assignments:clear' assignment.id student.id %}">Reset Quiz</a>
+    <a class="right tin-btn" href="#" data-post-action="{% url 'assignments:clear' assignment.id student.id %}">Reset Quiz</a>
     <br><br>
     <table id="submission-list" class="has-border">
       <tr>

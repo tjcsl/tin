@@ -22,7 +22,7 @@
           <td>{{ size | filesizeformat }}</td>
           <td>{{ modified }}</td>
           <td><a href="{% url 'assignments:download_file' assignment.id id %}">Download</a></td>
-          <td><a style="color:red;" href="{% url 'assignments:delete_file' assignment.id id %}">Delete</a></td>
+          <td><a style="color:red;" href="#" data-post-action="{% url 'assignments:delete_file' assignment.id id %}">Delete</a></td>
         </tr>
       {% empty %}
         <tr class="italic">
@@ -58,7 +58,7 @@
     </h2>
 
     {% for action in actions %}
-      <a class="left tin-btn" href="{% url 'assignments:file_action' assignment.id action.id %}">{{ action.name }}</a>
+      <a class="left tin-btn" href="#" data-post-action="{% url 'assignments:file_action' assignment.id action.id %}">{{ action.name }}</a>
     {% empty %}
       <p class="italic">No actions available</p>
     {% endfor %}
