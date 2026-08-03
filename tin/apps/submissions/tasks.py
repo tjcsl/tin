@@ -23,6 +23,14 @@ from .models import Submission
 
 logger = logging.getLogger(__name__)
 
+# Environment variables passed through to graders and student submissions.
+# Everything else in the worker's environment is dropped so that secrets a
+# deployment may inject there never reach (untrusted) student code. Venv
+# activation vars (VIRTUAL_ENV/PATH) are added separately when applicable.
+_SUBMISSION_ENV_ALLOWLIST = frozenset(
+    {"PATH", "HOME", "LANG", "LANGUAGE", "LC_ALL", "LC_CTYPE", "TZ", "TERM"}
+)
+
 
 def truncate_output(text, field_name):
     max_len = Submission._meta.get_field(field_name).max_length
@@ -125,15 +133,34 @@ def run_submission(submission_id):
         output = ""
         errors = ""
 
-        args = [
-            python_exe,
-            "-u",
-            grader_path,
-            submission_wrapper_path,
-            submission_path,
-            submission.student.username,
-            grader_log_path,
-        ]
+        if submission.assignment.grader_language == "J":
+            # Java assignments: run Tin's Java runner as the grader. It compiles
+            # the submission + the teacher's Grader.java (JUnit) inside the
+            # sandbox wrapper and reports a score. (Executing Grader.java itself
+            # via python_exe would just be a syntax error.)
+            java_runner = os.path.join(
+                settings.BASE_DIR, "sandboxing", "utils", "J", "Java_Grader.py"
+            )
+            args = [
+                python_exe,
+                "-u",
+                java_runner,
+                submission_wrapper_path,
+                submission_path,
+                submission.student.username,
+                grader_log_path,
+                grader_path,  # the teacher's Grader.java (JUnit test class)
+            ]
+        else:
+            args = [
+                python_exe,
+                "-u",
+                grader_path,
+                submission_wrapper_path,
+                submission_path,
+                submission.student.username,
+                grader_log_path,
+            ]
 
         if settings.IS_FIREJAIL_PRESENT and settings.IS_SANDBOXING_MODULE_PRESENT:
             whitelist = [os.path.dirname(grader_path)]
@@ -141,6 +168,12 @@ def run_submission(submission_id):
             if submission.assignment.venv_fully_created:
                 whitelist.append(submission.assignment.venv.path)
                 read_only.append(submission.assignment.venv.path)
+            if submission.assignment.grader_language == "J":
+                # The Java runner + its Runner.java harness live outside the
+                # assignment dir, so make them visible to the (firejailed) grader.
+                java_utils = os.path.join(settings.BASE_DIR, "sandboxing", "utils", "J")
+                whitelist.append(java_utils)
+                read_only.append(java_utils)
 
             args = sandboxing.get_assignment_sandbox_args(
                 args,
@@ -150,7 +183,10 @@ def run_submission(submission_id):
                 read_only=read_only,
             )
 
-        env = os.environ.copy()
+        # Only hand graders/submissions a curated, non-sensitive environment.
+        # os.environ.copy() would pass the whole worker environment (and any
+        # secrets a deployment injects there) through to student code.
+        env = {k: v for k, v in os.environ.items() if k in _SUBMISSION_ENV_ALLOWLIST}
         if submission.assignment.venv_fully_created:
             env.update(submission.assignment.venv.get_activation_env())
 

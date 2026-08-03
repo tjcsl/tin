@@ -1,0 +1,50 @@
+# -*- mode: ruby -*-
+# Prod-faithful Tin dev VM.
+#
+# Unlike the Docker dev setup, this runs Tin directly on a real Linux kernel, so
+# firejail AND bubblewrap actually engage. (Docker's unprivileged containers make
+# firejail a no-op -- "an existing sandbox was detected ... without any additional
+# sandboxing features".) Use this VM to validate real sandbox behaviour, e.g.
+# whether a submission can read sibling submissions or BASE_DIR/SECRET_KEY.
+#
+#   cd vagrant
+#   PATH="$PATH:/c/Program Files/Oracle/VirtualBox" vagrant up   # first run: long (box + provision)
+#   # browse http://localhost:8000  (password login: /password-login/, admin / jasongrace)
+#   vagrant ssh          # shell into the VM (app lives in /opt/tin)
+#   vagrant halt         # stop    |    vagrant destroy -f   # delete
+#
+# WINDOWS + HYPER-V NOTE: if Docker Desktop / WSL2 / Hyper-V is active, VirtualBox
+# runs in a slow compatibility mode (or fails with VT-x errors). For full speed,
+# quit Docker Desktop; if it's still slow, disable the hypervisor launch type
+# (`bcdedit /set hypervisorlaunchtype off`) and reboot, or use the Hyper-V provider.
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-24.04"   # community box; Canonical no longer ships official Vagrant images
+  config.vm.box_check_update = false
+
+  config.vm.define "tin-dev"
+  config.vm.hostname = "tin-dev"
+
+  # VirtualBox under active Hyper-V (Docker Desktop) boots slowly; give it room.
+  config.vm.boot_timeout = 900
+
+  # Django dev server -> host
+  config.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "127.0.0.1"
+
+  # Mount the repo (parent of this vagrant/ dir) into the VM. Provisioning copies
+  # it to a native path (/opt/tin); firejail/bwrap need a real fs, not vboxsf.
+  config.vm.synced_folder "..", "/vagrant"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "tin-dev"
+    vb.memory = 4096
+    vb.cpus = 2
+  end
+
+  # Strip any CRLF (repo may be checked out on Windows) before running, so the
+  # bash script + shebang aren't broken by carriage returns.
+  config.vm.provision "shell", inline: <<-SHELL
+    tr -d '\\r' < /vagrant/vagrant/provision.sh > /tmp/tin-provision.sh
+    bash /tmp/tin-provision.sh
+  SHELL
+end
