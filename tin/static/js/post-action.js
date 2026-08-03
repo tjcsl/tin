@@ -12,32 +12,32 @@
 //      data-period-from="#assignment-action-period-select">Rerun</a>
 (function () {
   function getCookie(name) {
-    var match = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
-    return match ? match.pop() : "";
+    var match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return match ? match.pop() : '';
   }
 
-  $(document).on("click", "a[data-post-action]", function (event) {
+  $(document).on('click', 'a[data-post-action]', function (event) {
     event.preventDefault();
 
     var $link = $(this);
-    var $form = $("<form>", {
-      method: "post",
-      action: $link.attr("data-post-action"),
+    var $form = $('<form>', {
+      method: 'post',
+      action: $link.attr('data-post-action'),
     });
 
-    $("<input>", {
-      type: "hidden",
-      name: "csrfmiddlewaretoken",
-      value: getCookie("csrftoken"),
+    $('<input>', {
+      type: 'hidden',
+      name: 'csrfmiddlewaretoken',
+      value: getCookie('csrftoken'),
     }).appendTo($form);
 
     // Optionally forward the value of another element (e.g. the period select
     // used by the "Rerun submissions" action) as a POST field.
-    var periodSelector = $link.attr("data-period-from");
+    var periodSelector = $link.attr('data-period-from');
     if (periodSelector) {
-      $("<input>", {
-        type: "hidden",
-        name: "period",
+      $('<input>', {
+        type: 'hidden',
+        name: 'period',
         value: $(periodSelector).val(),
       }).appendTo($form);
     }

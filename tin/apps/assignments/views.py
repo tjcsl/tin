@@ -985,7 +985,7 @@ def quiz_report_view(request, assignment_id):
     # raised and 500'd; default it to 0 instead.
     try:
         severity = int(request.GET.get("severity", 0))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         severity = 0
     severity = max(0, min(severity, settings.QUIZ_ISSUE_THRESHOLD))
 
