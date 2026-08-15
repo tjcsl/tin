@@ -1,8 +1,14 @@
-# Writing a Grader
+# Writing a Grader (Python)
 
 ```{caution}
 It isn't as simple as it sounds - there are certain traps
 that are easy to fall into. Read the full page before writing a grader script.
+```
+
+```{note}
+This page covers **Python** graders (assignments whose grader language is Python).
+If you are grading Java assignments, see {doc}`writing_java_graders` instead - Tin
+supplies the grading machinery there and you only write a JUnit test class.
 ```
 
 Tin allows you to use the full flexibility of Python
@@ -47,7 +53,7 @@ caused by multiple submissions writing to the same file.
 You can then use this information to run the student submission (remember to use Tin's wrapper script!),
 and evaluate the output of the script.
 
-See {doc}`examples` for examples of grader scripts.
+See {doc}`examples_python` for examples of grader scripts.
 
 ## Restrictions on Student Submissions
 

@@ -7,8 +7,10 @@ the pages below:
 :caption: Grader Documentation
 :maxdepth: 1
 
-usage/graders/writing_graders
-usage/graders/examples
+usage/graders/writing_python_graders
+usage/graders/examples_python
+usage/graders/writing_java_graders
+usage/graders/examples_java
 usage/submission-cap
 usage/file-actions
 ```
