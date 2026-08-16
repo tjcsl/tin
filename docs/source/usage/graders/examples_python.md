@@ -1,7 +1,12 @@
-# Grader Examples
+# Grader Examples (Python)
 
-If you haven't already, check out {doc}`writing_graders` before
+If you haven't already, check out {doc}`writing_python_graders` before
 looking at some examples.
+
+```{note}
+These are **Python** grader examples. For Java assignments, see
+{doc}`examples_java`.
+```
 
 The following graders range from simple, to more sophisticated.
 
