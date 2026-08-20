@@ -35,6 +35,10 @@ def import_course_data_tasks(self, target_id, source_id, data):
     total = len(assignments_to_process)
 
     for index, (old_assignment, new_folder_id) in enumerate(assignments_to_process):
+        old_grader_fpath = (
+            Path(old_assignment.grader_file.path) if old_assignment.grader_file else None
+        )
+        old_assignment_files = old_assignment.list_files()
         assignment = old_assignment
         assignment.pk = None
         assignment._state.adding = True
@@ -48,12 +52,11 @@ def import_course_data_tasks(self, target_id, source_id, data):
         assignment.save()
         assignment.make_assignment_dir()
 
-        if data.get("copy_graders") and old_assignment.grader_file:
-            with open(old_assignment.grader_file.path, "rb") as f:
-                assignment.save_grader_file(f.read())
+        if data.get("copy_graders") and old_grader_fpath is not None:
+            assignment.save_grader_file(old_grader_fpath.read_bytes().decode())
 
         if data.get("copy_files"):
-            for _, filename, path, _, _ in old_assignment.list_files():
+            for _, filename, path, _, _ in old_assignment_files:
                 content = Path(path).read_bytes()
                 assignment.save_file(content, filename)
 
