@@ -31,3 +31,9 @@ This grader uses no `@Weight` annotations, so each of the 6 tests is worth 1
 point (the default) - set the assignment's "Points possible" to 6. To make some
 checks worth more, add `@Weight(n)`; see the {doc}`Nth Fibonacci <fibonacci_java>`
 example.
+
+The last two tests are **secret cases**: they use `assertTrue` instead of
+`assertEquals` on purpose. On failure, `assertEquals` prints
+`expected:<…> but was:<…>` - which hands the student the answer to hardcode -
+whereas `assertTrue` prints only `AssertionError`, keeping the expected value
+hidden. Reserve `assertEquals` for cases where revealing the answer is fine.

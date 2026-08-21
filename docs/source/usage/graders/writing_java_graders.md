@@ -136,6 +136,19 @@ shown to the student. JUnit failure messages are surfaced too, so an
 solution details out of assertion messages** if you don't want students to see
 them.
 
+```{tip}
+`assertEquals(expected, actual)` prints `expected:<…> but was:<…>` on failure,
+which hands the student the answer. For **secret cases** you don't want revealed
+(e.g. to stop students hardcoding answers), assert a boolean instead - its
+failure shows only `AssertionError`, with no value. Use a comparison suited to
+the type: `assertTrue(java.util.Objects.equals(result, expected))` for objects
+and `String`s (`==` would test reference identity, not value, and a plain
+`result.equals(...)` throws if `result` is `null`), `assertTrue(actual == expected)` for
+primitives (`int`, `char`, `boolean`, …), and
+`assertTrue(Math.abs(actual - expected) < 1e-9)` for floating-point (where
+`0.1 + 0.2 != 0.3` exactly).
+```
+
 If the submission does not compile, Tin shows the compiler errors and scores the
 submission `0`. If the grader exceeds its timeout (set on the assignment's "Edit"
 page), the student sees `[Grader timed out]` and no score is recorded.
