@@ -1,4 +1,5 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -28,14 +29,17 @@ public class Grader {
         assertEquals(132, Calculator.add(54, 78));
     }
 
-    // "secret" cases the student does not see in the sample tests
+    // "Secret" cases: use assertTrue, NOT assertEquals. On failure assertEquals
+    // prints "expected:<X> but was:<Y>" -- which hands the student the answer, so
+    // they could just hardcode it. assertTrue only prints "AssertionError", so
+    // the expected value stays hidden. Use it for cases you don't want revealed.
     @Test
     public void secretCase1() {
-        assertEquals(200, Calculator.add(120, 80));
+        assertTrue(Calculator.add(120, 80) == 200);
     }
 
     @Test
     public void secretCase2() {
-        assertEquals(0, Calculator.add(-50, 50));
+        assertTrue(Calculator.add(-50, 50) == 0);
     }
 }
