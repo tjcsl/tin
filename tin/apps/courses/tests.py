@@ -1,9 +1,12 @@
+from pathlib import Path
+
 import pytest
 from django.urls import reverse
 
 from tin.tests import is_login_redirect, is_redirect, login
 
 from .models import Course
+from .tasks import import_course_data_tasks
 
 
 @login("teacher")
@@ -43,6 +46,55 @@ def test_edit_course(client, course, teacher) -> None:
     course.refresh_from_db()
     assert is_redirect(response)
     assert course.name == f"{old_name} and Bezier Curves"
+
+
+@pytest.mark.parametrize(
+    ("copy_files", "copy_graders"),
+    (
+        (False, False),
+        (False, True),
+        (True, False),
+        (True, True),
+    ),
+)
+def test_import_course_assignment_files(
+    assignment,
+    monkeypatch,
+    settings,
+    copy_files: bool,
+    copy_graders: bool,
+) -> None:
+    target_course = Course.objects.create(name="Imported course")
+    grader = "assert submission == 'expected'\n"
+    regular_files = {
+        "instructions.txt": b"Read the instructions carefully.\n",
+        "fixture.bin": b"\x00\xff\x80binary\n",
+    }
+    assignment.save_grader_file(grader)
+    for filename, content in regular_files.items():
+        assignment.save_file(content, filename)
+
+    monkeypatch.setattr(import_course_data_tasks, "update_state", lambda **_kwargs: None)
+    import_course_data_tasks.run(
+        target_course.id,
+        assignment.course_id,
+        {
+            "assignment_ids": [assignment.id],
+            "copy_files": copy_files,
+            "copy_graders": copy_graders,
+        },
+    )
+
+    imported = target_course.assignments.get()
+    assert bool(imported.grader_file) is copy_graders
+    if copy_graders:
+        grader_path = Path(settings.MEDIA_ROOT) / imported.grader_file.name
+        assert grader_path.read_text() == grader
+
+    imported_files = {
+        filename: Path(path).read_bytes() for _, filename, path, _, _ in imported.list_files()
+    }
+    assert imported_files == (regular_files if copy_files else {})
 
 
 def test_redirect(client) -> None:
