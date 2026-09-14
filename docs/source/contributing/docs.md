@@ -32,23 +32,24 @@ For example,
 ```python
 # BAD
 def my_function(x):
-   """
-   A BAD docstring for my_function
+    """
+    A BAD docstring for my_function
 
-   Args:
-     x (int): the first parameter
-   """
-   return x+1
+    Args:
+      x (int): the first parameter
+    """
+    return x + 1
+
 
 # GOOD! Note how the parameter has the typehint, not the docstring
 def my_function(x: int):
-   """
-   A good docstring for my_function
+    """
+    A good docstring for my_function
 
-   Args:
-     x : the first parameter
-   """
-   return x+1
+    Args:
+      x : the first parameter
+    """
+    return x + 1
 ```
 
 ## Tips and Tricks

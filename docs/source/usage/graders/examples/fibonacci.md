@@ -9,10 +9,10 @@ Write a program that takes an integer `n` and returns the nth Fibonacci number.
 ```python
 import sys
 
-n = int(sys.argv[1])-1
+n = int(sys.argv[1]) - 1
 nums = [0, 1]
 while n >= len(nums):
-   nums.append(nums[-1] + nums[-2])
+    nums.append(nums[-1] + nums[-2])
 return nums[n]
 ```
 
