@@ -8,8 +8,11 @@
 {% block main %}
 
   <div class="login-box">
-    <a href="{% url 'social:begin' 'ion' %}{% if request.GET.next %}?next={{ request.GET.next | urlencode }}{% endif %}"
-       class="btn-ion">Log in with Ion</a>
+    <form method="post" action="{% url 'social:begin' 'ion' %}{% if request.GET.next %}?next={{ request.GET.next | urlencode }}{% endif %}"
+      style="all: unset">
+      {% csrf_token %}
+      <button type="submit" style="all: unset"><a class="btn-ion">Log in with Ion</a></button>
+    </form>
     {% if debug %}
       <br/>
       <a href="
