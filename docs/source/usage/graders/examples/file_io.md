@@ -11,11 +11,8 @@ import sys
 
 inp = sys.argv[1]
 out = sys.argv[2]
-with (
-   open(inp, 'r') as f,
-   open(out, 'w') as w
-):
-   w.write(f.read())
+with open(inp, "r") as f, open(out, "w") as w:
+    w.write(f.read())
 ```
 
 ## Sample Grader

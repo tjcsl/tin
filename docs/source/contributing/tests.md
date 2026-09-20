@@ -14,7 +14,7 @@ will be run as a test. A sample test might look like
 
 ```python
 def test_addition():
-   assert 1+1 == 2
+    assert 1 + 1 == 2
 ```
 
 You can then run the tests with `python3 manage.py test`.
@@ -26,8 +26,8 @@ For example, say we had this view
 
 ```python
 def my_view(request):
-   # this view is at /hi/
-   return redirect("/courses/")
+    # this view is at /hi/
+    return redirect("/courses/")
 ```
 
 A good test for this view would be
@@ -57,21 +57,23 @@ from tin.tests import login, is_redirect, is_login_redirect
 
 
 def test_redirect(client):
-   # client is an anonymous user
-   response = client.get(reverse("courses:add"))
-   assert is_login_redirect(response)
+    # client is an anonymous user
+    response = client.get(reverse("courses:add"))
+    assert is_login_redirect(response)
+
 
 @login("student")
 def test_redirect(client):
-   # client is logged in as a student
-   response = client.get(reverse("courses:add"))
-   assert is_redirect(response)
+    # client is logged in as a student
+    response = client.get(reverse("courses:add"))
+    assert is_redirect(response)
+
 
 @login("admin")
 def test_redirect(client):
-   # client is logged in as an admin
-   response = client.get(reverse("courses:add"))
-   assert not is_redirect(response)
+    # client is logged in as an admin
+    response = client.get(reverse("courses:add"))
+    assert not is_redirect(response)
 ```
 
 ## Tips and Tricks
@@ -117,8 +119,8 @@ Parameterizing tests allows for cleaner debugging when they fail. For example, c
 
 ```python
 def test_something():
-   for i in (1, 2):
-       assert 1+i == 2
+    for i in (1, 2):
+        assert 1 + i == 2
 ```
 
 When this test fails, it's difficult to tell at which value of `i`
@@ -127,7 +129,7 @@ it failed at. Consider the following instead:
 ```python
 @pytest.mark.parametrize("i", (1, 2))
 def test_something(i):
-   assert i+1 == 2
+    assert i + 1 == 2
 ```
 
 Now when this test fails, pytest tells us exactly which value of `i` it failed at!
@@ -137,7 +139,7 @@ These can also be arbitrarily nested
 @pytest.mark.parametrize("i", range(3))
 @pytest.mark.parametrize("j", range(3))
 def test_commutative_addition(i, j):
-   assert i+j == j+i
+    assert i + j == j + i
 ```
 
 Here, `test_commutative_addition` would be run
@@ -154,14 +156,15 @@ For example, if you find yourself needing to create a second student often, you 
 ```python
 @pytest.fixture
 def studentB(django_user_model):
-   user = django_user_model.objects.create(username="studentB")
-   user.is_student = True
-   user.save()
-   return user
+    user = django_user_model.objects.create(username="studentB")
+    user.is_student = True
+    user.save()
+    return user
+
 
 def test_two_students(studentB):
-   # do stuff with studentB
-   ...
+    # do stuff with studentB
+    ...
 ```
 
 ```{note}
@@ -175,13 +178,14 @@ anything, use it with `pytest.mark.usefixtures`.
 ```python
 @pytest.fixture
 def all_assigments_quiz(assignment):
-   assignment.is_quiz = True
-   assignment.save()
+    assignment.is_quiz = True
+    assignment.save()
+
 
 @pytest.mark.usefixtures("all_assigments_quiz")
 def test_something(assignment):
-   # test something, but now assignment is a quiz
-   ...
+    # test something, but now assignment is a quiz
+    ...
 ```
 
 ```{admonition} Implementation Detail
